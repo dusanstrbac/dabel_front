@@ -72,7 +72,6 @@ const ProfilPodaci = () => {
                     </div>
                 </div>
             </div>
-
         </div>
     )
 }
