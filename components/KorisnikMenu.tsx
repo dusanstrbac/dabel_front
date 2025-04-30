@@ -59,7 +59,7 @@ export function KorisnikMenu() {
         { icon: <Users className="h-4 w-4" />, text: "Korisnici", href: "/admin/korisnici" },
         { icon: <BadgeDollarSign className="h-4 w-4" />, text: "Cenovnik", href: "/admin/cenovnik" },
         { icon: <Youtube className="h-4 w-4" />, text: "Video uputstva", href: "/video-uputstva" },
-        { icon: <Key className="h-4 w-4" />, text: "Promena lozinke", href: "/profil/lozinka" },
+        { icon: <Key className="h-4 w-4" />, text: "Promena lozinke", href: "/profil/podesavanja" },
     ];
 
 

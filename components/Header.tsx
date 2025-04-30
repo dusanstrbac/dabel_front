@@ -213,7 +213,7 @@ export default function Header() {
                     <Youtube className="h-6 w-6" />
                     <span className="text-[18px]">Video uputstva</span>
                   </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
+                  <Link href="/profil/podesavanja" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
                     <Key className="h-6 w-6" />
                     <span className="text-[18px]">Promena lozinke</span>
                   </Link>
