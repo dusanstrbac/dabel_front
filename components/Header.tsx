@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BoxesIcon, BadgePercent, UserPen, Wallet, Users, BadgeDollarSign, Youtube, LogOutIcon, YoutubeIcon, Key, Package, History, User2} from "lucide-react";
+import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BoxesIcon, BadgePercent, UserPen, Wallet, Users, BadgeDollarSign, Youtube, LogOutIcon, YoutubeIcon, Key, Package, History, User2, LogOut} from "lucide-react";
 import Image from "next/image";
 import {
   NavigationMenu,
@@ -17,12 +17,55 @@ import { Separator } from "./ui/separator";
 import { ScrollArea } from "./ui/scroll-area";
 import { useCart } from "@/contexts/CartContext";
 import KorisnikMenu from "./KorisnikMenu";
+import { useState, useEffect } from "react";
+import { deleteToken, getEmailFromToken, getUsernameFromToken } from "@/lib/auth";
 
 export default function Header() {
 
-  const { cartCount }  = useCart(); // Menja broj artikala u korpi preko localStorage-a
-  // Prebaciti posle na API poziv gde ce preko localStorage-a da se uzima id korisnika
-  const korisnik = 'Dusan';
+  const { cartCount } = useCart();
+  const [email, setEmail] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+
+  const headerMainNav = [ 
+    { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/okov-gradjevinski'},
+    { icon: <Sofa className="w-4 h-4"/>, text: 'Okov nameštaj', href: '/okov-gradjevinski'},
+    { icon: <Rows2 className="w-4 h-4"/>, text: 'Klizni okov za građevinu, nameštaj', href: '/okov-gradjevinski'},
+    { icon: <LinkIcon className="w-4 h-4"/>, text: 'Elementi za pričvršćivanje', href: '/okov-gradjevinski'},
+    { icon: <Lightbulb className="w-4 h-4"/>, text: 'LED rasveta', href: '/okov-gradjevinski'},
+    { icon: <Vault className="w-4 h-4"/>, text: 'Kontrola pristupa', href: '/okov-gradjevinski'},
+    { icon: <Hammer className="w-4 h-4"/>, text: 'Ručni alat', href: '/okov-gradjevinski'},
+  ];
+
+  const menuItems = [
+    { icon: <User2 className="h-6 w-6" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
+    { icon: <History className="h-6 w-6" />, text: "Istorija poručivanja", href: username ? `/${username}/profil/istorija` : '/login' },
+    { icon: <Wallet className="h-6 w-6" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
+    { icon: <Package className="h-6 w-6" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
+    { icon: <Users className="h-6 w-6" />, text: "Korisnici", href: "/admin/korisnici" },
+    { icon: <BadgeDollarSign className="h-6 w-6" />, text: "Cenovnik", href: "/admin/cenovnik" },
+    { icon: <Youtube className="h-6 w-6" />, text: "Video uputstva", href: "/video-uputstva" },
+    { icon: <Key className="h-6 w-6" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
+  ];
+
+  const odjaviKorisnika = () => {
+    const korisnickiToken = localStorage.getItem('token');
+
+    if(!korisnickiToken) {
+      return;
+    } else {
+      deleteToken();
+      window.location.replace('/');
+    }    
+  }
+
+
+
+  useEffect(() => {
+    const usernameFromToken = getUsernameFromToken();
+    setUsername(usernameFromToken);
+    setEmail(getEmailFromToken());
+  }, []);
+
 
   return (
     <header className="w-full h-[138px]">
@@ -31,18 +74,17 @@ export default function Header() {
         <div className="w-full h-[45%] flex items-center px-8">
           {/* Logo */}
           <div>
-            <div className="">
-              <Link href="/">
-                <Image
-                  src="/Dabel-logo-2.png" 
-                  alt="Dabel logo"
-                  height={164}
-                  width={140}
-                  className="h-[75px] object-contain"
-                />
-              </Link>
-            </div>
+            <Link href="/">
+              <Image
+                src="/Dabel-logo-2.png" 
+                alt="Dabel logo"
+                height={164}
+                width={140}
+                className="h-[75px] object-contain"
+              />
+            </Link>
           </div>
+
           {/* Pretraga */}
           <div className="w-[40%] relative ml-16 mr-2">
             <Input
@@ -80,7 +122,7 @@ export default function Header() {
               )}
             </Link>
             {/* NALOG IKONICA */}
-              <KorisnikMenu />
+            <KorisnikMenu />
           </div>  
         </div>
 
@@ -96,49 +138,14 @@ export default function Header() {
                   </NavigationMenuTrigger>
                   <NavigationMenuContent className="min-w-[300px] p-4">
                     <ul className="grid gap-2">
-                      <NavigationMenuLink asChild className="hover:text-red-500">
-                        <Link href="/okov-gradjevinski" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                          <Bolt className="w-4 h-4"/>
-                          <span className="text-[15px]">Okov građevinski</span>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild className="hover:text-red-500">
-                        <Link href="/okov-namestaj" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                          <Sofa className="h-4 w-4" />
-                          <span className="text-[15px]">Okov nameštaj</span>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild className="hover:text-red-500">
-                        <Link href="/klizni-okov" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                          <Rows2 className="h-4 w-4" />
-                          <span className="text-[15px]">Klizni okov za građevinu, nameštaj</span>
-                        </Link>
-                      </NavigationMenuLink>
-                      {/* NAPRAVITI NOVI POD MENU OD OVOG SEGMENTA */}
-                      <NavigationMenuLink asChild className="hover:text-red-500">
-                        <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                          <LinkIcon className="h-4 w-4" />
-                          <span className="text-[15px]">Elementi za pričvršćivanje</span>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild className="hover:text-red-500">
-                        <Link href="/led-rasveta" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                          <Lightbulb className="h-4 w-4" />
-                          <span className="text-[15px]">LED rasveta</span>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild className="hover:text-red-500">
-                        <Link href="/kontrola-pristupa" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                          <Vault className="h-4 w-4" />
-                          <span className="text-[15px]">Kontrola pristupa</span>
-                        </Link>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink asChild className="hover:text-red-500">
-                        <Link href="/rucni-alat" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                          <Hammer className="h-4 w-4" />
-                          <span className="text-[15px]">Ručni alat</span>
-                        </Link>
-                      </NavigationMenuLink>
+                      {headerMainNav.map((item, index) => (
+                        <NavigationMenuLink key={index} asChild className="hover:text-red-500">
+                           <Link href={item.href} className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
+                             {item.icon}
+                             <span className="text-[15px]">{item.text}</span>
+                           </Link>
+                         </NavigationMenuLink>
+                      ))}
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
@@ -179,48 +186,22 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent className="w-full">
                 <SheetHeader>
-                  <SheetTitle>Korisnik</SheetTitle>
+                  <SheetTitle>{email ? email : 'Korisnik'}</SheetTitle>
                   <SheetDescription></SheetDescription>
                   <Separator />
                 </SheetHeader>
-                <div className="pl-2 flex flex-col gap-2">
+                <div className="pl-2 flex flex-col">
                   <ScrollArea>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <User2 className="h-6 w-6" />
-                    <span className="text-[18px]">Moji podaci</span>
-                  </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <History className="h-6 w-6" />
-                    <span className="text-[18px]">Istorija poručivanja</span>
-                  </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <Wallet className="h-6 w-6" />
-                    <span className="text-[18px]">Moje uplate</span>
-                  </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <Package className="h-6 w-6" />
-                    <span className="text-[18px]">Poslata roba</span>
-                  </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <Users className="h-6 w-6" />
-                    <span className="text-[18px]">Korisnici</span>
-                  </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <BadgeDollarSign className="h-6 w-6" />
-                    <span className="text-[18px]">Cenovnik</span>
-                  </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <Youtube className="h-6 w-6" />
-                    <span className="text-[18px]">Video uputstva</span>
-                  </Link>
-                  <Link href="/profil/podesavanja" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <Key className="h-6 w-6" />
-                    <span className="text-[18px]">Promena lozinke</span>
-                  </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <LogOutIcon className="h-6 w-6" />
-                    <span className="text-[18px]">Odjava</span>
-                  </Link>
+                      {menuItems.map((item) => (
+                        <Link href={item.href} key={item.href} className="flex gap-3 items-center pb-4">
+                          <span className="">{item.icon}</span>
+                          <span className="text-2xl">{item.text}</span>
+                        </Link>
+                      ))}
+                        <Link href='#' className="flex gap-3 items-center pb-4">
+                          <LogOut className="w-6 h-6" />
+                          <span className="text-2xl text-red-500" onClick={odjaviKorisnika}>Odjava</span>
+                        </Link>
                   </ScrollArea>
                 </div>
               </SheetContent>
@@ -237,74 +218,25 @@ export default function Header() {
                   <Separator />
                 </SheetHeader>
                 <div className="pl-2 flex flex-col gap-2">
-                  <Accordion type="single" collapsible>
-                    <AccordionItem value="item-1">
-                      <AccordionTrigger className="flex items-center gap-3 pl-2">
-                          <BoxesIcon className="h-6 w-6" />
-                          <span className="text-[18px]">Proizvodi</span>
-                      </AccordionTrigger>
-                      <AccordionContent className="pl-4">
-                      <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                        <Bolt className="h-6 w-6" />
-                        <span className="text-[18px]">Okov građevinski</span>
-                      </Link>
-                      <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                        <Sofa className="h-6 w-6" />
-                        <span className="text-[18px]">Okov nameštaj</span>
-                      </Link>
-                      <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                        <Rows2 className="h-6 w-6" />
-                        <span className="text-[18px]">Klizni okov za građevinu, nameštaj</span>
-                      </Link>
-                      <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                        <LinkIcon className="h-6 w-6" />
-                        <span className="text-[18px]">Elementi za pričvršćivanje</span>
-                      </Link>
-                      <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                        <Lightbulb className="h-6 w-6" />
-                        <span className="text-[18px]">LED rasveta</span>
-                      </Link>
-                      <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                        <Vault className="h-6 w-6" />
-                        <span className="text-[18px]">Kontrola pristupa</span>
-                      </Link>
-                      <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                        <Hammer className="h-6 w-6" />
-                        <span className="text-[18px]">Ručni alat</span>
-                      </Link>
-                      </AccordionContent>
-                    </AccordionItem>
+                  <Accordion type="single" collapsible className="flex flex-col gap-4">
+                    {headerMainNav.map((item, index) => (
+                      <AccordionItem key={index} value={`item-${index}`}>
+                        <AccordionTrigger className="flex items-center gap-3 pl-2">
+                          {item.icon}
+                          <span className="text-[18px]">{item.text}</span>
+                        </AccordionTrigger>
+                        <AccordionContent className="pl-10">
+                          <Link href={item.href} className="flex flex-row items-center gap-3 p-1 hover:bg-gray-100 rounded transition-colors">
+                            <span className="text-[18px]">{item.text}</span>
+                          </Link>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
                   </Accordion>
-
-                  {/* <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <BoxesIcon className="h-6 w-6" />
-                    <span className="text-[18px]">Proizvodi</span>
-                  </Link> */}
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <BadgePercent className="h-6 w-6" />
-                    <span className="text-[18px]">Akcija</span>
-                  </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <LinkIcon className="h-6 w-6" />
-                    <span className="text-[18px]">Novopristigli proizvodi</span>
-                  </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <Heart className="h-6 w-6" />
-                    <span className="text-[18px]">Omiljeni artikli</span>
-                  </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <ShoppingCart className="h-6 w-6" />
-                    <span className="text-[18px]">Korpa</span>
-                  </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <User className="h-6 w-6" />
-                    <span className="text-[18px]">Moj profil</span>
-                  </Link>
                 </div>
               </SheetContent>
             </Sheet>
           </div>
-
         </div>
         {/* Pretraga */}
         <div className="relative mt-3">
