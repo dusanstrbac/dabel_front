@@ -67,11 +67,11 @@ export default function Header() {
           {/* Ikonice */}
           <div className="flex justify-center items-center space-x-6">
             {/* OMILJENI ARTIKLI */}
-            <Link href="/okov-namestaj">
+            <Link href="/heart">
               <Heart className="h-6 w-6 text-gray-500 hover:text-gray-700" />
             </Link>
             {/* KORPA */}
-            <Link href="/okov-namestaj" className="relative">
+            <Link href="/korpa" className="relative">
               <ShoppingCart className="h-6 w-6 text-gray-500 hover:text-gray-700" />
               {cartCount > 0 && (
               <span className="absolute -top-3 -right-3 bg-gradient-to-br from-red-500 to-red-800 text-white text-xs rounded-full h-[20px] w-[20px] flex items-center justify-center border border-black">
@@ -288,7 +288,7 @@ export default function Header() {
                     <LinkIcon className="h-6 w-6" />
                     <span className="text-[18px]">Novopristigli proizvodi</span>
                   </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
+                  <Link href="/heart" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
                     <Heart className="h-6 w-6" />
                     <span className="text-[18px]">Omiljeni artikli</span>
                   </Link>
