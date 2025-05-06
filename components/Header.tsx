@@ -19,12 +19,14 @@ import { useCart } from "@/contexts/CartContext";
 import KorisnikMenu from "./KorisnikMenu";
 import { useState, useEffect } from "react";
 import { deleteToken, getEmailFromToken, getUsernameFromToken } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
 
   const { cartCount } = useCart();
   const [email, setEmail] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const router = useRouter();
 
   const headerMainNav = [ 
     { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/okov-gradjevinski'},
@@ -47,6 +49,10 @@ export default function Header() {
     { icon: <Key className="h-6 w-6" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
   ];
 
+  if(username === 'null') {
+    router.push('/login');
+  }
+
   const odjaviKorisnika = () => {
     const korisnickiToken = localStorage.getItem('token');
 
@@ -58,8 +64,6 @@ export default function Header() {
     }    
   }
 
-
-
   useEffect(() => {
     const usernameFromToken = getUsernameFromToken();
     setUsername(usernameFromToken);
@@ -68,7 +72,7 @@ export default function Header() {
 
 
   return (
-    <header className="w-full h-[138px]">
+    <header className="w-full h-[138px] z-20">
       {/* NAVIGACIJA ZA RACUNAR */}
       <div className="hidden border-b border-gray-200 lg:flex lg:flex-col lg:gap-2">
         <div className="w-full h-[45%] flex items-center px-8">
@@ -102,7 +106,7 @@ export default function Header() {
             </div>
             <div className="flex items-center space-x-2">
               <Mail className="text-gray-500 h-7 w-7" />
-              <span className="text-sm">website@dabel.rs</span>
+              <Link href='/' as="mailto:website@dabel.rs" className="text-sm">website@dabel.rs</Link>
             </div>
           </div>
 
@@ -233,7 +237,6 @@ export default function Header() {
                       </AccordionItem>
                     ))}
                   </Accordion>
-<<<<<<< HEAD
 
                   {/* <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
                     <BoxesIcon className="h-6 w-6" />
@@ -259,8 +262,6 @@ export default function Header() {
                     <User className="h-6 w-6" />
                     <span className="text-[18px]">Moj profil</span>
                   </Link>
-=======
->>>>>>> 4b9e9607cecc5d285c854631ac5261236957e68f
                 </div>
               </SheetContent>
             </Sheet>

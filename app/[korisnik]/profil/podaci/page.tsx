@@ -7,7 +7,7 @@ type Props = {
     };
 };
 
-export function generateMetadata({ params }: Props): Metadata {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: `${params.korisnik} • Podaci`,
     };

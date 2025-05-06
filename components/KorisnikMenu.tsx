@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { 
   User, 
   User2, 
@@ -14,15 +13,10 @@ import {
   LogOut, 
   Wallet
 } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { deleteToken, getEmailFromToken, getUsernameFromToken } from '@/lib/auth';
+import { getEmailFromToken, getUsernameFromToken } from '@/lib/auth';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
+import { DropdownMenuSeparator } from './ui/dropdown-menu';
+import Link from 'next/link';
 
 export function KorisnikMenu() {
   const [isMounted, setIsMounted] = useState(false);
@@ -35,7 +29,7 @@ export function KorisnikMenu() {
     setLoading(false);
     const usernameFromToken = getUsernameFromToken();
     setUsername(usernameFromToken);
-    SetEmail(getEmailFromToken);
+    SetEmail(getEmailFromToken());
   }, []);
 
   if (!isMounted) {
@@ -50,50 +44,22 @@ export function KorisnikMenu() {
     { icon: <User2 className="h-4 w-4" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
     { icon: <History className="h-4 w-4" />, text: "Istorija poručivanja", href: username ? `/${username}/profil/istorija` : '/login' },
     { icon: <Wallet className="h-4 w-4" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
-    { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
+    { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: username ? `$/{username}/profil/posiljke` : '/login' },
     { icon: <Users className="h-4 w-4" />, text: "Korisnici", href: "/admin/korisnici" },
     { icon: <BadgeDollarSign className="h-4 w-4" />, text: "Cenovnik", href: "/admin/cenovnik" },
-    { icon: <Youtube className="h-4 w-4" />, text: "Video uputstva", href: "/video-uputstva" },
+    { icon: <Youtube className="h-4 w-4" />, text: "Video uputstva", href: "/video" },
     { icon: <Key className="h-4 w-4" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
   ];
 
-<<<<<<< HEAD
-    /*
-        Uraditi proveru ukoliko korisnik nije ulogovan
-        
-        if (!username) {
-            return <div className="h-9 w-9 bg-gray-100 rounded-full" />;
-        }  
-
-    */
-
-    const menuItems = [
-        { icon: <User2 className="h-4 w-4" />, text: "Moji podaci", href: username ? `${username}/profil/podaci` : '/profil/podaci' }, // Staviti ako korisnik nije ulogovan da ga salje na /login-page
-        { icon: <History className="h-4 w-4" />, text: "Istorija poručivanja", href: "/profil/istorija" },
-        { icon: <Wallet className="h-4 w-4" />, text: "Moje uplate", href: "/profil/uplate" },
-        { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: "/profil/posiljke" },
-        { icon: <Users className="h-4 w-4" />, text: "Korisnici", href: "/admin/korisnici" },
-        { icon: <BadgeDollarSign className="h-4 w-4" />, text: "Cenovnik", href: "/admin/cenovnik" },
-        { icon: <Youtube className="h-4 w-4" />, text: "Video uputstva", href: "/video" },
-        { icon: <Key className="h-4 w-4" />, text: "Promena lozinke", href: "/profil/podesavanja" },
-    ];
-=======
   const odjaviKorisnika = () => {
-    const korisnickiToken = localStorage.getItem('token');
->>>>>>> 4b9e9607cecc5d285c854631ac5261236957e68f
-
-    if(!korisnickiToken) {
-      return;
-    } else {
-      deleteToken();
-      window.location.replace('/');
-    }    
-  }
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <User className="h-6 w-6 text-gray-500 hover:text-gray-700 cursor-pointer" />
+        <User className="h-6 w-6 text-gray-500 hover:text-gray-700 cursor-pointer z-20" />
       </DropdownMenuTrigger>
       
       <DropdownMenuContent className="w-56 rounded-md border border-gray-200 bg-white p-1 shadow-lg" align="end">
@@ -127,6 +93,5 @@ export function KorisnikMenu() {
     </DropdownMenu>
   );
 }
-
 
 export default KorisnikMenu;

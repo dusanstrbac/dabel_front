@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main className="px-1 flex flex-col items-center gap-6">
+      <main className="px-4 flex flex-col items-center gap-6">
         <HeroImage />
         <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
           <ArticleCard />
@@ -18,8 +18,6 @@ export default function Home() {
           <ArticleCard />
           <ArticleCard />
         </div>
-
-        <AddToCartButton />
       </main>
     </>
   );
