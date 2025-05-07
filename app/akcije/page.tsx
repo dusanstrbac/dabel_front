@@ -39,12 +39,12 @@ const akcije = () => {
                   Sortiraj
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-44">
+              <PopoverContent>
                 <div className="flex flex-col gap-2">
-                  <button onClick={() => {}} className="text-left hover:underline">
+                  <button onClick={() => {}} className="text-left hover:underline hover:bg-gray-400 px-4 py-1">
                     Cena: Rastuće
                   </button>
-                  <button onClick={() => {}} className="text-left hover:underline">
+                  <button onClick={() => {}} className="text-left hover:underline px-4 py-2">
                     Cena: Opadajuće
                   </button>
                 </div>
@@ -73,7 +73,7 @@ const akcije = () => {
 
 
             {/* Paginacija */}
-            <Pagination className="mt-5 mb-5 flex items-center">
+            <Pagination className="my-5 flex items-center">
                 <PaginationContent>
                     <PaginationItem>
                         <PaginationPrevious href="#" />

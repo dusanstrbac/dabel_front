@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: `${params.korisnik} • Podaci`,
     };
-  }
+}
 
 const ProfilPodaci = () => {
     return (

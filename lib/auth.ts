@@ -10,12 +10,14 @@ const mockUser = {
   email: "test@example.com",
   username: 'test',
   password: "1234",
+  role: 'user'
 };
 
 export function generateToken(user: typeof mockUser) {
   const payload = {
     email : user.email,
-    username : user.username
+    username : user.username,
+    role: user.role
   };
 
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' });  // Token važi 1h

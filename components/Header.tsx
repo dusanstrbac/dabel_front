@@ -72,7 +72,7 @@ export default function Header() {
 
 
   return (
-    <header className="w-full h-[138px] z-20">
+    <header className="relative w-full h-[138px] z-[20]">
       {/* NAVIGACIJA ZA RACUNAR */}
       <div className="hidden border-b border-gray-200 lg:flex lg:flex-col lg:gap-2">
         <div className="w-full h-[45%] flex items-center px-8">
@@ -106,7 +106,7 @@ export default function Header() {
             </div>
             <div className="flex items-center space-x-2">
               <Mail className="text-gray-500 h-7 w-7" />
-              <Link href='/' as="mailto:website@dabel.rs" className="text-sm">website@dabel.rs</Link>
+              <Link href='/' as="mailto:website@dabel.rs" className="text-sm hover:text-red-500">website@dabel.rs</Link>
             </div>
           </div>
 
