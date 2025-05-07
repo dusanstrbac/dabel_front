@@ -72,7 +72,7 @@ export default function Header() {
 
 
   return (
-    <header className="w-full h-[138px] z-20">
+    <header className="w-full h-[138px] z-[20] relative">
       {/* NAVIGACIJA ZA RACUNAR */}
       <div className="hidden border-b border-gray-200 lg:flex lg:flex-col lg:gap-2">
         <div className="w-full h-[45%] flex items-center px-8">

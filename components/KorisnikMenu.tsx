@@ -44,7 +44,7 @@ export function KorisnikMenu() {
     { icon: <User2 className="h-4 w-4" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
     { icon: <History className="h-4 w-4" />, text: "Istorija poručivanja", href: username ? `/${username}/profil/istorija` : '/login' },
     { icon: <Wallet className="h-4 w-4" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
-    { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: username ? `$/{username}/profil/posiljke` : '/login' },
+    { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
     { icon: <Users className="h-4 w-4" />, text: "Korisnici", href: "/admin/korisnici" },
     { icon: <BadgeDollarSign className="h-4 w-4" />, text: "Cenovnik", href: "/admin/cenovnik" },
     { icon: <Youtube className="h-4 w-4" />, text: "Video uputstva", href: "/video" },

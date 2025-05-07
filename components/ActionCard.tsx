@@ -7,7 +7,7 @@ import { ShoppingCartIcon } from 'lucide-react';
 const ActionCard = () => {
 
     return (
-        <div className='articleSize relative articleBorder max-w-[320px]'>
+        <div className='articleSize relative articleBorder max-w-[320px] z-2'>
             {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-90 z-10 rounded-[9px]">
             </div>
