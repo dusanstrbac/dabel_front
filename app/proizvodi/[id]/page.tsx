@@ -14,7 +14,7 @@ const Proizvod = () => {
                             width={300}
                             height={300}
                             alt="Proizvod"
-                            className="border border-gray-400 rounded-lg object-contain w-full max-w-[300px] mx-auto"
+                            className="border border-gray-400 rounded-lg object-contain w-full max-w-[400px] mx-auto"
                         />
                         <div className="flex gap-2 justify-start">
                             <Image 
@@ -64,6 +64,8 @@ const Proizvod = () => {
                             className="w-16 border rounded px-2 py-1 text-center"
                             type="number"
                             min="0"
+                            max="50"
+                            defaultValue="1"
                         />
                         <Button className="w-full sm:w-auto px-6 py-2">Dodaj u korpu</Button>
                     </div>

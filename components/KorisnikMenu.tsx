@@ -23,6 +23,7 @@ export function KorisnikMenu() {
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState<string | null>(null);
   const [email, SetEmail] = useState<string | null>(null);
+  const [hasToken, setHasToken] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -30,6 +31,8 @@ export function KorisnikMenu() {
     const usernameFromToken = getUsernameFromToken();
     setUsername(usernameFromToken);
     SetEmail(getEmailFromToken());
+    const token = localStorage.getItem('token');
+    setHasToken(!!token);
   }, []);
 
   if (!isMounted) {
@@ -53,8 +56,13 @@ export function KorisnikMenu() {
 
   const odjaviKorisnika = () => {
     localStorage.removeItem('token');
-    window.location.href = '/login';
+    setHasToken(false);
+    window.location.href = '/';
   };
+
+  const prijaviKorisnika = () => {
+    window.location.href = '/login';
+  }
 
   return (
     <DropdownMenu>
@@ -84,10 +92,16 @@ export function KorisnikMenu() {
         <DropdownMenuSeparator className="my-1" />
         
         <DropdownMenuItem asChild>
-          <button onClick={odjaviKorisnika} className="flex w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm text-red-600 hover:bg-gray-100">
-            <LogOut className="h-4 w-4" />
-            <span>Odjava</span>
-          </button>
+          {hasToken ? (
+            <button onClick={odjaviKorisnika} className="flex w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm text-red-600 hover:bg-gray-100">
+              <LogOut className="h-4 w-4" />
+              <span>Odjava</span>
+            </button> ) : (
+            <button onClick={prijaviKorisnika} className="flex w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm hover:bg-gray-100">
+              <LogOut className="h-4 w-4" />
+              <span>Prijavi se</span>
+            </button>
+            )}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

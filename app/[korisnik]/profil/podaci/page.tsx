@@ -8,8 +8,10 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const korisnik = await params.korisnik; 
+
     return {
-      title: `${params.korisnik} • Podaci`,
+        title: `${korisnik} • Podaci`,
     };
 }
 
