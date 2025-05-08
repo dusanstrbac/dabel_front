@@ -21,6 +21,7 @@ import { useState, useEffect } from "react";
 import { deleteToken, getEmailFromToken, getUsernameFromToken } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 
+
 export default function Header() {
 
   const { cartCount } = useCart();
@@ -32,7 +33,13 @@ export default function Header() {
     { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/okov-gradjevinski'},
     { icon: <Sofa className="w-4 h-4"/>, text: 'Okov nameštaj', href: '/okov-gradjevinski'},
     { icon: <Rows2 className="w-4 h-4"/>, text: 'Klizni okov za građevinu, nameštaj', href: '/okov-gradjevinski'},
-    { icon: <LinkIcon className="w-4 h-4"/>, text: 'Elementi za pričvršćivanje', href: '/okov-gradjevinski'},
+    { icon: <LinkIcon className="w-4 h-4"/>, text: 'Elementi za pričvršćivanje', href: '/okov-gradjevinski', subMenuItems:[{ icon: <text className="w-4 h-4"/>, text: 'Spojnice', href: '/okov-gradjevinski'},
+      { icon: <text className="w-4 h-4"/>, text: 'Ručke', href: '/okov-gradjevinski'},
+      { icon: <text className="w-4 h-4"/>, text: 'Delovi za sajle', href: '/okov-gradjevinski'},
+      { icon: <text className="w-4 h-4"/>, text: 'Tiplovi', href: '/okov-gradjevinski'},
+      { icon: <text className="w-4 h-4"/>, text: 'Drvo', href: '/okov-gradjevinski'},
+      { icon: <text className="w-4 h-4"/>, text: 'Podloške, navrtke', href: '/okov-gradjevinski'},
+      { icon: <text className="w-4 h-4"/>, text: 'Kapice', href: '/okov-gradjevinski'},]},
     { icon: <Lightbulb className="w-4 h-4"/>, text: 'LED rasveta', href: '/okov-gradjevinski'},
     { icon: <Vault className="w-4 h-4"/>, text: 'Kontrola pristupa', href: '/okov-gradjevinski'},
     { icon: <Hammer className="w-4 h-4"/>, text: 'Ručni alat', href: '/okov-gradjevinski'},
@@ -140,15 +147,42 @@ export default function Header() {
                   <NavigationMenuTrigger className="text-[20px] font-normal bg-transparent hover:bg-transparent data-[state=open]:bg-transparent">
                     Proizvodi
                   </NavigationMenuTrigger>
-                  <NavigationMenuContent className="min-w-[300px] p-4">
-                    <ul className="grid gap-2">
+                  <NavigationMenuContent className="min-w-[300px] p-4 relative !overflow-visible z-50">
+                    <ul className="grid gap-2 relative">
                       {headerMainNav.map((item, index) => (
-                        <NavigationMenuLink key={index} asChild className="hover:text-red-500">
-                           <Link href={item.href} className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                             {item.icon}
-                             <span className="text-[15px]">{item.text}</span>
-                           </Link>
-                         </NavigationMenuLink>
+                        <li key={index} className="relative group">
+                          <NavigationMenuLink asChild className="hover:text-red-500">
+                            <Link href={item.href} className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
+                              {item.icon}
+                              <span className="text-[15px] flex items-center justify-between w-full group">
+                                {item.text}
+                                {item.subMenuItems && (
+                                  <span className="ml-auto relative flex items-center text-[16px]">
+                                    <span className="transition-all duration-200 group-hover:opacity-0 group-hover:translate-x-1">
+                                      &gt;
+                                    </span>
+                                    <span className="absolute ml-0.5 transition-all duration-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-0">
+                                      &lt;
+                                    </span>
+                                  </span>
+                                )}
+                              </span>
+                            </Link>
+                          </NavigationMenuLink> 
+
+                          {/* Ako ima podnavigaciju */}
+                          {item.subMenuItems && (
+                            <ul className="absolute top-0 left-full ml-2 w-52 bg-white border border-gray-200 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60]">
+                              {item.subMenuItems.map((subItem, subIndex) => (
+                                <li key={subIndex}>
+                                  <Link href={subItem.href} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600">
+                                    {subItem.text}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
                       ))}
                     </ul>
                   </NavigationMenuContent>
@@ -222,21 +256,41 @@ export default function Header() {
                   <Separator />
                 </SheetHeader>
                 <div className="pl-2 flex flex-col gap-2">
-                  <Accordion type="single" collapsible className="flex flex-col gap-4">
+                <Accordion type="single" collapsible className="flex flex-col gap-4">
                     {headerMainNav.map((item, index) => (
                       <AccordionItem key={index} value={`item-${index}`}>
                         <AccordionTrigger className="flex items-center gap-3 pl-2">
                           {item.icon}
                           <span className="text-[18px]">{item.text}</span>
                         </AccordionTrigger>
+
                         <AccordionContent className="pl-10">
-                          <Link href={item.href} className="flex flex-row items-center gap-3 p-1 hover:bg-gray-100 rounded transition-colors">
-                            <span className="text-[18px]">{item.text}</span>
-                          </Link>
+                          {item.text === "Elementi za pričvršćivanje" && item.subMenuItems ? (
+                            <ul className="flex flex-col gap-1">
+                              {item.subMenuItems.map((subItem, subIndex) => (
+                                <li key={subIndex}>
+                                  <Link
+                                    href={subItem.href}
+                                    className="block px-2 py-1 text-[16px] text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                                  >
+                                    {subItem.text}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <Link
+                              href={item.href}
+                              className="flex flex-row items-center gap-3 p-1 hover:bg-gray-100 rounded transition-colors"
+                            >
+                              <span className="text-[18px]">{item.text}</span>
+                            </Link>
+                          )}
                         </AccordionContent>
                       </AccordionItem>
                     ))}
                   </Accordion>
+
 
                   {/* <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
                     <BoxesIcon className="h-6 w-6" />
