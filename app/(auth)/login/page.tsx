@@ -8,19 +8,23 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { setCookie } from "cookies-next";
+import { Loader2 } from "lucide-react";
 
-// Sema za validaciju
+// Validation schema
 const formSchema = z.object({
-  email: z.string().email("Unesite ispravan email"),
+  email: z.string().min(1, "Email je obavezan").email("Unesite ispravan email"),
   lozinka: z.string().min(4, "Lozinka mora imati najmanje 4 karaktera"),
 });
+
+type FormValues = z.infer<typeof formSchema>;
 
 export default function LoginForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
@@ -28,20 +32,34 @@ export default function LoginForm() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: FormValues) {
     setLoading(true);
     setError(null);
 
     try {
-      // API URL za login (morate promeniti ovo na vaš backend endpoint)
-      const { data } = await axios.post("http://localhost:3000/api/auth/login", {
+      const { data } = await axios.post("/api/auth/login", {
         email: values.email,
         password: values.lozinka,
       });
-      console.log(data.data);
-      localStorage.setItem("token", data.token);
 
-      router.push("/");
+      if (data.success) {
+        setCookie("auth_token", data.token, {
+          maxAge: 60 * 60 * 24 * 7, // Trajanje u periodu od 7 dana
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+        });
+
+        setCookie("user_email", values.email, {
+          maxAge: 60 * 60 * 24 * 7, // Kolacic traje 1 nedelju
+          path: "/",
+        });
+
+        router.push("/");
+        router.refresh();
+      } else {
+        setError(data.message || "Došlo je do greške prilikom prijave");
+      }
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError(err.response?.data?.message || err.message);
@@ -57,50 +75,65 @@ export default function LoginForm() {
     <div className="mx-auto max-w-md space-y-6 pt-10">
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-bold">Prijava</h1>
-        <p className="text-gray-500">Popunite polja ispod da biste se prijavili</p>
+        <p className="text-muted-foreground">Unesite svoje podatke za pristup nalogu</p>
       </div>
 
+      {error && (
+        <div className="rounded-md bg-destructive/15 p-4">
+          <p className="text-sm text-destructive">{error}</p>
+        </div>
+      )}
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Email polje */}
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
               <FormItem>
-                <div className="flex justify-between items-center">
-                  <FormLabel>Email</FormLabel>
-                  <FormMessage />
-                </div>
+                <FormLabel>Email adresa</FormLabel>
                 <FormControl>
-                  <Input placeholder="ime@gmail.com" {...field} className="mt-1" />
+                  <Input
+                    placeholder="ime@example.com"
+                    {...field}
+                    autoComplete="email"
+                    disabled={loading}
+                  />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
 
-          {/* Lozinka polje */}
           <FormField
             control={form.control}
             name="lozinka"
             render={({ field }) => (
               <FormItem>
-                <div className="flex justify-between items-center">
-                  <FormLabel>Lozinka</FormLabel>
-                  <FormMessage />
-                </div>
+                <FormLabel>Lozinka</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} className="mt-1" />
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    {...field}
+                    autoComplete="current-password"
+                    disabled={loading}
+                  />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
 
-          {/* Prikazivanje greške */}
-          {error && <p className="text-red-500">{error}</p>}
-
-          <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
-            {loading ? "Prijavljivanje..." : "Prijava"}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Prijavljivanje...
+              </>
+            ) : (
+              "Prijavi se"
+            )}
           </Button>
         </form>
       </Form>

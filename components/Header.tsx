@@ -17,16 +17,43 @@ import { Separator } from "./ui/separator";
 import { ScrollArea } from "./ui/scroll-area";
 import { useCart } from "@/contexts/CartContext";
 import KorisnikMenu from "./KorisnikMenu";
-import { useState, useEffect } from "react";
-import { deleteToken, getEmailFromToken, getUsernameFromToken } from "@/lib/auth";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
+import { deleteCookie, getCookie } from "cookies-next";
 
 export default function Header() {
 
   const { cartCount } = useCart();
   const [email, setEmail] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
+
+  
+  useEffect(() => {
+    const fetchData = async() => {
+      try {
+        const token = await getCookie('auth_token');
+        const user = await getCookie('user_email');
+
+        if(token && user) {
+          setIsLoggedIn(true);
+          setUsername(user as string);
+          setEmail(user as string);
+        } else {
+          setIsLoggedIn(false);
+          setUsername(null)
+          setEmail(null);
+        }
+      } catch(err) {
+        console.log(err);
+        setIsLoggedIn(false);
+      }
+    };
+    fetchData();
+  }, [])
+
 
   const headerMainNav = [ 
     { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/okov-gradjevinski'},
@@ -38,49 +65,32 @@ export default function Header() {
     { icon: <Hammer className="w-4 h-4"/>, text: 'Ručni alat', href: '/okov-gradjevinski'},
   ];
 
+  // OBJEKAT KOJI SE VEZUJE ZA TELEFONSKI MENU KORISNIKA
   const menuItems = [
     { icon: <User2 className="h-6 w-6" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
     { icon: <History className="h-6 w-6" />, text: "Istorija poručivanja", href: username ? `/${username}/profil/istorija` : '/login' },
     { icon: <Wallet className="h-6 w-6" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
     { icon: <Package className="h-6 w-6" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
-    { icon: <Users className="h-6 w-6" />, text: "Korisnici", href: "/admin/korisnici" },
+    { icon: <Users className="h-6 w-6" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : '/login' },
     { icon: <BadgeDollarSign className="h-6 w-6" />, text: "Cenovnik", href: "/admin/cenovnik" },
     { icon: <Youtube className="h-6 w-6" />, text: "Video uputstva", href: "/video-uputstva" },
     { icon: <Key className="h-6 w-6" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
   ];
 
-  if(username === 'null') {
+  const odjaviKorisnika = () => {
+    deleteCookie('auth_token');
+    deleteCookie('user_email');
+    window.location.href = '/';
+  }
+
+  const prijaviKorisnika = () => {
     router.push('/login');
   }
 
-  const odjaviKorisnika = () => {
-    const korisnickiToken = localStorage.getItem('token');
-
-    if(!korisnickiToken) {
-      return;
-    } else {
-      deleteToken();
-      window.location.replace('/');
-    }    
-  }
-
-  useEffect(() => {
-    const usernameFromToken = getUsernameFromToken();
-    setUsername(usernameFromToken);
-    setEmail(getEmailFromToken());
-  }, []);
-
-
   return (
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <header className="relative w-full h-[138px] z-[20]">
-=======
+
     <header className="w-full h-[138px] z-[20] relative">
->>>>>>> 0362e87d0872c18faf5b070bdcabd23fdf9cd919
-=======
-    <header className="w-full h-[138px] z-[20] relative">
->>>>>>> 7fab4cddb12693e63775e359c424dc5edbf2e090
+
       {/* NAVIGACIJA ZA RACUNAR */}
       <div className="hidden border-b border-gray-200 lg:flex lg:flex-col lg:gap-2">
         <div className="w-full h-[45%] flex items-center px-8">
@@ -157,6 +167,8 @@ export default function Header() {
                              <span className="text-[15px]">{item.text}</span>
                            </Link>
                          </NavigationMenuLink>
+
+
                       ))}
                     </ul>
                   </NavigationMenuContent>
@@ -204,16 +216,22 @@ export default function Header() {
                 </SheetHeader>
                 <div className="pl-2 flex flex-col">
                   <ScrollArea>
-                      {menuItems.map((item) => (
-                        <Link href={item.href} key={item.href} className="flex gap-3 items-center pb-4">
-                          <span className="">{item.icon}</span>
-                          <span className="text-2xl">{item.text}</span>
-                        </Link>
-                      ))}
-                        <Link href='#' className="flex gap-3 items-center pb-4">
-                          <LogOut className="w-6 h-6" />
-                          <span className="text-2xl text-red-500" onClick={odjaviKorisnika}>Odjava</span>
-                        </Link>
+                    {menuItems.map((item, index) => (
+                      <Link href={item.href} key={`${item.href}-${item.text}`} className="flex gap-3 items-center pb-4">
+                        <span className="">{item.icon}</span>
+                        <span className="text-2xl">{item.text}</span>
+                      </Link>
+                    ))}
+                      {isLoggedIn ? (
+                        <button onClick={odjaviKorisnika} className="flex w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm text-red-600 hover:bg-gray-100">
+                          <LogOut className="h-4 w-4" />
+                          <span>Odjava</span>
+                        </button> ) : (
+                        <button onClick={prijaviKorisnika} className="flex w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm hover:bg-gray-100">
+                          <LogOut className="h-4 w-4" />
+                          <span>Prijavi se</span>
+                        </button>
+                        )} 
                   </ScrollArea>
                 </div>
               </SheetContent>

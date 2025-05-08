@@ -1,46 +1,31 @@
+// app/api/auth/login/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { setCookie } from "cookies-next";
+import { mockUsers } from "@/app/data/mockUsers";
 
-import { generateToken } from "@/lib/auth";
-import { NextResponse } from "next/server";
 
-const mockUser = {
-  email: "test@example.com",
-  username: 'test',
-  password: "1234",
-};
-
-const verifyPassword = (inputPassword: string, storedPassword: string) => {
-  return inputPassword === storedPassword;
-};
-
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const { email, password } = await req.json(); 
 
-    if (!email || !password) {
-      return NextResponse.json(
-        { message: "Email i lozinka su obavezni" },
-        { status: 400 }
-      );
-    }
+    const user = mockUsers.find(user => user.email === email && user.password === password);
 
-    if (mockUser.email == email && verifyPassword(password, mockUser.password)) {
-      const token = generateToken(mockUser);
-      console.log('Generisani token: ', token);
-
-      return NextResponse.json({
-        message: 'Uspesno ste se prijavili',
-        token
+    if (user) {
+      setCookie("auth_token", user.token, {
+        maxAge: 60 * 60 * 24 * 7, // 1 nedelja
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
       });
-    } else {
-      return NextResponse.json({
-        message: 'Pogresni emaili ili lozinka'
-      }, { status: 401 });
+
+      return NextResponse.json({ success: true, token: user.token });
     }
-  } catch (error) {
-    console.error("Login error:", error);
-    return NextResponse.json(
-      { message: "Došlo je do greške prilikom prijavljivanja" },
-      { status: 500 }
-    );
+
+    // Ako email i lozinka nisu tačni
+    return NextResponse.json({ success: false, message: "Pogrešan email ili lozinka" }, { status: 401 });
+
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ message: "Došlo je do greške prilikom prijavljivanja" }, { status: 500 });
   }
 }
