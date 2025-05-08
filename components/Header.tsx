@@ -73,10 +73,14 @@ export default function Header() {
 
   return (
 <<<<<<< HEAD
+<<<<<<< HEAD
     <header className="relative w-full h-[138px] z-[20]">
 =======
     <header className="w-full h-[138px] z-[20] relative">
 >>>>>>> 0362e87d0872c18faf5b070bdcabd23fdf9cd919
+=======
+    <header className="w-full h-[138px] z-[20] relative">
+>>>>>>> 7fab4cddb12693e63775e359c424dc5edbf2e090
       {/* NAVIGACIJA ZA RACUNAR */}
       <div className="hidden border-b border-gray-200 lg:flex lg:flex-col lg:gap-2">
         <div className="w-full h-[45%] flex items-center px-8">
