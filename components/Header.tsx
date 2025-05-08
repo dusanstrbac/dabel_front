@@ -18,7 +18,6 @@ import { ScrollArea } from "./ui/scroll-area";
 import { useCart } from "@/contexts/CartContext";
 import KorisnikMenu from "./KorisnikMenu";
 import { useState, useEffect } from "react";
-import { deleteToken, getEmailFromToken, getUsernameFromToken } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 
 
@@ -31,7 +30,7 @@ export default function Header() {
 
   const headerMainNav = [ 
     { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/okov-gradjevinski'},
-    { icon: <Sofa className="w-4 h-4"/>, text: 'Okov nameštaj', href: '/okov-gradjevinski'},
+    { icon: <Sofa className="w-4 h-4"/>, text: 'Okov nameštaj', href: '/okov-namestaj'},
     { icon: <Rows2 className="w-4 h-4"/>, text: 'Klizni okov za građevinu, nameštaj', href: '/okov-gradjevinski'},
     { icon: <LinkIcon className="w-4 h-4"/>, text: 'Elementi za pričvršćivanje', href: '/okov-gradjevinski', subMenuItems:[{ icon: <text className="w-4 h-4"/>, text: 'Spojnice', href: '/okov-gradjevinski'},
       { icon: <text className="w-4 h-4"/>, text: 'Ručke', href: '/okov-gradjevinski'},
@@ -66,15 +65,11 @@ export default function Header() {
     if(!korisnickiToken) {
       return;
     } else {
-      deleteToken();
       window.location.replace('/');
     }    
   }
 
   useEffect(() => {
-    const usernameFromToken = getUsernameFromToken();
-    setUsername(usernameFromToken);
-    setEmail(getEmailFromToken());
   }, []);
 
 

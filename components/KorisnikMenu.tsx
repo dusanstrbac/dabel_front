@@ -13,23 +13,43 @@ import {
   LogOut, 
   Wallet
 } from 'lucide-react';
-import { getEmailFromToken, getUsernameFromToken } from '@/lib/auth';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import { DropdownMenuSeparator } from './ui/dropdown-menu';
 import Link from 'next/link';
+import { deleteCookie, getCookie } from 'cookies-next';
 
 export function KorisnikMenu() {
   const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState<string | null>(null);
-  const [email, SetEmail] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
     setLoading(false);
-    const usernameFromToken = getUsernameFromToken();
-    setUsername(usernameFromToken);
-    SetEmail(getEmailFromToken());
+    // Provera postojanja kolacica
+    const fetchData = async() => {
+      try {
+        const token = await getCookie('auth_token');
+        const user = await getCookie('user_email');
+
+        if(token && user) {
+          setIsLoggedIn(true);
+          setUsername(user as string);
+          setEmail(user as string);
+        } else {
+          setIsLoggedIn(false);
+          setUsername(null)
+          setEmail(null);
+        }
+      } catch(err) {
+        console.log(err);
+        setIsLoggedIn(false);
+      }
+    };
+    fetchData();
+
   }, []);
 
   if (!isMounted) {
@@ -45,14 +65,19 @@ export function KorisnikMenu() {
     { icon: <History className="h-4 w-4" />, text: "Istorija poručivanja", href: username ? `/${username}/profil/istorija` : '/login' },
     { icon: <Wallet className="h-4 w-4" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
     { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
-    { icon: <Users className="h-4 w-4" />, text: "Korisnici", href: "/admin/korisnici" },
+    { icon: <Users className="h-4 w-4" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : '/login' },
     { icon: <BadgeDollarSign className="h-4 w-4" />, text: "Cenovnik", href: "/admin/cenovnik" },
     { icon: <Youtube className="h-4 w-4" />, text: "Video uputstva", href: "/video" },
     { icon: <Key className="h-4 w-4" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
   ];
 
   const odjaviKorisnika = () => {
-    localStorage.removeItem('token');
+    deleteCookie('auth_token');
+    deleteCookie('auth_email');
+    window.location.href = '/';
+  };
+
+  const prijaviKorisnika = () => {
     window.location.href = '/login';
   };
 
@@ -84,10 +109,16 @@ export function KorisnikMenu() {
         <DropdownMenuSeparator className="my-1" />
         
         <DropdownMenuItem asChild>
-          <button onClick={odjaviKorisnika} className="flex w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm text-red-600 hover:bg-gray-100">
-            <LogOut className="h-4 w-4" />
-            <span>Odjava</span>
-          </button>
+          {isLoggedIn ? (
+            <button onClick={odjaviKorisnika} className="flex cursor-pointer w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm text-red-600 hover:bg-gray-100">
+              <LogOut className="h-4 w-4" />
+              <span>Odjava</span>
+            </button> ) : (
+            <button onClick={prijaviKorisnika} className="flex cursor-pointer w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm hover:bg-gray-100">
+              <LogOut className="h-4 w-4" />
+              <span>Prijavi se</span>
+            </button>
+            )} 
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
