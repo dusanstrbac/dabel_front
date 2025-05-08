@@ -72,7 +72,7 @@ const novo = () => {
             <Pagination className="mt-5 mb-5 flex items-center">
                 <PaginationContent>
                     <PaginationItem>
-                        <PaginationPrevious href="#" />
+                        <PaginationPrevious href="#">Prethodna</PaginationPrevious>
                     </PaginationItem>
                     <PaginationItem>
                         <PaginationLink href="#">1</PaginationLink>
@@ -81,7 +81,7 @@ const novo = () => {
                         <PaginationEllipsis />
                     </PaginationItem>
                     <PaginationItem>
-                        <PaginationNext href="#" />
+                        <PaginationNext href="#">Sledeca</PaginationNext>
                     </PaginationItem>
                 </PaginationContent>
             </Pagination>

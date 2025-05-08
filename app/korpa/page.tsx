@@ -4,51 +4,80 @@ import { Button } from "@/components/ui/button";
 import {Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-
-// Primer podataka o artiklima
-const articles = [
-    {
-      imageUrl: "korpa1.jpg",
-      name: "Kvaka šild za vrata JELENA B-Ni 90/42/254/10/108/8/9 .Klj DBP0 1",
-      sifra: "Šifra proizvoda: 0101095",
-      barkod: "Barkod: 8605004250936",
-      stanje: "Artikal nije na stanju do: 15.12.2025!",
-      jm: "KD",
-      cena: 929.50,
-      pakovanje: 4.00,
-      kolicina: 8.00
-    },
-    {
-      imageUrl: "korpa2.jpg",
-      name: "Nosač police konzolni N1103 Bela 250x300/49/0,9mm Q",
-      sifra: "Šifra proizvoda: 3304094",
-      barkod: "Barkod: 8605004204519",
-      stanje: "",
-      jm: "KD",
-      cena: 68.75,
-      pakovanje: 20.00,
-      kolicina: 20.00
-    },
-    // Dodajte još artikala po potrebi
-];
+import React, { useEffect } from "react";
+import NaruciButton from "@/components/ui/NaruciButton";
+  
 
 
 
 const Korpa = () => {
 
+    //primer podataka o artiklima
+    const [articleList, setArticleList] = useState([
+        {
+          imageUrl: "korpa1.jpg",
+          name: "Kvaka šild za vrata JELENA B-Ni 90/42/254/10/108/8/9 .Klj DBP0 1",
+          sifra: "Šifra proizvoda: 0101095",
+          barkod: "Barkod: 8605004250936",
+          stanje: "Artikal nije na stanju do: 15.12.2025!",
+          jm: "KD",
+          cena: 929.5,
+          pakovanje: 4.0,
+          kolicina: 8.0,
+        },
+        {
+          imageUrl: "korpa2.jpg",
+          name: "Nosač police konzolni N1103 Bela 250x300/49/0,9mm Q",
+          sifra: "Šifra proizvoda: 3304094",
+          barkod: "Barkod: 8605004204519",
+          stanje: "",
+          jm: "KD",
+          cena: 68.75,
+          pakovanje: 20.0,
+          kolicina: 20.0,
+        },
+    ]);
+    
+
+    //prazni celu korpu
+    const isprazniKorpu = () => {
+        setArticleList([]);
+        setQuantities([]);
+    };
+      
+
+
+    //brise jedan artikal iz korpe
+    const removeArticle = (index: number) => {
+        const updatedArticles = [...articleList];
+        updatedArticles.splice(index, 1);
+      
+        const updatedQuantities = [...quantities];
+        updatedQuantities.splice(index, 1);
+      
+        setArticleList(updatedArticles);
+        setQuantities(updatedQuantities);
+    };
+      
+    
+    
+
+    //mapira artikle??? ne znam sta ovo bese radi
     const [quantities, setQuantities] = useState(
-        articles.map((article) => article.kolicina)
+        articleList.map((article) => article.kolicina)
     );
 
+
+    //izracunavanje ukupne cene koja treba da se plati
     const totalAmount = quantities.reduce((sum, quantity, index) => {
-        const rounded = getRoundedQuantity(quantity, articles[index].pakovanje)
-        return sum + rounded * articles[index].cena;
+        const rounded = getRoundedQuantity(quantity, articleList[index].pakovanje)
+        return sum + rounded * articleList[index].cena;
     }, 0);
 
     const totalAmountWithPDV = totalAmount * 1.2;
 
     
-
+    //fja za zaokruzivanje na sledeci moguci br pakovanja
     function getRoundedQuantity(requested: number, packSize: number) {
         if (requested <= 0 || isNaN(requested)) return 0;
         return requested <= packSize
@@ -57,18 +86,24 @@ const Korpa = () => {
     }
     
 
+    
+      
+
+    
+    
+
     return (
-        <div className="p-4">
-          
-            <div className="w-full mx-auto flex justify-between items-center p-2">
-                
-                {/*Naslov*/}
-                <h1 className="font-bold text-3xl">Pregled korpe</h1>
-                <Button variant={"outline"} className="lg:px-6 cursor-pointer">Isprazni korpu</Button>
+
+        
+        <div className="flex flex-col p-2 md:p-5">
+            {/*NASLOV*/}
+            <div className="flex flex-wrap justify-between items-center gap-2">
+                <h1 className="font-bold text-lg">Pregled korpe</h1>
+                <Button onClick={isprazniKorpu} variant={"outline"} className="cursor-pointer">Isprazni korpu</Button>
             </div>
 
             {/*DESKTOP TABELA*/}
-            <div className="overflow-x-auto p-2 w-full hidden lg:block">
+            <div className="flex-col flex-wrap py-3 hidden lg:block">
                 <Table className="">
                     <TableHeader>
                         <TableRow className="">
@@ -78,7 +113,7 @@ const Korpa = () => {
                         <TableHead className="text-xl text-center font-light">Cena</TableHead>
                         <TableHead className="text-xl text-center font-light">Pakovanje</TableHead>
                         <TableHead className="text-xl justify-center font-light">
-                                <div className="flex flex-col items-center justify-center h-full text-center text-xl font-light">
+                                <div className="flex flex-col text-center font-light">
                                     <span>Trebovana</span>
                                     <span>količina</span>
                                 </div>
@@ -95,10 +130,16 @@ const Korpa = () => {
                     </TableHeader>
                     
                     <TableBody>
-                        {articles.map((article, index) => (
-                        <TableRow key={index}>
+
+                        {articleList.length === 0 && (
+                            <p className="italic w-full text-center py-4">Ni jedan artikal nije dodat u korpu.</p>
+                        )}
+
+
+                        {articleList.map((article, index) => (
+                        <TableRow key={index} className="items-center flex-col flex-wrap">
                             <TableCell  className="text-center">
-                                <img src={article.imageUrl} alt={article.name} className="w-16 h-16 object-cover mx-auto" />
+                                <img src={article.imageUrl} alt={article.name} className="w-16 h-16 object-cover" />
                             </TableCell>
                             <TableCell>
                                 <div className="flex flex-col">
@@ -145,7 +186,7 @@ const Korpa = () => {
                             </TableCell>
                                 
                             <TableCell>
-                                <Button className="">Ukloni</Button>
+                                <Button onClick={() => removeArticle(index)}>Ukloni</Button>
                             </TableCell>
                         </TableRow>
                         ))}
@@ -153,7 +194,7 @@ const Korpa = () => {
 
                     <TableFooter>
                         <TableRow>
-                            {/* Prvih 5 ćelija ostaje prazno jer tamo nema ukupnog sabiranja */}
+                            {/* Prvih 6 ćelija ostaje prazno jer tamo nema ukupnog sabiranja */}
                             
                             <TableCell className="text-center font-bold">Ukupno:</TableCell>
                             <TableCell colSpan={6}></TableCell>
@@ -171,30 +212,31 @@ const Korpa = () => {
                         </TableRow>
                     </TableFooter>
                 </Table>
+
+                {/*DUGME NARUCI*/}
+                <div className="flex flex-wrap justify-end py-2"><NaruciButton/></div>
             </div>
             
-            {/*DUGME NARUCI*/}
-            <div className="hidden lg:block w-full mx-auto justify-end text-right p-2">
-                <Button variant={"outline"} className="lg:px-6 cursor-pointer">Naruci</Button>
-            </div>
+            
+            
 
 
             {/*TABELA PHONE*/}
-            <div className="space-y-4 block lg:hidden">
-                {articles.map((articles, index) => (
-                    <Card key={index} className="p-3 shadow-md flex flex-col sm:flex-row gap-1">
-                            <img src={articles.imageUrl} alt={articles.name} className="w-50 h-auto object-contain" />
-                        <CardContent className="p-0 flex-1 space-y-1 text-sm">
-                            <h2 className="font-semibold text-base">{articles.name}</h2>
-                            <p className="text-xs text-muted-foreground">{articles.sifra}</p>
-                            <p className="text-xs text-muted-foreground">{articles.barkod}</p>
-                            <p className="text-xs font-light">Jedinica mere:{articles.jm}</p>
-                            <p className="text-lg font-bold text-red-600">{articles.cena} RSD</p>
-                            
-                            
+            <div className="py-2 block lg:hidden">
+                {articleList.map((articles, index) => (
 
-                            <div className="grid grid-cols-2 gap">
-                                <span>Trebovana količina:
+                    <Card key={index} className="p-3 shadow-md flex sm:flex-row gap-1 items-center">
+                            <img src={articles.imageUrl} alt={articles.name} className="w-50 h-auto object-contain" />
+                        <CardContent className="py-5 flex-1 items-center">
+                            <h2 className="flex-wrap font-semibold text-base">{articles.name}</h2>
+                            <div className="flex-col flex-wrap py-1">
+                                <p className="text-xs text-muted-foreground">{articles.sifra}</p>
+                                <p className="text-xs text-muted-foreground">{articles.barkod}</p>
+                                <p className="text-xs text-muted-foreground">Jedinica mere: {articles.jm}</p>
+                                <p className="text-lg font-bold text-red-600">{articles.cena} RSD</p>
+                            </div>
+                            <div className="ml-auto flex-col flex-wrap">
+                                <span>Trebovana količina: 
                                     <input
                                         type="number"
                                         min="0"
@@ -222,29 +264,30 @@ const Korpa = () => {
                                     <span>Kolicina: {getRoundedQuantity(quantities[index], articles.pakovanje)}</span>
                                 </div>
 
-                                <div className="mt-3 flex flex-col w-full">
+                                <div className="flex flex-col flex-wrap">
                                     <span className="whitespace-nowrap font-medium">Iznos: {(getRoundedQuantity(quantities[index], articles.pakovanje) * articles.cena).toFixed(2)} RSD</span>
                                     <span className="whitespace-nowrap font-bold">Iznos sa PDV: {(getRoundedQuantity(quantities[index], articles.pakovanje) * articles.cena * 1.2).toFixed(2)} RSD</span>
                                 </div>
                             </div>
 
                             {articles.stanje && (
-                            <p className="text-xs text-red-500">{articles.stanje}</p>
+                                <p className="text-xs text-red-500">{articles.stanje}</p>
                             )}
                         </CardContent>
                     </Card>
                 ))}
 
-                    <div className="grid grid-cols-2 text-sm font-semibold pt-4 border-t gap-y-1">
-                        <div className="flex justify-between">Ukupno (bez PDV):</div>
+                    <div className="flex items-center justify-between font-semibold py-5 gap-2">
+                        <div className="whitespace-nowrap flex flex-wrap">Ukupno (bez PDV):</div>
                         <div className="whitespace-nowrap text-right">{totalAmount.toFixed(2)} RSD</div>
-                        
-                        <div className="flex justify-between">Ukupno (sa PDV):</div>
-                        <div className="whitespace-nowrap text-right text-lg font-bold text-red-600">{totalAmountWithPDV.toFixed(2)} RSD</div>
+                    </div>
+                    <div className="flex flex-wrap justify-between items-center font-semibold">
+                        <div className="flex flex-wrap">Ukupno (sa PDV):</div>
+                        <div className="whitespace-nowrap text-right text-red-600">{totalAmountWithPDV.toFixed(2)} RSD</div>
                     </div>
                 
                 <div className="flex justify-end pt-2">
-                    <Button className="text-white bg-red-600 hover:bg-red-700">Naruči</Button>
+                    <div className=""><NaruciButton/></div>
                 </div>
             </div>
             
