@@ -1,36 +1,25 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { mockUsers } from '@/app/data/mockUsers';
+import { NextResponse } from 'next/server';
 
-const mockBaza = [
-  {
-    ime: "Dusan Strbac",
-    email: "dusan@gmail.com",
-    password: "1234",
-    token: "0987654321abcdef",
-    username: "komercijalista",
-    mobilni: "+381607292777",
-    firma: {
-      naziv_firme: "Dusan Express",
-      lokacija: "Bircaninova 52",
-      telefon_firma: "+123156346435",
-      drzava: "Srbija",
-      delatnost: "Brza posta",
-      MB: "07527942",
-      PIB: "100119190",
+export async function GET(req: Request, { params }: { params: { korisnik: string } }) {
+  try {
+    const korisnik = params.korisnik;  // Dobijamo email iz dinamičkog parametra URL-a
+    console.log('Pretrazujem korisnika:', korisnik);  // Logujemo korisnika
+
+    if (!korisnik) {
+      console.error('Email korisnika nije prosleđen');
+      return NextResponse.json({ error: 'Email korisnika nije prosleđen' }, { status: 400 });
     }
-  }
-];
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
-  const { korisnik } = req.query;
+    const korisnikData = mockUsers.find(k => k.email === korisnik);
 
-  // Provjera loga
-  console.log('Pretrazujem korisnika:', korisnik);
-
-  const korisnikData = mockBaza.find(k => k.email === korisnik);
-
-  if (korisnikData) {
-    return res.status(200).json(korisnikData);
-  } else {
-    return res.status(404).json({ error: 'Korisnik nije pronadjen' });
+    if (korisnikData) {
+      return NextResponse.json(korisnikData, { status: 200 });
+    } else {
+      return NextResponse.json({ error: 'Korisnik nije pronađen' }, { status: 404 });
+    }
+  } catch (error) {
+    console.error('Greška u API ruti:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
