@@ -53,6 +53,7 @@ export default function LoginForm() {
         setCookie("user_email", values.email, {
           maxAge: 60 * 60 * 24 * 7, // Kolacic traje 1 nedelju
           path: "/",
+          encode: (value) => value, 
         });
 
         router.push("/");
