@@ -41,7 +41,6 @@ const novo = () => {
               </PopoverContent>
             </Popover>
             </div>
-
             {/* LISTA ARTIKALA */}
             <ListaArtikala />
         </div>

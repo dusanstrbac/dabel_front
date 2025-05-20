@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/pagination"
 import { useRouter, useSearchParams } from "next/navigation"
 
-// Simulirani podaci za artikle
+// Pozvati fetch metodu ovde
 const sviArtikli = Array.from({ length: 42 }, (_, i) => ({
   id: i + 1,
   naslov: `Artikal ${i + 1} - Naziv proizvoda`,
@@ -27,10 +27,8 @@ const ListaArtikala = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Koristimo useMemo da bi brojStranica bio stabilan između renderovanja
   const brojStranica = useMemo(() => Math.ceil(sviArtikli.length / artikliPoStrani), [])
 
-  // Inicijalizacija stranice na osnovu parametra iz URL-a
   useEffect(() => {
     const page = searchParams.get('page')
     if (page) {
@@ -39,7 +37,7 @@ const ListaArtikala = () => {
         setTrenutnaStrana(pageNumber)
       }
     }
-  }, [searchParams]) // Sada smo uklonili brojStranica iz dependency array-a
+  }, [searchParams]) 
 
   const prikazaniArtikli = useMemo(() => {
     return sviArtikli.slice(

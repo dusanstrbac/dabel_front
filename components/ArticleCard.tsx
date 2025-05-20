@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Button } from './ui/button';
 import { ShoppingCartIcon } from 'lucide-react';
 
+// Card prop
 type ArticleCardProps = {
     naslov: string;
     cena: number;

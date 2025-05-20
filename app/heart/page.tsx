@@ -1,16 +1,7 @@
 'use client';
-import ArticleCard from "@/components/ArticleCard";
+import ListaArtikala from "@/components/ListaArtikala";
+import { Paginacija, PaginacijaLink, PaginacijaPrethodna, PaginacijaSadrzaj, PaginacijaSledeca, PaginacijaStavka, PaginacijaTackice } from "@/components/ui/pagination";
 
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-  } from "@/components/ui/pagination"
-  
 import {
     Popover,
     PopoverContent,
@@ -55,36 +46,29 @@ const heart = () => {
       
             {/* Kartice */}
             <div className="max-w-7xl mx-auto grid gap-4 p-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                <ArticleCard/>
-                <ArticleCard/>
-                <ArticleCard/>
-                <ArticleCard/>
-                <ArticleCard/>
-                <ArticleCard/>
-                <ArticleCard/>
-                <ArticleCard/>
+                <ListaArtikala />
             </div>
             
 
 
 
             {/* Paginacija */}
-            <Pagination className="mt-5 mb-5 flex items-center">
-                <PaginationContent>
-                    <PaginationItem>
-                        <PaginationPrevious href="#" />
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationLink href="#">1</PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationEllipsis />
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationNext href="#" />
-                    </PaginationItem>
-                </PaginationContent>
-            </Pagination>
+            <Paginacija className="mt-5 mb-5 flex items-center">
+                <PaginacijaSadrzaj>
+                    <PaginacijaStavka>
+                        <PaginacijaPrethodna href="#" />
+                    </PaginacijaStavka>
+                    <PaginacijaStavka>
+                        <PaginacijaLink href="#">1</PaginacijaLink>
+                    </PaginacijaStavka>
+                    <PaginacijaStavka>
+                        <PaginacijaTackice />
+                    </PaginacijaStavka>
+                    <PaginacijaStavka>
+                        <PaginacijaSledeca href="#" />
+                    </PaginacijaStavka>
+                </PaginacijaSadrzaj>
+            </Paginacija>
         </div>
       )
 }
