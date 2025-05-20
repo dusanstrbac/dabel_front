@@ -1,16 +1,6 @@
 'use client';
-import ArticleCard from "@/components/ArticleCard";
+import ListaArtikala from "@/components/ListaArtikala";
 
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-  } from "@/components/ui/pagination"
-  
 import {
     Popover,
     PopoverContent,
@@ -52,39 +42,8 @@ const novo = () => {
             </Popover>
             </div>
 
-      
-            {/* Kartice */}
-            <div className="max-w-7xl mx-auto grid gap-4 p-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                <ArticleCard/>
-                <ArticleCard/>
-                <ArticleCard/>
-                <ArticleCard/>
-                <ArticleCard/>
-                <ArticleCard/>
-                <ArticleCard/>
-                <ArticleCard/>
-            </div>
-            
-
-
-
-            {/* Paginacija */}
-            <Pagination className="mt-5 mb-5 flex items-center">
-                <PaginationContent>
-                    <PaginationItem>
-                        <PaginationPrevious href="#">Prethodna</PaginationPrevious>
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationLink href="#">1</PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationEllipsis />
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationNext href="#">Sledeca</PaginationNext>
-                    </PaginationItem>
-                </PaginationContent>
-            </Pagination>
+            {/* LISTA ARTIKALA */}
+            <ListaArtikala />
         </div>
       )
 }
