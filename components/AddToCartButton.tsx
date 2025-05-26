@@ -1,5 +1,6 @@
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "./ui/button"
+import { ShoppingCartIcon } from "lucide-react";
 
 
 const AddToCartButton = () => {
@@ -7,8 +8,8 @@ const AddToCartButton = () => {
     const { incrementCart } = useCart();
 
     return (
-        <Button onClick={incrementCart} className="ml-6 cursor-pointer">
-            Dodaj u korpu
+        <Button onClick={incrementCart} variant="outline" size="icon">
+            <ShoppingCartIcon color='red' />
         </Button>
     )
 }

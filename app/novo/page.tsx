@@ -12,13 +12,8 @@ import {
 const novo = () => {
 
     return (
-        <div className="p-4">
-          
-          
-          {/* Dugme Sortiraj poravnato desno
-            Ali ne znam šta se tačno dešava MORA PONOVO
-          */}
-            <div className="max-w-7xl mx-auto flex justify-between items-center p-2">
+        <div className="lg:p-4">
+            <div className="w-full mx-auto flex justify-between items-center p-2">
                 
                 {/*Naslov*/}
                 <h1 className="font-bold text-3xl">Novopristigli artikli</h1>

@@ -6,7 +6,6 @@ import HeroImage from "@/components/HeroImage";
 
 export default function Home() {
 
-
   return (
     <>
       <Header />
@@ -17,8 +16,6 @@ export default function Home() {
           <ArticleCard naslov="Artikal" cena={2000} slika= "/Artikal.jpg" />
           <ArticleCard naslov="Artikal" cena={2000} slika= "/Artikal.jpg" />
           <ArticleCard naslov="Artikal" cena={2000} slika= "/Artikal.jpg" />
-          <ArticleCard naslov="Artikal" cena={2000} slika= "/Artikal.jpg" />
-
         </div>
       </main>
     </>

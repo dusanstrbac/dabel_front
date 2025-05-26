@@ -2,6 +2,7 @@ import '@/app/globals.css';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import { ShoppingCartIcon } from 'lucide-react';
+import AddToCartButton from './AddToCartButton';
 
 // Card prop
 type ArticleCardProps = {
@@ -13,9 +14,9 @@ type ArticleCardProps = {
 const ArticleCard = ({ naslov, cena, slika }: ArticleCardProps) => {
 
     return (
-        <div className='articleSize relative articleBorder max-w-[320px]'>
+        <div className='articleSize relative max-w-[320px] hover:shadow-2xl transition-shadow duration-300 rounded-2xl'>
             {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-90 z-10 rounded-[9px]"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-90 z-10 rounded-2xl"></div>
 
             {/* Slika */}
             <div>
@@ -29,7 +30,7 @@ const ArticleCard = ({ naslov, cena, slika }: ArticleCardProps) => {
             </div>
 
             {/* Tekst */}
-            <div className='flex flex-col'>
+            <div className='flex flex-col pb-4 px-2'>
                 <h2 className='text-sm lg:text-lg font-bold text-center'>
                     {naslov}
                 </h2>
@@ -38,9 +39,7 @@ const ArticleCard = ({ naslov, cena, slika }: ArticleCardProps) => {
                         <span>{cena}</span> RSD
                     </p>
                     <div>
-                        <Button variant="outline" size="icon" className='cursor-pointer'>
-                            <ShoppingCartIcon color='red' />
-                        </Button>
+                        <AddToCartButton />
                     </div>
                 </div>
             </div>

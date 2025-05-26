@@ -13,17 +13,10 @@ import {
 const akcije = () => {
 
     return (
-        <div className="p-4">
-          
-          
-          {/* Dugme Sortiraj poravnato desno
-            Ali ne znam šta se tačno dešava MORA PONOVO
-          */}
-            <div className="max-w-7xl mx-auto flex justify-between items-center p-2">
-                
+        <div className="lg:p-4">
+            <div className="w-full mx-auto flex justify-between items-center p-2">
                 {/*Naslov*/}
                 <h1 className="font-bold text-3xl">Akcija</h1>
-            
             <Popover>
               <PopoverTrigger asChild>
                 <button className="text-sm font-semibold border px-3 py-1 rounded-md hover:bg-gray-100">

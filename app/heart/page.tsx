@@ -22,7 +22,7 @@ const heart = () => {
             <div className="max-w-7xl mx-auto flex justify-between items-center p-2">
                 
                 {/*Naslov*/}
-                <h1 className="font-bold text-3xl">Novopristigli artikli</h1>
+                <h1 className="font-bold text-3xl">Omiljeni Artikli</h1>
             
             <Popover>
               <PopoverTrigger asChild>
@@ -42,33 +42,8 @@ const heart = () => {
               </PopoverContent>
             </Popover>
             </div>
-
-      
-            {/* Kartice */}
-            <div className="max-w-7xl mx-auto grid gap-4 p-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                <ListaArtikala />
-            </div>
-            
-
-
-
-            {/* Paginacija */}
-            <Paginacija className="mt-5 mb-5 flex items-center">
-                <PaginacijaSadrzaj>
-                    <PaginacijaStavka>
-                        <PaginacijaPrethodna href="#" />
-                    </PaginacijaStavka>
-                    <PaginacijaStavka>
-                        <PaginacijaLink href="#">1</PaginacijaLink>
-                    </PaginacijaStavka>
-                    <PaginacijaStavka>
-                        <PaginacijaTackice />
-                    </PaginacijaStavka>
-                    <PaginacijaStavka>
-                        <PaginacijaSledeca href="#" />
-                    </PaginacijaStavka>
-                </PaginacijaSadrzaj>
-            </Paginacija>
+            {/* LISTA ARTIKALA */}
+            <ListaArtikala />
         </div>
       )
 }

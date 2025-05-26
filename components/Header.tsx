@@ -17,8 +17,9 @@ import { Separator } from "./ui/separator";
 import { ScrollArea } from "./ui/scroll-area";
 import { useCart } from "@/contexts/CartContext";
 import KorisnikMenu from "./KorisnikMenu";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
+import { deleteCookie, getCookie } from 'cookies-next';
 
 
 export default function Header() {
@@ -27,6 +28,8 @@ export default function Header() {
   const [email, setEmail] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const headerMainNav = [ 
     { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/okov-gradjevinski'},
@@ -48,33 +51,63 @@ export default function Header() {
   ];
 
   const menuItems = [
-    { icon: <User2 className="h-6 w-6" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
-    { icon: <History className="h-6 w-6" />, text: "Istorija poručivanja", href: username ? `/${username}/profil/istorija` : '/login' },
-    { icon: <Wallet className="h-6 w-6" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
-    { icon: <Package className="h-6 w-6" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
-    { icon: <Users className="h-6 w-6" />, text: "Korisnici", href: "/admin/korisnici" },
-    { icon: <BadgeDollarSign className="h-6 w-6" />, text: "Cenovnik", href: "/admin/cenovnik" },
-    { icon: <Youtube className="h-6 w-6" />, text: "Video uputstva", href: "/video-uputstva" },
-    { icon: <Key className="h-6 w-6" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
+    { id: 'podaci', icon: <User2 className="h-6 w-6" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
+    { id: 'istorija', icon: <History className="h-6 w-6" />, text: "Istorija poručivanja", href: username ? `/${username}/profil/istorija` : '/login' },
+    { id: 'uplate', icon: <Wallet className="h-6 w-6" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
+    { id: 'roba', icon: <Package className="h-6 w-6" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
+    { id: 'korisnici', icon: <Users className="h-6 w-6" />, text: "Korisnici", href: "/admin/korisnici" },
+    { id: 'cenovnik', icon: <BadgeDollarSign className="h-6 w-6" />, text: "Cenovnik", href: "/admin/cenovnik" },
+    { id: 'uputstva', icon: <Youtube className="h-6 w-6" />, text: "Video uputstva", href: "/video-uputstva" },
+    { id: 'podesavanja', icon: <Key className="h-6 w-6" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
   ];
+
+  const dodatniLinkovi = [
+    { icon: <BadgePercent className="w-4 h-4" />, text: "Akcija", href: "/akcija" },
+    { icon: <LinkIcon className="w-4 h-4" />, text: "Novopristigli proizvodi", href: "/novopristigli" },
+    { icon: <Heart className="w-4 h-4" />, text: "Omiljeni artikli", href: "/heart" },
+    { icon: <ShoppingCart className="w-4 h-4" />, text: "Korpa", href: "/korpa" },
+    { icon: <User className="w-4 h-4" />, text: "Moj profil", href: "/profil" },
+  ];
+
 
   if(username === 'null') {
     router.push('/login');
   }
 
-  const odjaviKorisnika = () => {
-    const korisnickiToken = localStorage.getItem('token');
-
-    if(!korisnickiToken) {
-      return;
-    } else {
-      window.location.replace('/');
-    }    
-  }
-
   useEffect(() => {
+    setIsMounted(true);
+    // Provera postojanja kolacica
+    const fetchData = async() => {
+      try {
+        // const token = await getCookie('auth_token');
+        const user = await getCookie('KorisnickoIme');
+
+         if(user) {
+           setIsLoggedIn(true);
+           setUsername(user as string);
+         } 
+        else {
+          setIsLoggedIn(false);
+          setUsername(null)
+        }
+      } catch(err) {
+        console.log(err);
+        setIsLoggedIn(false);
+      }
+    };
+    fetchData();
+
   }, []);
 
+   const prijaviKorisnika = () => {
+    window.location.href = '/login';
+  };
+
+  const odjaviKorisnika = () => {
+    deleteCookie('Email');
+    deleteCookie('KorisnickoIme');
+    window.location.href = '/';
+  };
 
   return (
     <header className="w-full h-[138px] z-[20] relative">
@@ -89,7 +122,8 @@ export default function Header() {
                 alt="Dabel logo"
                 height={164}
                 width={140}
-                className="h-[75px] object-contain"
+                className="h-[75px] w-auto object-contain0"
+                priority={true}
               />
             </Link>
           </div>
@@ -222,22 +256,32 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent className="w-full">
                 <SheetHeader>
-                  <SheetTitle>{email ? email : 'Korisnik'}</SheetTitle>
+                  <SheetTitle>{username ? username : 'Korisnik'}</SheetTitle>
                   <SheetDescription></SheetDescription>
                   <Separator />
                 </SheetHeader>
                 <div className="pl-2 flex flex-col">
                   <ScrollArea>
                       {menuItems.map((item) => (
-                        <Link href={item.href} key={item.href} className="flex gap-3 items-center pb-4">
+                        <Link href={item.href} key={item.id} className="flex gap-3 items-center pb-4">
                           <span className="">{item.icon}</span>
-                          <span className="text-2xl">{item.text}</span>
+                          <span className="text-[18px]">{item.text}</span>
                         </Link>
                       ))}
-                        <Link href='#' className="flex gap-3 items-center pb-4">
+
+                      {isLoggedIn ? (
+                       
+                       <Link href='#' className="flex gap-3 items-center pb-4">
                           <LogOut className="w-6 h-6" />
-                          <span className="text-2xl text-red-500" onClick={odjaviKorisnika}>Odjava</span>
+                          <span className="text-[18px] text-red-500" onClick={odjaviKorisnika}>Odjava</span>
+                        </Link> ) : (
+
+                          <Link href='#' className="flex gap-3 items-center pb-4">
+                          <LogOut className="w-6 h-6" />
+                          <span className="text-[18px]" onClick={prijaviKorisnika}>Prijavi se</span>
                         </Link>
+
+                      )}
                   </ScrollArea>
                 </div>
               </SheetContent>
@@ -253,8 +297,9 @@ export default function Header() {
                   <SheetTitle>Menu</SheetTitle>
                   <Separator />
                 </SheetHeader>
+
                 <div className="pl-2 flex flex-col gap-2">
-                <Accordion type="single" collapsible className="flex flex-col gap-4">
+                  <Accordion type="single" collapsible className="flex flex-col gap-4">
                     {headerMainNav.map((item, index) => (
                       <AccordionItem key={index} value={`item-${index}`}>
                         <AccordionTrigger className="flex items-center gap-3 pl-2">
@@ -289,31 +334,18 @@ export default function Header() {
                     ))}
                   </Accordion>
 
-
-                  {/* <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <BoxesIcon className="h-6 w-6" />
-                    <span className="text-[18px]">Proizvodi</span>
-                  </Link> */}
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <BadgePercent className="h-6 w-6" />
-                    <span className="text-[18px]">Akcija</span>
-                  </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <LinkIcon className="h-6 w-6" />
-                    <span className="text-[18px]">Novopristigli proizvodi</span>
-                  </Link>
-                  <Link href="/heart" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <Heart className="h-6 w-6" />
-                    <span className="text-[18px]">Omiljeni artikli</span>
-                  </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <ShoppingCart className="h-6 w-6" />
-                    <span className="text-[18px]">Korpa</span>
-                  </Link>
-                  <Link href="/elementi-za-pricvrscivanje" className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
-                    <User className="h-6 w-6" />
-                    <span className="text-[18px]">Moj profil</span>
-                  </Link>
+                  <div className="flex flex-col gap-4 mt-2">
+                    {dodatniLinkovi.map((item, index) => (
+                      <Link
+                        key={`add-${index}`}
+                        href={item.href}
+                        className="text-[18px] flex items-center gap-2 px-2"
+                      >
+                        {item.icon}
+                        <span>{item.text}</span>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
