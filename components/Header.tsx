@@ -31,17 +31,20 @@ export default function Header() {
   const headerMainNav = [ 
     { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/okov-gradjevinski'},
     { icon: <Sofa className="w-4 h-4"/>, text: 'Okov nameštaj', href: '/okov-namestaj'},
-    { icon: <Rows2 className="w-4 h-4"/>, text: 'Klizni okov za građevinu, nameštaj', href: '/okov-gradjevinski'},
-    { icon: <LinkIcon className="w-4 h-4"/>, text: 'Elementi za pričvršćivanje', href: '/okov-gradjevinski', subMenuItems:[{ icon: <text className="w-4 h-4"/>, text: 'Spojnice', href: '/okov-gradjevinski'},
-      { icon: <text className="w-4 h-4"/>, text: 'Ručke', href: '/okov-gradjevinski'},
-      { icon: <text className="w-4 h-4"/>, text: 'Delovi za sajle', href: '/okov-gradjevinski'},
-      { icon: <text className="w-4 h-4"/>, text: 'Tiplovi', href: '/okov-gradjevinski'},
-      { icon: <text className="w-4 h-4"/>, text: 'Drvo', href: '/okov-gradjevinski'},
-      { icon: <text className="w-4 h-4"/>, text: 'Podloške, navrtke', href: '/okov-gradjevinski'},
-      { icon: <text className="w-4 h-4"/>, text: 'Kapice', href: '/okov-gradjevinski'},]},
-    { icon: <Lightbulb className="w-4 h-4"/>, text: 'LED rasveta', href: '/okov-gradjevinski'},
-    { icon: <Vault className="w-4 h-4"/>, text: 'Kontrola pristupa', href: '/okov-gradjevinski'},
-    { icon: <Hammer className="w-4 h-4"/>, text: 'Ručni alat', href: '/okov-gradjevinski'},
+    { icon: <Rows2 className="w-4 h-4"/>, text: 'Klizni okov za građevinu, nameštaj', href: '/klizni-okov'},
+    { icon: <LinkIcon className="w-4 h-4"/>, text: 'Elementi za pričvršćivanje', href: '/elementi-pricvrscivanje', 
+      subMenuItems:[
+        { icon: <text className="w-4 h-4"/>, text: 'Spojnice', href: '/elementi-spojnice'},
+        { icon: <text className="w-4 h-4"/>, text: 'Ručke', href: '/elementi-rucke'},
+        { icon: <text className="w-4 h-4"/>, text: 'Delovi za sajle', href: '/elementi-sajle'},
+        { icon: <text className="w-4 h-4"/>, text: 'Tiplovi', href: '/elementi-tiplovi'},
+        { icon: <text className="w-4 h-4"/>, text: 'Drvo', href: '/elementi-drvo'},
+        { icon: <text className="w-4 h-4"/>, text: 'Podloške, navrtke', href: '/elementi-podloske'},
+        { icon: <text className="w-4 h-4"/>, text: 'Kapice', href: '/elementi-kapice'},
+      ]},
+    { icon: <Lightbulb className="w-4 h-4"/>, text: 'LED rasveta', href: '/led-rasveta'},
+    { icon: <Vault className="w-4 h-4"/>, text: 'Kontrola pristupa', href: '/kontrola-pristupa'},
+    { icon: <Hammer className="w-4 h-4"/>, text: 'Ručni alat', href: '/rucni-alat'},
   ];
 
   const menuItems = [

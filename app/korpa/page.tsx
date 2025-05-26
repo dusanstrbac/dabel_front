@@ -11,7 +11,6 @@ import NaruciButton from "@/components/ui/NaruciButton";
 
 
 const Korpa = () => {
-
     //primer podataka o artiklima
     const [articleList, setArticleList] = useState([
         {
@@ -37,16 +36,12 @@ const Korpa = () => {
           kolicina: 20.0,
         },
     ]);
-    
 
     //prazni celu korpu
     const isprazniKorpu = () => {
         setArticleList([]);
         setQuantities([]);
     };
-      
-
-
     //brise jedan artikal iz korpe
     const removeArticle = (index: number) => {
         const updatedArticles = [...articleList];
@@ -58,15 +53,11 @@ const Korpa = () => {
         setArticleList(updatedArticles);
         setQuantities(updatedQuantities);
     };
-      
-    
-    
 
     //mapira artikle??? ne znam sta ovo bese radi
     const [quantities, setQuantities] = useState(
         articleList.map((article) => article.kolicina)
     );
-
 
     //izracunavanje ukupne cene koja treba da se plati
     const totalAmount = quantities.reduce((sum, quantity, index) => {
@@ -75,8 +66,6 @@ const Korpa = () => {
     }, 0);
 
     const totalAmountWithPDV = totalAmount * 1.2;
-
-    
     //fja za zaokruzivanje na sledeci moguci br pakovanja
     function getRoundedQuantity(requested: number, packSize: number) {
         if (requested <= 0 || isNaN(requested)) return 0;
@@ -84,21 +73,11 @@ const Korpa = () => {
           ? packSize
           : Math.ceil(requested / packSize) * packSize;
     }
-    
-
-    
-      
-
-    
-    
-
     return (
-
-        
         <div className="flex flex-col p-2 md:p-5">
             {/*NASLOV*/}
             <div className="flex flex-wrap justify-between items-center gap-2">
-                <h1 className="font-bold text-2xl">Pregled korpe</h1>
+                <h1 className="font-bold text-lg">Pregled korpe</h1>
                 <Button onClick={isprazniKorpu} variant={"outline"} className="cursor-pointer">Isprazni korpu</Button>
             </div>
 
@@ -196,7 +175,7 @@ const Korpa = () => {
                         <TableRow>
                             {/* Prvih 6 ćelija ostaje prazno jer tamo nema ukupnog sabiranja */}
                             
-                            <TableCell className="px-5 text-start font-bold">Ukupno:</TableCell>
+                            <TableCell className="text-center font-bold">Ukupno:</TableCell>
                             <TableCell colSpan={6}></TableCell>
 
                             
@@ -216,7 +195,6 @@ const Korpa = () => {
                 {/*DUGME NARUCI*/}
                 <div className="flex flex-wrap justify-end py-2"><NaruciButton/></div>
             </div>
-            
             
             
 
