@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import React, { useEffect } from "react";
 import NaruciButton from "@/components/ui/NaruciButton";
+import { useCart } from "@/contexts/CartContext";
   
 
 
@@ -13,59 +14,14 @@ import NaruciButton from "@/components/ui/NaruciButton";
 const Korpa = () => {
 
     //primer podataka o artiklima
-    const [articleList, setArticleList] = useState([
-        {
-          imageUrl: "korpa1.jpg",
-          name: "Kvaka šild za vrata JELENA B-Ni 90/42/254/10/108/8/9 .Klj DBP0 1",
-          sifra: "Šifra proizvoda: 0101095",
-          barkod: "Barkod: 8605004250936",
-          stanje: "Artikal nije na stanju do: 15.12.2025!",
-          jm: "KD",
-          cena: 929.5,
-          pakovanje: 4.0,
-          kolicina: 8.0,
-        },
-        {
-          imageUrl: "korpa2.jpg",
-          name: "Nosač police konzolni N1103 Bela 250x300/49/0,9mm Q",
-          sifra: "Šifra proizvoda: 3304094",
-          barkod: "Barkod: 8605004204519",
-          stanje: "",
-          jm: "KD",
-          cena: 68.75,
-          pakovanje: 20.0,
-          kolicina: 20.0,
-        },
-    ]);
-    
-
-    //prazni celu korpu
-    const isprazniKorpu = () => {
-        setArticleList([]);
-        setQuantities([]);
-    };
-      
+    const { items: articleList, removeItem, clearCart } = useCart();
 
 
-    //brise jedan artikal iz korpe
-    const removeArticle = (index: number) => {
-        const updatedArticles = [...articleList];
-        updatedArticles.splice(index, 1);
-      
-        const updatedQuantities = [...quantities];
-        updatedQuantities.splice(index, 1);
-      
-        setArticleList(updatedArticles);
-        setQuantities(updatedQuantities);
-    };
-      
-    
-    
+    const [quantities, setQuantities] = useState(articleList.map(article => article.kolicina));
+        useEffect(() => {
+        setQuantities(articleList.map(article => article.kolicina));
+    }, [articleList]);
 
-    //mapira artikle??? ne znam sta ovo bese radi
-    const [quantities, setQuantities] = useState(
-        articleList.map((article) => article.kolicina)
-    );
 
 
     //izracunavanje ukupne cene koja treba da se plati
@@ -99,7 +55,7 @@ const Korpa = () => {
             {/*NASLOV*/}
             <div className="flex flex-wrap justify-between items-center gap-2">
                 <h1 className="font-bold text-lg">Pregled korpe</h1>
-                <Button onClick={isprazniKorpu} variant={"outline"} className="cursor-pointer">Isprazni korpu</Button>
+                <Button onClick={clearCart} variant={"outline"} className="cursor-pointer">Isprazni korpu</Button>
             </div>
 
             {/*DESKTOP TABELA*/}
@@ -186,7 +142,7 @@ const Korpa = () => {
                             </TableCell>
                                 
                             <TableCell>
-                                <Button onClick={() => removeArticle(index)}>Ukloni</Button>
+                                <Button onClick={() => removeItem(index)}>Ukloni</Button>
                             </TableCell>
                         </TableRow>
                         ))}

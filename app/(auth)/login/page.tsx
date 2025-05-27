@@ -38,7 +38,7 @@ export default function LoginForm() {
   setError(null);
 
   try {
-    const { data } = await axios.post("https://localhost:44383/LoginPodaci", {
+    const { data } = await axios.post("http://10.0.0.38:7235/api/Auth/LoginPodaci", {
       korisnickoIme: values.korisnickoIme,
       lozinka: values.lozinka,
     }, {

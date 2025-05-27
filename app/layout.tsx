@@ -26,12 +26,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <CartProvider>
-      <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    // <CartProvider>
+    //   <html lang="en">
+    //     <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    //       {children}
+    //     </body>
+    //   </html>
+    // </CartProvider>
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Providers>
           {children}
-        </body>
-      </html>
-    </CartProvider>
+        </Providers>
+      </body>
+    </html>
   );
 }

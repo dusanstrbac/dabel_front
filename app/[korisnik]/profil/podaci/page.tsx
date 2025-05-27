@@ -26,7 +26,7 @@ const ProfilPodaci = () => {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(`https://localhost:44383/Partner?email=${emailEncoded}`);
+        const response = await fetch(`http://10.0.0.38:7235/api/Partner?email=${emailEncoded}`);
 
         if (!response.ok) {
           throw new Error('Korisnik nije pronađen');

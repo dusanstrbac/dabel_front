@@ -1,36 +1,79 @@
-'use client';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-import { createContext, useContext, useState } from 'react';
-
-type CartContextType = {
-  cartCount: number;
-  incrementCart: () => void;
-  decrementCart: () => void;
+type Article = {
+  imageUrl: string;
+  name: string;
+  sifra: string;
+  barkod: string;
+  stanje: string;
+  jm: string;
+  cena: number;
+  pakovanje: number;
+  kolicina: number;
 };
 
-const CartContext = createContext<CartContextType>({
-  cartCount: 0,
-  incrementCart: () => {},
-  decrementCart: () => {},
-});
+type CartContextType = {
+  items: Article[];
+  addItem: (item: Article) => void;
+  removeItem: (index: number) => void;
+  clearCart: () => void;
+};
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cartCount, setCartCount] = useState(0);
+const CartContext = createContext<CartContextType | undefined>(undefined);
 
-  const incrementCart = () => setCartCount(c => c + 1);
-  const decrementCart = () => setCartCount(c => Math.max(0, c - 1));
+export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+  const [items, setItems] = useState<Article[]>([]);
+
+  // Load from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('cart');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          // Proveri da svaki item ima sve potrebne ključeve
+          const valid = parsed.filter((item) =>
+            item &&
+            typeof item.name === 'string' &&
+            typeof item.cena === 'number' &&
+            typeof item.kolicina === 'number' &&
+            typeof item.imageUrl === 'string' &&
+            typeof item.pakovanje === 'number'
+          );
+          setItems(valid);
+        }
+      } catch (e) {
+        console.error("Greška pri parsiranju localStorage cart:", e);
+      }
+    }
+  }, []);
+
+  // Save to localStorage
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(items));
+  }, [items]);
+
+  const addItem = (item: Article) => {
+    setItems((prev) => [...prev, item]);
+  };
+
+  const removeItem = (index: number) => {
+    setItems((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const clearCart = () => {
+    setItems([]);
+  };
 
   return (
-    <CartContext.Provider value={{ cartCount, incrementCart, decrementCart }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, clearCart }}>
       {children}
     </CartContext.Provider>
   );
-}
+};
 
-export const useCart = () => {
+export const useCart = (): CartContextType => {
   const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCart must be used within CartProvider');
-  }
+  if (!context) throw new Error('useCart must be used within a CartProvider');
   return context;
 };
