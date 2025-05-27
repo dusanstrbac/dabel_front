@@ -1,40 +1,56 @@
+import { useRouter } from 'next/navigation';
 import '@/app/globals.css';
 import Image from 'next/image';
-import { Button } from './ui/button';
-import { ShoppingCartIcon } from 'lucide-react';
 import AddToCartButton from './AddToCartButton';
+import { ArtikalType } from '@/types/artikal';
+import { useEffect, useState } from 'react';
 
-// Card prop
-type ArticleCardProps = {
-    naslov: string;
-    cena: number;
-    slika: string;
-}
+const ArticleCard = ({ id, naziv, cena, slika }: ArtikalType) => {
+    const router = useRouter(); // Korišćenje router-a iz next/router
+    const [isMounted, setMounted] = useState(false);
+    
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
-const ArticleCard = ({ naslov, cena, slika }: ArticleCardProps) => {
+
+    const posaljiNaArtikal = ( e: React.MouseEvent) => {
+        e.preventDefault();
+        if(isMounted) {
+            router.push(`/proizvodi/${id}`);
+        }
+    };
+
+    if(!isMounted) return null;
 
     return (
-        <div className='articleSize relative max-w-[320px] hover:shadow-2xl transition-shadow duration-300 rounded-2xl'>
+        <div
+            className='articleSize relative max-w-[320px] hover:shadow-2xl transition-shadow duration-300 rounded-2xl grid grid-rows-[auto,auto,auto]'
+            onClick={posaljiNaArtikal}
+        >
             {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-90 z-10 rounded-2xl"></div>
 
             {/* Slika */}
-            <div>
+            <div className="w-full h-64 relative">
                 <Image
-                    src={slika}
-                    alt={naslov}
-                    width={318}
-                    height={400}
+                    src={'/artikal.jpg'}
+                    alt={naziv}
+                    layout="fill"
+                    objectFit="cover"
                     className='rounded-lg w-full h-full object-cover'
                 />
             </div>
 
-            {/* Tekst */}
-            <div className='flex flex-col pb-4 px-2'>
-                <h2 className='text-sm lg:text-lg font-bold text-center'>
-                    {naslov}
+            {/* Tekstualni deo */}
+            <div className='flex flex-col justify-between px-2 py-3'>
+                {/* Ime artikla */}
+                <h2 className='text-sm lg:text-lg font-semibold text-center'>
+                    {naziv}
                 </h2>
-                <div className='flex justify-between items-center px-2'>
+
+                {/* Cena i dugme */}
+                <div className='flex justify-between items-center'>
                     <p className='text-md lg:text-xl font-semibold text-red-500'>
                         <span>{cena}</span> RSD
                     </p>
@@ -44,7 +60,7 @@ const ArticleCard = ({ naslov, cena, slika }: ArticleCardProps) => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default ArticleCard;

@@ -38,7 +38,7 @@ export default function LoginForm() {
   setError(null);
 
   try {
-    const { data } = await axios.post("https://localhost:44383/LoginPodaci", {
+    const { data } = await axios.post("https://localhost:7235/LoginPodaci", {
       korisnickoIme: values.korisnickoIme,
       lozinka: values.lozinka,
     }, {
@@ -55,6 +55,12 @@ export default function LoginForm() {
         path: "/",
         encode: (value) => value,
       });
+
+      setCookie("IdKorisnika", data.korisnikid, {
+        maxAge: 60 * 60 * 24 * 2, // Kolacic traje 2 dana
+        path: "/",
+        encode: (value) => value,
+      })
 
       setCookie("KorisnickoIme", values.korisnickoIme, {
         maxAge: 60 * 60 * 24 * 2, // Kolacic traje 2 dana
