@@ -26,9 +26,8 @@ export default function RootLayout({
 }>) {
   return (
     <div>
-      <CartProvider>
+        <Header />
         {children}
-      </CartProvider>
     </div>
   );
 }

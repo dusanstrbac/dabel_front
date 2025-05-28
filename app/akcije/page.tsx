@@ -1,46 +1,80 @@
 'use client';
-import ListaArtikala from "@/components/ListaArtikala";
+import ListaAkcijskihArtikala from "@/components/ListaAkcijskihArtikala";
+import SortiranjeButton from "@/components/SortiranjeButton";
+import { ArtikalType } from "@/types/artikal";
+import { useEffect, useState } from "react";
 
-  
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-  } from "@/components/ui/popover"
-  
+const Akcije = () => {
+  const [artikli, setArtikli] = useState<ArtikalType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchAkcijeArtikli = async () => {
+      try {
+        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
-const akcije = () => {
+        // 1. Prvi poziv - uzmi sve artikle u akciji (samo ID-jevi i cena npr.)
+        const res = await fetch(`${apiAddress}/api/Artikal/Akcije`);
+        if (!res.ok) throw new Error("Greška pri preuzimanju artikala");
 
-    return (
-        <div className="lg:p-4">
-            <div className="w-full mx-auto flex justify-between items-center p-2">
-                {/*Naslov*/}
-                <h1 className="font-bold text-3xl">Akcija</h1>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="text-sm font-semibold border px-3 py-1 rounded-md hover:bg-gray-100">
-                  Sortiraj
-                </button>
-              </PopoverTrigger>
-              <PopoverContent>
-                <div className="flex flex-col gap-2">
-                  <button onClick={() => {}} className="text-left hover:underline hover:bg-gray-400 px-4 py-1">
-                    Cena: Rastuće
-                  </button>
-                  <button onClick={() => {}} className="text-left hover:underline px-4 py-2">
-                    Cena: Opadajuće
-                  </button>
-                </div>
-              </PopoverContent>
-            </Popover>
-            </div>
+        const akcijskiArtikli: { idArtikla: string; cena: number; staraCena: number; }[] = await res.json();
 
-      
-            {/* Kartice */}
-            <ListaArtikala />
-        </div>
-      )
-}
+        // 2. Za svaki ID, pozovi API da uzmeš detaljne podatke
+        const artikliDetalji = await Promise.all(
+          akcijskiArtikli.map(async ({ idArtikla, cena, staraCena }) => {
+            try {
+              const resArtikal = await fetch(`${apiAddress}/api/Artikal/ArtikalId?id=${idArtikla}`);
+              if (!resArtikal.ok) return null;
 
-export default akcije;
+              const artikalData = await resArtikal.json();
+
+              // Pretpostavka: artikalData je niz, pa uzimamo prvi element
+              const artikal = artikalData[0];
+              if (!artikal) return null;
+
+              return {
+                ...artikal,
+                cena,
+                staraCena,
+              };
+            } catch (err) {
+              console.error("Greška prilikom fetchovanja artikla:", err);
+              return null;
+            }
+          })
+        );
+
+        // 3. Filtriraj null vrednosti
+        const validArtikli = artikliDetalji.filter((a) => a !== null);
+
+        setArtikli(validArtikli as ArtikalType[]);
+      } catch (err: any) {
+        setError(err.message || "Došlo je do greške");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAkcijeArtikli();
+  }, []);
+
+  return (
+    <div className="lg:p-4">
+      <div className="w-full mx-auto flex justify-between items-center p-2">
+        <h1 className="font-bold text-3xl">Akcije</h1>
+        <SortiranjeButton />
+      </div>
+
+      {loading ? (
+        <p className="text-center mt-4">Učitavanje...</p>
+      ) : error ? (
+        <p className="text-center text-red-600 mt-4">{error}</p>
+      ) : (
+        <ListaAkcijskihArtikala artikli={artikli} />
+      )}
+    </div>
+  );
+};
+
+export default Akcije;

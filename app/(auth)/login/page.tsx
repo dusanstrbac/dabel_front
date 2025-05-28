@@ -38,7 +38,10 @@ export default function LoginForm() {
   setError(null);
 
   try {
-    const { data } = await axios.post("https://localhost:7235/LoginPodaci", {
+    
+    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
+    const { data } = await axios.post(`${apiAddress}/api/Auth/LoginPodaci`, {
       korisnickoIme: values.korisnickoIme,
       lozinka: values.lozinka,
     }, {

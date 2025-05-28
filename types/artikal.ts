@@ -4,6 +4,7 @@ export interface ArtikalType {
     naziv: string,
     cena: number,
     slika?: string,
+    staraCena?: number,
 }
 
 export interface ListaArtikalaProps {
