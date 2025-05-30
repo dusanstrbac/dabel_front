@@ -1,7 +1,11 @@
 
 export interface ArtikalType {
-    id: string,
-    naslov: string,
+    id?: string,
+    naziv: string,
     cena: number,
-    slika: string,
+    slika?: string,
+}
+
+export interface ListaArtikalaProps {
+  artikli?: ArtikalType[]  // opcioni prop, default prazan niz
 }

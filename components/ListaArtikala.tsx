@@ -12,22 +12,16 @@ import {
   PaginacijaTackice,
 } from "@/components/ui/pagination"
 import { useRouter, useSearchParams } from "next/navigation"
+import { ListaArtikalaProps } from "@/types/artikal"
 
-// Pozvati fetch metodu ovde
-const sviArtikli = Array.from({ length: 42 }, (_, i) => ({
-  id: i + 1,
-  naslov: `Artikal ${i + 1} - Naziv proizvoda`,
-  cena: (500 + i * 10),
-  slika: "/Artikal.jpg",
-}))
-
-const ListaArtikala = () => {
+const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
   const [trenutnaStrana, setTrenutnaStrana] = useState(1)
   const artikliPoStrani = 8
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const brojStranica = useMemo(() => Math.ceil(sviArtikli.length / artikliPoStrani), [])
+
+  const brojStranica = useMemo(() => Math.ceil(artikli.length / artikliPoStrani), [artikli])
 
   useEffect(() => {
     const page = searchParams.get('page')
@@ -37,14 +31,14 @@ const ListaArtikala = () => {
         setTrenutnaStrana(pageNumber)
       }
     }
-  }, [searchParams]) 
+  }, [searchParams, brojStranica])
 
   const prikazaniArtikli = useMemo(() => {
-    return sviArtikli.slice(
+    return artikli.slice(
       (trenutnaStrana - 1) * artikliPoStrani,
       trenutnaStrana * artikliPoStrani
     )
-  }, [trenutnaStrana])
+  }, [trenutnaStrana, artikli])
 
   const idiNaStranu = (broj: number) => {
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return
@@ -53,17 +47,23 @@ const ListaArtikala = () => {
     router.push(`?page=${broj}`, { scroll: false })
   }
 
+  if (artikli.length === 0) {
+    return <p className="text-center py-10 text-gray-500">Nema artikala za prikaz.</p>
+  }
+
+
   return (
     <div className="flex flex-col w-full px-1">
       {/* Mreža artikala */}
-      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
+      <div className="grid gap-1 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
         {prikazaniArtikli.map((artikal) => (
           <ArticleCard
             key={artikal.id}
-            naslov={artikal.naslov}
+            naziv={artikal.naziv}
             cena={artikal.cena}
             slika={artikal.slika}
-          />
+            id={artikal.id}
+            />
         ))}
       </div>
 

@@ -56,6 +56,12 @@ export default function LoginForm() {
         encode: (value) => value,
       });
 
+      setCookie("IdKorisnika", data.korisnikid, {
+        maxAge: 60 * 60 * 24 * 2, // Kolacic traje 2 dana
+        path: "/",
+        encode: (value) => value,
+      })
+
       setCookie("KorisnickoIme", values.korisnickoIme, {
         maxAge: 60 * 60 * 24 * 2, // Kolacic traje 2 dana
         path: "/",
