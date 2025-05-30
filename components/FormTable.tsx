@@ -1,27 +1,33 @@
-import { Props } from "next/script";
+'use client';
 import { Button } from "./ui/button";
 import {Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "./ui/table";
+import Link from "next/link";
+import { getCookie } from "cookies-next";
+import { useEffect, useState } from "react";
 
 interface myProps {
     title: string;
 }
 
 const FormTable = ({ title } : myProps )=> {
-
-// Zameniti sa podacima iz API-a
-// const tebelaStavke = await getStavke(params.korisnik);
+    const [korisnik, setKorisnik] = useState<string | null>(null);
 
 
-    const tabelaStavke = [
-        { datum: "12.03.2025.", dokument: "1-1612", iznos: 177584.28 },
-        { datum: "12.03.2025.", dokument: "1-1699", iznos: 177584.28 },
-        { datum: "12.03.2025.", dokument: "1-1602", iznos: 177584.28 },
-        { datum: "12.03.2025.", dokument: "1-1619", iznos: 177584.28 },
-        { datum: "12.03.2025.", dokument: "1-1622", iznos: 280009.28 },
-        { datum: "12.03.2025.", dokument: "1-1639", iznos: 177584.28 },
-        { datum: "12.03.2025.", dokument: "1-1642", iznos: 280009.28 },
-    
-    ];
+    useEffect(() => {
+        const imeKorisnika = getCookie("KorisnickoIme") as string | null;
+        setKorisnik(imeKorisnika);
+    }, []);
+
+
+    const izvuciDokumenta = async () => {
+        const idKorisnika = getCookie("IdKorisnika");
+        const res = await fetch(`http://10.0.0.63:2034/api/v2/Dokument/Narudzbenica/${idKorisnika}/Partner?offset=0&limit=10`);
+        const data = await res.json();
+
+        console.log(data);
+    }
+
+    izvuciDokumenta();
 
     return (
         <div className="flex flex-col gap-2 lg:gap-4 mt-[50px] lg:items-center lg:justify-center">
@@ -41,13 +47,17 @@ const FormTable = ({ title } : myProps )=> {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {tabelaStavke.map((stavka) => (
+                    {/* {tabelaStavke.map((stavka) => (
                         <TableRow key={stavka.dokument} className="hover:odd:bg-gray-300">
                             <TableCell className="font-medium">{stavka.datum}</TableCell>
-                            <TableCell>{stavka.dokument}</TableCell>
+                            <TableCell>
+                                <Link href={`/${korisnik}/dokument/${stavka.dokument}`} className="text-blue-500 hover:underline">
+                                    {stavka.dokument}
+                                </Link>
+                            </TableCell>
                             <TableCell className="text-right">{stavka.iznos}</TableCell>
                         </TableRow>
-                    ))}
+                    ))} */}
                 </TableBody>
                 <TableFooter>
                     <TableRow className="bg-gray-400 hover:bg-gray-400">

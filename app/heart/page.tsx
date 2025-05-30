@@ -29,7 +29,7 @@ const Heart = () => {
         const artikliIzBaze = await Promise.all(
             data.map(async (artikal) => {
                 try {
-                    const artikalIzBazeRes = await fetch(`http://localhost:7235/api/Artikal/ArtikalId?id=${artikal}`);
+                    const artikalIzBazeRes = await fetch(`http://localhost:7235/api/Artikal/ArtikalId?ids=${artikal}`);
 
                     if (!artikalIzBazeRes.ok) {
                         return null;

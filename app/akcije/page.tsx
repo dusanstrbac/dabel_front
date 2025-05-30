@@ -24,7 +24,7 @@ const Akcije = () => {
         const artikliDetalji = await Promise.all(
           akcijskiArtikli.map(async ({ idArtikla, cena, staraCena }) => {
             try {
-              const resArtikal = await fetch(`${apiAddress}/api/Artikal/ArtikalId?id=${idArtikla}`);
+              const resArtikal = await fetch(`${apiAddress}/api/Artikal/ArtikalId?ids=${idArtikla}`);
               if (!resArtikal.ok) return null;
 
               const artikalData = await resArtikal.json();

@@ -2,14 +2,6 @@
 import ListaArtikala from "@/components/ListaArtikala";
 import SortiranjeButton from "@/components/SortiranjeButton";
 
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-  } from "@/components/ui/popover"
-  
-
-
 const novo = () => {
 
     return (

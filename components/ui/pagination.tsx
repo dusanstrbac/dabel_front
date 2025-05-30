@@ -262,6 +262,7 @@ function Pagination({
 }
 
 export {
+  Pagination,
   Paginacija,
   PaginacijaSadrzaj,
   PaginacijaLink,

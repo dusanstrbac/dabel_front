@@ -5,13 +5,9 @@ import { useParams } from "next/navigation";
 import PreporuceniProizvodi from "@/components/PreporuceniProizvodi";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import dynamic from "next/dynamic";
 import { getCookie } from "cookies-next";
 import DodajUOmiljeno from "@/components/DodajUOmiljeno";
-
-const Lightbox = dynamic(() => import("yet-another-react-lightbox"), {
-  ssr: false,
-});
+import ClientLightbox from "./ui/ClientLightbox";
 
 type ProizvodType = {
   id: string;
@@ -58,7 +54,7 @@ export default function Proizvod() {
         if (typeof e === "string") setEmail(e);
 
         const res = await fetch(
-          `http://localhost:7235/api/Artikal/ArtikalId?id=${productId}`
+          `http://localhost:7235/api/Artikal/ArtikalId?ids=${productId}`
         );
         if (!res.ok) throw new Error("Greška prilikom učitavanja proizvoda");
 
@@ -193,14 +189,15 @@ export default function Proizvod() {
         <PreporuceniProizvodi />
       </div>
 
-      {isOpen && (
-        <Lightbox
-          open={isOpen}
-          close={() => setIsOpen(false)}
-          index={currentImageIndex}
-          slides={images}
-        />
-      )}
+    {isOpen && (
+      <ClientLightbox
+        open={isOpen}
+        close={() => setIsOpen(false)}
+        index={currentImageIndex}
+        slides={images}
+      />
+    )}
+
     </main>
   );
 }

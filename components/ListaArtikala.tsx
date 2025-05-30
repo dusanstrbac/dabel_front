@@ -48,7 +48,7 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
   }
 
   if (artikli.length === 0) {
-    return <p className="text-center py-10 text-gray-500">Nema artikala za prikaz.</p>
+    return <p className="text-center py-5 text-gray-500">Nema artikala za prikaz.</p>
   }
 
 

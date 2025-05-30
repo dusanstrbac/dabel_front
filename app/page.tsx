@@ -12,7 +12,7 @@ export default function Home() {
       <Header />
       <main className="flex flex-col items-center gap-2 px-1">
         <HeroImage />
-        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
+        <div>
           <ListaArtikala />
         </div>
       </main>
