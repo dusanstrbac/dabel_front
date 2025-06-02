@@ -1,53 +1,84 @@
 'use client';
+import { useEffect, useState } from "react";
 import ListaArtikala from "@/components/ListaArtikala";
+import { getCookie } from "cookies-next";
+import SortiranjeButton from "@/components/SortiranjeButton";
+import { ArtikalType } from "@/types/artikal";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-  } from "@/components/ui/popover"
-import SortirajDugme from "@/components/ui/sortirajDugme";
-  
+const Heart = () => {
+    const [artikli, setArtikli] = useState<ArtikalType[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-//OVO NIJE ZAVRSENO, TEK SAM POCEO
-const heart = () => {
+    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+    
+    useEffect(() => {
 
-return (
-        <div className="p-4">
-          
-          
-          {/* Dugme Sortiraj poravnato desno
-            Ali ne znam šta se tačno dešava MORA PONOVO
-          */}
-            <div className="max-w-7xl mx-auto flex justify-between items-center p-2">
-                
-                {/*Naslov*/}
-                <h1 className="font-bold text-3xl">Omiljeni Artikli</h1>
-            
-              {/* <Popover>
-                <PopoverTrigger asChild>
-                  <button className="text-sm font-semibold border px-3 py-1 rounded-md hover:bg-gray-100">
-                    Sortiraj
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-44">
-                  <div className="flex flex-col gap-2">
-                    <button onClick={() => {}} className="text-left hover:underline">
-                      Cena: Rastuće
-                    </button>
-                    <button onClick={() => {}} className="text-left hover:underline">
-                      Cena: Opadajuće
-                    </button>
-                  </div>
-                </PopoverContent>
-              </Popover> */}
+        const fetchOmiljeni = async () => {
+            const korisnik = dajKorisnikaIzTokena();
 
-              <SortirajDugme/>
+            if (!korisnik?.idKorisnika) {
+                setError("Korisnik nije prijavljen");
+                setLoading(false);
+                return;
+            }
+
+            const idPartnera = korisnik.idKorisnika;
+
+            try {
+                const res = await fetch(`${apiAddress}/api/Partner/OmiljeniArtikli?idPartnera=${idPartnera}`);
+                if (!res.ok) throw new Error(`Greška pri učitavanju omiljenih artikala: ${res.statusText}`);
+                const data: { id: string }[] = await res.json();
+
+                const artikliIzBaze = await Promise.all(
+                    data.map(async (artikal) => {
+                        try {
+                            const artikalIzBazeRes = await fetch(`${apiAddress}/api/Artikal/ArtikalId?ids=${artikal}`);
+
+                            if (!artikalIzBazeRes.ok) {
+                                return null;
+                            }
+
+                            const artikalData = await artikalIzBazeRes.json();
+
+                            // Proveri da li artikalData sadrži podatke
+                            return artikalData && artikalData.length > 0 ? artikalData[0] : null;
+                        } catch (error) {
+                            console.error("Greška prilikom fetchovanja artikla:", error);
+                            return null;
+                        }
+                    })
+                );
+            // Filtriramo null vrednosti
+            const validArtikli = artikliIzBaze.filter(artikal => artikal !== null);
+            setArtikli(validArtikli as ArtikalType[]);
+
+            } catch (err) {
+            console.error("Greška pri učitavanju omiljenih artikala:", err);
+            setError("Trenutno nemate omiljene artikle");
+
+            } finally {
+            setLoading(false);
+            }
+        };
+        fetchOmiljeni();
+    }, []);
+
+    if (loading) return <p>Učitavanje omiljenih artikala...</p>;
+    if (error) return <p className="text-red-500">{error}</p>;
+
+    return (
+        <div className="">
+            <div className="w-full mx-auto flex justify-between items-center p-2">
+                <h1 className="font-bold text-3xl mb-[10px]">Omiljeni Artikli</h1>
+                <SortiranjeButton />
             </div>
-            {/* LISTA ARTIKALA */}
-            <ListaArtikala />
+            <div>
+                <ListaArtikala artikli={artikli} />            
+            </div>
         </div>
-      )
-}
+    );
+};
 
-export default heart;
+export default Heart;

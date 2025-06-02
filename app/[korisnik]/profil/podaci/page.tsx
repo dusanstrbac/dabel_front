@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getCookie } from 'cookies-next';
 import { useRouter } from 'next/navigation';
 import { CircleUser, Map, MapPinned, Phone, PhoneCall, UserCircle } from 'lucide-react';
+import { dajKorisnikaIzTokena } from '@/lib/auth';
 
 const ProfilPodaci = () => {
   const [userData, setUserData] = useState<KorisnikPodaciType | null>(null);
@@ -13,26 +13,28 @@ const ProfilPodaci = () => {
   useEffect(() => {
     const fetchKorisnikData = async () => {
       try {
-        const emailFromCookie = await getCookie('Email');
+        const korisnik = dajKorisnikaIzTokena();
 
-        if (!emailFromCookie) {
-          console.error('Email nije prisutan u kolačiću');
-          setLoading(false);
+        if (!korisnik) {
+          router.push('/login'); // Ako ne nadje email u tokenu salje ga na logovanje
+          setLoading(false); // I uklanja loading stranice
           return;
         }
 
-        const emailEncoded = emailFromCookie.replace('@', '%40');
+        const emailEncoded = korisnik.email.replace('@', '%40');
 
         setLoading(true);
         setError(null);
-
-        const response = await fetch(`http://10.0.0.38:7235/api/Partner/Partner?email=${emailEncoded}`);
+        
+        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+        const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${emailEncoded}`);
 
         if (!response.ok) {
           throw new Error('Korisnik nije pronađen');
         }
 
         const data = await response.json();
+        console.log(data);
 
         if (data && Array.isArray(data) && data.length > 0) {
           // Ako je odgovor niz, uzimamo prvi element (korisnika)
@@ -90,8 +92,8 @@ const ProfilPodaci = () => {
 
         <div className="flex flex-col lg:gap-6 text-left lg:text-right">
           <p className="text-gray-600">{getTodayDate()}</p>
-          <p className="font-semibold">Dozvoljeno zaduženje: <span className="font-extrabold">{userData.kredit}</span></p>
-          <p className="font-semibold">Trenutno zaduženje: <span className="font-extrabold">{userData.raspolozivoStanje}</span></p>
+          <p className="font-semibold">Dozvoljeno zaduženje: <span className="font-extrabold">{userData.finKarta?.kredit ?? 'N/A'}</span></p>
+          <p className="font-semibold">Trenutno zaduženje: <span className="font-extrabold">{userData.finKarta?.raspolozivoStanje ?? 'N/A'}</span></p>
         </div>
       </div>
 

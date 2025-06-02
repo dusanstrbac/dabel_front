@@ -1,16 +1,10 @@
 "use client"
-import React, { useState } from "react";
-import { Props } from "next/script";
-import { Button } from "./ui/button";
-import {Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "./ui/table";
-import {
-    DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
-    DropdownMenuItem
-  } from "./ui/dropdown-menu"
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Pagination } from "./ui/pagination";
+import KreirajKorisnika from "./KreirajKorisnika";
+import PromenaPodatakaKorisnika from "./PromenaPodatakaKorisnika";
+import { Input } from "./ui/input";
 
 interface myProps {
     title: string;
@@ -19,161 +13,108 @@ interface myProps {
 
 const KorisniciTable = ({ title } : myProps )=> {
 
-// Zameniti sa podacima iz API-a
-// const tebelaStavke = await getStavke(params.korisnik);
+    const [tabelaStavke, setTabelaStavke] = useState<any[]>([]);
+    const [pretraga, setPretraga] = useState("");
+    const [trenutnaStrana, setTrenutnaStrana] = useState(1);
+    const korisnikaPoStrani = 10;
 
-    const [selectedAktivan, setSelectedAktivan] = useState("Select");
-    const [selectedRole, setSelectedRole] = useState("Select");
-    const router = useRouter();
+    useEffect(() => {
+        const fethujPartnere = async () => {
+            try {
+                const res = await fetch("http://localhost:7235/api/Partner/DajPartnere");
+                const data = await res.json();
+                setTabelaStavke(data);
+            } catch (err) {
+                console.error("Greska: ", err);
+            }
+        };
+        fethujPartnere();
+    }, []);
 
-    const tabelaStavke = [
-        { korisnickoIme: "danilo", lozinka: "***", ime: "Danilo", prezime: "Dabovic", aktivan: "Da", telefon: "0698211007", mobilniTelefon: "", email: "danilo.d@dabel.rs", uloga: "Sve aktivnosti"},
-        { korisnickoIme: "perapera", lozinka: "***", ime: "Petar", prezime: "Petrovic", aktivan: "Ne", telefon: "011345789", mobilniTelefon: "0655342887", email: "petar@gmail.com", uloga: "Sve aktivnosti"},    
-    ];
+    const filtriraniKorisnici = tabelaStavke.filter((korisnik) => 
+        korisnik.ime.toLowerCase().includes(pretraga.toLowerCase()) ||
+        korisnik.email.toLowerCase().includes(pretraga.toLowerCase()),
+    )
+    
+    const trenutniBrojKorisnika = filtriraniKorisnici.slice(
+        (trenutnaStrana - 1 ) * korisnikaPoStrani,
+        trenutnaStrana * korisnikaPoStrani
+    );
 
     return (
-        <div className="flex flex-col gap-2 lg:gap-4 mt-[50px] lg:items-center lg:justify-center pb-20">
+        <div className="mt-2 flex flex-col gap-2 lg:gap-4">
             
-            <div className="flex justify-center w-full lg:w-[800px]">
-                <h1 className="font-bold text-3xl">{title}</h1>
-            </div>
-
-            <div className="pb-20">
-            <Table className="lg:w-[800px]">
-                <TableHeader className="bg-gray-400 hover:bg-gray-400">
-                    <TableRow>
-                    <TableHead></TableHead>
-                    <TableHead className="lg:w-[200px] text-xl">Korisničko ime</TableHead>
-                    <TableHead className="text-xl">Lozinka</TableHead>
-                    <TableHead className="text-xl">Ime</TableHead>
-                    <TableHead className="text-xl">Prezime</TableHead>
-                    <TableHead className="text-xl">Aktivan</TableHead>
-                    <TableHead className="text-xl">Telefon</TableHead>
-                    <TableHead className="text-xl">Mobilni telefon</TableHead>
-                    <TableHead className="text-xl">E-mail</TableHead>
-                    <TableHead className="text-xl">Uloga</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {tabelaStavke.map((stavka) => (
-                        <TableRow key={stavka.korisnickoIme} className="hover:odd:bg-gray-300">
-                            <TableCell className="text-center">
-                            <Link
-                                href={{
-                                pathname: "/dusan/profil/korisnici/promena",
-                                query: {
-                                    korisnickoIme: stavka.korisnickoIme,
-                                    lozinka: stavka.lozinka,
-                                    ime: stavka.ime,
-                                    prezime: stavka.prezime,
-                                    aktivan: stavka.aktivan,
-                                    telefon: stavka.telefon,
-                                    mobilniTelefon: stavka.mobilniTelefon,
-                                    email: stavka.email,
-                                    uloga: stavka.uloga,
-                                }
-                                }}
-                            >
-                                <Button className="bg-gray-400 hover:bg-gray-400">Promena</Button>
-                            </Link>
-                            </TableCell>
-                            <TableCell className="font-medium text-center">{stavka.korisnickoIme}</TableCell>
-                            <TableCell className="font-medium text-center">{stavka.lozinka}</TableCell>
-                            <TableCell className="text-center">{stavka.ime}</TableCell>
-                            <TableCell className="text-center">{stavka.prezime}</TableCell>
-                            <TableCell className="text-center">{stavka.aktivan}</TableCell>
-                            <TableCell className="text-center">{stavka.telefon}</TableCell>
-                            <TableCell className="text-center">{stavka.mobilniTelefon}</TableCell>
-                            <TableCell className="text-center">{stavka.email}</TableCell>
-                            <TableCell className="text-center">{stavka.uloga}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-            </div>
-            <div className="flex justify-center w-full lg:w-[800px]">
-                <h1 className="text-2xl font-medium">Kreiranje novog korisnika</h1>
-            </div>
-            <div className='lg:px-[120px] lg:mt-[40px]'>
-            <div className='flex flex-wrap justify-between gap-10 lg:gap-4 pb-10'>
-                <div>
-                    <div className='mt-4 flex flex-col gap-2'>
-                        <div className='flex items-center justify-between gap-2'>
-                            <p>Korisničko ime:</p>
-                            <textarea className="w-48 h-8 outline-1 outline-gray-400 rounded px-2 py-1 resize-none overflow-x-auto overflow-y-hidden whitespace-nowrap"></textarea>
-                        </div>
-                        <div className='flex items-center justify-between gap-2'>
-                            <p>Lozinka:</p>
-                            <textarea className="w-48 h-8 outline-1 outline-gray-400 rounded px-2 py-1 resize-none overflow-x-auto overflow-y-hidden whitespace-nowrap"></textarea>
-                        </div>
-                        <div className='flex items-center justify-between gap-2'>
-                            <p>Ime:</p>
-                            <textarea className="w-48 h-8 outline-1 outline-gray-400 rounded px-2 py-1 resize-none overflow-x-auto overflow-y-hidden whitespace-nowrap"></textarea>
-                        </div>
-                        <div className='flex items-center justify-between gap-2'>
-                            <p>Prezime:</p>
-                            <textarea className="w-48 h-8 outline-1 outline-gray-400 rounded px-2 py-1 resize-none overflow-x-auto overflow-y-hidden whitespace-nowrap"></textarea>
-                        </div>
-                        <div className='flex items-center justify-between gap-2'>
-                            <p>Aktivan:</p>
-                            <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button className="bg-gray-400 hover:bg-gray-400">
-                                {selectedAktivan}
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuItem onSelect={() => setSelectedAktivan("Da")}>
-                                Da
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onSelect={() => setSelectedAktivan("Ne")}>
-                                Ne
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                    </div>
-                </div>                
-
-                <div className='flex flex-col lg:gap-6 text-left lg:text-right'>
-                    <div className='mt-4 flex flex-col gap-2'>
-                        <div className='flex items-center justify-between gap-2'>
-                            <p>Telefon:</p>
-                            <textarea className="w-48 h-8 outline-1 outline-gray-400 rounded px-2 py-1 resize-none overflow-x-auto overflow-y-hidden whitespace-nowrap"></textarea>
-                        </div>
-                        <div className='flex items-center justify-between gap-2'>
-                            <p>Mobilni telefon:</p>
-                            <textarea className="w-48 h-8 outline-1 outline-gray-400 rounded px-2 py-1 resize-none overflow-x-auto overflow-y-hidden whitespace-nowrap"></textarea>
-                        </div>
-                        <div className='flex items-center justify-between gap-2'>
-                            <p>E-mail:</p>
-                            <textarea className="w-48 h-8 outline-1 outline-gray-400 rounded px-2 py-1 resize-none overflow-x-hidden overflow-y-hidden whitespace-nowrap"></textarea>
-                        </div>
-                        <div className='flex items-center justify-between gap-2'>
-                            <p>Uloga:</p>
-                            <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button className="bg-gray-400 hover:bg-gray-400">{selectedRole}</Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuItem onSelect={() => setSelectedRole("Sve aktivnosti")}>
-                                Sve aktivnosti
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onSelect={() => setSelectedRole("Rezervisanje robe")}>
-                                Rezervisanje robe
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                    </div>
+            <div className="flex justify-between items-center w-full px-2 lg:px-4 flex-wrap">
+                <h1 className="font-bold text-3xl text-center">{title}</h1>
+                <div className="flex gap-2">
+                    <Input type="text" placeholder="Pretraga korisnika" className="border-2" value={pretraga} onChange={(e) => setPretraga(e.target.value)} />
+                    <KreirajKorisnika />
                 </div>
             </div>
-            <div className="flex justify-center">
-                <Button className="bg-gray-400 hover:bg-gray-400">Kreiraj</Button>
+
+            <div className="w-full overflow-x-auto">
+                <Table className="min-w-full">
+                    <TableHeader className="bg-gray-400 hover:bg-gray-400">
+                        <TableRow>
+                        <TableHead></TableHead>
+                        <TableHead className="text-xl">Korisničko ime</TableHead>
+                        <TableHead className="text-xl">E-mail</TableHead>
+                        <TableHead className="text-xl">Telefon</TableHead>
+                        <TableHead className="text-xl">Adresa</TableHead>
+                        <TableHead className="text-xl">Aktivan</TableHead>
+                        <TableHead className="text-xl">Uloga</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {trenutniBrojKorisnika.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={10} className="text-center">
+                                    Nema podataka
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            trenutniBrojKorisnika.map((stavka) => (
+                                <TableRow key={stavka.ime}>
+                                    <TableCell>
+                                        <PromenaPodatakaKorisnika
+                                            korisnik={{
+                                                korisnickoIme: stavka.ime,
+                                                lozinka: stavka.lozinka,
+                                                email: stavka.email,
+                                                telefon: stavka.telefon,
+                                                status: stavka.status,
+                                                uloga: stavka.uloga,
+                                                adresa: stavka.adresa,
+                                                grad: stavka.grad,
+                                                delatnost: stavka.delatnost,
+                                                pib: stavka.pib,
+                                                maticniBroj: stavka.maticniBroj,
+                                                zip: stavka.zip,
+                                                finKarta: stavka.finKarta || { kredit: ''}
+                                            }}
+                                        /> 
+                                    </TableCell>
+                                    <TableCell className="text-left">{stavka.ime}</TableCell>
+                                    <TableCell className="text-left lg:pl-2 truncate">{stavka.email}</TableCell>
+                                    <TableCell className="lg:pl-2">{stavka.telefon}</TableCell>
+                                    <TableCell className="lg:pl-2">{stavka.adresa}</TableCell>                            
+                                    <TableCell className="lg:pl-2">{stavka.aktivan}</TableCell>
+                                    <TableCell className="lg:pl-2">{stavka.uloga}</TableCell>
+                                </TableRow>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
             </div>
+
+            <Pagination
+                totalItems={filtriraniKorisnici.length}
+                itemsPerPage={korisnikaPoStrani}
+                currentPage={trenutnaStrana}
+                onPageChange={setTrenutnaStrana}
+            />
         </div>
-        </div>
-        
+
     );
 }
 

@@ -200,10 +200,11 @@ const admin = () => {
     
     const [articleList, setArticleList] = React.useState<artikalProp[]>([]);
 
+    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     useEffect(() => {
         async function fetchArtikle() {
             try {
-                const res = await fetch('http://10.0.0.38:7235/api/Artikal/DajArtikle');
+                const res = await fetch(`${apiAddress}/api/Artikal/DajArtikle`);
                 const data: artikalProp[] = await res.json();
                 setArticleList(data); // napravi state sviArtikli, bolji od mog, mora da bude!!
             } catch(err) {
@@ -229,7 +230,8 @@ const admin = () => {
                 <div className="flex flex-col w-full ml-3 border-l border-gray-300">
                     
                     <Tabs.Content value="tab1" className="ml-5">
-                        <div>
+                        <div> 
+                            {/* ovaj kod ovde, da li se u PromeniButton salje ceo articleList ili ne jer ovde radimo samo slice?? mozda to nije dobro */}
                                 {articleList.slice(0, 4).map((article) => (
                                     <div key={article.idArtikla} className="flex mx-4 my-2 items-center justify-between">
                                         <div className="flex">

@@ -13,7 +13,6 @@ import { Loader2 } from "lucide-react";
 
 // Validation schema
 const formSchema = z.object({
-//  email: z.string().min(1, "Email je obavezan").email("Unesite ispravan email"),
   korisnickoIme: z.string().min(1, "Korisnicko ime je obavezno"),
   lozinka: z.string().min(4, "Lozinka mora imati najmanje 4 karaktera"),
 });
@@ -34,50 +33,46 @@ export default function LoginForm() {
   });
 
   async function onSubmit(values: FormValues) {
-  setLoading(true);
-  setError(null);
+    setLoading(true);
+    setError(null);
 
-  try {
-    const { data } = await axios.post("http://10.0.0.38:7235/api/Auth/LoginPodaci", {
-      korisnickoIme: values.korisnickoIme,
-      lozinka: values.lozinka,
-    }, {
-      withCredentials: true,
-    });
+    try {
+      const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
-    // Ovo proveravamo da li je server poslao uspešan odgovor
-    console.log("Odgovor sa servera:", data);
+      const { data } = await axios.post(
+        `${apiAddress}/api/Auth/LoginPodaci`,
+        {
+          korisnickoIme: values.korisnickoIme,
+          lozinka: values.lozinka,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
-    if (data.email) {
-      // Ako je server vratio email, znači logovanje je uspešno
-      setCookie("Email", data.email, {
-        maxAge: 60 * 60 * 24 * 2, // Kolacic traje 2 dana
-        path: "/",
-        encode: (value) => value,
-      });
+      if (data.token) {
+        setCookie("AuthToken", data.token, {
+          maxAge: 60 * 60 * 24 * 2, // 2 dana
+          path: "/",
+          encode: (value) => value,
+        });
 
-      setCookie("KorisnickoIme", values.korisnickoIme, {
-        maxAge: 60 * 60 * 24 * 2, // Kolacic traje 2 dana
-        path: "/",
-        encode: (value) => value,
-      });
-
-      router.push("/");  // Ovdje bi trebalo da budeš preusmeren na početnu stranu
-      router.refresh();
-    } else {
-      setError(data.message || "Došlo je do greške prilikom prijave");
+        router.push("/");
+        router.refresh();
+        
+      } else {
+        setError(data.message || "Došlo je do greške prilikom prijave");
+      }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || err.message);
+      } else {
+        setError("Došlo je do greške prilikom prijavljivanja");
+      }
+    } finally {
+      setLoading(false);
     }
-
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      setError(err.response?.data?.message || err.message);
-    } else {
-      setError("Došlo je do greške prilikom prijavljivanja");
-    }
-  } finally {
-    setLoading(false);
   }
-}
 
   return (
     <div className="mx-auto max-w-md space-y-6 pt-10">
@@ -91,7 +86,6 @@ export default function LoginForm() {
           <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
-
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

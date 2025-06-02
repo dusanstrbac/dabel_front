@@ -1,51 +1,82 @@
+import { useRouter } from 'next/navigation';
 import '@/app/globals.css';
 import Image from 'next/image';
-import { Button } from './ui/button';
-import { ShoppingCartIcon } from 'lucide-react';
+import AddToCartButton from './AddToCartButton';
+import { ArtikalType } from '@/types/artikal';
+import { useEffect, useState } from 'react';
+
+const ActionCard = ({ id, naziv, cena, staraCena }: ArtikalType) => {
+    const router = useRouter();
+    const [isMounted, setMounted] = useState(false);
+    
+    const izracunajPopust = (staraCena: number | string | undefined, cena: number | string) => {
+        if (!staraCena) return 0;
+        const staraNum = Number(staraCena);
+        const novaNum = Number(cena);
+        if (!staraNum || staraNum <= novaNum) return 0;
+        return Math.round(((staraNum - novaNum) / staraNum) * 100);
+    };
+    
+    const popust = izracunajPopust(staraCena, cena);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
 
-const ActionCard = () => {
+    const posaljiNaArtikal = ( e: React.MouseEvent) => {
+        e.preventDefault();
+        if(isMounted) {
+            router.push(`/proizvodi/${id}`);
+        }
+    };
+
+    if(!isMounted) return null;
 
     return (
-        <div className='articleSize relative articleBorder max-w-[320px] z-0'>
+        <div
+            className='articleSize cursor-pointer relative max-w-[320px] hover:shadow-2xl transition-shadow duration-300 rounded-2xl grid grid-rows-[auto,auto,auto]'
+            onClick={posaljiNaArtikal}
+        >
             {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-90 z-10 rounded-[9px]">
-            </div>
-            
-            <div>
-                {/* Popust badge */}
-                <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded z-20 shadow-md">
-                    -20%
-                </div>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-90 z-10 rounded-2xl"></div>
 
+            {/* Popust badge */}
+            {popust > 0 && (
+            <div className="absolute top-2 left-2 py-2 px-3 text-sm text-center rounded-2xl bg-red-500 text-white z-10 border-2">
+                -{popust}%
+            </div>
+            )}
+            {/* Slika */}
+            <div className="w-full h-64 relative">
                 <Image
-                    src="/Artikal.jpg"
-                    alt="Article Image"
-                    width={318}
-                    height={400}
+                    src={'/artikal.jpg'}
+                    alt={naziv}
+                    layout="fill"
+                    objectFit="cover"
                     className='rounded-lg w-full h-full object-cover'
                 />
             </div>
 
+            {/* Tekstualni deo */}
+            <div className='flex flex-col justify-between px-2 py-3'>
+                {/* Ime artikla */}
+                <h2 className='text-sm lg:text-lg font-semibold text-center'>
+                    {naziv}
+                </h2>
 
-            {/* Tekst */}
-            <div className='flex flex-col'>
-            <h2 className='text-sm lg:text-lg font-bold text-center'>
-                Kvaka-rozeta  Ms LISABOA M173/42/42S 8x8mm Cil (516674)
-            </h2>
-            <div className='flex justify-between items-center px-2'>
-                <p className='text-md lg:text-xl font-semibold text-red-500'>
-                <span>500</span>RSD
-                </p>
-                <div>
-                    <Button variant="outline" size="icon">
-                        <ShoppingCartIcon color='red'/>
-                    </Button>
+                {/* Cena i dugme */}
+                <div className='flex justify-between items-center'>
+                    <p className='text-md lg:text-xl font-semibold text-red-500'>
+                        <span className='line-through text-gray-400'>{staraCena}</span><span className='pl-[5px]'>{cena}</span> RSD
+                    </p>
+                    <div>
+                        <AddToCartButton />
+                    </div>
                 </div>
             </div>
-            </div>
         </div>
-    )
-}
+    );
+};
 
 export default ActionCard;

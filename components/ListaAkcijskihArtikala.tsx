@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect, useMemo } from "react"
 import ArticleCard from "./ArticleCard"
 import {
@@ -13,8 +12,9 @@ import {
 } from "@/components/ui/pagination"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ListaArtikalaProps } from "@/types/artikal"
+import ActionCard from "./ActionCard"
 
-const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
+const ListaAkcijskihArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
   const [trenutnaStrana, setTrenutnaStrana] = useState(1)
   const artikliPoStrani = 8
   const router = useRouter()
@@ -48,7 +48,7 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
   }
 
   if (artikli.length === 0) {
-    return <p className="text-center py-5 text-gray-500">Nema artikala za prikaz.</p>
+    return <p className="text-center py-10 text-gray-500">Nema artikala za prikaz.</p>
   }
 
 
@@ -57,12 +57,13 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
       {/* Mreža artikala */}
       <div className="grid gap-1 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
         {prikazaniArtikli.map((artikal) => (
-          <ArticleCard
+          <ActionCard
             key={artikal.id}
             naziv={artikal.naziv}
             cena={artikal.cena}
             slika={artikal.slika}
             id={artikal.id}
+            staraCena={artikal.staraCena}
             />
         ))}
       </div>
@@ -137,4 +138,4 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
   )
 }
 
-export default ListaArtikala
+export default ListaAkcijskihArtikala;

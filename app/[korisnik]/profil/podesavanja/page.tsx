@@ -6,6 +6,8 @@ import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { getCookie } from 'cookies-next';
+import { basename } from 'path';
 
 // Sema za validaciju
 const formSchema = z.object({
@@ -17,7 +19,6 @@ const formSchema = z.object({
 export default function Podesavanja() {
   const [isMounted, setIsMounted] = useState(false);
 
-  // Prilagodba za ispravnu hidrataciju
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -32,8 +33,42 @@ export default function Podesavanja() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log('Prijava podaci:', values);
-    // MESTO ZA API POZIV
+    const idPartnera = getCookie("IdKorisnika");
+    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
+
+    if(!idPartnera) {
+      alert("Doslo je do greske. Molimo ulogujte se opet");
+      return;
+    }
+
+    fetch(`${apiAddress}/api/Partner/PromenaLozinke`, {
+      method:"PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        idPartnera: idPartnera,
+        lozinka: values.lozinka,
+        novaLozinka: values.novalozinka,
+        potvrdaLozinke: values.plozinka,
+      }),
+    })
+    .then(async (res) => {
+      if(!res.ok) {
+        const error = await res.text();
+        throw new Error(error);
+      }
+      return res.text();
+    })
+    .then((msg) => {
+      alert(msg);
+      form.reset();
+    })
+    .catch((err) => {
+      alert(`Greska ${err}`);
+    })
+
   }
 
   // Ne renderuj sadržaj dok se stranica ne "hidratira" na klijentu
@@ -115,7 +150,7 @@ export default function Podesavanja() {
           />
 
           <Button type="submit" className="w-full cursor-pointer">
-            Prijava
+            Sačuvaj
           </Button>
         </form>
       </Form>

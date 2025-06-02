@@ -156,7 +156,7 @@ export function ComboboxArtikli({
                   value={artikal.idArtikla}
                   onSelect={() => {
                     console.log("👉 Kliknut item:", artikal.naziv);
-                    handleSelect(artikal.naziv);
+                    handleSelect(artikal.idArtikla);
                     console.log("🖱 Kliknut artikal:", artikal.naziv, "ID:", artikal.idArtikla);
                   }}
                 >
