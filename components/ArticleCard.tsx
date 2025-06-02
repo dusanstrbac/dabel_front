@@ -55,7 +55,7 @@ const ArticleCard = ({ id, naziv, cena, slika }: ArtikalType) => {
                         <span>{cena}</span> RSD
                     </p>
                     <div>
-                        <AddToCartButton />
+                        <AddToCartButton id={id} getKolicina={() => Number(1)} nazivArtikla={naziv}/>
                     </div>
                 </div>
             </div>

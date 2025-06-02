@@ -5,9 +5,18 @@ import { useParams } from "next/navigation";
 import PreporuceniProizvodi from "@/components/PreporuceniProizvodi";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { getCookie } from "cookies-next";
 import DodajUOmiljeno from "@/components/DodajUOmiljeno";
+import AddToCartButton from "./AddToCartButton";
+import { useRef } from "react";
 import ClientLightbox from "./ui/ClientLightbox";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
+
+
+const Lightbox = dynamic(() => import("yet-another-react-lightbox"), {
+  ssr: false,
+});
 
 type ProizvodType = {
   id: string;
@@ -43,14 +52,17 @@ export default function Proizvod() {
   const [email, setEmail] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+
 
   useEffect(() => {
+    const korisnik = dajKorisnikaIzTokena();
     const productId = Array.isArray(id) ? id[0] : id;
     if (!productId) return;
 
     const fetchData = async () => {
       try {
-        const e = getCookie("Email");
+        const e = korisnik?.email;
         if (typeof e === "string") setEmail(e);
 
         const res = await fetch(
@@ -72,12 +84,14 @@ export default function Proizvod() {
           detalji: osnovni.detalji,
         });
 
-        const filtered = data
-          .filter((item: AtributType) => prikazaniAtributi.includes(item.atribut))
-          .map((item: AtributType) => ({
-            atribut: item.atribut,
-            vrednost: item.vrednost,
-          }));
+        const filtered = osnovni.atributi
+        .filter((item: { imeAtributa: string, vrednost: string }) => 
+          prikazaniAtributi.includes(item.imeAtributa)
+        )
+        .map((item: { imeAtributa: string, vrednost: string }) => ({
+          atribut: item.imeAtributa,
+          vrednost: item.vrednost,
+        }));
 
         setAtributi(filtered);
       } catch {
@@ -171,16 +185,18 @@ export default function Proizvod() {
         </div>
 
         <div className="flex flex-col gap-4 w-full lg:w-1/3 items-start justify-end lg:items-end">
-          {email && <DodajUOmiljeno idArtikla={proizvod.id} />}
+          {email && <DodajUOmiljeno idArtikla={proizvod.id} idPartnera={email} />}
           <div className="flex gap-2 w-full sm:w-auto flex-wrap">
-            <input
+            <input 
+              ref={inputRef}
+              name="inputProizvod"
               className="w-16 border rounded px-2 py-1 text-center"
               type="number"
               min={0}
               max={50}
               defaultValue={1}
             />
-            <Button className="w-full sm:w-auto px-6 py-2">Dodaj u korpu</Button>
+            <AddToCartButton id ={id} className="w-full sm:w-auto px-6 py-2" title="Dodaj u korpu" getKolicina={() => Number(inputRef.current?.value || 1)} nazivArtikla={proizvod.naziv}/>
           </div>
         </div>
       </div>

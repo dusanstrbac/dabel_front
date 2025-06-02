@@ -13,9 +13,18 @@ interface KorisnikPodaciType {
     kredit: string,
     nijeDospelo: string,
     komercijalista: KorisnikPodaciKomercijalistaType,
+    finKarta: FinKartaType,
 }
 
 interface KorisnikPodaciKomercijalistaType {
     ime: string,
     telefon: string,
+}
+
+interface FinKartaType {
+    idPartnera: string;
+    nerealizovano: string;
+    raspolozivoStanje: string;
+    kredit: string;
+    nijeDospelo: string;
 }

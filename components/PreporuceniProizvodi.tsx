@@ -43,7 +43,7 @@ const PreporuceniProizvodi = () => {
                 {proizvodi.map((proizvod) => (
                     <ArticleCard 
                         key={proizvod.id} 
-                        naslov={proizvod.naslov} 
+                        naziv={proizvod.naziv} 
                         cena={proizvod.cena} 
                         slika={proizvod.slika} 
                     />

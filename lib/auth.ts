@@ -1,29 +1,28 @@
-import jwt from 'jsonwebtoken';
+import { jwtDecode } from "jwt-decode";
+import { getCookie } from "cookies-next";
 
-const SECRET_KEY = process.env.JWT_SECRET_KEY || '123456';
-
-interface CustomJwtPayload {
-  username: string;
+type DekodiranToken = {
   email: string;
-  role: string;
-}
+  sub: string; // korisnickoIme se nalazi u sub
+  id: string;  // id korisnika
+  exp: number;
+  iat: number;
+};
 
-export function GenerateToken(user: {username: string, email:string, role:string }) {
-  const payload: CustomJwtPayload = {
-    username: user.username,
-    email: user.email,
-    role: user.role
-  };
+export function dajKorisnikaIzTokena(): { email: string; korisnickoIme: string; idKorisnika: string } | null {
+  const token = getCookie("AuthToken");
 
-  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' });
-  return token;
-}
+  if (!token || typeof token !== "string") return null;
 
-export function verifyToken(token: string): CustomJwtPayload | null {
   try {
-    const decoded = jwt.verify(token, SECRET_KEY) as CustomJwtPayload;
-    return decoded;
-  } catch(err) {
+    const decoded = jwtDecode<DekodiranToken>(token);
+    return {
+      email: decoded.email,
+      korisnickoIme: decoded.sub,
+      idKorisnika: decoded.id,
+    };
+  } catch (error) {
+    console.error("Greška pri dekodiranju tokena:", error);
     return null;
   }
 }

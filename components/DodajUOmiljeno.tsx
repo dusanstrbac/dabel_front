@@ -1,28 +1,27 @@
 'use client';
-import { getCookie } from "cookies-next";
 import { Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface OmiljeniType {
     idArtikla: string;
-    // idPartnera ukloni iz props, jer će se čitati iz cookie
+    idPartnera: string | null | undefined;
 }
 
-const DodajUOmiljeno = ({ idArtikla }: { idArtikla: string }) => {
+const DodajUOmiljeno = ({ idArtikla, idPartnera }: OmiljeniType) => {
     const [lajkovano, setLajkovano] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Uvek uzmi idPartnera iz kolačića
-    const idPartnera = getCookie("IdKorisnika") as string | undefined;
-
     useEffect(() => {
-        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-
         const fetchStatus = async () => {
+            if (!idPartnera) {
+                setLoading(false);
+                setError("Korisnik nije prijavljen");
+                return;
+            }
 
             try {
-                const res = await fetch(`${apiAddress}/api/Partner/${idPartnera}/OmiljeniArtikli`);
+                const res = await fetch(`http://10.0.0.38:7235/api/Partner/${idPartnera}/OmiljeniArtikli`);
                 if (!res.ok) throw new Error("Greška prilikom učitavanja omiljenih");
 
                 const omiljeniArtikli: string[] = await res.json();
@@ -39,18 +38,18 @@ const DodajUOmiljeno = ({ idArtikla }: { idArtikla: string }) => {
     }, [idArtikla, idPartnera]);
 
     const toggleOmiljeni = async () => {
+        // Ukloniti kada se implementira middleware
         if (!idPartnera) {
             alert("Morate biti prijavljeni da biste dodali u omiljeno.");
             return;
         }
 
         try {
-            const noviStatus = lajkovano ? 0 : 1;
+            const noviStatus = lajkovano ? 0 : 1;  // Ako je lajkovano, šalji 0 (ukloni), inače 1 (dodaj)
 
             setLajkovano(prev => !prev);
-            
-            const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-            const res = await fetch(`${apiAddress}/api/Partner/OmiljeniArtikal/Toggle`, {
+
+            const res = await fetch(`https://10.0.0.38:7235/Partner/OmiljeniArtikal/Toggle`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -69,6 +68,7 @@ const DodajUOmiljeno = ({ idArtikla }: { idArtikla: string }) => {
         }
     };
 
+    // 3. UI
     if (loading) return <p className="text-sm text-gray-500">Proveravam status...</p>;
     if (error) return <p className="text-sm text-red-500">{error}</p>;
 

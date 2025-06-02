@@ -4,30 +4,40 @@ import {Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableR
 import Link from "next/link";
 import { getCookie } from "cookies-next";
 import { useEffect, useState } from "react";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 interface myProps {
     title: string;
 }
 
 const FormTable = ({ title } : myProps )=> {
-    const [korisnik, setKorisnik] = useState<string | null>(null);
-
-
+    const korisnik = dajKorisnikaIzTokena();
+    const [error, setError] = useState('');
+    const [dokumenta, setDokumenta] = useState('');
+    const [loading, setLoading] = useState(false);
+    
     useEffect(() => {
-        const imeKorisnika = getCookie("KorisnickoIme") as string | null;
-        setKorisnik(imeKorisnika);
+        const izvuciDokumenta = async () => {
+            try {
+                const idKorisnika = korisnik?.idKorisnika;
+                const res = await fetch(`http://10.0.0.63:2034/api/v2/Dokument/Narudzbenica/${idKorisnika}/Partner?offset=0&limit=10`);
+                if (!res.ok) {
+                throw new Error("Greška pri učitavanju podataka.");
+                }
+                const data = await res.json();
+                setDokumenta(data); // Postavljanje podataka u state
+            } catch (err: any) {
+                setError(err.message); // Postavljanje greške u state
+            } finally {
+                setLoading(false); // Završava loading
+            }
+        };
+        izvuciDokumenta();
     }, []);
 
-
-    const izvuciDokumenta = async () => {
-        const idKorisnika = getCookie("IdKorisnika");
-        const res = await fetch(`http://10.0.0.63:2034/api/v2/Dokument/Narudzbenica/${idKorisnika}/Partner?offset=0&limit=10`);
-        const data = await res.json();
-
-        console.log(data);
-    }
-
-    izvuciDokumenta();
+    if (loading) return <div>Učitavanje podataka...</div>;
+    if (error) return <div>Greška: {error}</div>;
+    if (!dokumenta.length) return <div>Nema podataka.</div>;
 
     return (
         <div className="flex flex-col gap-2 lg:gap-4 mt-[50px] lg:items-center lg:justify-center">

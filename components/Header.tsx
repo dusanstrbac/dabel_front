@@ -15,17 +15,16 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion";
 import { Separator } from "./ui/separator";
 import { ScrollArea } from "./ui/scroll-area";
-import { useCart } from "@/contexts/CartContext";
 import KorisnikMenu from "./KorisnikMenu";
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { deleteCookie, getCookie } from 'cookies-next';
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 
 export default function Header() {
-
-  const { cartCount } = useCart();
   const [email, setEmail] = useState<string | null>(null);
+  const [korisnickoIme, setKorisnickoIme] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
@@ -69,44 +68,29 @@ export default function Header() {
     { icon: <User className="w-4 h-4" />, text: "Moj profil", href: "/profil" },
   ];
 
-
-  if(username === 'null') {
-    router.push('/login');
-  }
-
   useEffect(() => {
+    const korisnik = dajKorisnikaIzTokena();
+    
+    if(korisnik && korisnik.korisnickoIme) {
+      setKorisnickoIme(korisnik.korisnickoIme);
+      setIsLoggedIn(true);
+    } else {
+      setKorisnickoIme(null);
+      setIsLoggedIn(false);
+    }
     setIsMounted(true);
-    // Provera postojanja kolacica
-    const fetchData = async() => {
-      try {
-        // const token = await getCookie('auth_token');
-        const user = await getCookie('KorisnickoIme');
-
-         if(user) {
-           setIsLoggedIn(true);
-           setUsername(user as string);
-         } 
-        else {
-          setIsLoggedIn(false);
-          setUsername(null)
-        }
-      } catch(err) {
-        console.log(err);
-        setIsLoggedIn(false);
-      }
-    };
-    fetchData();
 
   }, []);
 
    const prijaviKorisnika = () => {
-    window.location.href = '/login';
+    router.push('/login');
   };
 
   const odjaviKorisnika = () => {
-    deleteCookie('Email');
-    deleteCookie('KorisnickoIme');
-    window.location.href = '/';
+    deleteCookie("AuthToken");
+    setKorisnickoIme(null);
+    setIsLoggedIn(false);
+    router.push('/');
   };
 
   return (
@@ -158,11 +142,6 @@ export default function Header() {
             {/* KORPA */}
             <Link href="/korpa" className="relative">
               <ShoppingCart className="h-6 w-6 text-gray-500 hover:text-gray-700" />
-              {cartCount > 0 && (
-              <span className="absolute -top-3 -right-3 bg-gradient-to-br from-red-500 to-red-800 text-white text-xs rounded-full h-[20px] w-[20px] flex items-center justify-center border border-black">
-                {cartCount}
-              </span>
-              )}
             </Link>
             {/* NALOG IKONICA */}
             <KorisnikMenu />
@@ -256,7 +235,7 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent className="w-full">
                 <SheetHeader>
-                  <SheetTitle>{username ? username : 'Korisnik'}</SheetTitle>
+                  <SheetTitle>{korisnickoIme ? korisnickoIme : 'Korisnik'}</SheetTitle>
                   <SheetDescription></SheetDescription>
                   <Separator />
                 </SheetHeader>

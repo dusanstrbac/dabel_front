@@ -4,6 +4,7 @@ import ListaArtikala from "@/components/ListaArtikala";
 import { getCookie } from "cookies-next";
 import SortiranjeButton from "@/components/SortiranjeButton";
 import { ArtikalType } from "@/types/artikal";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 const Heart = () => {
     const [artikli, setArtikli] = useState<ArtikalType[]>([]);
@@ -13,52 +14,52 @@ const Heart = () => {
     useEffect(() => {
 
         const fetchOmiljeni = async () => {
-    const idPartnera = getCookie("IdKorisnika") as string | undefined;
-    if (!idPartnera) {
-        setError("Korisnik nije prijavljen");
-        setLoading(false);
-        return;
-    }
+            const korisnik = dajKorisnikaIzTokena();
 
-    try {
-        const res = await fetch(`http://localhost:7235/api/Partner/${idPartnera}/OmiljeniArtikli`);
-        if (!res.ok) throw new Error(`Greška pri učitavanju omiljenih artikala: ${res.statusText}`);
+            if (!korisnik?.idKorisnika) {
+                setError("Korisnik nije prijavljen");
+                setLoading(false);
+                return;
+            }
 
-        const data: { id: string }[] = await res.json();
+            const idPartnera = korisnik.idKorisnika;
 
-        const artikliIzBaze = await Promise.all(
-            data.map(async (artikal) => {
-                try {
-                    const artikalIzBazeRes = await fetch(`http://localhost:7235/api/Artikal/ArtikalId?ids=${artikal}`);
+            try {
+                const res = await fetch(`http://localhost:7235/api/Partner/OmiljeniArtikli?idPartnera=${idPartnera}`);
+                if (!res.ok) throw new Error(`Greška pri učitavanju omiljenih artikala: ${res.statusText}`);
+                const data: { id: string }[] = await res.json();
 
-                    if (!artikalIzBazeRes.ok) {
-                        return null;
-                    }
+                const artikliIzBaze = await Promise.all(
+                    data.map(async (artikal) => {
+                        try {
+                            const artikalIzBazeRes = await fetch(`http://localhost:7235/api/Artikal/ArtikalId?ids=${artikal}`);
 
-                    const artikalData = await artikalIzBazeRes.json();
+                            if (!artikalIzBazeRes.ok) {
+                                return null;
+                            }
 
-                    // Proveri da li artikalData sadrži podatke
-                    return artikalData && artikalData.length > 0 ? artikalData[0] : null;
-                } catch (error) {
-                    console.error("Greška prilikom fetchovanja artikla:", error);
-                    return null;
-                }
-            })
-        );
+                            const artikalData = await artikalIzBazeRes.json();
 
-        // Filtriramo null vrednosti
-        const validArtikli = artikliIzBaze.filter(artikal => artikal !== null);
+                            // Proveri da li artikalData sadrži podatke
+                            return artikalData && artikalData.length > 0 ? artikalData[0] : null;
+                        } catch (error) {
+                            console.error("Greška prilikom fetchovanja artikla:", error);
+                            return null;
+                        }
+                    })
+                );
+            // Filtriramo null vrednosti
+            const validArtikli = artikliIzBaze.filter(artikal => artikal !== null);
+            setArtikli(validArtikli as ArtikalType[]);
 
-        setArtikli(validArtikli as ArtikalType[]);
+            } catch (err) {
+            console.error("Greška pri učitavanju omiljenih artikala:", err);
+            setError("Trenutno nemate omiljene artikle");
 
-    } catch (err) {
-        console.error("Greška pri učitavanju omiljenih artikala:", err);
-        setError("Trenutno nemate omiljene artikle");
-    } finally {
-        setLoading(false);
-    }
-};
-
+            } finally {
+            setLoading(false);
+            }
+        };
         fetchOmiljeni();
     }, []);
 
