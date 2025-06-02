@@ -70,7 +70,7 @@ const Heart = () => {
         <div className="">
             <div className="w-full mx-auto flex justify-between items-center p-2">
                 <h1 className="font-bold text-3xl mb-[10px]">Omiljeni Artikli</h1>
-                <SortiranjeButton />
+                <SortiranjeButton artikli={artikli} setArtikli={setArtikli} />
             </div>
             <div>
                 <ListaArtikala artikli={artikli} />            

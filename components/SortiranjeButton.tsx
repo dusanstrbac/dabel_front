@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { ArtikalType } from "@/types/artikal";
+import { SortiranjeButtonProps } from "@/types/artikal";
 
-const SortiranjeButton = () => {
-    const [artikli, setArtikli] = useState<ArtikalType[]>([]);
+const SortiranjeButton = ({ artikli, setArtikli } : SortiranjeButtonProps ) => {
     
 // Funkcije za sortiranje
     const sortirajRastuce = () => {
