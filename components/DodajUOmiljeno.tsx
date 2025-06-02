@@ -1,4 +1,5 @@
 'use client';
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -7,10 +8,13 @@ interface OmiljeniType {
     idPartnera: string | null | undefined;
 }
 
-const DodajUOmiljeno = ({ idArtikla, idPartnera }: OmiljeniType) => {
+const DodajUOmiljeno = ({ idArtikla }: OmiljeniType) => {
     const [lajkovano, setLajkovano] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+    const korisnik = dajKorisnikaIzTokena();
+    const idPartnera = korisnik?.idKorisnika;
 
     useEffect(() => {
         const fetchStatus = async () => {
@@ -21,7 +25,7 @@ const DodajUOmiljeno = ({ idArtikla, idPartnera }: OmiljeniType) => {
             }
 
             try {
-                const res = await fetch(`http://10.0.0.38:7235/api/Partner/${idPartnera}/OmiljeniArtikli`);
+                const res = await fetch(`${apiAddress}/api/Partner/OmiljeniArtikli?idPartnera=${idPartnera}`);
                 if (!res.ok) throw new Error("Greška prilikom učitavanja omiljenih");
 
                 const omiljeniArtikli: string[] = await res.json();
@@ -49,7 +53,7 @@ const DodajUOmiljeno = ({ idArtikla, idPartnera }: OmiljeniType) => {
 
             setLajkovano(prev => !prev);
 
-            const res = await fetch(`https://10.0.0.38:7235/Partner/OmiljeniArtikal/Toggle`, {
+            const res = await fetch(`${apiAddress}/api/Partner/OmiljeniArtikal/Toggle`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -72,9 +76,17 @@ const DodajUOmiljeno = ({ idArtikla, idPartnera }: OmiljeniType) => {
     if (loading) return <p className="text-sm text-gray-500">Proveravam status...</p>;
     if (error) return <p className="text-sm text-red-500">{error}</p>;
 
+    const proveriStatus = () => {
+        if(lajkovano) {
+            return <p className="text-[16px]">Ukloni iz omiljenog</p> 
+        } else {
+            return <p className="text-[16px]">Dodaj u omiljeno</p>
+        }
+    }
+
     return (
         <div className="flex items-center gap-2">
-            <p className="text-[16px]">Dodaj u omiljeno</p>
+            {proveriStatus()}
             <Heart 
                 width={25} 
                 height={25}

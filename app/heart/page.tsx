@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from "react";
 import ListaArtikala from "@/components/ListaArtikala";
-import { getCookie } from "cookies-next";
 import SortiranjeButton from "@/components/SortiranjeButton";
 import { ArtikalType } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
@@ -27,12 +26,13 @@ const Heart = () => {
             try {
                 const res = await fetch(`http://localhost:7235/api/Partner/OmiljeniArtikli?idPartnera=${idPartnera}`);
                 if (!res.ok) throw new Error(`Greška pri učitavanju omiljenih artikala: ${res.statusText}`);
+                const apiAdress = process.env.NEXT_PUBLIC_API_ADDRESS
                 const data: { id: string }[] = await res.json();
 
                 const artikliIzBaze = await Promise.all(
                     data.map(async (artikal) => {
                         try {
-                            const artikalIzBazeRes = await fetch(`http://localhost:7235/api/Artikal/ArtikalId?ids=${artikal}`);
+                            const artikalIzBazeRes = await fetch(`${apiAdress}/api/Artikal/ArtikalId?ids=${artikal}`);
 
                             if (!artikalIzBazeRes.ok) {
                                 return null;
