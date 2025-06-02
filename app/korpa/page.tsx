@@ -18,7 +18,8 @@ const Korpa = () => {
         const cart = JSON.parse(localStorage.getItem("cart") || "{}");
         const storedIds = Object.keys(cart).map(Number);
         const queryString = storedIds.map(id => `ids=${id}`).join("&");
-        const url = `http://localhost:7235/api/Artikal/ArtikalId?${queryString}`;
+        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+        const url = `${apiAddress}/api/Artikal/ArtikalId?${queryString}`;
 
         const fetchArticles = async () => {
             try {
