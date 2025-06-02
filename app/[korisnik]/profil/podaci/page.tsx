@@ -1,31 +1,32 @@
 'use client';
-import { CircleUser, MapIcon, MapPinnedIcon, Phone, UserCircle } from 'lucide-react';
-import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { getCookie } from 'cookies-next';
+import { useRouter } from 'next/navigation';
+import { CircleUser, Map, MapPinned, Phone, PhoneCall, UserCircle } from 'lucide-react';
 
 const ProfilPodaci = () => {
-  const [userData, setUserData] = useState<KorisnikType | null>(null);
+  const [userData, setUserData] = useState<KorisnikPodaciType | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); 
-  const { korisnik } = useParams<{ korisnik: string | string[] }>();  // Dodajemo tip string | string[] za korisnik parametar
+  const [error, setError] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
-    // Provera da li korisnik nije niz, ako jeste, uzimamo prvi element
-    const email = Array.isArray(korisnik) ? korisnik[0] : korisnik;
-
     const fetchKorisnikData = async () => {
-      if (!email) {
-        console.error('Email nije prosleđen');
-        throw Error('Email korisnika nije prosleđen');
-        setLoading(false);
-        return;
-      }
-
       try {
-        setLoading(true);
-        setError(null);  // Resetovanje greške pre svakog pokušaja
+        const emailFromCookie = await getCookie('Email');
 
-        const response = await fetch(`/api/korisnici/${email}`);
+        if (!emailFromCookie) {
+          console.error('Email nije prisutan u kolačiću');
+          setLoading(false);
+          return;
+        }
+
+        const emailEncoded = emailFromCookie.replace('@', '%40');
+
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch(`http://10.0.0.38:7235/api/Partner/Partner?email=${emailEncoded}`);
 
         if (!response.ok) {
           throw new Error('Korisnik nije pronađen');
@@ -33,7 +34,12 @@ const ProfilPodaci = () => {
 
         const data = await response.json();
 
-        setUserData(data);
+        if (data && Array.isArray(data) && data.length > 0) {
+          // Ako je odgovor niz, uzimamo prvi element (korisnika)
+          setUserData(data[0]);
+        } else {
+          console.error('Korisnik nije pronađen ili API ne vraća ispravan odgovor');
+        }
       } catch (err) {
         console.error('Greška prilikom učitavanja korisnika:', err);
         throw Error('Greška prilikom učitavanja korisnika');
@@ -42,75 +48,83 @@ const ProfilPodaci = () => {
       }
     };
 
-    if (email) {
-      fetchKorisnikData();
-    }
-  }, [korisnik]);  // Ovaj hook zavisi od korisnik parametra
+    fetchKorisnikData();
+  }, []);
 
   if (loading) return <div>Učitavanje podataka...</div>;
   if (error) return <div>{error}</div>;
   if (!userData) return <div>Korisnik nije pronađen.</div>;
 
-    return (
-        <div className='lg:px-[120px] lg:mt-[40px]'>
-            <div className='flex flex-wrap justify-between gap-10 lg:gap-4 '>
-                <div>
-                    <h1 className='text-3xl font-bold'>{userData.firma.naziv_firme}</h1>
-                    <div className='mt-4 flex flex-col gap-2'>
-                        <div className='flex items-center gap-2'>
-                            <MapIcon color='grey' />
-                            <p>{userData.firma.lokacija}</p>
-                        </div>
-                        <div className='flex items-center gap-2'>
-                            <Phone color='grey' />
-                            <p>{userData.firma.telefon_firma}</p>
-                        </div>
-                        <div className='flex items-center gap-2'>
-                            <MapPinnedIcon color='grey' />
-                            <p>{userData.firma.drzava}</p>
-                        </div>
-                    </div>
-                </div>                
+  const getTodayDate = () => {
+    const today = new Date();
+    
+    // Dobijanje godine, meseca i dana
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0'); // Dodajemo 1 jer meseci u JS idu od 0
+    const day = today.getDate().toString().padStart(2, '0'); // Dodajemo 0 ako je dan manji od 10
+    
+    return `${day}.${month}.${year}`;
+  };
 
-                <div className='flex flex-col lg:gap-6 text-left lg:text-right'>
-                    <p className='text-gray-600'>14.04.2025</p>
-                    <p className='font-semibold'>Dozvoljeno zaduženje: <span className='font-extrabold'>18000000.00</span></p>
-                    <p className='font-semibold'>Trenutno zaduženje: <span className='font-extrabold'>820976.50</span></p>
-                </div>
+
+  return (
+    <div className="lg:px-[120px] lg:mt-[40px]">
+      <div className="flex flex-wrap justify-between gap-10 lg:gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">{userData.ime}</h1>
+          <div className="mt-4 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <MapPinned />
+              <p>{userData.adresa}</p>
             </div>
-
-            <div className='mt-[50px] flex gap-10 lg:gap-[150px]'>
-                <div className='flex flex-col gap-2'>
-                    <h1>Delatnost: <span>{userData.firma.delatnost}</span></h1>
-                    <p>MB: <span>{userData.firma.MB}</span></p>
-                    <p>PIB: <span>{userData.firma.PIB}</span></p>
-                </div>
-
-                <div className='flex flex-col gap-2'>
-                    <div className='flex items-center gap-2'>
-                        <CircleUser color='grey' />
-                        <h1>{userData.ime} </h1>
-                    </div>
-                    <div className='flex items-center gap-2'>
-                        <Phone color='grey' />
-                        <p>{userData.mobilni}</p>
-                    </div>
-                </div>
+            <div className="flex items-center gap-2">
+              <PhoneCall />
+              <p>{userData.telefon}</p>
             </div>
+            <div className="flex items-center gap-2">
+              <Map />
+              <p>{userData.grad}</p>
+            </div>
+          </div>
+        </div>
 
-            {/* NEKI BROJ TELEFONA */}
-            <div className='mt-[40px] lg:mt-[40px] flex gap-[20px]'>
+        <div className="flex flex-col lg:gap-6 text-left lg:text-right">
+          <p className="text-gray-600">{getTodayDate()}</p>
+          <p className="font-semibold">Dozvoljeno zaduženje: <span className="font-extrabold">{userData.kredit}</span></p>
+          <p className="font-semibold">Trenutno zaduženje: <span className="font-extrabold">{userData.raspolozivoStanje}</span></p>
+        </div>
+      </div>
+
+      <div className="mt-[50px] flex gap-10 lg:gap-[150px]">
+        <div className="flex flex-col gap-2">
+          <h1>Delatnost: <span>{userData.delatnost}</span></h1>
+          <p>MB: <span>{userData.maticniBroj}</span></p>
+          <p>PIB: <span>{userData.pib}</span></p>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <CircleUser />
+            <h1>{userData.ime}</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <PhoneCall />
+            <p>{userData.telefon}</p>
+          </div>
+        </div>
+      </div>
+      <div className='mt-[40px] lg:mt-[40px] flex gap-[20px]'>
                 <UserCircle color='grey' size={80} className='p-[20px] border border-gray-400 rounded-[25px]'/>
                 <div className='flex flex-col'>
-                    <h1 className='font-bold text-xl'>{userData.komercijalista.ime}</h1>
+                    <h1 className='font-bold text-xl'>Petar Petrović</h1>
                     <div className='flex items-center gap-2'>
                         <Phone color='grey' />
-                        <p className='text-lg'>{userData.komercijalista.telefon}</p>
+                        <p className='text-lg'>+38135232316</p>
                     </div>
                 </div>
-            </div>
-        </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default ProfilPodaci;

@@ -1,25 +1,21 @@
-interface KorisnikType {
+interface KorisnikPodaciType {
     ime: string,
     email: string,
-    password: string,
-    token: string,
-    username: string,
-    mobilni: string,
-    firma: Firma,
-    komercijalista: Komercijalista,
-}
-
-interface Firma {
-    naziv_firme: string,
-    lokacija: string,
-    telefon_firma: string,
-    drzava: string,
+    adresa: string,
+    grad: string,
     delatnost: string,
-    MB: string,
-    PIB: string,
+    zip: string,
+    maticniBroj: string,
+    pib: string,
+    telefon: string,
+    nerealizovano: string,
+    raspolozivoStanje: string,
+    kredit: string,
+    nijeDospelo: string,
+    komercijalista: KorisnikPodaciKomercijalistaType,
 }
 
-interface Komercijalista {
+interface KorisnikPodaciKomercijalistaType {
     ime: string,
     telefon: string,
 }

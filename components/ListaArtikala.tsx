@@ -65,9 +65,9 @@ const ListaArtikala = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 p-4">
+    <div className="flex flex-col w-full px-1">
       {/* Mreža artikala */}
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
         {prikazaniArtikli.map((artikal) => (
           <ArticleCard
             key={artikal.id}
@@ -79,7 +79,7 @@ const ListaArtikala = () => {
       </div>
 
       {/* Paginacija */}
-      <Paginacija>
+      <Paginacija className="my-[20px]">
         <PaginacijaSadrzaj>
           {trenutnaStrana > 1 && (
             <PaginacijaStavka>

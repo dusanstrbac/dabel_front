@@ -31,17 +31,16 @@ export function KorisnikMenu() {
     // Provera postojanja kolacica
     const fetchData = async() => {
       try {
-        const token = await getCookie('auth_token');
-        const user = await getCookie('user_email');
+        // const token = await getCookie('auth_token');
+        const user = await getCookie('KorisnickoIme');
 
-        if(token && user) {
-          setIsLoggedIn(true);
-          setUsername(user as string);
-          setEmail(user as string);
-        } else {
+         if(user) {
+           setIsLoggedIn(true);
+           setUsername(user as string);
+         } 
+        else {
           setIsLoggedIn(false);
           setUsername(null)
-          setEmail(null);
         }
       } catch(err) {
         console.log(err);
@@ -72,8 +71,8 @@ export function KorisnikMenu() {
   ];
 
   const odjaviKorisnika = () => {
-    deleteCookie('auth_token');
-    deleteCookie('auth_email');
+    deleteCookie('Email');
+    deleteCookie('KorisnickoIme');
     window.location.href = '/';
   };
 
@@ -89,7 +88,7 @@ export function KorisnikMenu() {
       
       <DropdownMenuContent className="w-56 rounded-md border border-gray-200 bg-white p-1 shadow-lg" align="end">
         <DropdownMenuLabel className="px-2 py-1.5 text-sm font-normal text-gray-600">
-          {email ? email : 'Korisnik'}
+          {username ? username : 'Korisnik'}
         </DropdownMenuLabel>
         
         <DropdownMenuSeparator className="my-1" />

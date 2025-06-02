@@ -13,7 +13,8 @@ import { Loader2 } from "lucide-react";
 
 // Validation schema
 const formSchema = z.object({
-  email: z.string().min(1, "Email je obavezan").email("Unesite ispravan email"),
+//  email: z.string().min(1, "Email je obavezan").email("Unesite ispravan email"),
+  korisnickoIme: z.string().min(1, "Korisnicko ime je obavezno"),
   lozinka: z.string().min(4, "Lozinka mora imati najmanje 4 karaktera"),
 });
 
@@ -27,50 +28,56 @@ export default function LoginForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      korisnickoIme: "",
       lozinka: "",
     },
   });
 
   async function onSubmit(values: FormValues) {
-    setLoading(true);
-    setError(null);
+  setLoading(true);
+  setError(null);
 
-    try {
-      const { data } = await axios.post("/api/auth/login", {
-        email: values.email,
-        password: values.lozinka,
+  try {
+    const { data } = await axios.post("http://10.0.0.38:7235/api/Auth/LoginPodaci", {
+      korisnickoIme: values.korisnickoIme,
+      lozinka: values.lozinka,
+    }, {
+      withCredentials: true,
+    });
+
+    // Ovo proveravamo da li je server poslao uspešan odgovor
+    console.log("Odgovor sa servera:", data);
+
+    if (data.email) {
+      // Ako je server vratio email, znači logovanje je uspešno
+      setCookie("Email", data.email, {
+        maxAge: 60 * 60 * 24 * 2, // Kolacic traje 2 dana
+        path: "/",
+        encode: (value) => value,
       });
 
-      if (data.success) {
-        setCookie("auth_token", data.token, {
-          maxAge: 60 * 60 * 24 * 7, // Trajanje u periodu od 7 dana
-          path: "/",
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-        });
+      setCookie("KorisnickoIme", values.korisnickoIme, {
+        maxAge: 60 * 60 * 24 * 2, // Kolacic traje 2 dana
+        path: "/",
+        encode: (value) => value,
+      });
 
-        setCookie("user_email", values.email, {
-          maxAge: 60 * 60 * 24 * 7, // Kolacic traje 1 nedelju
-          path: "/",
-          encode: (value) => value, 
-        });
-
-        router.push("/");
-        router.refresh();
-      } else {
-        setError(data.message || "Došlo je do greške prilikom prijave");
-      }
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || err.message);
-      } else {
-        setError("Došlo je do greške prilikom prijavljivanja");
-      }
-    } finally {
-      setLoading(false);
+      router.push("/");  // Ovdje bi trebalo da budeš preusmeren na početnu stranu
+      router.refresh();
+    } else {
+      setError(data.message || "Došlo je do greške prilikom prijave");
     }
+
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      setError(err.response?.data?.message || err.message);
+    } else {
+      setError("Došlo je do greške prilikom prijavljivanja");
+    }
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <div className="mx-auto max-w-md space-y-6 pt-10">
@@ -85,19 +92,20 @@ export default function LoginForm() {
         </div>
       )}
 
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
-            name="email"
+            name="korisnickoIme"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email adresa</FormLabel>
+                <FormLabel>Korisničko ime</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="ime@example.com"
+                    placeholder="Unesite korisničko ime"
                     {...field}
-                    autoComplete="email"
+                    autoComplete="username"
                     disabled={loading}
                   />
                 </FormControl>

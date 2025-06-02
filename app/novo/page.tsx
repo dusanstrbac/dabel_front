@@ -5,14 +5,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover
   
 const novo = () => {
 
-return (
-        <div className="p-4">
-          
-          
-          {/* Dugme Sortiraj poravnato desno
-            Ali ne znam šta se tačno dešava MORA PONOVO
-          */}
-            <div className="max-w-7xl mx-auto flex justify-between items-center p-2">
+    return (
+        <div className="lg:p-4">
+            <div className="w-full mx-auto flex justify-between items-center p-2">
                 
                 {/*Naslov*/}
                 <h1 className="font-bold text-3xl">Novopristigli Artikli</h1>
