@@ -16,7 +16,10 @@ const Korpa = () => {
         setIsClient(true);
 
         const cart = JSON.parse(localStorage.getItem("cart") || "{}");
-        const storedIds = Object.keys(cart).map(Number);
+        const storedIds = Object.keys(cart);
+        if(storedIds.length == 0){
+            return;
+        }
         const queryString = storedIds.map(id => `ids=${id}`).join("&");
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const url = `${apiAddress}/api/Artikal/ArtikalId?${queryString}`;
@@ -50,6 +53,7 @@ const Korpa = () => {
         setArticleList([]);
         setQuantities([]);
         localStorage.removeItem("cart");
+        window.dispatchEvent(new Event("storage"));
     };
 
 
@@ -66,6 +70,7 @@ const Korpa = () => {
         const cart = JSON.parse(localStorage.getItem("cart") || "{}");
         delete cart[removed.id];
         localStorage.setItem("cart", JSON.stringify(cart));
+        window.dispatchEvent(new Event("storage"));
     };
 
 
@@ -220,10 +225,10 @@ const Korpa = () => {
                                 </span>
                                 <div>
                                     <p>Pakovanje: {article.pakovanje}</p>
-                                    <p>Količina: {getRoundedQuantity(quantities[index], article.pakovanje)}</p>
+                                    <p>Količina: {getRoundedQuantity(quantities[index], /*article.pakovanje*/1)}</p>
                                 </div>
-                                <p>Iznos: {(getRoundedQuantity(quantities[index], article.pakovanje) * article.cena).toFixed(2)} RSD</p>
-                                <p className="font-bold">Sa PDV: {(getRoundedQuantity(quantities[index], article.pakovanje) * article.cena * 1.2).toFixed(2)} RSD</p>
+                                <p>Iznos: {(getRoundedQuantity(quantities[index], /*article.pakovanje*/1) * article.cena).toFixed(2)} RSD</p>
+                                <p className="font-bold">Sa PDV: {(getRoundedQuantity(quantities[index], /*article.pakovanje*/1) * article.cena * 1.2).toFixed(2)} RSD</p>
                             </div>
                             {article.stanje && <p className="text-red-500">{article.stanje}</p>}
                         </CardContent>

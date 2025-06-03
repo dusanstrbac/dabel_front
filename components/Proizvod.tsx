@@ -58,6 +58,7 @@ export default function Proizvod() {
   useEffect(() => {
     const korisnik = dajKorisnikaIzTokena();
     const productId = Array.isArray(id) ? id[0] : id;
+    const apiAdress = process.env.NEXT_PUBLIC_API_ADDRESS;
     if (!productId) return;
 
     const fetchData = async () => {

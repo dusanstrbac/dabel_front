@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from "react";
 import ListaArtikala from "@/components/ListaArtikala";
-import { getCookie } from "cookies-next";
 import SortiranjeButton from "@/components/SortiranjeButton";
 import { ArtikalType } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";

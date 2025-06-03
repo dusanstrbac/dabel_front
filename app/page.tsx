@@ -5,8 +5,6 @@ import ListaArtikala from "@/components/ListaArtikala";
 
 export default function Home() {
 
-// Ovde treba ubaciti u listu artikala, fetch za preporucene artikle
-
   return (
     <>
       <Header />

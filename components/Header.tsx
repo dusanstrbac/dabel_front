@@ -20,6 +20,9 @@ import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { deleteCookie, getCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { useCart } from "@/contexts/CartContext";
+import AddToCartButton from "./AddToCartButton";
+import { string } from "zod";
 
 
 export default function Header() {
@@ -29,6 +32,35 @@ export default function Header() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [brojRazlicitihArtikala, setBrojRazlicitihArtikala] = useState(0);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const existing = localStorage.getItem("cart");
+      if (existing) {
+        const cart = JSON.parse(existing);
+        const brojRazlicitih = Object.keys(cart).length;
+        setBrojRazlicitihArtikala(brojRazlicitih);
+      } else {
+        setBrojRazlicitihArtikala(0);
+      }
+    };
+
+    updateCartCount();
+
+    // Event listener za slušanje promena korpe
+    window.addEventListener("storage", updateCartCount);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("storage", updateCartCount);
+    };
+  }, []);
+
+  //const brojRazlicitih = Object.keys(cart).length;
+  
+
+  //const { brojRazlicitih } = useCart();
 
   const headerMainNav = [ 
     { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/okov-gradjevinski'},
@@ -140,9 +172,38 @@ export default function Header() {
               <Heart className="h-6 w-6 text-gray-500 hover:text-gray-700" />
             </Link>
             {/* KORPA */}
-            <Link href="/korpa" className="relative">
+            <Link href="/korpa" className="relative inline-block">
               <ShoppingCart className="h-6 w-6 text-gray-500 hover:text-gray-700" />
+              {brojRazlicitihArtikala > 0 && (
+              <span
+                  className="
+                    absolute -top-2.5 -right-2.5 
+                    inline-flex items-center justify-center
+                    px-2 py-1 text-xs font-bold
+                    leading-none text-white bg-red-600
+                    rounded-full
+                    min-w-[20px] h-5
+                  "
+                >
+                  {brojRazlicitihArtikala}
+                </span>
+              )}
+              {/*{brojRazlicitih > 0 && (
+                <span
+                  className="
+                    absolute -top-2 -right-2 
+                    inline-flex items-center justify-center
+                    px-2 py-1 text-xs font-bold
+                    leading-none text-white bg-red-600
+                    rounded-full
+                    min-w-[20px] h-5
+                  "
+                >
+                  {brojRazlicitih}
+                </span>
+              )}*/}
             </Link>
+
             {/* NALOG IKONICA */}
             <KorisnikMenu />
           </div>  
