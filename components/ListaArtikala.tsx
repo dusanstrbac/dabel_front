@@ -44,7 +44,11 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return
     
     setTrenutnaStrana(broj)
-    router.push(`?page=${broj}`, { scroll: false })
+
+    const url = new URL(window.location.href)
+    url.searchParams.set('page', broj.toString())
+
+    router.push(`${url.pathname}${url.search}`, { scroll: false })
   }
 
   if (artikli.length === 0) {
@@ -58,12 +62,14 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
       <div className="grid gap-1 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
         {prikazaniArtikli.map((artikal) => (
           <ArticleCard
-            key={artikal.id}
+            key={artikal.id || artikal.idArtikla}
             naziv={artikal.naziv}
             cena={artikal.cena}
             slika={artikal.slika}
             id={artikal.id}
-            />
+            idArtikla={artikal.idArtikla}
+            artikalCene={artikal.artikalCene}
+          />
         ))}
       </div>
 
