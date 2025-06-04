@@ -16,9 +16,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@r
 import { Separator } from "./ui/separator";
 import { ScrollArea } from "./ui/scroll-area";
 import KorisnikMenu from "./KorisnikMenu";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { deleteCookie, getCookie } from 'cookies-next';
+import { deleteCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 
@@ -54,24 +54,29 @@ export default function Header() {
     };
   }, []);
 
-  const headerMainNav = [ 
-    { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/okov-gradjevinski'},
-    { icon: <Sofa className="w-4 h-4"/>, text: 'Okov nameštaj', href: '/okov-namestaj'},
-    { icon: <Rows2 className="w-4 h-4"/>, text: 'Klizni okov za građevinu, nameštaj', href: '/klizni-okov'},
-    { icon: <LinkIcon className="w-4 h-4"/>, text: 'Elementi za pričvršćivanje', href: '/elementi-pricvrscivanje', 
-      subMenuItems:[
-        { icon: <text className="w-4 h-4"/>, text: 'Spojnice', href: '/elementi-spojnice'},
-        { icon: <text className="w-4 h-4"/>, text: 'Ručke', href: '/elementi-rucke'},
-        { icon: <text className="w-4 h-4"/>, text: 'Delovi za sajle', href: '/elementi-sajle'},
-        { icon: <text className="w-4 h-4"/>, text: 'Tiplovi', href: '/elementi-tiplovi'},
-        { icon: <text className="w-4 h-4"/>, text: 'Drvo', href: '/elementi-drvo'},
-        { icon: <text className="w-4 h-4"/>, text: 'Podloške, navrtke', href: '/elementi-podloske'},
-        { icon: <text className="w-4 h-4"/>, text: 'Kapice', href: '/elementi-kapice'},
-      ]},
-    { icon: <Lightbulb className="w-4 h-4"/>, text: 'LED rasveta', href: '/led-rasveta'},
-    { icon: <Vault className="w-4 h-4"/>, text: 'Kontrola pristupa', href: '/kontrola-pristupa'},
-    { icon: <Hammer className="w-4 h-4"/>, text: 'Ručni alat', href: '/rucni-alat'},
-  ];
+const headerMainNav = [ 
+  { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/proizvodi/kategorija/' + encodeURIComponent('Okov građevinski') },
+  { icon: <Sofa className="w-4 h-4"/>, text: 'Okov nameštaj', href: '/proizvodi/kategorija/' + encodeURIComponent('Okov nameštaj') },
+  { icon: <Rows2 className="w-4 h-4"/>, text: 'Klizni okov za građevinu, nameštaj', href: '/proizvodi/kategorija/' + encodeURIComponent('Klizni okov građevina,nameštaj') },
+  { 
+    icon: <LinkIcon className="w-4 h-4"/>, 
+    text: 'Elementi za pričvršćivanje', 
+    href: '/proizvodi/kategorija/' + encodeURIComponent('Elementi za pričvršćivanje'), 
+    subMenuItems:[
+      { icon: <text className="w-4 h-4"/>, text: 'Spojnice', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Spojnice')}` },
+      { icon: <text className="w-4 h-4"/>, text: 'Ručke', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Ručke')}` },
+      { icon: <text className="w-4 h-4"/>, text: 'Delovi za sajle', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Sajle')}` },
+      { icon: <text className="w-4 h-4"/>, text: 'Tiplovi', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Tiplovi')}` },
+      { icon: <text className="w-4 h-4"/>, text: 'Drvo', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Drvo')}` },
+      { icon: <text className="w-4 h-4"/>, text: 'Podloške, navrtke', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Podloške')}` },
+      { icon: <text className="w-4 h-4"/>, text: 'Kapice', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Kapice')}` },
+    ]
+  },
+  { icon: <Lightbulb className="w-4 h-4"/>, text: 'LED rasveta', href: '/proizvodi/kategorija/' + encodeURIComponent('Led Rasveta') },
+  { icon: <Vault className="w-4 h-4"/>, text: 'Kontrola pristupa', href: '/proizvodi/kategorija/' + encodeURIComponent('Kontrola Pristupa') },
+  { icon: <Hammer className="w-4 h-4"/>, text: 'Ručni alat', href: '/proizvodi/kategorija/' + encodeURIComponent('Ručni Alat') },
+];
+
 
   const menuItems = [
     { id: 'podaci', icon: <User2 className="h-6 w-6" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },

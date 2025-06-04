@@ -143,8 +143,33 @@
   pointer-events: none;
 }
 
+header {
+  background-color: white !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+
 @media screen and (max-width: 320px) {
   .articleSize {
     width: 150px;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .a4-container {
+    width: 210mm;
+    height: 297mm;
+    padding: 0;
+    margin: 0 auto;
+    box-shadow: none !important;
+  }
+  body {
+    background: white !important;
+    margin: 0;
   }
 }
