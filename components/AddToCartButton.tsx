@@ -12,9 +12,7 @@ interface AddToCartButtonProp {
 
 const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla}: AddToCartButtonProp) => {
   const handleAddToCart = (e: React.MouseEvent) => {
-      e.stopPropagation();
-
-    console.log(id)
+    e.stopPropagation();
     // Proveri da li je id validan broj
     const brojId = Number(id);
     if (isNaN(brojId)) {
@@ -34,7 +32,6 @@ const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla}: Add
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
-    //console.log(localStorage);
     window.dispatchEvent(new Event("storage"));
 
     const brojRazlicitih = Object.keys(cart).length;

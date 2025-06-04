@@ -53,7 +53,7 @@ const Korpa = () => {
         setArticleList([]);
         setQuantities([]);
         localStorage.removeItem("cart");
-        window.dispatchEvent(new Event("storage"));
+        window.dispatchEvent(new Event("storage"));//za izbacivanje broja na ikonici korpe posle brisanja artikala iz korpe
     };
 
 
@@ -70,7 +70,7 @@ const Korpa = () => {
         const cart = JSON.parse(localStorage.getItem("cart") || "{}");
         delete cart[removed.id];
         localStorage.setItem("cart", JSON.stringify(cart));
-        window.dispatchEvent(new Event("storage"));
+        window.dispatchEvent(new Event("storage"));//za smanjivanje broja na ikonici korpe posle brisanja jednog artikla iz korpe
     };
 
 
@@ -229,6 +229,9 @@ const Korpa = () => {
                                 </div>
                                 <p>Iznos: {(getRoundedQuantity(quantities[index], /*article.pakovanje*/1) * article.cena).toFixed(2)} RSD</p>
                                 <p className="font-bold">Sa PDV: {(getRoundedQuantity(quantities[index], /*article.pakovanje*/1) * article.cena * 1.2).toFixed(2)} RSD</p>
+                                <div>
+                                    <Button onClick={() => removeArticle(index)}>Ukloni</Button>
+                                </div>
                             </div>
                             {article.stanje && <p className="text-red-500">{article.stanje}</p>}
                         </CardContent>

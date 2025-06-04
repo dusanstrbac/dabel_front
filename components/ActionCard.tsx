@@ -23,12 +23,23 @@ const ActionCard = ({ id, naziv, cena, staraCena }: ArtikalType) => {
         setMounted(true);
     }, []);
 
+    const posaljiNaArtikal = (e: React.MouseEvent) => {
+        //e.preventDefault();
+        const target = e.target as HTMLElement;
 
-    const posaljiNaArtikal = ( e: React.MouseEvent) => {
-        e.preventDefault();
-        if(isMounted) {
-            router.push(`/proizvodi/${id}`);
+        // Ako je klik bio na dugme ili njegov sadržaj (ikona, span), nemoj otvarati stranicu
+        if (
+            target.closest('button') || 
+            target.closest('svg') || 
+            target.closest('path')
+        ) {
+            return;
         }
+
+        router.push(`/proizvodi/${id}`);
+        /*if(isMounted) {
+            router.push(`/proizvodi/${id}`);
+        }*/
     };
 
     if(!isMounted) return null;
@@ -36,10 +47,10 @@ const ActionCard = ({ id, naziv, cena, staraCena }: ArtikalType) => {
     return (
         <div
             className='articleSize cursor-pointer relative max-w-[320px] hover:shadow-2xl transition-shadow duration-300 rounded-2xl grid grid-rows-[auto,auto,auto]'
-            onClick={posaljiNaArtikal}
+            onClickCapture={posaljiNaArtikal}
         >
             {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-90 z-10 rounded-2xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-90 z-10 rounded-2xl pointer-events-none"></div>
 
             {/* Popust badge */}
             {popust > 0 && (
@@ -71,7 +82,9 @@ const ActionCard = ({ id, naziv, cena, staraCena }: ArtikalType) => {
                         <span className='line-through text-gray-400'>{staraCena}</span><span className='pl-[5px]'>{cena}</span> RSD
                     </p>
                     <div>
-                        <AddToCartButton />
+                        <AddToCartButton id={id}
+                            getKolicina={() => Number(1)}
+                            nazivArtikla={naziv}/>
                     </div>
                 </div>
             </div>

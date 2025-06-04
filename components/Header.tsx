@@ -20,9 +20,6 @@ import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { deleteCookie, getCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
-import { useCart } from "@/contexts/CartContext";
-import AddToCartButton from "./AddToCartButton";
-import { string } from "zod";
 
 
 export default function Header() {
@@ -51,16 +48,11 @@ export default function Header() {
     // Event listener za slušanje promena korpe
     window.addEventListener("storage", updateCartCount);
 
-    // Cleanup
+    // Listener za izbacivanje iz korpe
     return () => {
       window.removeEventListener("storage", updateCartCount);
     };
   }, []);
-
-  //const brojRazlicitih = Object.keys(cart).length;
-  
-
-  //const { brojRazlicitih } = useCart();
 
   const headerMainNav = [ 
     { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/okov-gradjevinski'},
@@ -188,20 +180,6 @@ export default function Header() {
                   {brojRazlicitihArtikala}
                 </span>
               )}
-              {/*{brojRazlicitih > 0 && (
-                <span
-                  className="
-                    absolute -top-2 -right-2 
-                    inline-flex items-center justify-center
-                    px-2 py-1 text-xs font-bold
-                    leading-none text-white bg-red-600
-                    rounded-full
-                    min-w-[20px] h-5
-                  "
-                >
-                  {brojRazlicitih}
-                </span>
-              )}*/}
             </Link>
 
             {/* NALOG IKONICA */}
@@ -383,6 +361,12 @@ export default function Header() {
                       >
                         {item.icon}
                         <span>{item.text}</span>
+
+                        {item.text === "Korpa" && brojRazlicitihArtikala > 0 && (
+                          <span className="ml-2 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                            {brojRazlicitihArtikala}
+                          </span>
+                        )}
                       </Link>
                     ))}
                   </div>

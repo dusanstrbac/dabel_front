@@ -14,6 +14,7 @@ const ArticleCard = ({ id, naziv, cena, slika }: ArtikalType) => {
     }, []);
 
     const posaljiNaArtikal = (e: React.MouseEvent) => {
+        //e.preventDefault();
         const target = e.target as HTMLElement;
 
         // Ako je klik bio na dugme ili njegov sadržaj (ikona, span), nemoj otvarati stranicu
@@ -26,22 +27,17 @@ const ArticleCard = ({ id, naziv, cena, slika }: ArtikalType) => {
         }
 
         router.push(`/proizvodi/${id}`);
-    };
-
-
-    /*const posaljiNaArtikal = ( e: React.MouseEvent) => {
-        e.preventDefault();
-        if(isMounted) {
+        /*if(isMounted) {
             router.push(`/proizvodi/${id}`);
-        }
-    };*/
+        }*/
+    };
 
     if(!isMounted) return null;
 
     return (
         <div
             className="articleSize relative max-w-[320px] hover:shadow-2xl transition-shadow duration-300 rounded-2xl grid grid-rows-[auto,auto,auto]"
-            onClickCapture={posaljiNaArtikal} // koristimo capture fazu
+            onClickCapture={posaljiNaArtikal}
         >
             {/* Overlay (ne sme da blokira klikove) */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-90 z-10 rounded-2xl pointer-events-none"></div>
@@ -65,7 +61,6 @@ const ArticleCard = ({ id, naziv, cena, slika }: ArtikalType) => {
                         <span>{cena}</span> RSD
                     </p>
 
-                    {/* Važno: mora imati pointer-events-auto da bi klik radio! */}
                     <div className="pointer-events-auto">
                         <AddToCartButton
                             id={id}
