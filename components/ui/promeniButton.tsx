@@ -17,24 +17,22 @@ type artikalProp = {
   jm: string;
 };
 
-type Option = {
-  value: string;
-  label: string;
-};
-
 const PromeniButton = ({
   artikal,
   articleList,
+  onArtikalPromenjen,
+  iskljuceniArtikli,
 }: {
   artikal: artikalProp;
   articleList: artikalProp[];
+  onArtikalPromenjen: (stariId: string, novi: artikalProp) => void;
+  iskljuceniArtikli: artikalProp[];
 }) => {
   const [localArticleList, setLocalArticleList] = useState<artikalProp[]>([]);
   const [selectedArtikal, setSelectedArtikal] = useState<artikalProp | null>(null);
 
   console.log("🌀 PromeniButton renderovan");
 
-  // Kada se komponenta učita ili se promeni articleList, update lokalne kopije
   useEffect(() => {
     console.log("📦 useEffect: articleList promenjen, upisujem u lokalni state...");
     setLocalArticleList(articleList);
@@ -42,6 +40,17 @@ const PromeniButton = ({
 
   useEffect(() => {
     console.log("🔁 PromeniButton se ponovo renderovao");
+  });
+
+  // Filtriraj artikle koji su već u upotrebi, osim trenutnog
+  const dostupniArtikli = localArticleList.filter((a) => {
+    const isAlreadyUsed =
+      iskljuceniArtikli.some(
+        (used) =>
+          used.idArtikla === a.idArtikla &&
+          used.idArtikla !== artikal.idArtikla
+      );
+    return !isAlreadyUsed;
   });
 
   return (
@@ -62,48 +71,52 @@ const PromeniButton = ({
         </button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="flex flex-col min-w-[700px] max-w-[1000px] boder-2 border-amber-800"> 
+        {/* hocu da ovaj dialogContent malo prosirim u sirinu da bi on ispao lepsi */}
         <DialogHeader>
           <DialogTitle>Izaberite artikals</DialogTitle>
           <DialogDescription className="w-[800px]">
-            Odaberite artikal koji zelite da izmenite
+            Odaberite artikal koji želite da zamenite
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-2 border-2">
-                <ComboboxArtikli
-                  articleList={localArticleList}
-                  onSelectOption={(artikal) => {
-                    console.log("🔽 Combobox: izabran artikal:", artikal);
-                    setSelectedArtikal(artikal);
-                  }}
-                  placeholder="Pretraži artikle"
-                />
+        <div className="flex flex-col gap-6">
+          <ComboboxArtikli
+            articleList={dostupniArtikli}
+            onSelectOption={(artikal) => {
+              console.log("🔽 Combobox: izabran artikal:", artikal);
+              setSelectedArtikal(artikal);
+            }}
+            placeholder="Pretraži artikle"
+            currentArtikalId={artikal.idArtikla}
+          />
+          <div className="flex justify-between">
+            <Button
+              className="min-w-[100px]"
+              onClick={() => {
+                console.log("❌ Kliknuto na 'Odbaci'");
+                setSelectedArtikal(null);
+              }}
+            >
+              Odbaci (ovo je višak??)
+            </Button>
 
-                <Button
-                  className="w-[100px]"
-                  onClick={() => {
-                    console.log("💾 Kliknuto na 'Sačuvaj' dugme");
-                    if (selectedArtikal) {
-                      console.log("✅ Artikal za čuvanje:", selectedArtikal);
-                    } else {
-                      console.warn("⚠️ Nije izabran nijedan artikal za čuvanje!");
-                    }
-                  }}
-                >
-                  Sačuvaj
-                </Button>
-
-                <Button
-                  className="w-[100px]"
-                  onClick={() => {
-                    console.log("❌ Kliknuto na 'Odbaci'");
-                    setSelectedArtikal(null);
-                  }}
-                >
-                  Odbaci
-                </Button>
+            <Button
+              className="w-[100px]"
+              onClick={() => {
+                console.log("💾 Kliknuto na 'Sačuvaj' dugme");
+                if (selectedArtikal) {
+                  console.log("✅ Artikal za čuvanje:", selectedArtikal);
+                  onArtikalPromenjen(artikal.idArtikla, selectedArtikal);
+                } else {
+                  console.warn("⚠️ Nije izabran nijedan artikal za čuvanje!");
+                }
+              }}
+            >
+              Sačuvaj
+            </Button>
           </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

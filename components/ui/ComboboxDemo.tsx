@@ -60,42 +60,38 @@ export function ComboboxDemo({
 
   //Funkcija za selekciju koja postavlja stanje, poziva callback i zakazuje zatvaranje sa delay
   function handleSelect(value: string) {
-
     const selectedOption = options.find(option => option.value === value);
     if(selectedOption) {
       console.log("Izabrao sam:", selectedOption.value);
-      onSelectOption(selectedOption.label);  
+      setSelectedValue(selectedOption.value);
+      onSelectOption(selectedOption.label);
+      setOpen(false); 
     }
-    // setSelectedValue(value);
-    // onSelectOption(value);
-    // setInputValue("");
-
-    // if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(open) => {
+        setOpen(open);
+        if (!open) {
+          setInputValue("");
+        }
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[400px] justify-between right-0 flex mb-5"
+          className="w-[500px] justify-between right-0 flex"
         >
           {selectedOption?.label || placeholder}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[500px] p-2 max-h-80">
-        <Command
-          // value={selectedValue || ""}
-          // onValueChange={(val) => {
-          //   // Ne zatvaramo odmah
-          //   setSelectedValue(val);
-          //   const opt = options.find(o => o.value === val);
-          //   if (opt) onSelectOption(opt.value);
-          // }}
-        >
+        <Command>
           <CommandInput
             placeholder={placeholder} 
             className="h-9"
@@ -109,7 +105,7 @@ export function ComboboxDemo({
                 <CommandItem
                   key={option.value}
                   value={option.value}
-                  onSelect={() => handleSelect(option.value)} //ovo vrv ne radi
+                  onSelect={() => handleSelect(option.value)}
                   className={cn(
                     "cursor-pointer p-2"
                   )}

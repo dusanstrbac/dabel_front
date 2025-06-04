@@ -208,6 +208,10 @@ export default function Header() {
             <Link href="/novo" className="text-[20px] font-normal hover:text-red-600 transition-colors">
               Novopristigli artikli
             </Link>
+            <Link href="/BrzoNarucivanje" className="text-[20px] font-normal hover:text-red-600 transition-colors">
+              Brzo Naručivanje
+            </Link>
+            {/* ovaj deo sam dodao, ovaj poslednji link */}
           </div>
         </nav>
       </div>

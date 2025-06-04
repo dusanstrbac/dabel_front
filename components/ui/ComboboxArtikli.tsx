@@ -1,178 +1,173 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import * as React from "react";
+import { Check, ChevronsUpDown, Ban } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { FixedSizeList as List } from "react-window";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 
 export type Artikal = {
-  idArtikla: string
-  naziv: string
-  barkod: string
-  jm: string
-}
+  idArtikla: string;
+  naziv: string;
+  barkod: string;
+  jm: string;
+};
 
 type Props = {
-  articleList: Artikal[]
-  onSelectOption: (artikal: Artikal) => void
-  placeholder?: string
-}
+  articleList: Artikal[];
+  onSelectOption: (artikal: Artikal) => void;
+  placeholder?: string;
+  currentArtikalId?: string;
+  iskljuceniArtikli?: Artikal[];
+};
 
-export function ComboboxArtikli({
+const ComboboxArtikliComponent: React.FC<Props> = ({
   articleList,
   onSelectOption,
   placeholder = "Pretraži artikle",
-}: Props) {
-  console.log("🌀 ComboboxArtikli renderovan");
-
+  currentArtikalId,
+  iskljuceniArtikli = [],
+}) => {
   const [open, setOpen] = React.useState(false);
-  const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [inputValue, setInputValue] = React.useState("");
+  const [debouncedInput, setDebouncedInput] = React.useState("");
+
+  const selected = articleList.find((a) => a.idArtikla === currentArtikalId) ?? null;
 
   React.useEffect(() => {
-  console.log("📋 Dohvaćeni svi artikli");
-}, [articleList]);
-
-
-  React.useEffect(() => {
-    console.log("🔍 inputValue se promenio:", inputValue);
+    const timeout = setTimeout(() => {
+      setDebouncedInput(inputValue);
+    }, 150);
+    return () => clearTimeout(timeout);
   }, [inputValue]);
 
-  React.useEffect(() => {
-    console.log("📦 selectedId se promenio:", selectedId);
-  }, [selectedId]);
+  const filteredList = React.useMemo(() => {
+    if (!debouncedInput) return articleList;
 
-  React.useEffect(() => {
-    console.log("📤 Popover open state:", open ? "otvoren" : "zatvoren");
-  }, [open]);
+    const normalizedInput = debouncedInput
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
 
-//   const filtered = React.useMemo(() => {
-//     const result = articleList.filter((artikal) =>
-//       artikal.naziv.toLowerCase().includes(inputValue.toLowerCase()) ||
-//       artikal.barkod.toLowerCase().includes(inputValue.toLowerCase())
-//     );
-//     console.log("🔎 Rezultat filtriranja:", result.map(r => r.naziv));
-//     return result;
-//   }, [inputValue, articleList]);
+    return articleList.filter((artikal) => {
+      const naziv = artikal.naziv
+        ?.normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase() || "";
+      const barkod = artikal.barkod?.toLowerCase() || "";
+      const id = artikal.idArtikla?.toLowerCase() || "";
 
-    const filtered = React.useMemo(() => {
-        const normalizedInput = inputValue
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase();
+      return (
+        naziv.includes(normalizedInput) ||
+        barkod.includes(normalizedInput) ||
+        id.includes(normalizedInput)
+      );
+    });
+  }, [debouncedInput, articleList]);
 
-        const result = articleList.filter((artikal) => {
-            const naziv = artikal.naziv
-            ?.normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase() || "";
+  const isDisabled = (artikal: Artikal): boolean => {
+    return (
+      iskljuceniArtikli.some(
+        (a) => a.idArtikla === artikal.idArtikla && a.idArtikla !== currentArtikalId
+      )
+    );
+  };
 
-            const barkod = artikal.barkod?.toLowerCase() || "";
-
-            return naziv.includes(normalizedInput) || barkod.includes(normalizedInput);
-        });
-
-        console.log("🔎 Rezultat filtriranja:", result.map(r => r.naziv));
-        return result;
-    }, [inputValue, articleList]);
-
-
-
-  console.log("📊 Broj filtriranih rezultata:", filtered.length);
-
-
-  const selected = articleList.find((a) => a.idArtikla === selectedId);
-
-  function handleSelect(id: string) {
-    console.log("✅ Kliknuto na artikal sa id-jem:", id);
+  const handleSelect = (id: string) => {
     const artikal = articleList.find((a) => a.idArtikla === id);
-    if (artikal) {
-      console.log("🎯 Artikal selektovan:", artikal);
-      setSelectedId(id);
+    if (artikal && !isDisabled(artikal)) {
       setOpen(false);
       setInputValue("");
-      console.log("📤 Pozivam onSelectOption iz props sa artiklom:", artikal);
       onSelectOption(artikal);
-    } else {
-      console.warn("⚠️ Nema artikla sa tim ID-jem:", id);
     }
-  }
+  };
 
   return (
-    <Popover
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
-          className="w-[450px] justify-between"
-          onClick={() => {
-            console.log("🖱 Kliknuto na combobox dugme")
-            setOpen(true);
-          }}
+          className="w-[650px] justify-between"
+          onClick={() => setOpen(true)}
         >
           {selected?.naziv || placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent 
-        disablePortal        
-        className="w-[500px] p-2"
-      >
+      <PopoverContent disablePortal className="min-w-[620px] p-2">
         <Command>
-          <CommandInput
+          <input
+            type="text"
             placeholder={placeholder}
             value={inputValue}
-            onValueChange={(value) => {
-              console.log("⌨️ Unos promenjen:", value);
-              setInputValue(value);
-            }}
-            className="h-9"
+            onChange={(e) => setInputValue(e.target.value)}
+            className="w-full h-9 px-3 py-1.5 border rounded-md mb-2 text-sm"
+            autoFocus
           />
+
           <CommandList>
             <CommandEmpty>
-              <span>🚫 Nema rezultata za: "{inputValue}"</span>
+              {inputValue
+                ? `🚫 Nema rezultata za: "${inputValue}"`
+                : "🚫 Nema dostupnih artikala"}
             </CommandEmpty>
             <CommandGroup>
-              {filtered.map((artikal) => (
-                <CommandItem
-                  key={artikal.idArtikla}
-                  value={artikal.idArtikla}
-                  onSelect={() => {
-                    console.log("👉 Kliknut item:", artikal.naziv);
-                    handleSelect(artikal.idArtikla);
-                    console.log("🖱 Kliknut artikal:", artikal.naziv, "ID:", artikal.idArtikla);
-                  }}
-                >
-                  {artikal.naziv}
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      selectedId === artikal.idArtikla ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                </CommandItem>
-              ))}
+              <List
+                height={215}
+                itemCount={filteredList.length}
+                itemSize={45}
+                width="100%"
+              >
+                {({ index, style }) => {
+                  const artikal = filteredList[index];
+                  const isSelected = artikal.idArtikla === currentArtikalId;
+                  const disabled = isDisabled(artikal);
+
+                  return (
+                    <div style={style} key={artikal.idArtikla}>
+                      <CommandItem
+                        value={artikal.idArtikla}
+                        onSelect={() => handleSelect(artikal.idArtikla)}
+                        className={cn(
+                          "flex items-center px-3 py-2 text-sm",
+                          disabled
+                            ? "text-muted-foreground cursor-not-allowed opacity-60"
+                            : "cursor-pointer hover:bg-accent"
+                        )}
+                        disabled={disabled}
+                      >
+                        <span className="truncate">{artikal.naziv}</span>
+                        {isSelected && (
+                          <Check className="ml-auto h-4 w-4 opacity-100" />
+                        )}
+                        {disabled && (
+                          <Ban className="ml-2 h-4 w-4 opacity-70 text-red-400" />
+                        )}
+                      </CommandItem>
+                    </div>
+                  );
+                }}
+              </List>
             </CommandGroup>
           </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
   );
-}
+};
+
+export const ComboboxArtikli = React.memo(ComboboxArtikliComponent);
