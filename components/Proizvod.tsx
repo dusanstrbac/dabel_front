@@ -66,8 +66,9 @@ export default function Proizvod() {
         const e = korisnik?.email;
         if (typeof e === "string") setEmail(e);
 
+        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const res = await fetch(
-          `${apiAdress}/api/Artikal/ArtikalId?ids=${productId}`
+          `${apiAddress}/api/Artikal/ArtikalId?ids=${productId}`
         );
         if (!res.ok) throw new Error("Greška prilikom učitavanja proizvoda");
 

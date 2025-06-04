@@ -17,13 +17,16 @@ export interface SortiranjeButtonProps {
 }
 
 export interface ArtikalFilterProp {
+  Artikal: object;
+  cena: [number, number];
+  cenaOd: number;
+  cenaDo: number;
   naziv: string;
-  cena?: [number, number];
-  jedinicaMere?: string;
-  Materijal?: string[];
-  Model?: string[];
-  Pakovanje?: string[];
-  RobnaMarka?: string[];
-  Upotreba?: string[];
-  Boja?: string[];
+  jedinicaMere: string;
+  Materijal: string[];
+  Model: string[];
+  Pakovanje: string[];
+  RobnaMarka: string[];
+  Upotreba: string[];
+  Boja: string[];
 }
