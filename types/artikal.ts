@@ -1,15 +1,42 @@
+export type ArtikalCena = {
+  id: string;
+  idCenovnika: string;
+  valutaISO: string;
+  idArtikla: string;
+  cena: number;
+  akcija: {
+    idArtikla: string;
+    cena: string;
+    datumOd: string;
+    datumDo: string;
+    tipAkcije: string;
+    kolicina: number;
+    naziv: string;
+    staraCena: string;
+  };
+};
 
-export interface ArtikalType {
-    id?: string,
-    idArtikla?: string;
-    naziv: string,
-    cena: number,
-    slika?: string,
-    staraCena?: number,
-    artikalCene: {
-      cena: number;
-    }[];
-}
+export type ArtikalAtribut = {
+  idArtikla: string;
+  imeAtributa: string;
+  vrednost: string;
+};
+
+export type ArtikalType = {
+  idArtikla: string;
+  naziv: string;
+  barkod: string;
+  jm: string;
+  kategorijaId: string;
+  artikalCene: ArtikalCena[];
+  artikalAtributi: ArtikalAtribut[];
+};
+
+export type PrikazaniAtribut = {
+  atribut: string;
+  vrednost: string;
+};
+
 
 export interface ListaArtikalaProps {
   artikli?: ArtikalType[]  // opcioni prop, default prazan niz

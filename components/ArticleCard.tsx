@@ -6,10 +6,10 @@ import { ArtikalType } from '@/types/artikal';
 import { useEffect, useState } from 'react';
 
 
-const ArticleCard = ({ id, naziv, slika, idArtikla, cena, artikalCene }: ArtikalType) => {
+const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
   const router = useRouter(); 
   const [isMounted, setMounted] = useState(false);
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -21,18 +21,18 @@ const ArticleCard = ({ id, naziv, slika, idArtikla, cena, artikalCene }: Artikal
       return;
     }
 
-    if (!id && !idArtikla) {
+    if (!idArtikla) {
       console.error("ID artikla nije definisan");
       return;
     }
 
-    router.push(`/proizvodi/${id || idArtikla}`);
+    router.push(`/proizvodi/${idArtikla}`);
   };
 
   if (!isMounted) return null;
 
   // Provera cene i precrtavanje
-  const cenaArtikla = cena > 0 ? cena : 0;  // Originalna cena
+  const cenaArtikla = artikalCene[0].cena > 0 ? artikalCene[0].cena : 0;  // Originalna cena
   const novaCena = artikalCene && artikalCene.length > 0 ? artikalCene[0].cena : null; // Ako postoji nova cena
 
   return (
@@ -44,7 +44,7 @@ const ArticleCard = ({ id, naziv, slika, idArtikla, cena, artikalCene }: Artikal
 
       <div className="w-full h-64 relative">
         <Image
-          src={slika || '/artikal.jpg'}  // Dodajte default sliku ako slika nije dostupna
+          src={'/artikal.jpg'}  // Dodajte default sliku ako slika nije dostupna
           alt={naziv}
           layout="fill"
           objectFit="cover"
@@ -56,9 +56,9 @@ const ArticleCard = ({ id, naziv, slika, idArtikla, cena, artikalCene }: Artikal
         <h2 className="text-sm lg:text-lg font-semibold text-center">{naziv}</h2>
         <div className="flex justify-between items-center">
           {/* Prikazivanje cene */}
-          {novaCena && novaCena > 0 && cena > novaCena && (
+          {novaCena && novaCena > 0 && artikalCene[0].cena > novaCena && (
             <p className="text-md lg:text-xl font-semibold text-red-500 line-through">
-              <span>{cena}</span> RSD
+              <span>{artikalCene[0].cena}</span> RSD
             </p>
           )}
           
@@ -70,15 +70,15 @@ const ArticleCard = ({ id, naziv, slika, idArtikla, cena, artikalCene }: Artikal
           )}
           
           {/* Ako cena nije postavljena ili je 0 */}
-          {cena > 0 && !novaCena && (
+          {artikalCene[0].cena > 0 && !novaCena && (
             <p className="text-md lg:text-xl font-semibold text-red-500">
-              <span>{cena}</span> RSD
+              <span>{artikalCene[0].cena}</span> RSD
             </p>
           )}
 
           <div className="pointer-events-auto">
             <AddToCartButton
-              id={id || idArtikla}
+              id={idArtikla}
               getKolicina={() => Number(1)}
               nazivArtikla={naziv}
             />

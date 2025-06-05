@@ -5,7 +5,7 @@ import AddToCartButton from './AddToCartButton';
 import { ArtikalType } from '@/types/artikal';
 import { useEffect, useState } from 'react';
 
-const ActionCard = ({ id, naziv, cena, staraCena }: ArtikalType) => {
+const ActionCard = ({ idArtikla, naziv, artikalCene }: ArtikalType) => {
     const router = useRouter();
     const [isMounted, setMounted] = useState(false);
     
@@ -17,7 +17,7 @@ const ActionCard = ({ id, naziv, cena, staraCena }: ArtikalType) => {
         return Math.round(((staraNum - novaNum) / staraNum) * 100);
     };
     
-    const popust = izracunajPopust(staraCena, cena);
+    const popust = izracunajPopust(artikalCene[0].akcija.staraCena, artikalCene[0].akcija.cena);
 
     useEffect(() => {
         setMounted(true);
@@ -36,7 +36,7 @@ const ActionCard = ({ id, naziv, cena, staraCena }: ArtikalType) => {
             return;
         }
 
-        router.push(`/proizvodi/${id}`);
+        router.push(`/proizvodi/${idArtikla}`);
         /*if(isMounted) {
             router.push(`/proizvodi/${id}`);
         }*/
@@ -79,10 +79,10 @@ const ActionCard = ({ id, naziv, cena, staraCena }: ArtikalType) => {
                 {/* Cena i dugme */}
                 <div className='flex justify-between items-center'>
                     <p className='text-md lg:text-xl font-semibold text-red-500'>
-                        <span className='line-through text-gray-400'>{staraCena}</span><span className='pl-[5px]'>{cena}</span> RSD
+                        <span className='line-through text-gray-400'>{artikalCene[0].akcija.staraCena}</span><span className='pl-[5px]'>{artikalCene[0].akcija.cena}</span> RSD
                     </p>
                     <div>
-                        <AddToCartButton id={id}
+                        <AddToCartButton id={idArtikla}
                             getKolicina={() => Number(1)}
                             nazivArtikla={naziv}/>
                     </div>

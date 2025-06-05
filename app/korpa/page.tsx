@@ -22,7 +22,7 @@ const Korpa = () => {
         }
         const queryString = storedIds.map(id => `ids=${id}`).join("&");
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const url = `${apiAddress}/api/Artikal/ArtikalId?${queryString}`;
+        const url = `${apiAddress}/api/Artikal/DajArtikalId?${queryString}`;
 
         const fetchArticles = async () => {
             try {
@@ -44,7 +44,6 @@ const Korpa = () => {
             console.error("Greška pri učitavanju artikala iz API-ja:", error);
             }
         };
-
         fetchArticles();
     }, []);
 
@@ -84,7 +83,6 @@ const Korpa = () => {
         cart[articleId] = { kolicina: newQuantity };
         localStorage.setItem("cart", JSON.stringify(cart));
     };
-
 
 
 

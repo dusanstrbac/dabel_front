@@ -14,6 +14,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { ListaArtikalaProps } from "@/types/artikal"
 import ActionCard from "./ActionCard"
 
+
 const ListaAkcijskihArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
   const [trenutnaStrana, setTrenutnaStrana] = useState(1)
   const artikliPoStrani = 8
@@ -57,14 +58,7 @@ const ListaAkcijskihArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
       {/* Mreža artikala */}
       <div className="grid gap-1 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
         {prikazaniArtikli.map((artikal) => (
-          <ActionCard
-            key={artikal.id}
-            naziv={artikal.naziv}
-            cena={artikal.cena}
-            slika={artikal.slika}
-            id={artikal.id}
-            staraCena={artikal.staraCena}
-            />
+          <ActionCard key={artikal.idArtikla} artikal={artikal} />
         ))}
       </div>
 
