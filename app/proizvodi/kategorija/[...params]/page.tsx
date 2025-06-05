@@ -5,11 +5,11 @@ import { useParams } from 'next/navigation';
 import { ArtikalFilterProp, ArtikalType } from '@/types/artikal';
 import ListaArtikala from '@/components/ListaArtikala';
 import ArtikalFilter from '@/components/ArtikalFilter';
+import SortiranjeButton from '@/components/SortiranjeButton';
+import Sorter from '@/components/Sorter';
 
 export default function ProizvodiPage() {
-
-  const { params } = useParams(); // izvadi polje params
-
+  const { params } = useParams(); // Izvadi polje params
 
   const [artikli, setArtikli] = useState<ArtikalType[]>([]);
   const [loading, setLoading] = useState(false);
@@ -45,14 +45,14 @@ export default function ProizvodiPage() {
     queryParams.append('batchSize', '4000');
 
     const fullUrl = `http://localhost:7235/api/Artikal/DajFilterArtikle?${queryParams.toString()}`;
-    console.log(fullUrl);
 
     try {
       const res = await fetch(fullUrl);
       const data = await res.json();
+      console.log(data);
 
       if (data.items?.length) {
-        setArtikli(data.items);
+        setArtikli(data.items); // Učitaj artikle
       } else {
         setArtikli([]);
         console.log('Nema artikala za ove parametre.');
@@ -65,22 +65,22 @@ export default function ProizvodiPage() {
   };
 
   useEffect(() => {
-  if (!params || params.length === 0) return;
+    if (!params || params.length === 0) return;
 
-  const kategorija = decodeURIComponent(params[0]);
-  const podkategorija = params.length > 1 ? decodeURIComponent(params[1]) : null;
+    const kategorija = decodeURIComponent(params[0]);
+    const podkategorija = params.length > 1 ? decodeURIComponent(params[1]) : null;
 
-  fetchArtikli(kategorija, podkategorija, {
-    naziv: '',
-    jedinicaMere: '',
-    Materijal: [],
-    Model: [],
-    Pakovanje: [],
-    RobnaMarka: [],
-    Upotreba: [],
-    Boja: [],
-  });
-}, [params]);
+    fetchArtikli(kategorija, podkategorija, {
+      naziv: '',
+      jedinicaMere: '',
+      Materijal: [],
+      Model: [],
+      Pakovanje: [],
+      RobnaMarka: [],
+      Upotreba: [],
+      Boja: [],
+    });
+  }, [params]);
 
   if (!params || params.length === 0) {
     return <p>Greška: Očekuje se najmanje jedna ruta (kategorija).</p>;
@@ -95,9 +95,12 @@ export default function ProizvodiPage() {
         <ArtikalFilter onFilterChange={(filters) => {}} />
       </div>
       <div className="w-3/4">
-        <h1 className="text-2xl font-bold mb-4">
-          {kategorija} {podkategorija ? `/ ${podkategorija}` : ''}
-        </h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold mb-4">
+            {kategorija} {podkategorija ? `/ ${podkategorija}` : ''}
+          </h1>
+          <Sorter artikli={artikli} setArtikli={setArtikli} />
+        </div>
 
         {!loading && artikli.length === 0 && (
           <p>Nema rezultata za ovu {podkategorija ? 'podkategoriju' : 'kategoriju'}.</p>

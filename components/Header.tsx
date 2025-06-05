@@ -20,9 +20,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { deleteCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
-import { useCart } from "@/contexts/CartContext";
-import AddToCartButton from "./AddToCartButton";
-import { string } from "zod";
 
 
 export default function Header() {
