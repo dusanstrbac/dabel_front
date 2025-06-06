@@ -34,6 +34,7 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
   }, [searchParams, brojStranica])
 
   const prikazaniArtikli = useMemo(() => {
+
     return artikli.slice(
       (trenutnaStrana - 1) * artikliPoStrani,
       trenutnaStrana * artikliPoStrani
@@ -60,17 +61,21 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
     <div className="flex flex-col w-full px-1">
       {/* Mreža artikala */}
       <div className="grid gap-1 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
-        {prikazaniArtikli.map((artikal) => (
-          <ArticleCard
-            key={artikal.id || artikal.idArtikla}
-            naziv={artikal.naziv}
-            cena={artikal.cena}
-            slika={artikal.slika}
-            id={artikal.id}
-            idArtikla={artikal.idArtikla}
-            artikalCene={artikal.artikalCene}
-          />
-        ))}
+        {prikazaniArtikli.map((artikal) => {
+
+            return (
+              <ArticleCard
+                key={artikal.idArtikla}
+                naziv={artikal.naziv}
+                idArtikla={artikal.idArtikla}
+                barkod={artikal.barkod}
+                kategorijaId={artikal.kategorijaId}
+                jm={artikal.jm}
+                artikalAtributi={artikal.artikalAtributi} 
+                artikalCene={artikal.artikalCene}            
+                />
+            );
+          })}
       </div>
 
       {/* Paginacija */}

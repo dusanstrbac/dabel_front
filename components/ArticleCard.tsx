@@ -32,8 +32,8 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
   if (!isMounted) return null;
 
   // Provera cene i precrtavanje
-  const cenaArtikla = artikalCene[0].cena > 0 ? artikalCene[0].cena : 0;  // Originalna cena
-  const novaCena = artikalCene && artikalCene.length > 0 ? artikalCene[0].cena : null; // Ako postoji nova cena
+  const cenaArtikla = artikalCene?.[0]?.cena ?? 0;  // Originalna cena
+  const novaCena = artikalCene?.[0]?.akcija?.cena ?? null; // Ako postoji nova cena
 
   return (
     <div
@@ -55,26 +55,26 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
       <div className="flex flex-col justify-between px-2 py-3">
         <h2 className="text-sm lg:text-lg font-semibold text-center">{naziv}</h2>
         <div className="flex justify-between items-center">
-          {/* Prikazivanje cene */}
-          {novaCena && novaCena > 0 && artikalCene[0].cena > novaCena && (
-            <p className="text-md lg:text-xl font-semibold text-red-500 line-through">
+          
+        <div className="flex flex-col lg:flex-row lg:items-center gap-2">
+          {novaCena && novaCena > 0 ? (
+
+            <div className='flex items-center gap-2'>
+              <p className="text-md lg:text-xl font-semibold text-gray-500 line-through">
+                <span>{cenaArtikla}</span> RSD
+              </p>
+
+              <p className="text-md lg:text-xl font-semibold text-red-500">
+                <span>{novaCena}</span> RSD
+              </p>
+            </div>
+
+          ) : (
+            <p className="text-md lg:text-xl font-semibold text-red-500">
               <span>{artikalCene[0].cena}</span> RSD
             </p>
           )}
-          
-          {/* Prikazivanje nove cene */}
-          {novaCena && novaCena > 0 && (
-            <p className="text-md lg:text-xl font-semibold text-red-500">
-              <span>{novaCena}</span> RSD
-            </p>
-          )}
-          
-          {/* Ako cena nije postavljena ili je 0 */}
-          {artikalCene[0].cena > 0 && !novaCena && (
-            <p className="text-md lg:text-xl font-semibold text-red-500">
-              <span>{artikalCene[0].cena}</span> RSD
-            </p>
-          )}
+        </div>
 
           <div className="pointer-events-auto">
             <AddToCartButton

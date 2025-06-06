@@ -49,7 +49,6 @@ export default function ProizvodiPage() {
     try {
       const res = await fetch(fullUrl);
       const data = await res.json();
-      console.log(data);
 
       if (data.items?.length) {
         setArtikli(data.items); // Učitaj artikle
@@ -85,6 +84,8 @@ export default function ProizvodiPage() {
   if (!params || params.length === 0) {
     return <p>Greška: Očekuje se najmanje jedna ruta (kategorija).</p>;
   }
+
+  console.log(artikli);
 
   const kategorija = decodeURIComponent(params[0]);
   const podkategorija = params.length >= 2 ? decodeURIComponent(params[1]) : null;

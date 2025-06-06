@@ -20,6 +20,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { deleteCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
+import PretragaProizvoda from "./PretragaProizvoda";
 
 
 export default function Header() {
@@ -142,13 +143,7 @@ const headerMainNav = [
           </div>
 
           {/* Pretraga */}
-          <div className="w-[40%] relative ml-16 mr-2">
-            <Input
-              placeholder="Pretraga"
-              className="pl-4 pr-10 py-2 border border-black rounded-md"
-            />
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
-          </div>
+          <PretragaProizvoda />
 
           {/* Kontakt Info */}
           <div className="w-[30%] flex items-center justify-center space-x-6">

@@ -8,7 +8,7 @@ export type ArtikalCena = {
   cena: number;
   akcija: {
     idArtikla: string;
-    cena: string;
+    cena: number;
     datumOd: string;
     datumDo: string;
     tipAkcije: string;
