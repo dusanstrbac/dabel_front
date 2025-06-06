@@ -77,18 +77,17 @@ const headerMainNav = [
     { id: 'istorija', icon: <History className="h-6 w-6" />, text: "Istorija poručivanja", href: username ? `/${username}/profil/istorija` : '/login' },
     { id: 'uplate', icon: <Wallet className="h-6 w-6" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
     { id: 'roba', icon: <Package className="h-6 w-6" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
-    { id: 'korisnici', icon: <Users className="h-6 w-6" />, text: "Korisnici", href: "/admin/korisnici" },
+    { id: 'korisnici', icon: <Users className="h-6 w-6" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : `/login` },
     { id: 'cenovnik', icon: <BadgeDollarSign className="h-6 w-6" />, text: "Cenovnik", href: "/admin/cenovnik" },
-    { id: 'uputstva', icon: <Youtube className="h-6 w-6" />, text: "Video uputstva", href: "/video-uputstva" },
+    { id: 'uputstva', icon: <Youtube className="h-6 w-6" />, text: "Video uputstva", href: "/video" },
     { id: 'podesavanja', icon: <Key className="h-6 w-6" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
   ];
 
   const dodatniLinkovi = [
-    { icon: <BadgePercent className="w-4 h-4" />, text: "Akcija", href: "/akcija" },
-    { icon: <LinkIcon className="w-4 h-4" />, text: "Novopristigli proizvodi", href: "/novopristigli" },
+    { icon: <BadgePercent className="w-4 h-4" />, text: "Akcije", href: "/akcije" },
+    { icon: <LinkIcon className="w-4 h-4" />, text: "Novopristigli artikli", href: "/novo" },
     { icon: <Heart className="w-4 h-4" />, text: "Omiljeni artikli", href: "/heart" },
     { icon: <ShoppingCart className="w-4 h-4" />, text: "Korpa", href: "/korpa" },
-    { icon: <User className="w-4 h-4" />, text: "Moj profil", href: "/profil" },
   ];
 
   useEffect(() => {    

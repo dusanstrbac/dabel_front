@@ -13,30 +13,26 @@ const Akcije = () => {
   const fetchAkcijeArtikli = async () => {
     try {
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-
-      // 1. Prvi poziv - uzmi sve artikle u akciji (samo ID-jevi i cena npr.)
       const res = await fetch(`${apiAddress}/api/Artikal/Akcije`);
-      if (!res.ok) throw new Error("Greška pri preuzimanju artikala");
-
       const akcijskiArtikli: { idArtikla: string; cena: number; staraCena: number; }[] = await res.json();
 
-      // 2. Za svaki ID, pozovi API da uzmeš detaljne podatke
+      if (!res.ok) throw new Error("Greška pri preuzimanju artikala");
+
+      
       const artikliDetalji = await Promise.all(
         akcijskiArtikli.map(async ({ idArtikla, cena, staraCena }) => {
           try {
             const resArtikal = await fetch(`${apiAddress}/api/Artikal/DajArtikalId?ids=${idArtikla}`);
-            if (!resArtikal.ok) return null;
-
             const artikalData = await resArtikal.json();
-
-            // Pretpostavka: artikalData je niz, pa uzimamo prvi element
             const artikal = artikalData[0];
+
+            if (!resArtikal.ok) return null;
             if (!artikal) return null;
 
-            // Dodajemo akcijsku cenu, ako postoji
+            // Dodajemo akcijsku cenu, ukoliko postoji
             const akcija = {
-              cena,  // Cena sa akcijom
-              staraCena,  // Stara cena pre akcije
+              cena,
+              staraCena,
             };
 
             return {
@@ -51,11 +47,8 @@ const Akcije = () => {
           }
         })
       );
-
-      // 3. Filtriraj null vrednosti
       const validArtikli = artikliDetalji.filter((a) => a !== null);
 
-      // 4. Postavi podatke u stanje
       setArtikli(validArtikli as ArtikalType[]);
     } catch (err: any) {
       setError(err.message || "Došlo je do greške");

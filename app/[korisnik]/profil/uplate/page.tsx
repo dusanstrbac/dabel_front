@@ -1,6 +1,5 @@
 import FormTable from "@/components/FormTable";
 
-
 const Uplate = () => {
 
     return (

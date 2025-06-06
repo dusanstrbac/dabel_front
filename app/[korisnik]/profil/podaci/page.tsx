@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { CircleUser, Map, MapPinned, Phone, PhoneCall, UserCircle } from 'lucide-react';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 
@@ -8,7 +7,6 @@ const ProfilPodaci = () => {
   const [userData, setUserData] = useState<KorisnikPodaciType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const router = useRouter();
 
   useEffect(() => {
     const fetchKorisnikData = async () => {
@@ -16,8 +14,7 @@ const ProfilPodaci = () => {
         const korisnik = dajKorisnikaIzTokena();
 
         if (!korisnik) {
-          router.push('/login'); // Ako ne nadje email u tokenu salje ga na logovanje
-          setLoading(false); // I uklanja loading stranice
+          setLoading(false);
           return;
         }
 
@@ -28,16 +25,13 @@ const ProfilPodaci = () => {
         
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${emailEncoded}`);
+        const data = await response.json();
 
-        if (!response.ok) {
-          throw new Error('Korisnik nije pronađen');
+        if(!response) {
+          alert("Korisik nije ulogovan. Obratite se administraciji sajta za ovaj problem");
         }
 
-        const data = await response.json();
-        console.log(data);
-
         if (data && Array.isArray(data) && data.length > 0) {
-          // Ako je odgovor niz, uzimamo prvi element (korisnika)
           setUserData(data[0]);
         } else {
           console.error('Korisnik nije pronađen ili API ne vraća ispravan odgovor');
@@ -60,11 +54,9 @@ const ProfilPodaci = () => {
   const getTodayDate = () => {
     const today = new Date();
     
-    // Dobijanje godine, meseca i dana
     const year = today.getFullYear();
     const month = (today.getMonth() + 1).toString().padStart(2, '0'); // Dodajemo 1 jer meseci u JS idu od 0
-    const day = today.getDate().toString().padStart(2, '0'); // Dodajemo 0 ako je dan manji od 10
-    
+    const day = today.getDate().toString().padStart(2, '0'); // Dodajemo 0 iispred broja, ako je dan manji od 10
     return `${day}.${month}.${year}`;
   };
 

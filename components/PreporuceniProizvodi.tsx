@@ -1,10 +1,10 @@
 'use client';
 import { useEffect, useState } from "react";
-import ArticleCard from "./ArticleCard";
 import { ArtikalType } from "@/types/artikal";
+import ListaArtikala from "./ListaArtikala";
 
 const PreporuceniProizvodi = () => {
-    const [proizvodi, setProizvodi] = useState<ArtikalType[]>([]);  
+    const [artikli, setArtikli] = useState<ArtikalType[]>([]);  
     const [loading, setLoading] = useState<boolean>(true);  
     const [error, setError] = useState<string | null>(null);  
 
@@ -12,12 +12,13 @@ const PreporuceniProizvodi = () => {
         const fetchProizvodi = async () => {
             try {
                 // Staviti fetch ovde za preporucene artikle
-                const response = await fetch("/api/proizvodi");
+                // Staviti maks 4 artikla da mogu biti u preporuceni proizvodi !!!
+                const response = await fetch("/api/preporuceniArtikli");
                 if (!response.ok) {
                     throw new Error("Došlo je do greške prilikom učitavanja preporučenih proizvoda.");
                 }
                 const data: ArtikalType[] = await response.json(); 
-                setProizvodi(data);
+                setArtikli(data);
             } catch (error: any) {
                 setError(error.message);
             } finally {
@@ -40,14 +41,7 @@ const PreporuceniProizvodi = () => {
         <div className="flex flex-col gap-4">
             <h1 className="font-bold text-2xl">Preporučeni proizvodi</h1>
             <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {proizvodi.map((proizvod) => (
-                    <ArticleCard 
-                        key={proizvod.id} 
-                        naziv={proizvod.naziv} 
-                        cena={proizvod.cena} 
-                        slika={proizvod.slika} 
-                    />
-                ))}
+                <ListaArtikala artikli={artikli} />
             </div>
         </div>
     );

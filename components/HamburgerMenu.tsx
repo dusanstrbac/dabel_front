@@ -27,8 +27,8 @@ const HamburgerMenu = () => {
 
 
     const dodatniLinkovi = [
-        { icon: <BadgePercent className="w-4 h-4" />, text: "Akcija", href: "/akcija" },
-        { icon: <LinkIcon className="w-4 h-4" />, text: "Novopristigli proizvodi", href: "/novopristigli" },
+        { icon: <BadgePercent className="w-4 h-4" />, text: "Akcije", href: "/akcije" },
+        { icon: <LinkIcon className="w-4 h-4" />, text: "Novopristigli artikli", href: "/novo" },
         { icon: <Heart className="w-4 h-4" />, text: "Omiljeni artikli", href: "/heart" },
         { icon: <ShoppingCart className="w-4 h-4" />, text: "Korpa", href: "/korpa" },
         { icon: <User className="w-4 h-4" />, text: "Moj profil", href: "/profil" },
