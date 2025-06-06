@@ -134,10 +134,11 @@ const headerMainNav = [
               <Image
                 src="/Dabel-logo-2.png" 
                 alt="Dabel logo"
-                height={164}
-                width={140}
-                className="h-[75px] w-auto object-contain0"
-                priority={true}
+                height={80}
+                width={125}
+                className="object-contain"
+                style={{ width: 'auto' }}
+                priority
               />
             </Link>
           </div>

@@ -85,30 +85,25 @@ export default function ProizvodiPage() {
     return <p>Greška: Očekuje se najmanje jedna ruta (kategorija).</p>;
   }
 
-  console.log(artikli);
-
   const kategorija = decodeURIComponent(params[0]);
   const podkategorija = params.length >= 2 ? decodeURIComponent(params[1]) : null;
 
   return (
-    <div className="flex flex-row gap-6 px-6 py-4">
-      <div className="w-1/4">
-        <ArtikalFilter onFilterChange={(filters) => {}} />
-      </div>
-      <div className="w-3/4">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold mb-4">
-            {kategorija} {podkategorija ? `/ ${podkategorija}` : ''}
-          </h1>
-          <Sorter artikli={artikli} setArtikli={setArtikli} />
+    <>
+        <div className="">
+            <div className="w-full mx-auto flex justify-center items-center gap-6 py-2 px-8 flex-wrap md:justify-between">
+                <h1 className="font-bold text-3xl mb-[5px]">{kategorija} {podkategorija ? `/ ${podkategorija}` : ''}</h1>
+                <Sorter artikli={artikli} setArtikli={setArtikli} />
+            </div>
+            <div>
+                {!loading && artikli.length === 0 && (
+                  <p>Nema rezultata za ovu {podkategorija ? 'podkategoriju' : 'kategoriju'}.</p>
+                )}
+
+                {loading ? <p>Učitavanje...</p> : <ListaArtikala artikli={artikli} />}         
+            </div>
         </div>
+    </>
 
-        {!loading && artikli.length === 0 && (
-          <p>Nema rezultata za ovu {podkategorija ? 'podkategoriju' : 'kategoriju'}.</p>
-        )}
-
-        {loading ? <p>Učitavanje...</p> : <ListaArtikala artikli={artikli} />}
-      </div>
-    </div>
-  );
+  )
 }

@@ -44,11 +44,13 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
 
       <div className="w-full h-64 relative">
         <Image
-          src={'/artikal.jpg'}  // Dodajte default sliku ako slika nije dostupna
+          src={'/artikal.jpg'}
           alt={naziv}
-          layout="fill"
-          objectFit="cover"
+          fill
+          sizes="(max-width: 768px) 100vw, 320px"
+          style={{objectFit: 'cover'}}
           className="rounded-lg w-full h-full object-cover"
+          priority
         />
       </div>
 
