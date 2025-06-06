@@ -1,16 +1,9 @@
 "use client";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BoxesIcon, BadgePercent, UserPen, Wallet, Users, BadgeDollarSign, Youtube, LogOutIcon, YoutubeIcon, Key, Package, History, User2, LogOut} from "lucide-react";
+import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut } from "lucide-react";
 import Image from "next/image";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  NavigationMenuContent,
-} from "@/components/ui/navigation-menu";
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion";
 import { Separator } from "./ui/separator";
@@ -18,20 +11,20 @@ import { ScrollArea } from "./ui/scroll-area";
 import KorisnikMenu from "./KorisnikMenu";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { deleteCookie } from 'cookies-next';
+import { deleteCookie, getCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import PretragaProizvoda from "./PretragaProizvoda";
 
 
 export default function Header() {
-  const [email, setEmail] = useState<string | null>(null);
   const [korisnickoIme, setKorisnickoIme] = useState<string | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [brojRazlicitihArtikala, setBrojRazlicitihArtikala] = useState(0);
-
+  const korisnik = dajKorisnikaIzTokena();
+  const username = korisnik?.korisnickoIme;
+  
   useEffect(() => {
     const updateCartCount = () => {
       const existing = localStorage.getItem("cart");
@@ -66,10 +59,10 @@ const headerMainNav = [
     subMenuItems:[
       { icon: <text className="w-4 h-4"/>, text: 'Spojnice', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Spojnice')}` },
       { icon: <text className="w-4 h-4"/>, text: 'Ručke', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Ručke')}` },
-      { icon: <text className="w-4 h-4"/>, text: 'Delovi za sajle', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Sajle')}` },
+      { icon: <text className="w-4 h-4"/>, text: 'Delovi za sajle', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Delovi za sajle')}` },
       { icon: <text className="w-4 h-4"/>, text: 'Tiplovi', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Tiplovi')}` },
       { icon: <text className="w-4 h-4"/>, text: 'Drvo', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Drvo')}` },
-      { icon: <text className="w-4 h-4"/>, text: 'Podloške, navrtke', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Podloške')}` },
+      { icon: <text className="w-4 h-4"/>, text: 'Podloške, navrtke', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Podloške, navrtke')}` },
       { icon: <text className="w-4 h-4"/>, text: 'Kapice', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Kapice')}` },
     ]
   },
@@ -98,9 +91,7 @@ const headerMainNav = [
     { icon: <User className="w-4 h-4" />, text: "Moj profil", href: "/profil" },
   ];
 
-  useEffect(() => {
-    const korisnik = dajKorisnikaIzTokena();
-    
+  useEffect(() => {    
     if(korisnik && korisnik.korisnickoIme) {
       setKorisnickoIme(korisnik.korisnickoIme);
       setIsLoggedIn(true);
@@ -112,15 +103,17 @@ const headerMainNav = [
 
   }, []);
 
-   const prijaviKorisnika = () => {
-    router.push('/login');
-  };
-
   const odjaviKorisnika = () => {
+    const postojiKorpa = localStorage.getItem("cart");
+
+    // Ukoliko postoji korpa kada se korisnik odjavi
+    if(postojiKorpa) {
+      localStorage.removeItem("cart");
+    }
     deleteCookie("AuthToken");
-    setKorisnickoIme(null);
     setIsLoggedIn(false);
     router.push('/');
+    window.location.reload();
   };
 
   return (
@@ -311,7 +304,7 @@ const headerMainNav = [
 
                           <Link href='#' className="flex gap-3 items-center pb-4">
                           <LogOut className="w-6 h-6" />
-                          <span className="text-[18px]" onClick={prijaviKorisnika}>Prijavi se</span>
+                          <span className="text-[18px]" onClick={() => router.push('/login')}>Prijavi se</span>
                         </Link>
 
                       )}

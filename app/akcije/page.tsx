@@ -1,5 +1,5 @@
 'use client';
-import ListaAkcijskihArtikala from "@/components/ListaAkcijskihArtikala";
+import ListaArtikala from "@/components/ListaArtikala";
 import SortiranjeButton from "@/components/SortiranjeButton";
 import { ArtikalType } from "@/types/artikal";
 import { useEffect, useState } from "react";
@@ -79,7 +79,7 @@ const Akcije = () => {
       ) : error ? (
         <p className="text-center text-red-600 mt-4">{error}</p>
       ) : (
-        <ListaAkcijskihArtikala artikli={artikli} />
+        <ListaArtikala artikli={artikli} />
       )}
     </div>
   );

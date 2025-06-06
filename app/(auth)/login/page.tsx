@@ -6,7 +6,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { setCookie } from "cookies-next";
 import { Loader2 } from "lucide-react";
@@ -21,6 +21,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,14 +51,16 @@ export default function LoginForm() {
         }
       );
 
+      const redirectTo = searchParams.get("redirectTo") || "/";
+
       if (data.token) {
         setCookie("AuthToken", data.token, {
-          maxAge: 60 * 60 * 24 * 2, // 2 dana
+          maxAge: 60 * 60 * 24 * 5, // Korisnicki token traje 5 dana
           path: "/",
           encode: (value) => value,
         });
 
-        router.push("/");
+        router.push(redirectTo);
         router.refresh();
         
       } else {
