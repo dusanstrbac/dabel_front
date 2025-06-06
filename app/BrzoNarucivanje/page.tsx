@@ -2,20 +2,26 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import PrebaciUKorpu from "@/components/ui/PrebaciUKorpu";
+import { useRef, useEffect } from "react";
 
 
 const BrzoNarucivanje = () => {
   const [rows, setRows] = useState([{ sifra: "", kolicina: "" }]);
   const [firstRow, setFirstRow] = useState({ sifra: "", kolicina: "" });
 
+    const sifraRefs = useRef<HTMLInputElement[][]>([]);
+        useEffect(() => {
+        sifraRefs.current = rows.map((_, i) => sifraRefs.current[i] || [null, null]);
+    }, [rows]);
 
-  const handleChange = (index: number, field: "sifra" | "kolicina", value: string) => {
-    const numericValue = value.replace(/\D/g, "");
-    const newRows = [...rows];
 
-    newRows[index][field] = numericValue;
-    setRows(newRows);
-  };
+    const handleChange = (index: number, field: "sifra" | "kolicina", value: string) => {
+        const numericValue = value.replace(/\D/g, "");
+        const newRows = [...rows];
+
+        newRows[index][field] = numericValue;
+        setRows(newRows);
+    };
 
   const handleAddRow = () => {
     setRows([...rows, { sifra: "", kolicina: "" }]);
@@ -37,7 +43,7 @@ const BrzoNarucivanje = () => {
             <h1 className="font-bold text-3xl">{naslov}</h1>
 
             {/* Preostalo + dugme */}
-            <div className="flex items-center justify-center gap-35">
+            <div className="flex items-center justify-center gap-10 lg:gap-35">
                 <p className="text-center">
                     <span className="text-left"> Preostalo je:</span>
                     <span className="font-bold text-lg whitespace-nowrap">
@@ -89,30 +95,80 @@ const BrzoNarucivanje = () => {
                         >
                         <div className="flex flex-col items-center">
                             <p className={isDummy ? "opacity-50" : ""}>Šifra</p>
-                            <Input
-                                inputMode="numeric"
-                                pattern="[0-9]*"
+                            {/* <Input
+                                // inputMode="numeric"
+                                // pattern="[0-9]*"
+                                type="text"
                                 className={`border-2 border-[#323131cc] w-45 ${isDummy ? "opacity-50 cursor-pointer" : ""}`}
                                 value={row.sifra}
                                 onChange={(e) => handleChange(index, "sifra", e.target.value)}
                                 onFocus={() => {
                                     if (isDummy) handleAddRow();
                                 }}
+                            /> */}
+                            <Input
+                                type="text"
+                                ref={(el) => {
+                                    sifraRefs.current[index] = [el!, sifraRefs.current[index]?.[1] || null];
+                                }}
+
+                                className={`border-2 border-[#323131cc] w-45 ${isDummy ? "opacity-50 cursor-pointer" : ""}`}
+                                value={row.sifra}
+                                onChange={(e) => handleChange(index, "sifra", e.target.value)}
+                                onFocus={() => {
+                                    if (isDummy) handleAddRow();
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    sifraRefs.current[index]?.[1]?.focus(); // Fokusi količinu istog reda
+                                    }
+                                }}
                             />
+
                         </div>
 
                         <div className="flex flex-col items-center">
                             <p className={isDummy ? "opacity-40" : ""}>Količina</p>
-                            <Input
-                                inputMode="numeric"
-                                pattern="[0-9]*"
+                            {/* <Input
+                                // inputMode="numeric"
+                                // pattern="[0-9]*"
+                                type="text"
                                 className={`border-2 border-[#323131cc] w-20 ${isDummy ? "opacity-40 cursor-pointer" : ""}`}
                                 value={row.kolicina}
                                 onChange={(e) => handleChange(index, "kolicina", e.target.value)}
                                 onFocus={() => {
                                     if (isDummy) handleAddRow();
                                 }}
+                            /> */}
+                            <Input
+                                type="text"
+                                ref={(el) => {
+                                    sifraRefs.current[index] = [sifraRefs.current[index]?.[0] || null, el!];
+                                }}
+                                className={`border-2 border-[#323131cc] w-20 ${isDummy ? "opacity-40 cursor-pointer" : ""}`}
+                                value={row.kolicina}
+                                onChange={(e) => handleChange(index, "kolicina", e.target.value)}
+                                onFocus={() => {
+                                    if (isDummy) handleAddRow();
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    if (isDummy) {
+                                        handleAddRow(); // dodaj novi red
+                                        setTimeout(() => {
+                                        const nextIndex = index + 1;
+                                        sifraRefs.current[nextIndex]?.[0]?.focus(); // Fokus sledeći red – šifra
+                                        }, 10);
+                                    } else {
+                                        const nextIndex = index + 1;
+                                        sifraRefs.current[nextIndex]?.[0]?.focus(); // Fokus sledeći red – šifra
+                                    }
+                                    }
+                                }}
                             />
+
                         </div>
 
                         {/* Dugme za brisanje ako nije dummy red */}

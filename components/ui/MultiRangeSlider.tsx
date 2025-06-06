@@ -117,6 +117,7 @@ const MultiRangeSlider = (props: Props, ref: React.ForwardedRef<HTMLDivElement>)
 		set_minValue(_minValue);
 	};
 
+<<<<<<< HEAD
 	// OVO SAM DODAO UZ CHATGPT
 	// useEffect(() => {
 	// const newMin = +(props.min || 10);
@@ -136,6 +137,8 @@ const MultiRangeSlider = (props: Props, ref: React.ForwardedRef<HTMLDivElement>)
 	// }, [props.min, props.max]);
 	// 
 	
+=======
+>>>>>>> 7f76cbe9c6ec2dead2587eafb0e90a91dbbfbd42
 	const onInputMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (disabled) return;
 		let _minValue = parseFloat(e.target.value);
@@ -419,6 +422,7 @@ const MultiRangeSlider = (props: Props, ref: React.ForwardedRef<HTMLDivElement>)
 		set_maxValue(+_maxValue);
 	}, [props.maxValue, min, max, step]);
 
+<<<<<<< HEAD
 	return (
 		<div ref={ref} id={props.id} className={(props.baseClassName || 'multi-range-slider') + ' ' + (props.className || '') + (disabled ? ' disabled' : '')} style={props.style} onWheel={onMouseWheel} >
 			<div className='bar' ref={refBar}>
@@ -458,3 +462,129 @@ const MultiRangeSlider = (props: Props, ref: React.ForwardedRef<HTMLDivElement>)
 
 export default React.memo(forwardRef<HTMLDivElement, Props>(MultiRangeSlider));
 
+=======
+return (
+    <div
+      ref={ref}
+      id={props.id}
+      className={`relative w-full max-w-2xl p-6 rounded-xl border ${
+        disabled ? 'border-gray-300 bg-gray-100 text-gray-400' : 'border-gray-400 bg-white'
+      } shadow-md transition-all duration-300 ${props.className || ''}`}
+      style={props.style}
+      onWheel={onMouseWheel}
+    >
+      {/* Slider Bar */}
+      <div className="relative h-3 flex items-center w-full bg-gray-200 rounded-full" ref={refBar}>
+        <div
+          className="h-full rounded-l-full"
+          style={{
+            width: `${barMin}%`,
+            backgroundColor: props.barLeftColor || '#e5e7eb',
+          }}
+          onClick={onBarLeftClick}
+        />
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={minValue}
+          onInput={onInputMinChange}
+          className="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
+        />
+        <div
+          className="absolute z-10 top-1/2 -translate-y-1/2 w-5 h-5 border-2 border-white rounded-full shadow-md cursor-pointer hover:scale-110 transition-transform"
+          style={{
+            left: `${barMin}%`,
+            backgroundColor: props.thumbLeftColor || '#3b82f6',
+            transform: 'translate(-50%, -50%)',
+          }}
+          onMouseDown={onLeftThumbMousedown}
+          onTouchStart={onLeftThumbTouchStart}
+        >
+          <div className="absolute top-[-36px] left-1/2 -translate-x-1/2 w-max px-2 py-1 text-xs text-white bg-blue-600 rounded shadow">
+            {minCaption}
+          </div>
+        </div>
+
+        <div
+          className="flex-grow relative bg-green-400 shadow-inner"
+          style={{ backgroundColor: props.barInnerColor || '#4ade80' }}
+          onClick={onInnerBarLeftClick}
+        >
+          <div className="absolute inset-y-0 left-0 w-1/2 cursor-pointer" />
+          <div
+            className="absolute inset-y-0 right-0 w-1/2 cursor-pointer"
+            onClick={onInnerBarRightClick}
+          />
+        </div>
+
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={maxValue}
+          onInput={onInputMaxChange}
+          className="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
+        />
+        <div
+          className="absolute z-10 top-1/2 -translate-y-1/2 w-5 h-5 border-2 border-white rounded-full shadow-md cursor-pointer hover:scale-110 transition-transform"
+          style={{
+            right: `${barMax}%`,
+            backgroundColor: props.thumbRightColor || '#3b82f6',
+            transform: 'translate(50%, -50%)',
+          }}
+          onMouseDown={onRightThumbMousedown}
+          onTouchStart={onRightThumbTouchStart}
+        >
+          <div className="absolute top-[-36px] left-1/2 -translate-x-1/2 w-max px-2 py-1 text-xs text-white bg-blue-600 rounded shadow">
+            {maxCaption}
+          </div>
+        </div>
+
+        <div
+          className="h-full rounded-r-full"
+          style={{
+            width: `${barMax}%`,
+            backgroundColor: props.barRightColor || '#e5e7eb',
+          }}
+          onClick={onBarRightClick}
+        />
+      </div>
+
+      {/* Input polja ispod slidera */}
+      <div className="flex justify-between gap-4 mt-4">
+        <div className="flex flex-col items-start w-1/2">
+          <label htmlFor="minValue" className="text-sm text-gray-600 mb-1">Min</label>
+          <input
+            id="minValue"
+            type="number"
+            min={min}
+            max={maxValue - stepValue}
+            value={minValue}
+            onChange={onInputMinChange}
+            className="w-full rounded border border-gray-300 px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={disabled}
+          />
+        </div>
+        <div className="flex flex-col items-end w-1/2">
+          <label htmlFor="maxValue" className="text-sm text-gray-600 mb-1">Max</label>
+          <input
+            id="maxValue"
+            type="number"
+            min={minValue + stepValue}
+            max={max}
+            value={maxValue}
+            onChange={onInputMaxChange}
+            className="w-full rounded border border-gray-300 px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={disabled}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default React.memo(forwardRef<HTMLDivElement, Props>(MultiRangeSlider));
+>>>>>>> 7f76cbe9c6ec2dead2587eafb0e90a91dbbfbd42

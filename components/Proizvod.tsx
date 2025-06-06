@@ -60,6 +60,7 @@ export default function Proizvod() {
   useEffect(() => {
     const korisnik = dajKorisnikaIzTokena();
     const productId = Array.isArray(id) ? id[0] : id;
+    const apiAdress = process.env.NEXT_PUBLIC_API_ADDRESS;
     if (!productId) return;
 
     const fetchData = async () => {
@@ -68,7 +69,7 @@ export default function Proizvod() {
         if (typeof e === "string") setEmail(e);
 
         const res = await fetch(
-          `${apiAddress}/api/Artikal/ArtikalId?ids=${productId}`
+          `${apiAdress}/api/Artikal/ArtikalId?ids=${productId}`
         );
         if (!res.ok) throw new Error("Greška prilikom učitavanja proizvoda");
 

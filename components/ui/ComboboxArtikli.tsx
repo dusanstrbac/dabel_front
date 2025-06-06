@@ -44,7 +44,15 @@ const ComboboxArtikliComponent: React.FC<Props> = ({
   const [inputValue, setInputValue] = React.useState("");
   const [debouncedInput, setDebouncedInput] = React.useState("");
 
-  const selected = articleList.find((a) => a.idArtikla === currentArtikalId) ?? null;
+  const [selected, setSelected] = React.useState<Artikal | null>(null);
+
+
+  React.useEffect(() => {
+    const inicijalni = articleList.find((a) => a.idArtikla === currentArtikalId) || null;
+    setSelected(inicijalni);
+  }, [currentArtikalId, articleList]);
+
+
 
   React.useEffect(() => {
     const timeout = setTimeout(() => {
@@ -88,9 +96,10 @@ const ComboboxArtikliComponent: React.FC<Props> = ({
   const handleSelect = (id: string) => {
     const artikal = articleList.find((a) => a.idArtikla === id);
     if (artikal && !isDisabled(artikal)) {
+      setSelected(artikal);
+      onSelectOption(artikal);
       setOpen(false);
       setInputValue("");
-      onSelectOption(artikal);
     }
   };
 

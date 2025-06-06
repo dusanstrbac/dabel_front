@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from "react";
 import ListaArtikala from "@/components/ListaArtikala";
-import { getCookie } from "cookies-next";
 import SortiranjeButton from "@/components/SortiranjeButton";
 import { ArtikalType } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
@@ -11,8 +10,6 @@ const Heart = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-    
     useEffect(() => {
 
         const fetchOmiljeni = async () => {
@@ -27,14 +24,15 @@ const Heart = () => {
             const idPartnera = korisnik.idKorisnika;
 
             try {
-                const res = await fetch(`${apiAddress}/api/Partner/OmiljeniArtikli?idPartnera=${idPartnera}`);
+                const apiAdress = process.env.NEXT_PUBLIC_API_ADDRESS
+                const res = await fetch(`${apiAdress}/api/Partner/OmiljeniArtikli?idPartnera=${idPartnera}`);
                 if (!res.ok) throw new Error(`Greška pri učitavanju omiljenih artikala: ${res.statusText}`);
                 const data: { id: string }[] = await res.json();
 
                 const artikliIzBaze = await Promise.all(
                     data.map(async (artikal) => {
                         try {
-                            const artikalIzBazeRes = await fetch(`${apiAddress}/api/Artikal/ArtikalId?ids=${artikal}`);
+                            const artikalIzBazeRes = await fetch(`${apiAdress}/api/Artikal/ArtikalId?ids=${artikal}`);
 
                             if (!artikalIzBazeRes.ok) {
                                 return null;
@@ -72,7 +70,7 @@ const Heart = () => {
         <div className="">
             <div className="w-full mx-auto flex justify-between items-center p-2">
                 <h1 className="font-bold text-3xl mb-[10px]">Omiljeni Artikli</h1>
-                <SortiranjeButton />
+                <SortiranjeButton artikli={artikli} setArtikli={setArtikli} />
             </div>
             <div>
                 <ListaArtikala artikli={artikli} />            

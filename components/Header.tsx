@@ -16,9 +16,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@r
 import { Separator } from "./ui/separator";
 import { ScrollArea } from "./ui/scroll-area";
 import KorisnikMenu from "./KorisnikMenu";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { deleteCookie, getCookie } from 'cookies-next';
+import { deleteCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 
@@ -31,22 +31,22 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const headerMainNav = [ 
-    { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/okov-gradjevinski'},
-    { icon: <Sofa className="w-4 h-4"/>, text: 'Okov nameštaj', href: '/okov-namestaj'},
-    { icon: <Rows2 className="w-4 h-4"/>, text: 'Klizni okov za građevinu, nameštaj', href: '/klizni-okov'},
-    { icon: <LinkIcon className="w-4 h-4"/>, text: 'Elementi za pričvršćivanje', href: '/elementi-pricvrscivanje', 
+    { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/proizvodi/kategorija/okov-gradjevinski'},
+    { icon: <Sofa className="w-4 h-4"/>, text: 'Okov nameštaj', href: '/proizvodi/kategorija/okov-namestaj'},
+    { icon: <Rows2 className="w-4 h-4"/>, text: 'Klizni okov za građevinu, nameštaj', href: '/proizvodi/kategorija/klizni-okov'},
+    { icon: <LinkIcon className="w-4 h-4"/>, text: 'Elementi za pričvršćivanje', href: '/proizvodi/kategorija/elementi-pricvrscivanje', 
       subMenuItems:[
-        { icon: <text className="w-4 h-4"/>, text: 'Spojnice', href: '/elementi-spojnice'},
-        { icon: <text className="w-4 h-4"/>, text: 'Ručke', href: '/elementi-rucke'},
-        { icon: <text className="w-4 h-4"/>, text: 'Delovi za sajle', href: '/elementi-sajle'},
-        { icon: <text className="w-4 h-4"/>, text: 'Tiplovi', href: '/elementi-tiplovi'},
-        { icon: <text className="w-4 h-4"/>, text: 'Drvo', href: '/elementi-drvo'},
-        { icon: <text className="w-4 h-4"/>, text: 'Podloške, navrtke', href: '/elementi-podloske'},
-        { icon: <text className="w-4 h-4"/>, text: 'Kapice', href: '/elementi-kapice'},
+        { icon: <text className="w-4 h-4"/>, text: 'Spojnice', href: '/proizvodi/kategorija/elementi-spojnice'},
+        { icon: <text className="w-4 h-4"/>, text: 'Ručke', href: '/proizvodi/kategorija/elementi-rucke'},
+        { icon: <text className="w-4 h-4"/>, text: 'Delovi za sajle', href: '/proizvodi/kategorija/elementi-sajle'},
+        { icon: <text className="w-4 h-4"/>, text: 'Tiplovi', href: '/proizvodi/kategorija/elementi-tiplovi'},
+        { icon: <text className="w-4 h-4"/>, text: 'Drvo', href: '/proizvodi/kategorija/elementi-drvo'},
+        { icon: <text className="w-4 h-4"/>, text: 'Podloške, navrtke', href: '/proizvodi/kategorija/elementi-podloske'},
+        { icon: <text className="w-4 h-4"/>, text: 'Kapice', href: '/proizvodi/kategorija/elementi-kapice'},
       ]},
-    { icon: <Lightbulb className="w-4 h-4"/>, text: 'LED rasveta', href: '/led-rasveta'},
-    { icon: <Vault className="w-4 h-4"/>, text: 'Kontrola pristupa', href: '/kontrola-pristupa'},
-    { icon: <Hammer className="w-4 h-4"/>, text: 'Ručni alat', href: '/rucni-alat'},
+    { icon: <Lightbulb className="w-4 h-4"/>, text: 'LED rasveta', href: '/proizvodi/kategorija/led-rasveta'},
+    { icon: <Vault className="w-4 h-4"/>, text: 'Kontrola pristupa', href: '/proizvodi/kategorija/kontrola-pristupa'},
+    { icon: <Hammer className="w-4 h-4"/>, text: 'Ručni alat', href: '/proizvodi/kategorija/rucni-alat'},
   ];
 
   const menuItems = [
