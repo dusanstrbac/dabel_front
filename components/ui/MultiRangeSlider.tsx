@@ -117,28 +117,6 @@ const MultiRangeSlider = (props: Props, ref: React.ForwardedRef<HTMLDivElement>)
 		set_minValue(_minValue);
 	};
 
-<<<<<<< HEAD
-	// OVO SAM DODAO UZ CHATGPT
-	// useEffect(() => {
-	// const newMin = +(props.min || 10);
-	// const newMax = +(props.max || 300000);
-
-	// set_minValue((prev) => {
-	// 	let updated = Math.max(prev, newMin);
-	// 	return updated > newMax ? newMax : updated;
-	// });
-	// set_maxValue((prev) => {
-	// 	let updated = Math.min(prev, newMax);
-	// 	return updated < newMin ? newMin : updated;
-	// });
-
-	// set_barMin(((minValue - newMin) / (newMax - newMin)) * 100);
-	// set_barMax(((newMax - maxValue) / (newMax - newMin)) * 100);
-	// }, [props.min, props.max]);
-	// 
-	
-=======
->>>>>>> 7f76cbe9c6ec2dead2587eafb0e90a91dbbfbd42
 	const onInputMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (disabled) return;
 		let _minValue = parseFloat(e.target.value);
@@ -422,47 +400,6 @@ const MultiRangeSlider = (props: Props, ref: React.ForwardedRef<HTMLDivElement>)
 		set_maxValue(+_maxValue);
 	}, [props.maxValue, min, max, step]);
 
-<<<<<<< HEAD
-	return (
-		<div ref={ref} id={props.id} className={(props.baseClassName || 'multi-range-slider') + ' ' + (props.className || '') + (disabled ? ' disabled' : '')} style={props.style} onWheel={onMouseWheel} >
-			<div className='bar' ref={refBar}>
-				<div className='bar-left' style={{ width: barMin + '%', backgroundColor: props.barLeftColor }} onClick={onBarLeftClick}></div>
-				<input placeholder='min-value' className='input-type-range input-type-range-min' type='range' min={min} max={max} step={step} value={minValue} onInput={onInputMinChange} />
-				<div className='thumb thumb-left' style={{ backgroundColor: props.thumbLeftColor }} onMouseDown={onLeftThumbMousedown} onTouchStart={onLeftThumbTouchStart}>
-					<div className='caption'>
-						<span className='min-caption'>{minCaption}</span>
-					</div>
-				</div>
-				<div className='bar-inner' style={{ backgroundColor: props.barInnerColor }}>
-					<div className='bar-inner-left' onClick={onInnerBarLeftClick}></div>
-					<div className='bar-inner-right' onClick={onInnerBarRightClick}></div>
-				</div>
-				<input placeholder='max-value' className='input-type-range input-type-range-max' type='range' min={min} max={max} step={step} value={maxValue} onInput={onInputMaxChange} />
-				<div className='thumb thumb-right' style={{ backgroundColor: props.thumbRightColor }} onMouseDown={onRightThumbMousedown} onTouchStart={onRightThumbTouchStart}>
-					<div className='caption'>
-						<span className='max-caption'>{maxCaption}</span>
-					</div>
-				</div>
-				<div className='bar-right' style={{ width: barMax + '%', backgroundColor: props.barRightColor }} onClick={onBarRightClick}></div>
-			</div>
-			{label && (
-				<div className='labels'>
-					{labels.map((label) => {
-						return (
-							<div key={label.toString()} className='label'>
-								{label}
-							</div>
-						);
-					})}
-				</div>
-			)}
-		</div>
-	);
-};
-
-export default React.memo(forwardRef<HTMLDivElement, Props>(MultiRangeSlider));
-
-=======
 return (
     <div
       ref={ref}
@@ -587,4 +524,3 @@ return (
 };
 
 export default React.memo(forwardRef<HTMLDivElement, Props>(MultiRangeSlider));
->>>>>>> 7f76cbe9c6ec2dead2587eafb0e90a91dbbfbd42

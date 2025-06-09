@@ -1,14 +1,54 @@
 
-export interface ArtikalType {
-    id?: string,
-    naziv: string,
-    cena: number,
-    slika?: string,
-    staraCena?: number,
+
+export type ArtikalCena = {
+  id: string;
+  idCenovnika: string;
+  valutaISO: string;
+  idArtikla: string;
+  cena: number;
+  akcija: {
+    idArtikla: string;
+    cena: string;
+    datumOd: string;
+    datumDo: string;
+    tipAkcije: string;
+    kolicina: number;
+    naziv: string;
+    staraCena: string;
+  };
+};
+
+export type ArtikalAtribut = {
+  idArtikla: string;
+  imeAtributa: string;
+  vrednost: string;
+};
+
+export type ArtikalType = {
+  idArtikla: string;
+  naziv: string;
+  barkod: string;
+  jm: string;
+  kategorijaId: string;
+  artikalCene: ArtikalCena[];
+  artikalAtributi: ArtikalAtribut[];
+};
+
+export type PrikazaniAtribut = {
+  atribut: string;
+  vrednost: string;
+};
+
+export interface AkcijaType {
+  cena: number; 
+  datumOd: string; 
+  datumDo: string; 
+  tipAkcije: string;
+  staraCena: number; 
 }
 
 export interface ListaArtikalaProps {
-  artikli?: ArtikalType[]  // opcioni prop, default prazan niz
+  artikli?: ArtikalType[] 
 }
 
 export interface SortiranjeButtonProps {
@@ -18,12 +58,25 @@ export interface SortiranjeButtonProps {
 
 export interface ArtikalFilterProp {
   naziv: string;
-  cena?: [number, number];
-  jedinicaMere?: string;
-  Materijal?: string[];
-  Model?: string[];
-  Pakovanje?: string[];
-  RobnaMarka?: string[];
-  Upotreba?: string[];
-  Boja?: string[];
+  jedinicaMere: string;
+  Materijal: string[];
+  Model: string[];
+  Pakovanje: string[];
+  RobnaMarka: string[];
+  Upotreba: string[];
+  Boja: string[];
+  
+  [key: string]: string | string[]; // Dodaj indeksnu potpisu
 }
+
+export const defaultFilters: ArtikalFilterProp = {
+  naziv: '',
+  jedinicaMere: '',
+  Materijal: [],
+  Model: [],
+  Pakovanje: [],
+  RobnaMarka: [],
+  Upotreba: [],
+  Boja: [],
+  
+};

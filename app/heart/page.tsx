@@ -24,16 +24,15 @@ const Heart = () => {
             const idPartnera = korisnik.idKorisnika;
 
             try {
-                const apiAdress = process.env.NEXT_PUBLIC_API_ADDRESS
-                const res = await fetch(`${apiAdress}/api/Partner/OmiljeniArtikli?idPartnera=${idPartnera}`);
+                const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+                const res = await fetch(`${apiAddress}/api/Partner/OmiljeniArtikli?idPartnera=${idPartnera}`);
                 if (!res.ok) throw new Error(`Greška pri učitavanju omiljenih artikala: ${res.statusText}`);
                 const data: { id: string }[] = await res.json();
 
                 const artikliIzBaze = await Promise.all(
                     data.map(async (artikal) => {
                         try {
-                            const artikalIzBazeRes = await fetch(`${apiAdress}/api/Artikal/ArtikalId?ids=${artikal}`);
-
+                            const artikalIzBazeRes = await fetch(`${apiAddress}/api/Artikal/DajArtikalId?ids=${artikal}`);
                             if (!artikalIzBazeRes.ok) {
                                 return null;
                             }
