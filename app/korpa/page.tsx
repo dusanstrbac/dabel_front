@@ -31,15 +31,24 @@ const Korpa = () => {
             );
             const data = await response.json();
 
+            const transformed = data.map((artikal: any) => ({
+            ...artikal,
+            id: artikal.idArtikla,
+            cena: artikal.artikalCene?.[0]?.cena ?? 0,   // uzmi cenu iz artikalCene
+            pakovanje: Number(artikal.pakovanje) || 1,    // konvertuj pakovanje u broj, podrazumevano 1
+            }));
+
             const uniqueArticles = Object.values(
                 data.reduce((acc: Record<number, any>, curr: any) => {
-                acc[curr.id] = curr;
-                return acc;
+                    acc[curr.id] = curr;
+                    return acc;
                 }, {})
             );
 
-            setArticleList(uniqueArticles);
-            setQuantities(uniqueArticles.map((a: any) => cart[a.id]?.kolicina || a.pakovanje));
+            console.log("Transformed data:", transformed);
+
+            setArticleList(transformed);
+            setQuantities(transformed.map((a: any) => cart[a.id]?.kolicina || a.pakovanje));
             } catch (error) {
             console.error("Greška pri učitavanju artikala iz API-ja:", error);
             }
@@ -85,7 +94,6 @@ const Korpa = () => {
     };
 
 
-
     const getRoundedQuantity = (requested: number, packSize: number) => {
         if (requested <= 0 || isNaN(requested)) return 0;
         return requested <= packSize
@@ -94,11 +102,14 @@ const Korpa = () => {
     };
 
     const totalAmount = quantities.reduce((sum, quantity, index) => {
-        const rounded = getRoundedQuantity(quantity, /*articleList[index]?.pakovanje*/1);
-        return sum + rounded * articleList[index]?.cena;
+        const packSize = articleList[index]?.pakovanje || 1;
+        const cena = articleList[index]?.artikalCene?.[0]?.cena ?? 0;
+        const rounded = getRoundedQuantity(quantity, packSize);
+        return sum + rounded * cena;
     }, 0);
 
     const totalAmountWithPDV = totalAmount * 1.2;
+
 
     if (!isClient) return null; // Ne renderuj ništa dok ne budeš siguran da si na klijentu
 
@@ -134,7 +145,11 @@ const Korpa = () => {
                                 </TableCell>
                             </TableRow>
                         )}
-                        {articleList.map((article, index) => (
+                        {articleList.map((article, index) => {
+                            const cena = article.artikalCene?.[0]?.cena ?? 0;
+                            const pakovanje = article.pakovanje || 1;
+
+                            return (
                             <TableRow key={index}>
                                 <TableCell className="text-center">
                                     <img src='/artikal.jpg' alt={article.naziv} className="w-16 h-16 object-cover" />
@@ -148,8 +163,8 @@ const Korpa = () => {
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-center">{article.jm}</TableCell>
-                                <TableCell className="text-center">{article.cena} RSD</TableCell>
-                                <TableCell className="text-center">{article.pakovanje}</TableCell>
+                                <TableCell className="text-center">{cena} RSD</TableCell>
+                                <TableCell className="text-center">{pakovanje}</TableCell>
                                 <TableCell className="text-center">
                                     <input
                                         type="number"
@@ -167,19 +182,20 @@ const Korpa = () => {
                                     />
                                 </TableCell>
                                 <TableCell className="text-center">
-                                    {getRoundedQuantity(quantities[index], /*article.pakovanje*/1)}
+                                    {getRoundedQuantity(quantities[index], pakovanje)}
                                 </TableCell>
                                 <TableCell className="text-center">
-                                    {(getRoundedQuantity(quantities[index], /*article.pakovanje*/1) * article.cena).toFixed(2)} RSD
+                                    {(getRoundedQuantity(quantities[index], pakovanje) * cena).toFixed(2)} RSD
                                 </TableCell>
                                 <TableCell className="text-center">
-                                    {(getRoundedQuantity(quantities[index], /*article.pakovanje*/1) * article.cena * 1.2).toFixed(2)} RSD
+                                    {(getRoundedQuantity(quantities[index], pakovanje) * cena * 1.2).toFixed(2)} RSD
                                 </TableCell>
                                 <TableCell>
                                     <Button onClick={() => removeArticle(index)}>Ukloni</Button>
                                 </TableCell>
                             </TableRow>
-                        ))}
+                            );
+                        })}
                     </TableBody>
                     <TableFooter>
                         <TableRow>
@@ -199,7 +215,11 @@ const Korpa = () => {
 
             {/* MOBILNA VERZIJA */}
             <div className="py-2 block lg:hidden">
-                {articleList.map((article, index) => (
+                {articleList.map((article, index) => {
+                    const cena = article.artikalCene?.[0]?.cena ?? 0;
+                    const pakovanje = article.pakovanje || 1;
+
+                    return (
                     <Card key={index} className="p-3 shadow-md flex flex-col sm:flex-row gap-2 items-center">
                         <img src={article.imageUrl || "/artikal.jpg"} alt={article.naziv} className="w-32 h-auto object-contain" />
                         <CardContent className="flex-1">
@@ -208,7 +228,7 @@ const Korpa = () => {
                                 <p>Šifra: {article.id}</p>
                                 <p>Barkod: {article.barkod}</p>
                                 <p>JM: {article.jm}</p>
-                                <p className="font-bold text-red-600">{article.cena} RSD</p>
+                                <p className="font-bold text-red-600">{cena} RSD</p>
                             </div>
                             <div className="pt-2">
                                 <span>
@@ -222,11 +242,11 @@ const Korpa = () => {
                                     />
                                 </span>
                                 <div>
-                                    <p>Pakovanje: {article.pakovanje}</p>
-                                    <p>Količina: {getRoundedQuantity(quantities[index], /*article.pakovanje*/1)}</p>
+                                    <p>Pakovanje: {pakovanje}</p>
+                                    <p>Količina: {getRoundedQuantity(quantities[index], pakovanje)}</p>
                                 </div>
-                                <p>Iznos: {(getRoundedQuantity(quantities[index], /*article.pakovanje*/1) * article.cena).toFixed(2)} RSD</p>
-                                <p className="font-bold">Sa PDV: {(getRoundedQuantity(quantities[index], /*article.pakovanje*/1) * article.cena * 1.2).toFixed(2)} RSD</p>
+                                <p>Iznos: {(getRoundedQuantity(quantities[index], pakovanje) * cena).toFixed(2)} RSD</p>
+                                <p className="font-bold">Sa PDV: {(getRoundedQuantity(quantities[index], pakovanje) * cena * 1.2).toFixed(2)} RSD</p>
                                 <div>
                                     <Button onClick={() => removeArticle(index)}>Ukloni</Button>
                                 </div>
@@ -234,7 +254,8 @@ const Korpa = () => {
                             {article.stanje && <p className="text-red-500">{article.stanje}</p>}
                         </CardContent>
                     </Card>
-                ))}
+                    );
+                })}
                 <div className="flex justify-between font-semibold py-5">
                     <span>Ukupno (bez PDV):</span>
                     <span>{totalAmount.toFixed(2)} RSD</span>

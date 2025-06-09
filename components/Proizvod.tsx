@@ -16,7 +16,6 @@ const Lightbox = dynamic(() => import("yet-another-react-lightbox"), {
 });
 
 
-
 const prikazaniAtributi = [
   "Model",
   "Robna marka",

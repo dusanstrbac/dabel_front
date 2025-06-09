@@ -1,6 +1,6 @@
+
 'use client'
 import { useState, useEffect, useMemo } from "react"
-import ArticleCard from "./ArticleCard"
 import {
   Paginacija,
   PaginacijaSadrzaj,
@@ -20,7 +20,6 @@ const ListaAkcijskihArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
   const artikliPoStrani = 8
   const router = useRouter()
   const searchParams = useSearchParams()
-
 
   const brojStranica = useMemo(() => Math.ceil(artikli.length / artikliPoStrani), [artikli])
 
@@ -58,7 +57,7 @@ const ListaAkcijskihArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
       {/* Mreža artikala */}
       <div className="grid gap-1 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
         {prikazaniArtikli.map((artikal) => (
-          <ActionCard key={artikal.idArtikla} artikal={artikal} />
+          <ActionCard key={artikal.idArtikla} {...artikal} />
         ))}
       </div>
 

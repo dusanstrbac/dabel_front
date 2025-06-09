@@ -9,16 +9,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 const NaruciButton = () => {
   const [open, setOpen] = useState(false);
   const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
-  // Simulacija poručivanja
   const handleNaruci = () => {
-    // Možeš ovde pozvati API ako želiš
     setSuccess(true);
-    setOpen(true); // Otvori modal
+    router.push('/dokument/upis');
   };
 
   // Opcionalno: automatsko zatvaranje posle 3 sekunde
@@ -33,20 +33,9 @@ const NaruciButton = () => {
 
   return (
     <div>
-      <Button variant="outline" className="px-10 py-4" onClick={handleNaruci}>
+      <Button variant="outline" className="px-10 py-4 cursor-pointer" onClick={handleNaruci}>
         Naruči
       </Button>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Hvala na porudžbini</DialogTitle>
-            <DialogDescription>
-              Uspešno ste poručili artikle.
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

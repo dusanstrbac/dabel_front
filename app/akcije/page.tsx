@@ -10,54 +10,62 @@ const Akcije = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchAkcijeArtikli = async () => {
-      try {
-        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+  const fetchAkcijeArtikli = async () => {
+    try {
+      const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
-        // 1. Prvi poziv - uzmi sve artikle u akciji (samo ID-jevi i cena npr.)
-        const res = await fetch(`${apiAddress}/api/Artikal/Akcije`);
-        if (!res.ok) throw new Error("Greška pri preuzimanju artikala");
+      // 1. Prvi poziv - uzmi sve artikle u akciji (samo ID-jevi i cena npr.)
+      const res = await fetch(`${apiAddress}/api/Artikal/Akcije`);
+      if (!res.ok) throw new Error("Greška pri preuzimanju artikala");
 
-        const akcijskiArtikli: { idArtikla: string; cena: number; staraCena: number; }[] = await res.json();
+      const akcijskiArtikli: { idArtikla: string; cena: number; staraCena: number; }[] = await res.json();
 
-        // 2. Za svaki ID, pozovi API da uzmeš detaljne podatke
-        const artikliDetalji = await Promise.all(
-          akcijskiArtikli.map(async ({ idArtikla, cena, staraCena }) => {
-            try {
-              const resArtikal = await fetch(`${apiAddress}/api/Artikal/DajArtikalId?ids=${idArtikla}`);
-              if (!resArtikal.ok) return null;
+      // 2. Za svaki ID, pozovi API da uzmeš detaljne podatke
+      const artikliDetalji = await Promise.all(
+        akcijskiArtikli.map(async ({ idArtikla, cena, staraCena }) => {
+          try {
+            const resArtikal = await fetch(`${apiAddress}/api/Artikal/DajArtikalId?ids=${idArtikla}`);
+            if (!resArtikal.ok) return null;
 
-              const artikalData = await resArtikal.json();
+            const artikalData = await resArtikal.json();
 
-              // Pretpostavka: artikalData je niz, pa uzimamo prvi element
-              const artikal = artikalData[0];
-              if (!artikal) return null;
+            // Pretpostavka: artikalData je niz, pa uzimamo prvi element
+            const artikal = artikalData[0];
+            if (!artikal) return null;
 
-              return {
-                ...artikal,
-                cena,
-                staraCena,
-              };
-            } catch (err) {
-              console.error("Greška prilikom fetchovanja artikla:", err);
-              return null;
-            }
-          })
-        );
+            // Dodajemo akcijsku cenu, ako postoji
+            const akcija = {
+              cena,  // Cena sa akcijom
+              staraCena,  // Stara cena pre akcije
+            };
 
-        // 3. Filtriraj null vrednosti
-        const validArtikli = artikliDetalji.filter((a) => a !== null);
+            return {
+              ...artikal,
+              cena,  // Regularna cena
+              staraCena,
+              akcija,  // Akcija je sada deo artikla
+            };
+          } catch (err) {
+            console.error("Greška prilikom fetchovanja artikla:", err);
+            return null;
+          }
+        })
+      );
 
-        setArtikli(validArtikli as ArtikalType[]);
-      } catch (err: any) {
-        setError(err.message || "Došlo je do greške");
-      } finally {
-        setLoading(false);
-      }
-    };
+      // 3. Filtriraj null vrednosti
+      const validArtikli = artikliDetalji.filter((a) => a !== null);
 
-    fetchAkcijeArtikli();
-  }, []);
+      // 4. Postavi podatke u stanje
+      setArtikli(validArtikli as ArtikalType[]);
+    } catch (err: any) {
+      setError(err.message || "Došlo je do greške");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchAkcijeArtikli();
+}, []);
 
   return (
     <div className="lg:p-4">

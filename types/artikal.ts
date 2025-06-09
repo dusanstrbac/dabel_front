@@ -39,7 +39,7 @@ export type PrikazaniAtribut = {
 
 
 export interface ListaArtikalaProps {
-  artikli?: ArtikalType[]  // opcioni prop, default prazan niz
+  artikli?: ArtikalType[] 
 }
 
 export interface SortiranjeButtonProps {
