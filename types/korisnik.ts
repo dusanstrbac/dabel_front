@@ -1,3 +1,5 @@
+// Proveriti da li je potrebno ovaj JSON fajl da se menja
+
 interface KorisnikPodaciType {
     ime: string,
     email: string,

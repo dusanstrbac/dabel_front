@@ -4,13 +4,10 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { ArtikalFilterProp, ArtikalType } from '@/types/artikal';
 import ListaArtikala from '@/components/ListaArtikala';
-import ArtikalFilter from '@/components/ArtikalFilter';
 import SortiranjeButton from '@/components/SortiranjeButton';
-import Sorter from '@/components/Sorter';
 
 export default function ProizvodiPage() {
-  const { params } = useParams(); // Izvadi polje params
-
+  const { params } = useParams();
   const [artikli, setArtikli] = useState<ArtikalType[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -43,16 +40,14 @@ export default function ProizvodiPage() {
     });
 
     queryParams.append('batchSize', '4000');
-
     const fullUrl = `http://localhost:7235/api/Artikal/DajFilterArtikle?${queryParams.toString()}`;
 
     try {
       const res = await fetch(fullUrl);
       const data = await res.json();
-      console.log(data);
 
       if (data.items?.length) {
-        setArtikli(data.items); // Učitaj artikle
+        setArtikli(data.items);
       } else {
         setArtikli([]);
         console.log('Nema artikala za ove parametre.');
@@ -90,24 +85,18 @@ export default function ProizvodiPage() {
   const podkategorija = params.length >= 2 ? decodeURIComponent(params[1]) : null;
 
   return (
-    <div className="flex flex-row gap-6 px-6 py-4">
-      <div className="w-1/4">
-        <ArtikalFilter onFilterChange={(filters) => {}} />
-      </div>
-      <div className="w-3/4">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold mb-4">
-            {kategorija} {podkategorija ? `/ ${podkategorija}` : ''}
-          </h1>
-          <Sorter artikli={artikli} setArtikli={setArtikli} />
+    <div className="">
+        <div className="w-full mx-auto flex justify-center items-center gap-6 py-2 px-8 flex-wrap md:justify-between">
+            <h1 className="font-bold text-3xl mb-[5px]">{kategorija} {podkategorija ? `/ ${podkategorija}` : ''}</h1>
+            <SortiranjeButton artikli={artikli} setArtikli={setArtikli} />
         </div>
+        <div>
+            {!loading && artikli.length === 0 && (
+              <p>Nema rezultata za ovu {podkategorija ? 'podkategoriju' : 'kategoriju'}.</p>
+            )}
 
-        {!loading && artikli.length === 0 && (
-          <p>Nema rezultata za ovu {podkategorija ? 'podkategoriju' : 'kategoriju'}.</p>
-        )}
-
-        {loading ? <p>Učitavanje...</p> : <ListaArtikala artikli={artikli} />}
-      </div>
+            {loading ? <p>Učitavanje...</p> : <ListaArtikala artikli={artikli} />}         
+        </div>
     </div>
-  );
+  )
 }

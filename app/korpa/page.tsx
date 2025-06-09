@@ -5,12 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import NaruciButton from "@/components/ui/NaruciButton";
-import AddToCartButton from "@/components/AddToCartButton";
 
 const Korpa = () => {
     const [articleList, setArticleList] = useState<any[]>([]);
     const [quantities, setQuantities] = useState<number[]>([]);
-    const [isClient, setIsClient] = useState(false); // da bi izbegli hydration mismatch
+    const [isClient, setIsClient] = useState(false); 
 
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     
@@ -40,13 +39,6 @@ const Korpa = () => {
             pakovanje: Number(artikal.pakovanje) || 1,    // konvertuj pakovanje u broj, podrazumevano 1
             }));
 
-            const uniqueArticles = Object.values(
-                data.reduce((acc: Record<number, any>, curr: any) => {
-                    acc[curr.id] = curr;
-                    return acc;
-                }, {})
-            );
-
             console.log("Transformed data:", transformed);
 
             setArticleList(transformed);
@@ -58,14 +50,12 @@ const Korpa = () => {
         fetchArticles();
     }, []);
 
-
     const isprazniKorpu = () => {
         setArticleList([]);
         setQuantities([]);
         localStorage.removeItem("cart");
-        window.dispatchEvent(new Event("storage"));//za izbacivanje broja na ikonici korpe posle brisanja artikala iz korpe
+        window.dispatchEvent(new Event("storage")); //za izbacivanje broja na ikonici korpe posle brisanja artikala iz korpe
     };
-
 
     const removeArticle = (index: number) => {
         const updatedArticles = [...articleList];
@@ -80,9 +70,8 @@ const Korpa = () => {
         const cart = JSON.parse(localStorage.getItem("cart") || "{}");
         delete cart[removed.id];
         localStorage.setItem("cart", JSON.stringify(cart));
-        window.dispatchEvent(new Event("storage"));//za smanjivanje broja na ikonici korpe posle brisanja jednog artikla iz korpe
+        window.dispatchEvent(new Event("storage")); //za smanjivanje broja na ikonici korpe posle brisanja jednog artikla iz korpe
     };
-
 
     const updateQuantity = (index: number, newQuantity: number) => {
         const updatedQuantities = [...quantities];
@@ -94,7 +83,6 @@ const Korpa = () => {
         cart[articleId] = { kolicina: newQuantity };
         localStorage.setItem("cart", JSON.stringify(cart));
     };
-
 
     const getRoundedQuantity = (requested: number, packSize: number) => {
         if (requested <= 0 || isNaN(requested)) return 0;

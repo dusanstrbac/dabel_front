@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useState } from "react";
 import ListaArtikala from "@/components/ListaArtikala";
-import SortiranjeButton from "@/components/SortiranjeButton";
 import { ArtikalType } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
+import SortiranjeButton from "@/components/SortiranjeButton";
 
 const Heart = () => {
     const [artikli, setArtikli] = useState<ArtikalType[]>([]);
@@ -14,20 +14,15 @@ const Heart = () => {
 
         const fetchOmiljeni = async () => {
             const korisnik = dajKorisnikaIzTokena();
-
-            if (!korisnik?.idKorisnika) {
-                setError("Korisnik nije prijavljen");
-                setLoading(false);
-                return;
-            }
-
-            const idPartnera = korisnik.idKorisnika;
+            const idPartnera = korisnik?.idKorisnika;
+            
 
             try {
                 const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
                 const res = await fetch(`${apiAddress}/api/Partner/OmiljeniArtikli?idPartnera=${idPartnera}`);
-                if (!res.ok) throw new Error(`Greška pri učitavanju omiljenih artikala: ${res.statusText}`);
                 const data: { id: string }[] = await res.json();
+                
+                if (!res.ok) throw new Error(`Greška pri učitavanju omiljenih artikala: ${res.statusText}`);
 
                 const artikliIzBaze = await Promise.all(
                     data.map(async (artikal) => {
@@ -39,7 +34,6 @@ const Heart = () => {
 
                             const artikalData = await artikalIzBazeRes.json();
 
-                            // Proveri da li artikalData sadrži podatke
                             return artikalData && artikalData.length > 0 ? artikalData[0] : null;
                         } catch (error) {
                             console.error("Greška prilikom fetchovanja artikla:", error);
@@ -47,7 +41,7 @@ const Heart = () => {
                         }
                     })
                 );
-            // Filtriramo null vrednosti
+            // Filtriranje null vrednosti
             const validArtikli = artikliIzBaze.filter(artikal => artikal !== null);
             setArtikli(validArtikli as ArtikalType[]);
 

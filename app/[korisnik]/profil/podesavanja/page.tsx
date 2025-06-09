@@ -7,9 +7,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { getCookie } from 'cookies-next';
-import { basename } from 'path';
+import { dajKorisnikaIzTokena } from '@/lib/auth';
 
-// Sema za validaciju
 const formSchema = z.object({
   lozinka: z.string().min(4, 'Lozinka mora imati najmanje 4 karaktera'),
   novalozinka: z.string().min(4, 'Lozinka mora imati najmanje 4 karaktera'),
@@ -33,9 +32,9 @@ export default function Podesavanja() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const idPartnera = getCookie("IdKorisnika");
+    const korisnik = dajKorisnikaIzTokena();
+    const idPartnera = korisnik?.idKorisnika;
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-
 
     if(!idPartnera) {
       alert("Doslo je do greske. Molimo ulogujte se opet");

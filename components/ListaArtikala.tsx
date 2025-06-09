@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import ArticleCard from "./ArticleCard"
+import ArtikalFilter from "./ArtikalFilter"  // <-- import filtera
 import {
   Paginacija,
   PaginacijaSadrzaj,
@@ -20,6 +21,8 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
   const router = useRouter()
   const searchParams = useSearchParams()
 
+  // Primer: dodaj state za filtere (ako želiš da ih koristiš)
+  const [filteri, setFilteri] = useState({})
 
   const brojStranica = useMemo(() => Math.ceil(artikli.length / artikliPoStrani), [artikli])
 
@@ -42,7 +45,7 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
 
   const idiNaStranu = (broj: number) => {
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return
-    
+
     setTrenutnaStrana(broj)
 
     const url = new URL(window.location.href)
@@ -51,96 +54,114 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
     router.push(`${url.pathname}${url.search}`, { scroll: false })
   }
 
+  const onFilterChange = (noviFilteri: any) => {
+    setFilteri(noviFilteri)
+    // Dodaj ovde logiku za filtriranje ako želiš
+  }
+
   if (artikli.length === 0) {
     return <p className="text-center py-5 text-gray-500">Nema artikala za prikaz.</p>
   }
 
-
   return (
-    <div className="flex flex-col w-full px-1">
-      {/* Mreža artikala */}
-      <div className="grid gap-1 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
-        {prikazaniArtikli.map((artikal) => (
-          <ArticleCard
-            key={artikal.id || artikal.idArtikla}
-            naziv={artikal.naziv}
-            cena={artikal.cena}
-            slika={artikal.slika}
-            id={artikal.id}
-            idArtikla={artikal.idArtikla}
-            artikalCene={artikal.artikalCene}
-          />
-        ))}
-      </div>
+  <div className="flex flex-col md:flex-row w-full px-1 gap-4">
+    {/* Filter sekcija - levo na desktopu */}
+    <div className="w-full md:w-1/4">
+      <ArtikalFilter onFilterChange={onFilterChange} />
+    </div>
 
-      {/* Paginacija */}
-      <Paginacija className="my-[20px]">
-        <PaginacijaSadrzaj>
-          {trenutnaStrana > 1 && (
-            <PaginacijaStavka>
-              <PaginacijaPrethodna
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  idiNaStranu(trenutnaStrana - 1)
-                }}
+    {/* Artikli - desno na desktopu */}
+    <div className="w-full md:w-3/4">
+      {artikli.length === 0 ? (
+        <p className="text-center py-5 text-gray-500">Nema artikala za prikaz.</p>
+      ) : (
+        <>
+          <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
+            {prikazaniArtikli.map((artikal) => (
+              <ArticleCard
+                key={artikal.idArtikla}
+                naziv={artikal.naziv}
+                idArtikla={artikal.idArtikla}
+                barkod={artikal.barkod}
+                kategorijaId={artikal.kategorijaId}
+                jm={artikal.jm}
+                artikalAtributi={artikal.artikalAtributi}
+                artikalCene={artikal.artikalCene}
               />
-            </PaginacijaStavka>
-          )}
-
-          {[...Array(brojStranica)].map((_, i) => {
-            const broj = i + 1
-
-            if (
-              broj === 1 ||
-              broj === brojStranica ||
-              Math.abs(trenutnaStrana - broj) <= 1
-            ) {
-              return (
-                <PaginacijaStavka key={broj}>
-                  <PaginacijaLink
+            ))}
+          </div>
+          {/* Paginacija */}
+          <Paginacija className="my-[20px]">
+            <PaginacijaSadrzaj>
+              {trenutnaStrana > 1 && (
+                <PaginacijaStavka>
+                  <PaginacijaPrethodna
                     href="#"
-                    isActive={trenutnaStrana === broj}
                     onClick={(e) => {
                       e.preventDefault()
-                      idiNaStranu(broj)
+                      idiNaStranu(trenutnaStrana - 1)
                     }}
-                  >
-                    {broj}
-                  </PaginacijaLink>
+                  />
                 </PaginacijaStavka>
-              )
-            }
+              )}
 
-            if (
-              (broj === 2 && trenutnaStrana > 3) ||
-              (broj === brojStranica - 1 && trenutnaStrana < brojStranica - 2)
-            ) {
-              return (
-                <PaginacijaStavka key={`ellipsis-${broj}`}>
-                  <PaginacijaTackice />
+              {[...Array(brojStranica)].map((_, i) => {
+                const broj = i + 1
+
+                if (
+                  broj === 1 ||
+                  broj === brojStranica ||
+                  Math.abs(trenutnaStrana - broj) <= 1
+                ) {
+                  return (
+                    <PaginacijaStavka key={broj}>
+                      <PaginacijaLink
+                        href="#"
+                        isActive={trenutnaStrana === broj}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          idiNaStranu(broj)
+                        }}
+                      >
+                        {broj}
+                      </PaginacijaLink>
+                    </PaginacijaStavka>
+                  )
+                }
+
+                if (
+                  (broj === 2 && trenutnaStrana > 3) ||
+                  (broj === brojStranica - 1 && trenutnaStrana < brojStranica - 2)
+                ) {
+                  return (
+                    <PaginacijaStavka key={`ellipsis-${broj}`}>
+                      <PaginacijaTackice />
+                    </PaginacijaStavka>
+                  )
+                }
+
+                return null
+              })}
+
+              {trenutnaStrana < brojStranica && (
+                <PaginacijaStavka>
+                  <PaginacijaSledeca
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      idiNaStranu(trenutnaStrana + 1)
+                    }}
+                  />
                 </PaginacijaStavka>
-              )
-            }
+              )}
+            </PaginacijaSadrzaj>
+          </Paginacija>
 
-            return null
-          })}
-
-          {trenutnaStrana < brojStranica && (
-            <PaginacijaStavka>
-              <PaginacijaSledeca
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  idiNaStranu(trenutnaStrana + 1)
-                }}
-              />
-            </PaginacijaStavka>
-          )}
-        </PaginacijaSadrzaj>
-      </Paginacija>
+        </>
+      )}
     </div>
-  )
+  </div>
+)
 }
 
 export default ListaArtikala
