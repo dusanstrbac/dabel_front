@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut } from "lucide-react";
+import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut, Smartphone } from "lucide-react";
 import Image from "next/image";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
@@ -86,6 +86,7 @@ const headerMainNav = [
   const dodatniLinkovi = [
     { icon: <BadgePercent className="w-4 h-4" />, text: "Akcije", href: "/akcije" },
     { icon: <LinkIcon className="w-4 h-4" />, text: "Novopristigli artikli", href: "/novo" },
+    { icon: <Smartphone className="w-4 h-4" />, text: "Brzo naručivanje", href: "/BrzoNarucivanje" },
     { icon: <Heart className="w-4 h-4" />, text: "Omiljeni artikli", href: "/heart" },
     { icon: <ShoppingCart className="w-4 h-4" />, text: "Korpa", href: "/korpa" },
   ];
