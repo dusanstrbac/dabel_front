@@ -42,10 +42,12 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
     Boja: [],
   })
 
+  const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
-        const res = await fetch('http://localhost:7235/api/Artikal/options')
+        const res = await fetch(`${apiAddress}/api/Artikal/options`)
         const data = await res.json()
 
         setFilterOptions({

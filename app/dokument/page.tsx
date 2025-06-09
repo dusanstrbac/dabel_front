@@ -15,11 +15,14 @@ type Stavka = {
 
 type PartnerInfo = {
   partner: any;
+  imeiPrezime: string;
   mestoIsporuke: string;
   grad: string;
   telefon: string;
   email: string;
 };
+
+const PDV = 20;
 
 const DokumentPage = () => {
   const [stavke, setStavke] = useState<Stavka[]>([]);
@@ -29,33 +32,49 @@ const DokumentPage = () => {
     const data = sessionStorage.getItem("narudzbenica-podaci");
     if (data) {
       const parsed = JSON.parse(data);
-      setStavke(parsed.artikli || []);
+      const rabatPartnera = parsed.partner?.partnerRabat?.rabat ?? 0;
+
+
+      const artikliSaRabatima = (parsed.artikli || []).map((a: any) => ({
+        ...a,
+        rabat: typeof a.rabat === 'number' ? a.rabat : rabatPartnera
+      }));
+
+      setStavke(artikliSaRabatima);
       setPartnerInfo({
         partner: parsed.partner,
+        imeiPrezime: parsed.imeiPrezime,
         mestoIsporuke: parsed.mestoIsporuke,
         grad: parsed.grad,
         telefon: parsed.telefon,
         email: parsed.email,
       });
+      console.log("Ucitani partner iz sessionStorage:", parsed.partner);
+
+
+      localStorage.removeItem("cart");
+      window.dispatchEvent(new Event("storage")); // za ažuriranje ikonice korpe
+      console.log("🗑️ Korpa je ispražnjena iz localStorage-a.");
     }
   }, []);
 
   const handlePrint = () => window.print();
 
   const izracunajStavku = (stavka: Stavka) => {
-    const cenaPosleRabata = stavka.cena * (1 - stavka.rabat / 100);
+    const rabat = stavka.rabat ?? partnerInfo?.partner?.partnerRabat?.rabat ?? 0;
+    const cenaPosleRabata = stavka.cena * (1 - rabat / 100);
     const cenaBezPDV = cenaPosleRabata;
-    const cenaSaPDV = cenaBezPDV * (1 + stavka.pdv / 100);
+    const cenaSaPDV = cenaBezPDV * (1 + PDV / 100);
     const vrednost = cenaSaPDV * stavka.kolicina;
 
-    return { cenaBezPDV, cenaSaPDV, vrednost };
+    return { cenaBezPDV, cenaSaPDV, vrednost, rabat };
   };
 
   const ukupno = stavke.reduce(
     (acc, stavka) => {
       const { cenaBezPDV, cenaSaPDV, vrednost } = izracunajStavku(stavka);
       acc.ukupnoBezPDV += cenaBezPDV * stavka.kolicina;
-      acc.ukupnoSaPDV += vrednost;
+      acc.ukupnoSaPDV += cenaSaPDV * stavka.kolicina;
       return acc;
     },
     { ukupnoBezPDV: 0, ukupnoSaPDV: 0 }
@@ -74,7 +93,7 @@ const DokumentPage = () => {
         </button>
       </div>
 
-      {/* Info sekcija */}
+      {/* INFO */}
       <div className="mt-10 w-full">
         <p className="mt-2 font-semibold">NP</p>
         <p>Nova Pazova, Šesta Industrijska 12</p>
@@ -82,17 +101,18 @@ const DokumentPage = () => {
         <div className="flex justify-between gap-8 w-full mt-4">
           <div className="border border-black p-4 w-[48%]">
             <h1 className="font-bold mb-2">Kontakt osoba:</h1>
-            <p>Ime i prezime: {partnerInfo.partner.kontaktOsoba || "Nepoznato"}</p>
+            <p>Ime i prezime: {partnerInfo.imeiPrezime || "Nepoznato"}</p>
             <p>Mob. telefon: {partnerInfo.telefon || "Nepoznato"}</p>
+            <p>Grad: {partnerInfo.grad || "Nepoznato"}</p>
             <p>Email adresa: {partnerInfo.email || "Nepoznato"}</p>
           </div>
 
           <div className="border border-black p-4 w-[48%]">
-            <p>Partner: {partnerInfo.partner?.sifra || "?"}</p>
-            <h3 className="mb-2 font-semibold">{partnerInfo.partner?.naziv || "Nepoznato"}</h3>
-            <p>{partnerInfo.grad} {partnerInfo.mestoIsporuke}</p>
-            <p>Mob. telefon: {partnerInfo.telefon}</p>
-            <p>Email: {partnerInfo.email}</p>
+            <p>Partner: {partnerInfo.partner.idPartnera || "?"}</p>
+            <h3 className="mb-2 font-bold">{partnerInfo.partner.ime || "Nepoznato"}</h3>
+            <p>{partnerInfo.partner?.adresa || partnerInfo.grad + " " + partnerInfo.mestoIsporuke}</p>
+            <p>Mob. telefon: {partnerInfo.partner?.telefon || partnerInfo.telefon}</p>
+            <p>Email: {partnerInfo.partner?.email || partnerInfo.email}</p>
           </div>
         </div>
 
@@ -102,8 +122,8 @@ const DokumentPage = () => {
         </div>
 
         <div className="border border-black p-4 mt-4 w-full max-w-full">
-            <h3 className="font-semibold mb-1">Mesto isporuke</h3>
-            {partnerInfo.mestoIsporuke}
+          <h3 className="font-semibold mb-1">Adresa isporuke</h3>
+          {partnerInfo.mestoIsporuke}
         </div>
         <p className="mt-1">Datum izdavanja: 02.06.2025 15:00</p>
       </div>
@@ -128,19 +148,17 @@ const DokumentPage = () => {
           </thead>
           <tbody>
             {stavke.map((stavka, index) => {
-                console.log("Artikli: ", stavka);
-              const { cenaBezPDV, cenaSaPDV, vrednost } = izracunajStavku(stavka);
+              const { cenaBezPDV, cenaSaPDV, vrednost, rabat } = izracunajStavku(stavka);
               return (
                 <tr key={index} className="text-center border-t border-black">
                   <td className="border-r border-black px-2 py-1">{index + 1}</td>
-                  <td className="border-r border-black px-2 py-1 text-left">{stavka.naziv}</td> 
-                  {/* zasto ovaj naziv ^ iznad ne zeli da radi, znaci sve ostalo vuce i napise i cenu i sve ali onda ovaj deo nece, znaci naziv nece */}
+                  <td className="border-r border-black px-2 py-1 text-left">{stavka.naziv || "Nepoznato"}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.jm}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.kolicina}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.cena.toFixed(2)}</td>
-                  <td className="border-r border-black px-2 py-1">{stavka.rabat}%</td>
+                  <td className="border-r border-black px-2 py-1">{(stavka.rabat ?? partnerInfo?.partner?.partnerRabat?.rabat ?? 0)}%</td>
                   <td className="border-r border-black px-2 py-1">{cenaBezPDV.toFixed(2)}</td>
-                  <td className="border-r border-black px-2 py-1">{stavka.pdv} 20%</td>
+                  <td className="border-r border-black px-2 py-1">{PDV} %</td>
                   <td className="border-r border-black px-2 py-1">{cenaSaPDV.toFixed(2)}</td>
                   <td className="px-2 py-1">{vrednost.toFixed(2)}</td>
                 </tr>
@@ -174,7 +192,7 @@ const DokumentPage = () => {
           </div>
           <div className="px-2 py-1 text-sm space-y-1">
             <p><span className="">Korisničko ime:</span> 3005</p>
-            <p><span className="">Ime i prezime:</span> {partnerInfo.partner?.kontaktOsoba || "Nepoznato"}</p>
+            <p><span className="">Ime i prezime:</span> {partnerInfo.partner?.kontaktOsoba || partnerInfo.imeiPrezime || "Nepoznato"}</p>
             <p><span className="">Email adresa:</span> {partnerInfo.email}</p>
             <p><span className="">Mob. telefon:</span> {partnerInfo.telefon}</p>
           </div>

@@ -11,7 +11,9 @@ import useSWR from "swr";
   // Promeniti samo api poziv kada bude stigao sa backend-a
   const [artikli, setArtikli] = useState<ArtikalType[]>([]);
 
-  const { data, error } = useSWR<ArtikalType[]>("/api/artikli?sort=novo", fetcher, {
+  const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+  
+  const { data, error } = useSWR<ArtikalType[]>(`${apiAddress}/api/artikli?sort=novo`, fetcher, {
     dedupingInterval: 1000 * 60 * 60 * 4, // Re-kesira api poziv na svaka 4 sata
     revalidateOnFocus: false,
   });

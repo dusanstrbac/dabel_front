@@ -38,9 +38,9 @@ export default function ProizvodiPage() {
         }
       }
     });
-
+    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     queryParams.append('batchSize', '4000');
-    const fullUrl = `http://localhost:7235/api/Artikal/DajFilterArtikle?${queryParams.toString()}`;
+    const fullUrl = `${apiAddress}/api/Artikal/DajFilterArtikle?${queryParams.toString()}`;
 
     try {
       const res = await fetch(fullUrl);

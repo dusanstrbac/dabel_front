@@ -1,30 +1,39 @@
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface KreirajNarudzbenicuProps {
   artikli: any[];
   partner: any;
+  imeiPrezime: string;
   mestoIsporuke: string;
   grad: string;
   telefon: string;
   email: string;
+  valid: () => boolean;
 }
 
 
-const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, grad, telefon, email }: KreirajNarudzbenicuProps) => {
-    
+
+const KreirajNarudzbenicu = ({ artikli, partner, imeiPrezime, mestoIsporuke, grad, telefon, email, valid }: KreirajNarudzbenicuProps) => {
+    const [greske, setGreske] = useState<{ [key: string]: string }>({});
     const router = useRouter();
 
     const handleClick = () => {
         console.log("✅ Kreiranje narudžbenice...");
         console.log("🧾 Artikli:", artikli);
         console.log("👤 Partner:", partner);
+        console.log("📇 Kontakt osoba:", imeiPrezime);
         console.log("📦 Mesto isporuke:", mestoIsporuke, grad, telefon, email);
+        
+        const validno = valid();
+        if(!validno) return;
 
         // Sve podatke pakujemo u objektu
         const payload = {
             artikli,
             partner,
+            imeiPrezime,
             mestoIsporuke,
             grad,
             telefon,
@@ -36,16 +45,6 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, grad, telefon, e
 
         // Navigacija ka novoj stranici
         router.push("/dokument"); // Napraviš kasnije tu stranicu
-    };
-    
-
-    const isprazniKorpu = () => {
-        //OVO CE DA RADIMO NA STRANICI!!!
-        localStorage.removeItem("cart");
-        window.dispatchEvent(new Event("storage"));//za izbacivanje broja na ikonici korpe posle brisanja artikala iz korpe
-        console.log("🗑️ Korpa je ispražnjena iz localStorage-a.");
-        // setArticleList([]);
-        // setQuantities([]);
     };
 
     return(
