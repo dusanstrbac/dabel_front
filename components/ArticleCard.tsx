@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
   const router = useRouter(); 
   const [isMounted, setMounted] = useState(false);
-
+  
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -33,7 +33,8 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
 
   // Provera cene i precrtavanje
   const cenaArtikla = artikalCene[0].cena > 0 ? artikalCene[0].cena : 0;  // Originalna cena
-  const novaCena = artikalCene && artikalCene.length > 0 ? artikalCene[0].cena : null; // Ako postoji nova cena
+  const akcijskacena = artikalCene[0].akcija.cena;
+  //const novaCena = artikalCene && artikalCene.length > 0 ? artikalCene[0].cena : null; // Ako postoji nova cena
 
   return (
     <div
@@ -56,23 +57,21 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
         <h2 className="text-sm lg:text-lg font-semibold text-center">{naziv}</h2>
         <div className="flex justify-between items-center">
           {/* Prikazivanje cene */}
-          {novaCena && novaCena > 0 && artikalCene[0].cena > novaCena && (
-            <p className="text-md lg:text-xl font-semibold text-red-500 line-through">
-              <span>{artikalCene[0].cena}</span> RSD
-            </p>
+          {akcijskacena && akcijskacena > 0 && cenaArtikla > akcijskacena && (
+            <div className="flex items-center gap-2">
+              <p className="text-md lg:text-xl font-semibold text-gray-500 line-through">
+                <span>{cenaArtikla}</span> RSD
+              </p>
+              <p className="text-md lg:text-xl font-semibold text-red-500">
+                <span>{akcijskacena}</span> RSD
+              </p>
+            </div>
           )}
           
           {/* Prikazivanje nove cene */}
-          {novaCena && novaCena > 0 && (
+          {akcijskacena == 0 && (
             <p className="text-md lg:text-xl font-semibold text-red-500">
-              <span>{novaCena}</span> RSD
-            </p>
-          )}
-          
-          {/* Ako cena nije postavljena ili je 0 */}
-          {artikalCene[0].cena > 0 && !novaCena && (
-            <p className="text-md lg:text-xl font-semibold text-red-500">
-              <span>{artikalCene[0].cena}</span> RSD
+              <span>{cenaArtikla}</span> RSD
             </p>
           )}
 

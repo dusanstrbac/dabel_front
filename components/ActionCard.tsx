@@ -26,8 +26,10 @@ const ActionCard = ({ idArtikla, naziv, artikalCene }: ArtikalType) => {
 
   // Pristupaj prvoj ceni i akciji sigurno sa optional chaining
   const cenaAkcije = artikalCene?.[0]?.akcija?.cena;
-  const staraCenaAkcije = artikalCene?.[0]?.akcija?.staraCena;
+  const staraCenaAkcije = artikalCene?.[0]?.cena;
   const popust = izracunajPopust(staraCenaAkcije, cenaAkcije);
+  console.log("akcija objekat:", artikalCene?.[0]?.akcija);
+
 
   useEffect(() => {
     setMounted(true);

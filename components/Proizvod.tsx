@@ -96,7 +96,7 @@ export default function Proizvod() {
 
   const cena = proizvod.artikalCene.length > 0 ? proizvod.artikalCene[0].cena : 0;
   const akcijskaCena =
-    proizvod.artikalCene.length > 0 && proizvod.artikalCene[0].akcija?.cena !== "0"
+    proizvod.artikalCene.length > 0 && proizvod.artikalCene[0].akcija?.cena !== 0
       ? Number(proizvod.artikalCene[0].akcija.cena)
       : undefined;
 

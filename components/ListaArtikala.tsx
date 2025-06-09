@@ -62,13 +62,14 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
       <div className="grid gap-1 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
         {prikazaniArtikli.map((artikal) => (
           <ArticleCard
-            key={artikal.id || artikal.idArtikla}
+            key={artikal.idArtikla}
             naziv={artikal.naziv}
-            cena={artikal.cena}
-            slika={artikal.slika}
-            id={artikal.id}
-            idArtikla={artikal.idArtikla}
             artikalCene={artikal.artikalCene}
+            idArtikla={artikal.idArtikla}
+            jm={artikal.jm}
+            kategorijaId={artikal.kategorijaId}
+            barkod={artikal.barkod}
+            artikalAtributi={artikal.artikalAtributi}
           />
         ))}
       </div>
