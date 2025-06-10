@@ -48,6 +48,7 @@ export default function ProizvodiPage() {
 
       if (data.items?.length) {
         setArtikli(data.items);
+        console.log(data);
       } else {
         setArtikli([]);
         console.log('Nema artikala za ove parametre.');

@@ -7,8 +7,7 @@ import {
   MoreHorizontalIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
-import Link from "next/link";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useSearchParams, useRouter } from "next/navigation";
 
 // Navigacija za paginaciju
@@ -47,7 +46,7 @@ function PaginacijaStavka({ ...props }: React.ComponentProps<"li">) {
 type PaginacijaLinkProps = {
   isActive?: boolean;
   disabled?: boolean;
-  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 } & Pick<React.ComponentProps<"a">, "href" | "children" | "className"> & {
   size?: "default" | "icon" | "sm" | "lg";
 };
@@ -62,21 +61,22 @@ function PaginacijaLink({
   disabled,
   ...props
 }: PaginacijaLinkProps) {
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    if (!disabled && onClick) {
-      onClick(e);
-    }
-  };
+
+const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault();
+  if (!disabled && onClick) {
+    onClick(e);
+  }
+};
 
   return (
-    <Link
-      href={href}
+    <Button
       aria-current={isActive ? "page" : undefined}
-      aria-disabled={disabled}
+      disabled={disabled}
+      onClick={handleClick}
+      type="button"
       data-slot="paginacija-link"
       data-active={isActive}
-      onClick={handleClick}
       className={cn(
         buttonVariants({
           variant: isActive ? "outline" : "ghost",
@@ -88,7 +88,7 @@ function PaginacijaLink({
       {...props}
     >
       {children}
-    </Link>
+    </Button>
   );
 }
 
@@ -195,12 +195,14 @@ function Pagination({
     }
   }, [searchParams, isMounted, totalPages, onPageChange]);
 
-  const handlePageChange = (page: number) => {
-    if (page < 1 || page > totalPages || page === currentPage) return;
-    
-    onPageChange(page);
-    router.push(`?page=${page}`, { scroll: false });
-  };
+  const handlePageChange = (page: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault(); // Sprečava podrazumevano ponašanje
+  if (page < 1 || page > totalPages || page === currentPage) return;
+
+  onPageChange(page);
+  router.push(`?page=${page}`, { scroll: false });
+};
+
 
   if (totalPages <= 1) return null;
 

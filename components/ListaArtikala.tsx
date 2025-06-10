@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import ArticleCard from "./ArticleCard"
-import ArtikalFilter from "./ArtikalFilter"  // <-- import filtera
+import ArtikalFilter from "./ArtikalFilter"
 import {
   Paginacija,
   PaginacijaSadrzaj,
@@ -21,11 +21,12 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Primer: dodaj state za filtere (ako želiš da ih koristiš)
+  // Primer: filter state, možeš dodati i filtering logiku
   const [filteri, setFilteri] = useState({})
 
   const brojStranica = useMemo(() => Math.ceil(artikli.length / artikliPoStrani), [artikli])
 
+  // Sinhronizuj trenutnu stranu sa query parametrom u URL-u
   useEffect(() => {
     const page = searchParams.get('page')
     if (page) {
@@ -43,6 +44,7 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
     )
   }, [trenutnaStrana, artikli])
 
+  // Funkcija za menjanje strane i update URL-a bez reloada
   const idiNaStranu = (broj: number) => {
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return
 
@@ -56,7 +58,7 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
 
   const onFilterChange = (noviFilteri: any) => {
     setFilteri(noviFilteri)
-    // Dodaj ovde logiku za filtriranje ako želiš
+    // Ovde dodaj logiku za filtriranje artikala ako je potrebno
   }
 
   if (artikli.length === 0) {
@@ -64,104 +66,89 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
   }
 
   return (
-  <div className="flex flex-col md:flex-row w-full px-1 gap-4">
-    {/* Filter sekcija - levo na desktopu */}
-    <div className="w-full md:w-1/4">
-      <ArtikalFilter onFilterChange={onFilterChange} />
-    </div>
+    <div className="flex flex-col md:flex-row w-full px-1 gap-4">
+      {/* Filter sekcija */}
+      <div className="w-full md:w-1/4">
+        <ArtikalFilter onFilterChange={onFilterChange} />
+      </div>
 
-    {/* Artikli - desno na desktopu */}
-    <div className="w-full md:w-3/4">
-      {artikli.length === 0 ? (
-        <p className="text-center py-5 text-gray-500">Nema artikala za prikaz.</p>
-      ) : (
-        <>
-          <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
-            {prikazaniArtikli.map((artikal) => (
-              <ArticleCard
-                key={artikal.idArtikla}
-                naziv={artikal.naziv}
-                idArtikla={artikal.idArtikla}
-                barkod={artikal.barkod}
-                kategorijaId={artikal.kategorijaId}
-                jm={artikal.jm}
-                artikalAtributi={artikal.artikalAtributi}
-                artikalCene={artikal.artikalCene}
+      {/* Lista artikala */}
+      <div className="w-full md:w-3/4">
+        <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
+          {prikazaniArtikli.map((artikal) => (
+            <ArticleCard
+              key={artikal.idArtikla}
+              naziv={artikal.naziv}
+              idArtikla={artikal.idArtikla}
+              barkod={artikal.barkod}
+              kategorijaId={artikal.kategorijaId}
+              jm={artikal.jm}
+              artikalAtributi={artikal.artikalAtributi}
+              artikalCene={artikal.artikalCene}
+            />
+          ))}
+        </div>
+
+        {/* Paginacija */}
+        <Paginacija className="my-[20px]">
+          <PaginacijaSadrzaj>
+            {/* Prethodna stranica */}
+            <PaginacijaStavka>
+              <PaginacijaPrethodna
+                onClick={() => idiNaStranu(trenutnaStrana - 1)}
+                disabled={trenutnaStrana === 1}
               />
-            ))}
-          </div>
-          {/* Paginacija */}
-          <Paginacija className="my-[20px]">
-            <PaginacijaSadrzaj>
-              {trenutnaStrana > 1 && (
-                <PaginacijaStavka>
-                  <PaginacijaPrethodna
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      idiNaStranu(trenutnaStrana - 1)
-                    }}
-                  />
-                </PaginacijaStavka>
-              )}
+            </PaginacijaStavka>
 
-              {[...Array(brojStranica)].map((_, i) => {
-                const broj = i + 1
+            {/* Brojevi stranica */}
+            {[...Array(brojStranica)].map((_, i) => {
+              const broj = i + 1
 
-                if (
-                  broj === 1 ||
-                  broj === brojStranica ||
-                  Math.abs(trenutnaStrana - broj) <= 1
-                ) {
-                  return (
-                    <PaginacijaStavka key={broj}>
-                      <PaginacijaLink
-                        href="#"
-                        isActive={trenutnaStrana === broj}
-                        onClick={(e) => {
-                          e.preventDefault()
-                          idiNaStranu(broj)
-                        }}
-                      >
-                        {broj}
-                      </PaginacijaLink>
-                    </PaginacijaStavka>
-                  )
-                }
+              // Prikaz prve, poslednje i okolnih stranica trenutnoj
+              if (
+                broj === 1 ||
+                broj === brojStranica ||
+                Math.abs(trenutnaStrana - broj) <= 1
+              ) {
+                return (
+                  <PaginacijaStavka key={broj}>
+                    <PaginacijaLink
+                      isActive={trenutnaStrana === broj}
+                      onClick={() => idiNaStranu(broj)}
+                    >
+                      {broj}
+                    </PaginacijaLink>
+                  </PaginacijaStavka>
+                )
+              }
 
-                if (
-                  (broj === 2 && trenutnaStrana > 3) ||
-                  (broj === brojStranica - 1 && trenutnaStrana < brojStranica - 2)
-                ) {
-                  return (
-                    <PaginacijaStavka key={`ellipsis-${broj}`}>
-                      <PaginacijaTackice />
-                    </PaginacijaStavka>
-                  )
-                }
+              // "..." za skrivene stranice
+              if (
+                (broj === 2 && trenutnaStrana > 3) ||
+                (broj === brojStranica - 1 && trenutnaStrana < brojStranica - 2)
+              ) {
+                return (
+                  <PaginacijaStavka key={`ellipsis-${broj}`}>
+                    <PaginacijaTackice />
+                  </PaginacijaStavka>
+                )
+              }
 
-                return null
-              })}
+              return null
+            })}
 
-              {trenutnaStrana < brojStranica && (
-                <PaginacijaStavka>
-                  <PaginacijaSledeca
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      idiNaStranu(trenutnaStrana + 1)
-                    }}
-                  />
-                </PaginacijaStavka>
-              )}
-            </PaginacijaSadrzaj>
-          </Paginacija>
-
-        </>
-      )}
+            {/* Sledeća stranica */}
+            <PaginacijaStavka>
+              <PaginacijaSledeca
+                onClick={() => idiNaStranu(trenutnaStrana + 1)}
+                disabled={trenutnaStrana === brojStranica}
+              />
+            </PaginacijaStavka>
+          </PaginacijaSadrzaj>
+        </Paginacija>
+      </div>
     </div>
-  </div>
-)
+  )
 }
 
 export default ListaArtikala

@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import HeroImage from "@/components/HeroImage";
 import ListaArtikala from "@/components/ListaArtikala";
 import { ArtikalType } from "@/types/artikal";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 export default function Home() {
 
@@ -13,6 +13,7 @@ export default function Home() {
 
   return (
     <>
+    <Suspense fallback={<div>Učitavanje...</div>}> 
       <Header />
       <main className="flex flex-col items-center gap-2 px-1">
         <HeroImage />
@@ -20,6 +21,7 @@ export default function Home() {
           <ListaArtikala artikli={artikli}/>
         </div>
       </main>
+      </Suspense>
     </>
   );
 }
