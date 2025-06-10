@@ -1,6 +1,6 @@
 'use client'
 
-import { ArtikalFilterProp } from '@/types/artikal'
+import { ArtikalFilterProp, ArtikalType } from '@/types/artikal'
 import React, { useEffect, useState } from 'react'
 import MultiRangeSlider from './ui/MultiRangeSlider'
 import {
@@ -10,6 +10,7 @@ import {
 } from './ui/collapsible'
 
 interface ProductFilterProps {
+  artikli: any[];
   onFilterChange: (filters: ArtikalFilterProp) => void
 }
 
@@ -24,7 +25,7 @@ const defaultFilters: ArtikalFilterProp = {
   Boja: [],
 }
 
-const ArtikalFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
+const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, onFilterChange }) => {
   const [filters, setFilters] = useState<ArtikalFilterProp>(defaultFilters)
   const [filterOptions, setFilterOptions] = useState<{
     Materijal: string[]
@@ -43,26 +44,36 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
   })
 
   useEffect(() => {
-    const fetchFilterOptions = async () => {
-      try {
-        const res = await fetch('http://localhost:7235/api/Artikal/options')
-        const data = await res.json()
+    if (!artikli || artikli.length === 0) return;
+    console.log("Stigli artikli u filter:", artikli);
 
-        setFilterOptions({
-          Materijal: data.Materijal || [],
-          Model: data.Model || [],
-          Pakovanje: data.Pakovanje || [],
-          RobnaMarka: data.RobnaMarka || [],
-          Upotreba: data.Upotreba || [],
-          Boja: data.Boja || [],
+    const getUniqueValues = (kljuc: string) => {
+      const values = artikli
+        .map((artikal) => {
+          const atribut = artikal.artikalAtributi?.find((a: any) =>
+            a.imeAtributa.toLowerCase().includes(kljuc.toLowerCase())
+          )
+          return atribut?.vrednost
         })
-      } catch (error) {
-        console.error('Greška pri učitavanju filter opcija', error)
-      }
+        .filter((v) => v !== undefined && v !== null)
+      return Array.from(new Set(values))
     }
 
-    fetchFilterOptions()
-  }, [])
+
+
+  const materijali = getUniqueValues("Materijal");
+  console.log("Materijali iz artikala:", materijali);
+
+    setFilterOptions({
+      Materijal: getUniqueValues("Materijal"),
+      Model: getUniqueValues("Model"),
+      Pakovanje: getUniqueValues("Pakovanje"),
+      RobnaMarka: getUniqueValues("Robna marka"),
+      Upotreba: getUniqueValues("Upotreba"),
+      Boja: getUniqueValues("boja"),
+    })
+
+  }, [artikli]);
 
   const handleChange = <K extends keyof ArtikalFilterProp>(
     field: K,

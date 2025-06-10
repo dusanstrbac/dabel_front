@@ -1,3 +1,13 @@
+export type ArtikalType = {
+  idArtikla: string;
+  naziv: string;
+  barkod: string;
+  jm: string;
+  kategorijaId: string;
+  artikalCene: ArtikalCena[];
+  artikalAtributi: ArtikalAtribut[];
+};
+
 export type ArtikalCena = {
   id: string;
   idCenovnika: string;
@@ -21,22 +31,6 @@ export type ArtikalAtribut = {
   imeAtributa: string;
   vrednost: string;
 };
-
-export type ArtikalType = {
-  idArtikla: string;
-  naziv: string;
-  barkod: string;
-  jm: string;
-  kategorijaId: string;
-  artikalCene: ArtikalCena[];
-  artikalAtributi: ArtikalAtribut[];
-};
-
-export type PrikazaniAtribut = {
-  atribut: string;
-  vrednost: string;
-};
-
 
 export interface ListaArtikalaProps {
   artikli?: ArtikalType[] 

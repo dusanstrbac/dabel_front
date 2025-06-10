@@ -32,9 +32,8 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
   if (!isMounted) return null;
 
   // Provera cene i precrtavanje
-  const cenaArtikla = artikalCene[0].cena > 0 ? artikalCene[0].cena : 0;  // Originalna cena
-  const akcijskacena = artikalCene[0].akcija.cena;
-  //const novaCena = artikalCene && artikalCene.length > 0 ? artikalCene[0].cena : null; // Ako postoji nova cena
+  const cenaArtikla = artikalCene?.[0]?.cena ?? 0;  // Originalna cena
+  const novaCena = artikalCene?.[0]?.akcija?.cena ?? null; // Ako postoji nova cena
 
   return (
     <div
@@ -45,35 +44,39 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
 
       <div className="w-full h-64 relative">
         <Image
-          src={'/artikal.jpg'}  // Dodajte default sliku ako slika nije dostupna
+          src={'/artikal.jpg'}
           alt={naziv}
-          layout="fill"
-          objectFit="cover"
+          fill
+          sizes="(max-width: 768px) 100vw, 320px"
+          style={{objectFit: 'cover'}}
           className="rounded-lg w-full h-full object-cover"
+          priority
         />
       </div>
 
       <div className="flex flex-col justify-between px-2 py-3">
         <h2 className="text-sm lg:text-lg font-semibold text-center">{naziv}</h2>
         <div className="flex justify-between items-center">
-          {/* Prikazivanje cene */}
-          {akcijskacena && akcijskacena > 0 && cenaArtikla > akcijskacena && (
-            <div className="flex items-center gap-2">
+          
+        <div className="flex flex-col lg:flex-row lg:items-center gap-2">
+          {novaCena && novaCena > 0 ? (
+
+            <div className='flex items-center gap-2'>
               <p className="text-md lg:text-xl font-semibold text-gray-500 line-through">
                 <span>{cenaArtikla}</span> RSD
               </p>
+
               <p className="text-md lg:text-xl font-semibold text-red-500">
-                <span>{akcijskacena}</span> RSD
+                <span>{novaCena}</span> RSD
               </p>
             </div>
-          )}
-          
-          {/* Prikazivanje nove cene */}
-          {akcijskacena == 0 && (
+
+          ) : (
             <p className="text-md lg:text-xl font-semibold text-red-500">
-              <span>{cenaArtikla}</span> RSD
+              <span>{artikalCene[0].cena}</span> RSD
             </p>
           )}
+        </div>
 
           <div className="pointer-events-auto">
             <AddToCartButton

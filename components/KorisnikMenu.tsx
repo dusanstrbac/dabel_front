@@ -12,19 +12,18 @@ export function KorisnikMenu() {
   const [isMounted, setIsMounted] = useState(false);
   const [korisnickoIme, setKorisnickoIme] = useState<string|null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [email, setEmail] = useState<string|null>(null);
   const router = useRouter();
+  const korisnik = dajKorisnikaIzTokena();
+  const username = korisnik?.korisnickoIme;
 
   useEffect(() => {
     const korisnik = dajKorisnikaIzTokena();
 
     if(korisnik && korisnik.korisnickoIme) {
       setKorisnickoIme(korisnik.korisnickoIme);
-      setEmail(korisnik.email);
       setIsLoggedIn(true);
     } else {
       setKorisnickoIme(null);
-      setEmail(null);
       setIsLoggedIn(false);
     }
     setIsMounted(true);
@@ -40,24 +39,28 @@ export function KorisnikMenu() {
   }
 
   const menuItems = [
-    { icon: <User2 className="h-4 w-4" />, text: "Moji podaci", href: email ? `/${email}/profil/podaci` : '/login' },
-    { icon: <History className="h-4 w-4" />, text: "Istorija poručivanja", href: email ? `/${email}/profil/istorija` : '/login' },
-    { icon: <Wallet className="h-4 w-4" />, text: "Moje uplate", href: email ? `/${email}/profil/uplate` : '/login' },
-    { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: email ? `/${email}/profil/roba` : '/login' },
-    { icon: <Users className="h-4 w-4" />, text: "Korisnici", href: email ? `/${email}/profil/korisnici` : '/login' },
+    { icon: <User2 className="h-4 w-4" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
+    { icon: <History className="h-4 w-4" />, text: "Istorija poručivanja", href: username ? `/${username}/profil/istorija` : '/login' },
+    { icon: <Wallet className="h-4 w-4" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
+    { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
+    { icon: <Users className="h-4 w-4" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : '/login' },
     { icon: <BadgeDollarSign className="h-4 w-4" />, text: "Cenovnik", href: "/admin/cenovnik" },
     { icon: <Youtube className="h-4 w-4" />, text: "Video uputstva", href: "/video" },
-    { icon: <Key className="h-4 w-4" />, text: "Promena lozinke", href: email ? `/${email}/profil/podesavanja` : '/login' },
+    { icon: <Key className="h-4 w-4" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
   ];
 
+
   const odjaviKorisnika = () => {
+    const postojiKorpa = localStorage.getItem("cart");
+
+    if(postojiKorpa) {
+      localStorage.removeItem("cart");
+    }
     deleteCookie('AuthToken');
-    router.push('/login');
+    router.push('/');
+    window.location.reload();
   };
 
-  const prijaviKorisnika = () => {
-    router.push('/login');
-  };
 
   return (
     <DropdownMenu>
@@ -92,7 +95,7 @@ export function KorisnikMenu() {
               <LogOut className="h-4 w-4" />
               <span>Odjava</span>
             </button> ) : (
-            <button onClick={prijaviKorisnika} className="flex cursor-pointer w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm hover:bg-gray-100">
+            <button onClick={() => router.push('/login')} className="flex cursor-pointer w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm hover:bg-gray-100">
               <LogOut className="h-4 w-4" />
               <span>Prijavi se</span>
             </button>

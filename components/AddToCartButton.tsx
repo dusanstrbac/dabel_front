@@ -38,11 +38,9 @@ const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla}: Add
     console.log("Broj razlicitih: " + brojRazlicitih);
 
     toast("Uspešno ste dodali artikal u korpu!", {
-        description: `Artikal ${nazivArtikla} je uspešno dodat u korpu`,
+        description: `Artikal ${nazivArtikla} je uspešno dodat u korpu`
     });
 };
-
-
 
   return (
     <Button onClick={(e) => handleAddToCart(e)} variant="outline" size="icon" className={className}>

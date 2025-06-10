@@ -9,7 +9,7 @@ import DodajUOmiljeno from "@/components/DodajUOmiljeno";
 import AddToCartButton from "./AddToCartButton";
 import ClientLightbox from "./ui/ClientLightbox";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
-import { ArtikalType, PrikazaniAtribut } from "@/types/artikal";
+import { ArtikalAtribut, ArtikalType } from "@/types/artikal";
 
 const Lightbox = dynamic(() => import("yet-another-react-lightbox"), {
   ssr: false,
@@ -29,7 +29,7 @@ const prikazaniAtributi = [
 export default function Proizvod() {
   const { id } = useParams();
   const [proizvod, setProizvod] = useState<ArtikalType | null>(null);
-  const [atributi, setAtributi] = useState<PrikazaniAtribut[]>([]);
+  const [atributi, setAtributi] = useState<ArtikalAtribut[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -62,10 +62,6 @@ export default function Proizvod() {
 
           const filtriraniAtributi = osnovni.artikalAtributi
           .filter(attr => prikazaniAtributi.includes(attr.imeAtributa))
-          .map(attr => ({
-            atribut: attr.imeAtributa,  // mapiramo imeAtributa u atribut
-            vrednost: attr.vrednost,
-          }));
 
           setAtributi(filtriraniAtributi);
         
@@ -156,8 +152,8 @@ export default function Proizvod() {
               </li>
               <ul className="text-sm md:text-base space-y-1">
                 {atributi.map(attr => (
-                  <li key={attr.atribut}>
-                    <span className="font-semibold">{attr.atribut}:</span> {attr.vrednost || '-'}
+                  <li key={attr.imeAtributa}>
+                    <span className="font-semibold">{attr.imeAtributa}:</span> {attr.vrednost || '-'}
                   </li>
                 ))}
               </ul>

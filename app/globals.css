@@ -121,39 +121,10 @@
   }
 }
 
-
-.articleBorder {
-  border-radius: 10px;
-  position: relative;
-}
-
-.articleBorder::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  background: linear-gradient(90deg, rgba(224, 20, 20, 0.59) 0%, rgba(122, 11, 11, 1) 27%, rgba(40, 0, 0, 1) 92%) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: destination-out;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
 header {
   background-color: white !important;
   box-shadow: none !important;
   border: none !important;
-}
-
-
-@media screen and (max-width: 320px) {
-  .articleSize {
-    width: 150px;
-  }
 }
 
 @media print {
