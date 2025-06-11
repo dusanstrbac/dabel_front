@@ -15,11 +15,14 @@ const Akcije = () => {
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
       const res = await fetch(`${apiAddress}/api/Artikal/Akcije`);
       const akcijskiArtikli: { idArtikla: string; cena: number; staraCena: number; }[] = await res.json();
+      
 
       if (!res.ok) throw new Error("Greška pri preuzimanju artikala");
 
       
       const artikliDetalji = await Promise.all(
+        
+        
         akcijskiArtikli.map(async ({ idArtikla, cena, staraCena }) => {
           try {
             const resArtikal = await fetch(`${apiAddress}/api/Artikal/DajArtikalId?ids=${idArtikla}`);

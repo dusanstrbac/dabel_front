@@ -9,6 +9,9 @@ import { useEffect, useState } from 'react';
 const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
   const router = useRouter(); 
   const [isMounted, setMounted] = useState(false);
+
+  const imageUrl = 'https://94.230.179.194:8443/SlikeProizvoda';
+  const fotografijaProizvoda = `${imageUrl}/s${idArtikla}.jpg`;
   
   useEffect(() => {
     setMounted(true);
@@ -43,14 +46,12 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-90 z-10 rounded-2xl pointer-events-none"></div>
 
       <div className="w-full h-64 relative">
-        <Image
-          src={'/artikal.jpg'}
+        <img
+          src={fotografijaProizvoda}
           alt={naziv}
-          fill
           sizes="(max-width: 768px) 100vw, 320px"
           style={{objectFit: 'cover'}}
           className="rounded-lg w-full h-full object-cover"
-          priority
         />
       </div>
 

@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import dynamic from "next/dynamic";
 import PreporuceniProizvodi from "@/components/PreporuceniProizvodi";
 import DodajUOmiljeno from "@/components/DodajUOmiljeno";
@@ -14,7 +13,6 @@ import { ArtikalAtribut, ArtikalType } from "@/types/artikal";
 const Lightbox = dynamic(() => import("yet-another-react-lightbox"), {
   ssr: false,
 });
-
 
 const prikazaniAtributi = [
   "Model",
@@ -30,7 +28,6 @@ export default function Proizvod() {
   const { id } = useParams();
   const [proizvod, setProizvod] = useState<ArtikalType | null>(null);
   const [atributi, setAtributi] = useState<ArtikalAtribut[]>([]);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
@@ -85,9 +82,12 @@ export default function Proizvod() {
     setIsOpen(true);
   };
 
+  const imageUrl = "https://94.230.179.194:8443/SlikeProizvoda";
+
   const images = [
-    { src: "/artikal.jpg", alt: "Slika proizvoda" },
-    { src: "/artikal.jpg", alt: "Slika 2" },
+    { src: `${imageUrl}/s${proizvod.idArtikla}.jpg`, alt: "Glavna slika" },
+    { src: `${imageUrl}/t${proizvod.idArtikla}.jpg`, alt: "Slika proizvoda" },
+    { src: `${imageUrl}/k${proizvod.idArtikla}.jpg`, alt: "Upotreba" },
   ];
 
   const cena = proizvod.artikalCene.length > 0 ? proizvod.artikalCene[0].cena : 0;
@@ -102,26 +102,24 @@ export default function Proizvod() {
         <div className="flex flex-col lg:flex-row gap-6 w-full lg:w-2/3">
           <div className="flex flex-col gap-4 items-center lg:items-start">
             <div onClick={() => openLightbox(0)}>
-              <Image
-                src={"/artikal.jpg"}
+              <img
+                src={images[0].src}
                 width={300}
                 height={300}
-                alt="Proizvod"
+                alt={images[0].alt}
                 className="border border-gray-400 rounded-lg object-contain w-full max-w-[400px] mx-auto cursor-pointer"
-                priority
               />
             </div>
 
             <div className="flex gap-2 justify-start">
               {images.map((img, i) => (
                 <div key={i} onClick={() => openLightbox(i)}>
-                  <Image
+                  <img
                     src={img.src}
                     width={80}
                     height={80}
                     alt={img.alt}
                     className="border border-gray-400 rounded-lg object-contain cursor-pointer"
-                    priority
                   />
                 </div>
               ))}
@@ -153,7 +151,8 @@ export default function Proizvod() {
               <ul className="text-sm md:text-base space-y-1">
                 {atributi.map(attr => (
                   <li key={attr.imeAtributa}>
-                    <span className="font-semibold">{attr.imeAtributa}:</span> {attr.vrednost || '-'}
+                    <span className="font-semibold">{attr.imeAtributa}:</span>{" "}
+                    {attr.vrednost || "-"}
                   </li>
                 ))}
               </ul>

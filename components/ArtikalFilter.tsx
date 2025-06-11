@@ -28,6 +28,7 @@ const defaultFilters: ArtikalFilterProp = {
 const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, onFilterChange }) => {
   const [filters, setFilters] = useState<ArtikalFilterProp>(defaultFilters)
   const [filterOptions, setFilterOptions] = useState<{
+    jedinicaMere: string[]
     Materijal: string[]
     Model: string[]
     Pakovanje: string[]
@@ -35,6 +36,7 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, onFilterChange })
     Upotreba: string[]
     Boja: string[]
   }>({
+    jedinicaMere: [],
     Materijal: [],
     Model: [],
     Pakovanje: [],
@@ -48,23 +50,34 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, onFilterChange })
     console.log("Stigli artikli u filter:", artikli);
 
     const getUniqueValues = (kljuc: string) => {
-      const values = artikli
-        .map((artikal) => {
-          const atribut = artikal.artikalAtributi?.find((a: any) =>
-            a.imeAtributa.toLowerCase().includes(kljuc.toLowerCase())
-          )
-          return atribut?.vrednost
-        })
-        .filter((v) => v !== undefined && v !== null)
-      return Array.from(new Set(values))
+      if (kljuc.toLowerCase() === 'jm') {
+        // Izvući jedinstvene vrednosti direktno iz polja artikal.jm
+        const values = artikli
+          .map((artikal) => artikal.jm)
+          .filter((v) => v !== undefined && v !== null && v !== '')
+        return Array.from(new Set(values))
+      } else {
+        // Ostale atribute vadi iz artikalAtributi
+        const values = artikli
+          .map((artikal) => {
+            const atribut = artikal.artikalAtributi?.find((a: any) =>
+              a.imeAtributa.toLowerCase().includes(kljuc.toLowerCase())
+            )
+            return atribut?.vrednost
+          })
+          .filter((v) => v !== undefined && v !== null && v !== '')
+        return Array.from(new Set(values))
+      }
     }
 
 
 
-  const materijali = getUniqueValues("Materijal");
-  console.log("Materijali iz artikala:", materijali);
+
+  //const materijali = getUniqueValues("Materijal");
+  //console.log("Materijali iz artikala:", materijali);
 
     setFilterOptions({
+      jedinicaMere: getUniqueValues("jm"),//PROVERITI
       Materijal: getUniqueValues("Materijal"),
       Model: getUniqueValues("Model"),
       Pakovanje: getUniqueValues("Pakovanje"),
@@ -115,12 +128,15 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, onFilterChange })
             className="w-full border border-gray-300 rounded px-3 py-2"
           >
             <option value="">Sve</option>
-            <option value="kom">Kom</option>
-            <option value="m">Metar</option>
-            <option value="kg">Kilogram</option>
+            {filterOptions.jedinicaMere.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
           </select>
         </CollapsibleContent>
       </Collapsible>
+
 
       {/* Ostali filteri */}
       {(['Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja'] as const).map((key) => (
