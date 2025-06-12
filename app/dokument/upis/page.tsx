@@ -7,33 +7,35 @@
     import { dajKorisnikaIzTokena } from "@/lib/auth";
     import { Input } from "@/components/ui/input";
     import KreirajNarudzbenicu from "@/components/ui/KreirajNarudzbenicu";
+import { Console } from "console";
+import { number } from "zod";
 
     interface Partner {
-    idPartnera: string;
-    ime: string;
-    email: string;
-    adresa: string;
-    grad: string;
-    delatnost: string;
-    zip: string;
-    pib: string;
-    maticniBroj: string;
-    telefon: string;
-    finKarta: {
-        nerealizovano: string;
-        raspolozivoStanje: string;
-        kredit: string;
-        nijeDospelo: string;
-    };
-    partnerDostava: {
+        idPartnera: string;
+        ime: string;
+        email: string;
         adresa: string;
         grad: string;
-        drzava: string;
-        postBroj: string;
-    };
-    partnerRabat: {
-        rabat: number;
-    };
+        delatnost: string;
+        zip: string;
+        pib: string;
+        maticniBroj: string;
+        telefon: string;
+        finKarta: {
+            nerealizovano: string;
+            raspolozivoStanje: string;
+            kredit: string;
+            nijeDospelo: string;
+        };
+        partnerDostava: {
+            adresa: string;
+            grad: string;
+            drzava: string;
+            postBroj: string;
+        };
+        partnerRabat: {
+            rabat: number;
+        };
     }
 
 
@@ -47,6 +49,8 @@
         const [grad, setGrad] = useState("");
         const [telefon, setTelefon] = useState("");
         const [email, setEmail] = useState("");
+
+        const [idDokumenta, setIdDokumenta] = useState<number>(0);
 
         const [greske, setGreske] = useState<{ [key: string]: string }>({});
         const imeRef = useRef<HTMLInputElement>(null);
@@ -83,16 +87,25 @@
 
         useEffect(() => {
             setIsClient(true);
-            const cart = JSON.parse(localStorage.getItem("cart") || "{}");
-            const storedIds = Object.keys(cart);
-            if (storedIds.length === 0) return;
 
-            const queryString = storedIds.map(id => `ids=${id}`).join("&");
+            let cart: Record<string, any> = {};
+            try {
+                const storedCart = localStorage.getItem("cart");
+                cart = storedCart ? JSON.parse(storedCart) : {};
+            } catch (e) {
+                console.error("Nevalidan JSON u localStorage za 'cart'", e);
+            }
+
+            const storedIds = Object.keys(cart);
             const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-            const url = `${apiAddress}/api/Artikal/DajArtikalId?${queryString}`;
 
 
             const fetchArtikli = async () => {
+                if (storedIds.length === 0) return;
+
+                const queryString = storedIds.map(id => `ids=${id}`).join("&");
+                const url = `${apiAddress}/api/Artikal/DajArtikalId?${queryString}`;
+
                 try {
                 const response = await fetch(url);
                 const data = await response.json();
@@ -100,9 +113,11 @@
                 const transformed = data.map((artikal: any) => ({
                     ...artikal,
                     id: artikal.idArtikla,
-                    cena: artikal.artikalCene?.[0]?.cena ?? 0,
-                    pakovanje: Number(artikal.pakovanje) || 1,
-                    kolicina: cart[artikal.idArtikla]?.kolicina ?? artikal.pakovanje,
+                    naziv: artikal.naziv,
+                    cena: artikal.artikalCene.cena ?? artikal.artikalCene.akcija.cena ?? 0, 
+                    originalnaCena: artikal.artikalCene.cena,
+                    pdv: artikal.pdv ?? 20,
+                    kolicina: cart[artikal.idArtikla].kolicina,
                 }));
 
                 setArtikli(transformed);
@@ -122,26 +137,28 @@
 
                 try {
                     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-                    const res = await fetch(`${apiAddress}/api/Partner/DajPartnere`);
+                    const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${email}`);
                     const data = await res.json();
+                    setPartner(data[0]);
 
-                    const nadjeni = data.find((p: any) => p.email?.toLowerCase() === korisnik.email?.toLowerCase());
-                    console.log("Stigli partneri:", data);
-                    
-                    if (nadjeni) {
-                        setPartner(nadjeni);
-                    } else {
-                        console.warn("Nije pronađen partner za korisnikov email:", korisnik.email);
-                    }
+                    console.log(data);
 
                 } catch (err) {
                     console.error("Greška pri fetchovanju partnera:", err);
                 }
             };
 
+
+            // Generisanje novog ID-ja
+            const poslednjiId = parseInt(localStorage.getItem("poslednjiIdDokumenta") || "0", 10);
+            const noviId = poslednjiId + 1;
+            setIdDokumenta(noviId);
+            
+
             fetchArtikli();
             fetchPartner();
         }, []);
+
 
     if (!isClient) return null;
 
@@ -152,28 +169,8 @@
 
                 {/* PODACI O LJUDIMA */}
                 <div className="mb-4 space-y-1 w-full">
-                    <div className="flex flex-col lg:flex-row">
-                        <div className="flex flex-col w-full">
-                            <h1 className="text-center font-light text-2xl border-b pb-2">Podaci o partneru</h1>
-                            {/* PARTNER */}
-                            <div className="flex flex-col sm:flex-row items-center justify-between w-full px-5 my-8 ">
-                                <div>
-                                    <p><strong>Partner ID:</strong> {partner?.idPartnera ?? "Učitavanje..."}</p>
-                                    <p><strong>Naziv:</strong> {partner?.ime ?? "Učitavanje..."}</p>
-                                    <p><strong>PIB:</strong> {partner?.pib ?? "Učitavanje..."}</p>
-                                    <p><strong>Matični broj:</strong> {partner?.maticniBroj}</p>
-                                    <p><strong>Email:</strong> {partner?.email}</p>
-                                </div>
-                                <div>
-                                    <p><strong>Adresa:</strong> {partner?.adresa}</p>
-                                    <p><strong>Grad:</strong> {partner?.grad}</p>
-                                    <p><strong>ZIP:</strong> {partner?.zip}</p>
-                                    <p><strong>Delatnost:</strong> {partner?.delatnost}</p>
-                                    <p><strong>Telefon:</strong> {partner?.telefon}</p>
-                                </div>
-                            </div>
-                        </div>
-
+                    <div className="flex flex-col max-w-[1200px] mx-auto">
+                        
                             {/* OSOBA */}
                         <div className="flex flex-col w-full">
                             <h1 className="text-center font-light text-2xl border-b pb-2">Podaci o kontakt osobi</h1>
@@ -266,6 +263,28 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div className="flex flex-col w-full">
+                            <h1 className="text-center font-light text-2xl border-b pb-2">Podaci o partneru</h1>
+                            {/* PARTNER */}
+                            <div className="flex flex-col sm:flex-row items-center justify-between w-full px-5 my-8 ">
+                                <div>
+                                    <p><strong>Partner ID:</strong> {partner?.idPartnera}</p>
+                                    <p><strong>Naziv:</strong> {partner?.ime}</p>
+                                    <p><strong>PIB:</strong> {partner?.pib}</p>
+                                    <p><strong>Matični broj:</strong> {partner?.maticniBroj}</p>
+                                    <p><strong>Email:</strong> {partner?.email}</p>
+                                </div>
+                                <div>
+                                    <p><strong>Adresa:</strong> {partner?.adresa}</p>
+                                    <p><strong>Grad:</strong> {partner?.grad}</p>
+                                    <p><strong>ZIP:</strong> {partner?.zip}</p>
+                                    <p><strong>Delatnost:</strong> {partner?.delatnost}</p>
+                                    <p><strong>Telefon:</strong> {partner?.telefon}</p>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -305,16 +324,19 @@
 
             {/* NARUCI DUGME */}
             <div className="pt-5 flex justify-end">
-                <KreirajNarudzbenicu
-                    artikli={artikli}
-                    partner={partner}
-                    imeiPrezime={imeiPrezime}
-                    mestoIsporuke={mestoIsporuke}
-                    grad={grad}
-                    telefon={telefon}
-                    email={email}
-                    valid={proveriPolja}
-                />
+                {partner && (
+                    <KreirajNarudzbenicu
+                        artikli={artikli}
+                        idDokumenta={idDokumenta}
+                        idPartner={partner.idPartnera}
+                        imeiPrezime={imeiPrezime}
+                        mestoIsporuke={mestoIsporuke}
+                        grad={grad}
+                        telefon={telefon}
+                        email={email}
+                        valid={proveriPolja}
+                    />
+                    )}
             </div>
         </div>
     );
