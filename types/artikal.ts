@@ -33,7 +33,10 @@ export type ArtikalAtribut = {
 };
 
 export interface ListaArtikalaProps {
-  artikli?: ArtikalType[] 
+  artikli: ArtikalType[];
+  totalCount: number;
+  currentPage: number;
+  onPageChange: (page: number) => void;
 }
 
 export interface SortiranjeButtonProps {

@@ -15,11 +15,11 @@ import {
 import { useRouter, useSearchParams } from "next/navigation"
 import { ArtikalFilterProp, ListaArtikalaProps } from "@/types/artikal"
 
-const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
-  const [trenutnaStrana, setTrenutnaStrana] = useState(1)
+const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: ListaArtikalaProps) => {
   const artikliPoStrani = 8
   const router = useRouter()
   const searchParams = useSearchParams()
+  const trenutnaStrana = currentPage;
 
   const [filteri, setFilteri] = useState<ArtikalFilterProp>({
     naziv: '',
@@ -32,56 +32,15 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
     Boja: [],
   })
 
-  // Sinhronizuj trenutnu stranu sa query parametrom
-  useEffect(() => {
-    const page = searchParams.get('page')
-    if (page) {
-      const pageNumber = parseInt(page, 10)
-      if (!isNaN(pageNumber) && pageNumber >= 1) {
-        setTrenutnaStrana(pageNumber)
-      }
-    }
-  }, [searchParams])
+  const brojStranica = useMemo(() => Math.ceil(totalCount / artikliPoStrani), [totalCount])
 
-  const filtriraniArtikli = useMemo(() => {
-    return artikli.filter((artikal) => {
-      // Filtriraj po jedinici mere
-      if (filteri.jedinicaMere && artikal.jm !== filteri.jedinicaMere) return false
-
-      // Atributi
-      const atributi = artikal.artikalAtributi || []
-
-      const proveriAtribut = (ime: keyof ArtikalFilterProp) => {
-        const vrednosti = filteri[ime] as string[]
-        if (!vrednosti || vrednosti.length === 0) return true
-
-        const atribut = atributi.find(a =>
-          a.imeAtributa.toLowerCase().includes(String(ime).toLowerCase())
-        )
-        return atribut && vrednosti.includes(atribut.vrednost)
-      }
-
-      const atributKljucevi: (keyof ArtikalFilterProp)[] = [
-        'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja'
-      ]
-
-      return atributKljucevi.every(proveriAtribut)
-    })
-  }, [artikli, filteri])
-
-  const brojStranica = useMemo(() =>
-    Math.ceil(filtriraniArtikli.length / artikliPoStrani), [filtriraniArtikli])
-
-  const prikazaniArtikli = useMemo(() => {
-    return filtriraniArtikli.slice(
-      (trenutnaStrana - 1) * artikliPoStrani,
-      trenutnaStrana * artikliPoStrani
-    )
-  }, [trenutnaStrana, filtriraniArtikli])
-
-  const idiNaStranu = (broj: number) => {
+  const prikazaniArtikli = artikli;
+  // Funkcija za menjanje strane i update URL-a bez reloada
+  const idiNaStranu = (broj: number, event?:React.MouseEvent) => {
+    if(event) event.preventDefault();
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return
-    setTrenutnaStrana(broj)
+
+    onPageChange(broj);
 
     const url = new URL(window.location.href)
     url.searchParams.set('page', broj.toString())
@@ -90,7 +49,11 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
 
   const onFilterChange = (noviFilteri: ArtikalFilterProp) => {
     setFilteri(noviFilteri)
-    setTrenutnaStrana(1) // Resetuj na prvu stranu pri svakom filteru
+    // Ovde dodaj logiku za filtriranje artikala ako je potrebno
+  }
+
+  if (!artikli || artikli.length === 0) {
+    return <p className="text-center py-5 text-gray-500">Nema artikala za prikaz.</p>
   }
 
   return (
@@ -102,24 +65,20 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
 
       {/* Lista artikala */}
       <div className="w-full md:w-3/4">
-        {filtriraniArtikli.length === 0 ? (
-          <p className="text-center py-5 text-gray-500">Nema artikala koji odgovaraju filterima.</p>
-        ) : (
-          <>
-            <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
-              {prikazaniArtikli.map((artikal) => (
-                <ArticleCard
-                  key={artikal.idArtikla}
-                  naziv={artikal.naziv}
-                  idArtikla={artikal.idArtikla}
-                  barkod={artikal.barkod}
-                  kategorijaId={artikal.kategorijaId}
-                  jm={artikal.jm}
-                  artikalAtributi={artikal.artikalAtributi}
-                  artikalCene={artikal.artikalCene}
-                />
-              ))}
-            </div>
+        <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
+          {prikazaniArtikli.map((artikal, idx) => (
+            <ArticleCard
+              key={artikal.idArtikla ?? idx}
+              naziv={artikal.naziv}
+              idArtikla={artikal.idArtikla}
+              barkod={artikal.barkod}
+              kategorijaId={artikal.kategorijaId}
+              jm={artikal.jm}
+              artikalAtributi={artikal.artikalAtributi}
+              artikalCene={artikal.artikalCene ?? []}
+            />
+          ))}
+        </div>
 
             {/* Paginacija */}
             {brojStranica > 1 && (
@@ -172,8 +131,6 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
                 </PaginacijaSadrzaj>
               </Paginacija>
             )}
-          </>
-        )}
       </div>
     </div>
   )

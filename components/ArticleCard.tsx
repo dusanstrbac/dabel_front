@@ -1,6 +1,5 @@
 import { useRouter } from 'next/navigation';
 import '@/app/globals.css';
-import Image from 'next/image';
 import AddToCartButton from './AddToCartButton';
 import { ArtikalType } from '@/types/artikal';
 import { useEffect, useState } from 'react';
@@ -10,7 +9,7 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
   const router = useRouter(); 
   const [isMounted, setMounted] = useState(false);
 
-  const imageUrl = 'https://94.230.179.194:8443/SlikeProizvoda';
+  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS;
   const fotografijaProizvoda = `${imageUrl}/s${idArtikla}.jpg`;
   
   useEffect(() => {
@@ -51,7 +50,7 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
           alt={naziv}
           sizes="(max-width: 768px) 100vw, 320px"
           style={{objectFit: 'cover'}}
-          className="rounded-lg w-full h-full object-cover"
+          className="rounded-lg w-full h-full object-cover scale-95"
         />
       </div>
 

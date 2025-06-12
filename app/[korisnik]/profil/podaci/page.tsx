@@ -85,7 +85,9 @@ const ProfilPodaci = () => {
         <div className="flex flex-col lg:gap-6 text-left lg:text-right">
           <p className="text-gray-600">{getTodayDate()}</p>
           <p className="font-semibold">Dozvoljeno zaduženje: <span className="font-extrabold">{userData.finKarta?.kredit ?? 'N/A'}</span></p>
-          <p className="font-semibold">Trenutno zaduženje: <span className="font-extrabold">{userData.finKarta?.raspolozivoStanje ?? 'N/A'}</span></p>
+          <p className="font-semibold">Trenutno zaduženje: <span className="font-extrabold">{userData.finKarta?.trenutnoZaduzenje ?? 'N/A'}</span></p>
+          <p className="font-semibold">Nerealizovan iznos: <span className="font-extrabold">{userData.finKarta?.nerealizovano ?? 'N/A'}</span></p>
+          <p className="font-semibold">Raspoloživo stanje: <span className="font-extrabold">{userData.finKarta?.raspolozivoStanje ?? 'N/A'}</span></p>
         </div>
       </div>
 
