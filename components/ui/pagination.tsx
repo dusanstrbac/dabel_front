@@ -70,25 +70,27 @@ const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
 };
 
   return (
-    <Button
-      aria-current={isActive ? "page" : undefined}
-      disabled={disabled}
-      onClick={handleClick}
-      type="button"
-      data-slot="paginacija-link"
-      data-active={isActive}
-      className={cn(
-        buttonVariants({
-          variant: isActive ? "outline" : "ghost",
-          size,
-        }),
-        disabled && "pointer-events-none opacity-50",
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </Button>
+  <Button
+    aria-current={isActive ? "page" : undefined}
+    disabled={disabled}
+    onClick={handleClick}
+    type="button"
+    data-slot="paginacija-link"
+    data-active={isActive}
+    className={cn(
+      buttonVariants({
+        variant: isActive ? "outline" : "ghost",
+        size: "sm",
+      }),
+      disabled && "pointer-events-none opacity-50",
+      isActive && "bg-blue-600 text-white border-blue-600",
+      !isActive && "hover:bg-blue-200 hover:border-blue-400",
+      className
+    )}
+    {...props}
+  >
+    {children}
+  </Button>
   );
 }
 
@@ -195,13 +197,14 @@ function Pagination({
     }
   }, [searchParams, isMounted, totalPages, onPageChange]);
 
-  const handlePageChange = (page: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
-  e.preventDefault(); // Sprečava podrazumevano ponašanje
-  if (page < 1 || page > totalPages || page === currentPage) return;
+  const handlePageChange = (page: number, e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (page < 1 || page > totalPages || page === currentPage) return;
 
-  onPageChange(page);
-  router.push(`?page=${page}`, { scroll: false });
-};
+    onPageChange(page);
+    router.push(`?page=${page}`, { scroll: false });
+  };
+
 
 
   if (totalPages <= 1) return null;
@@ -211,7 +214,7 @@ function Pagination({
       <PaginacijaSadrzaj>
         <PaginacijaStavka>
           <PaginacijaPrethodna
-            onClick={() => handlePageChange(currentPage - 1)}
+            onClick={(e) => handlePageChange(currentPage - 1, e)}
             disabled={currentPage === 1}
           />
         </PaginacijaStavka>
@@ -229,7 +232,7 @@ function Pagination({
               <PaginacijaStavka key={page}>
                 <PaginacijaLink
                   isActive={currentPage === page}
-                  onClick={() => handlePageChange(page)}
+                  onClick={(e) => handlePageChange(page, e)}
                 >
                   {page}
                 </PaginacijaLink>
@@ -254,7 +257,7 @@ function Pagination({
 
         <PaginacijaStavka>
           <PaginacijaSledeca
-            onClick={() => handlePageChange(currentPage + 1)}
+            onClick={(e) => handlePageChange(currentPage + 1, e)}
             disabled={currentPage === totalPages}
           />
         </PaginacijaStavka>

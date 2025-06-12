@@ -38,6 +38,8 @@ export default function Proizvod() {
   useEffect(() => {
     const korisnik = dajKorisnikaIzTokena();
     const productId = Array.isArray(id) ? id[0] : id;
+    const idKorisnika = korisnik?.idKorisnika;
+
     if (!productId) return;
 
     const fetchData = async () => {
@@ -46,6 +48,8 @@ export default function Proizvod() {
 
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const res = await fetch(`${apiAddress}/api/Artikal/DajArtikalId?ids=${productId}`);
+
+
 
         if (!res.ok) throw new Error("Greška prilikom učitavanja proizvoda");
 
@@ -80,7 +84,7 @@ export default function Proizvod() {
     setIsOpen(true);
   };
 
-  const imageUrl = "https://94.230.179.194:8443/SlikeProizvoda";
+  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS;
 
   const images = [
     { src: `${imageUrl}/s${proizvod.idArtikla}.jpg`, alt: "Glavna slika" },
@@ -88,11 +92,13 @@ export default function Proizvod() {
     { src: `${imageUrl}/k${proizvod.idArtikla}.jpg`, alt: "Upotreba" },
   ];
 
-  const cena = proizvod.artikalCene.length > 0 ? proizvod.artikalCene[0].cena : 0;
-  const akcijskaCena =
-    proizvod.artikalCene.length > 0 && proizvod.artikalCene[0].akcija?.cena !== 0
-      ? Number(proizvod.artikalCene[0].akcija.cena)
-      : undefined;
+const cena = (proizvod.artikalCene && proizvod.artikalCene.length > 0) 
+  ? proizvod.artikalCene[0].cena 
+  : 0;
+
+const akcijskaCena = (proizvod.artikalCene && proizvod.artikalCene.length > 0 && proizvod.artikalCene[0].akcija?.cena !== 0) 
+  ? Number(proizvod.artikalCene[0].akcija.cena) 
+  : undefined;
 
   return (
     <main className="px-4 md:px-10 lg:px-[40px] py-6">
