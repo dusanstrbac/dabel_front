@@ -28,5 +28,5 @@ interface FinKartaType {
     nerealizovano: string;
     raspolozivoStanje: string;
     kredit: string;
-    trenutnoZaduzenje: string;
+    nijeDospelo: string;
 }

@@ -73,6 +73,7 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
               idArtikla={artikal.idArtikla}
               barkod={artikal.barkod}
               kategorijaId={artikal.kategorijaId}
+              kolicina={artikal.kolicina}
               jm={artikal.jm}
               artikalAtributi={artikal.artikalAtributi}
               artikalCene={artikal.artikalCene ?? []}

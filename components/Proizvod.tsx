@@ -55,6 +55,7 @@ export default function Proizvod() {
 
         const data = await res.json();
         if (!data || data.length === 0) throw new Error("Proizvod nije pronađen");
+        //console.log(data);
 
         const osnovni: ArtikalType = data[0];
         setProizvod(osnovni);
@@ -135,15 +136,24 @@ const akcijskaCena = (proizvod.artikalCene && proizvod.artikalCene.length > 0 &&
           <div className="flex flex-col gap-3 w-full">
             <h1 className="text-xl md:text-2xl font-bold">{proizvod.naziv}</h1>
             <span className="text-red-500 text-lg md:text-xl font-bold">
-              {akcijskaCena ? (
-                <>
-                  <span className="line-through text-gray-400">{cena} RSD</span>
-                  <span className="pl-[5px]">{akcijskaCena} RSD</span>
-                </>
+              {Number(proizvod.kolicina) > 0 ? (
+                akcijskaCena ? (
+                  <>
+                    <span className="line-through text-gray-400">{cena} RSD</span>
+                    <span className="pl-[5px]">{akcijskaCena} RSD</span>
+                  </>
+                ) : (
+                  `${cena} RSD`
+                )
               ) : (
-                `${cena} RSD`
+                <span className="text-red-500">Nije dostupno</span>
               )}
             </span>
+            {Number(proizvod.kolicina) == 0 ? (
+                <span className="text-red-500">Proizvod ponovo dostupan od: 12.06.2025</span>//dodati datum kada ce proizvod biti opet na stanju
+              ) : (
+                <span className="text-red-500"></span>
+              )}
             <ul className="text-sm md:text-base space-y-1">
               <li>
                 <span className="font-semibold">Šifra proizvoda:</span> {proizvod.idArtikla}
@@ -169,22 +179,35 @@ const akcijskaCena = (proizvod.artikalCene && proizvod.artikalCene.length > 0 &&
         <div className="flex flex-col gap-4 w-full lg:w-1/3 items-start justify-end lg:items-end">
           {email && <DodajUOmiljeno idArtikla={proizvod.idArtikla} idPartnera={email} />}
           <div className="flex gap-2 w-full sm:w-auto flex-wrap">
-            <input
+            {Number(proizvod.kolicina) > 0 ? (
+                <input
+              ref={inputRef}
+              name="inputProizvod"
+              className="w-16 border rounded px-2 py-1 text-center"
+              type="number"
+              min={1}
+              max={proizvod.kolicina}
+              defaultValue={1}
+            />
+              ) : (
+                <input
               ref={inputRef}
               name="inputProizvod"
               className="w-16 border rounded px-2 py-1 text-center"
               type="number"
               min={0}
-              max={50}
-              defaultValue={1}
+              max={0}
+              defaultValue={0}
             />
+              )}
             <AddToCartButton
               id={proizvod.idArtikla}
               className="w-full sm:w-auto px-6 py-2"
               title="Dodaj u korpu"
               getKolicina={() => Number(inputRef.current?.value || 1)}
               nazivArtikla={proizvod.naziv}
-            />
+              disabled={Number(proizvod.kolicina) <= 0}
+            />      
           </div>
         </div>
       </div>

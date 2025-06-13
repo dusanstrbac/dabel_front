@@ -5,9 +5,11 @@ import { ArtikalType } from '@/types/artikal';
 import { useEffect, useState } from 'react';
 
 
-const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
+const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina }: ArtikalType) => {
   const router = useRouter(); 
   const [isMounted, setMounted] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
+
 
   const imageUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS;
   const fotografijaProizvoda = `${imageUrl}/s${idArtikla}.jpg`;
@@ -37,9 +39,14 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
   const cenaArtikla = artikalCene?.[0]?.cena ?? 0;  // Originalna cena
   const novaCena = artikalCene?.[0]?.akcija?.cena ?? null; // Ako postoji nova cena
 
+  console.log("Artikal:", naziv, "| Količina:", kolicina);
+
   return (
     <div
-      className="articleSize relative max-w-[320px] hover:shadow-2xl transition-shadow duration-300 rounded-2xl grid grid-rows-[auto,auto,auto]"
+      className={
+        `articleSize relative max-w-[320px] hover:shadow-2xl transition-shadow duration-300 rounded-2xl grid grid-rows-[auto,auto,auto] 
+        ${Number(kolicina) <= 0 ? "opacity-50" : ""}`
+      }
       onClickCapture={posaljiNaArtikal} 
     >
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-90 z-10 rounded-2xl pointer-events-none"></div>
@@ -77,12 +84,12 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene }: ArtikalType) => {
             </p>
           )}
         </div>
-
           <div className="pointer-events-auto">
             <AddToCartButton
               id={idArtikla}
               getKolicina={() => Number(1)}
               nazivArtikla={naziv}
+              disabled={Number(kolicina) <= 0}
             />
           </div>
         </div>
