@@ -21,15 +21,17 @@ const PretragaProizvoda = () => {
       
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
       try {
-        /* 
-          Batch size odredjuje koliko ce u search-u izbacivati artikala 
-          ( potreban je malo veci broj jer se u ovom pozivu ) vracaju artikli
-          sa svim svojim atributima
-        */
+
+        const trimmedQuery = query.trim();
+        if (!trimmedQuery) return;
+
         const res = await fetch(
-          `${apiAddress}/api/Artikal/DajFilterArtikle?Naziv=${encodeURIComponent(query)}&batchSize=300`
+          `${apiAddress}/api/Artikal/DajFilterArtikle?batchSize=1000&naziv=${encodeURIComponent(trimmedQuery)}`
         );
+
         const data = await res.json();
+        console.log('Raw data:', data);
+
         setRezultati(data.items || []);
         setShowDropdown(true);
       } catch (err) {

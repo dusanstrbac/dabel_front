@@ -59,6 +59,9 @@ const fetchOmiljeniArtikli = async () => {
     setArtikli(data.artikli ?? []);
     setTotalCount(data.totalCount ?? 0);
     setTotalPages(Math.ceil((data.totalCount ?? 0) / pageSize));
+
+
+
   } catch (err) {
     setError("Došlo je do greške");
   } finally {

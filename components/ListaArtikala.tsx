@@ -29,16 +29,15 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
   const prikazaniArtikli = artikli;
   // Funkcija za menjanje strane i update URL-a bez reloada
   const idiNaStranu = (broj: number, event?:React.MouseEvent) => {
-    if(event) event.preventDefault();
-    if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return
+  if(event) event.preventDefault();
+  console.log("Idi na stranu:", broj);
+  if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return;
 
-    onPageChange(broj);
-
-    const url = new URL(window.location.href)
-    url.searchParams.set('page', broj.toString())
-
-    router.push(`${url.pathname}${url.search}`, { scroll: false })
-  }
+  onPageChange(broj);
+  const url = new URL(window.location.href);
+  url.searchParams.set('page', broj.toString());
+  router.push(`${url.pathname}${url.search}`, { scroll: false });
+}
 
   const onFilterChange = (noviFilteri: any) => {
     setFilteri(noviFilteri)

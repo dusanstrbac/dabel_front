@@ -30,26 +30,22 @@ export default function Proizvod() {
   const [atributi, setAtributi] = useState<ArtikalAtribut[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const korisnik = dajKorisnikaIzTokena();
-    const productId = Array.isArray(id) ? id[0] : id;
-    const idKorisnika = korisnik?.idKorisnika;
+  const korisnik = dajKorisnikaIzTokena();
 
+  useEffect(() => {
+    const productId = Array.isArray(id) ? id[0] : id;
     if (!productId) return;
 
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        if (korisnik?.email) setEmail(korisnik.email);
-
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const res = await fetch(`${apiAddress}/api/Artikal/DajArtikalId?ids=${productId}`);
-
-
 
         if (!res.ok) throw new Error("Greška prilikom učitavanja proizvoda");
 
@@ -64,9 +60,12 @@ export default function Proizvod() {
             prikazaniAtributi.includes(attr.imeAtributa)
           );
           setAtributi(filtriraniAtributi);
+        } else {
+          setAtributi([]);
         }
       } catch (e) {
         setError((e as Error).message || "Došlo je do greške prilikom učitavanja proizvoda");
+        setProizvod(null);
       } finally {
         setLoading(false);
       }
@@ -75,16 +74,21 @@ export default function Proizvod() {
     fetchData();
   }, [id]);
 
-  if (loading) return <div className="px-4 md:px-10 lg:px-[40px] py-6">Učitavanje...</div>;
-  if (error) return <div className="px-4 md:px-10 lg:px-[40px] py-6 text-red-600">{error}</div>;
-  if (!proizvod) return <div className="px-4 md:px-10 lg:px-[40px] py-6">Proizvod nije pronađen</div>;
+  if (loading)
+    return <div className="px-4 md:px-10 lg:px-[40px] py-6">Učitavanje...</div>;
+  if (error)
+    return (
+      <div className="px-4 md:px-10 lg:px-[40px] py-6 text-red-600">{error}</div>
+    );
+  if (!proizvod)
+    return <div className="px-4 md:px-10 lg:px-[40px] py-6">Proizvod nije pronađen</div>;
 
   const openLightbox = (index: number) => {
     setCurrentImageIndex(index);
     setIsOpen(true);
   };
 
-  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS;
+  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS || "";
 
   const images = [
     { src: `${imageUrl}/s${proizvod.idArtikla}.jpg`, alt: "Glavna slika" },
@@ -92,38 +96,43 @@ export default function Proizvod() {
     { src: `${imageUrl}/k${proizvod.idArtikla}.jpg`, alt: "Upotreba" },
   ];
 
-const cena = (proizvod.artikalCene && proizvod.artikalCene.length > 0) 
-  ? proizvod.artikalCene[0].cena 
-  : 0;
+  const cena =
+    proizvod.artikalCene && proizvod.artikalCene.length > 0
+      ? proizvod.artikalCene[0].cena
+      : 0;
 
-const akcijskaCena = (proizvod.artikalCene && proizvod.artikalCene.length > 0 && proizvod.artikalCene[0].akcija?.cena !== 0) 
-  ? Number(proizvod.artikalCene[0].akcija.cena) 
-  : undefined;
+  const akcijskaCena =
+    proizvod.artikalCene &&
+    proizvod.artikalCene.length > 0 &&
+    proizvod.artikalCene[0].akcija?.cena !== 0
+      ? Number(proizvod.artikalCene[0].akcija.cena)
+      : undefined;
 
   return (
     <main className="px-4 md:px-10 lg:px-[40px] py-6">
       <div className="container mx-auto flex flex-col lg:flex-row justify-between gap-8">
+        {/* Slike i osnovni podaci */}
         <div className="flex flex-col lg:flex-row gap-6 w-full lg:w-2/3">
           <div className="flex flex-col gap-4 items-center lg:items-start">
-            <div onClick={() => openLightbox(0)}>
+            <div onClick={() => openLightbox(0)} className="cursor-pointer">
               <img
                 src={images[0].src}
                 width={300}
                 height={300}
                 alt={images[0].alt}
-                className="border border-gray-400 rounded-lg object-contain w-full max-w-[400px] mx-auto cursor-pointer"
+                className="border border-gray-400 rounded-lg object-contain w-full max-w-[400px] mx-auto"
               />
             </div>
 
-            <div className="flex gap-2 justify-start">
+            <div className="flex gap-2 justify-start mt-2">
               {images.map((img, i) => (
-                <div key={i} onClick={() => openLightbox(i)}>
+                <div key={i} onClick={() => openLightbox(i)} className="cursor-pointer">
                   <img
                     src={img.src}
                     width={80}
                     height={80}
                     alt={img.alt}
-                    className="border border-gray-400 rounded-lg object-contain cursor-pointer"
+                    className="border border-gray-400 rounded-lg object-contain"
                   />
                 </div>
               ))}
@@ -142,7 +151,7 @@ const akcijskaCena = (proizvod.artikalCene && proizvod.artikalCene.length > 0 &&
                 `${cena} RSD`
               )}
             </span>
-            <ul className="text-sm md:text-base space-y-1">
+            <ul className="text-sm md:text-base space-y-1 mt-3">
               <li>
                 <span className="font-semibold">Šifra proizvoda:</span> {proizvod.idArtikla}
               </li>
@@ -152,27 +161,32 @@ const akcijskaCena = (proizvod.artikalCene && proizvod.artikalCene.length > 0 &&
               <li>
                 <span className="font-semibold">Jedinica mere:</span> {proizvod.jm}
               </li>
-              <ul className="text-sm md:text-base space-y-1">
-                {atributi.map(attr => (
+            </ul>
+            <ul className="text-sm md:text-base space-y-1 mt-2">
+              {atributi.length > 0 ? (
+                atributi.map(attr => (
                   <li key={attr.imeAtributa}>
                     <span className="font-semibold">{attr.imeAtributa}:</span>{" "}
                     {attr.vrednost || "-"}
                   </li>
-                ))}
-              </ul>
+                ))
+              ) : (
+                <li>Nema dodatnih atributa</li>
+              )}
             </ul>
           </div>
         </div>
 
+        {/* Dodavanje u omiljeno i korpu */}
         <div className="flex flex-col gap-4 w-full lg:w-1/3 items-start justify-end lg:items-end">
-          {email && <DodajUOmiljeno idArtikla={proizvod.idArtikla} idPartnera={email} />}
-          <div className="flex gap-2 w-full sm:w-auto flex-wrap">
+          {korisnik?.idKorisnika && <DodajUOmiljeno idArtikla={proizvod.idArtikla} idPartnera={korisnik.idKorisnika} inicijalniStatus={proizvod.status === "1"} />}
+          <div className="flex gap-2 w-full sm:w-auto flex-wrap mt-2">
             <input
               ref={inputRef}
               name="inputProizvod"
               className="w-16 border rounded px-2 py-1 text-center"
               type="number"
-              min={0}
+              min={1}
               max={50}
               defaultValue={1}
             />
@@ -187,10 +201,12 @@ const akcijskaCena = (proizvod.artikalCene && proizvod.artikalCene.length > 0 &&
         </div>
       </div>
 
+      {/* Preporučeni proizvodi */}
       <div className="mt-[50px]">
         <PreporuceniProizvodi />
       </div>
 
+      {/* Lightbox za slike */}
       {isOpen && (
         <ClientLightbox
           open={isOpen}

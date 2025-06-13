@@ -4,6 +4,7 @@ export type ArtikalType = {
   barkod: string;
   jm: string;
   kategorijaId: string;
+  status?: string;
   artikalCene: ArtikalCena[];
   artikalAtributi: ArtikalAtribut[];
 };

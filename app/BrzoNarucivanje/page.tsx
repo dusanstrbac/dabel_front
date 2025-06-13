@@ -4,56 +4,28 @@ import { Input } from "@/components/ui/input";
 import PrebaciUKorpu from "@/components/PrebaciUKorpu";
 
 const BrzoNarucivanje = () => {
-  const [searchTerm, setSearchTerm] = useState(""); // Unos za pretragu (šifra/naziv/barkod)
-  const [rows, setRows] = useState([
-    { sifra: "", kolicina: "", naziv: "", barkod: "" }
-  ]);
+  const [rows, setRows] = useState([{ sifra: "", kolicina: "" }]);
 
-  // Funkcija za ažuriranje vrednosti u searchTerm (input polje)
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+  const handleChange = (index: number, field: "sifra" | "kolicina", value: string) => {
+    const numericValue = value.replace(/\D/g, "");
+    const newRows = [...rows];
+    newRows[index][field] = numericValue;
+    setRows(newRows);
   };
 
-  // Funkcija za slanje zahteva prema backendu kada se menja pretraga
-  const handleSearch = async () => {
-    // Ovde šaljemo zahtev prema backendu sa unosom iz searchTerm
-    const response = await fetch("/api/search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ searchTerm })
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      console.log("Podaci sa servera:", data);
-      // Ovdje možemo obraditi odgovor sa servera (ako je potrebno)
-    } else {
-      console.error("Greška prilikom pretrage");
-    }
-  };
-
-  // Funkcija za dodavanje novog reda
   const handleAddRow = () => {
-    setRows([...rows, { sifra: "", kolicina: "", naziv: "", barkod: "" }]);
+    setRows([...rows, { sifra: "", kolicina: "" }]);
   };
 
-  // Funkcija za uklanjanje reda
   const handleRemoveRow = (index: number) => {
     const newRows = [...rows];
     newRows.splice(index, 1);
     setRows(newRows);
   };
 
-  // Funkcija za ažuriranje vrednosti u svakom redu
-  const handleChange = (index: number, field: "sifra" | "kolicina" | "naziv" | "barkod", value: string) => {
-    const newRows = [...rows];
-    newRows[index][field] = value;
-    setRows(newRows);
-  };
+  const preostalo = "300.000";
 
-  // Filtriraj validne redove (neprazne) kada se promeni kolicina ili sifra
+  // Filtriraj validne redove (neprazne)
   const validItems = rows
     .filter(row => row.sifra && row.kolicina)
     .map(row => ({
@@ -66,23 +38,10 @@ const BrzoNarucivanje = () => {
       <div className="flex flex-col w-full max-w-xl px-4 space-y-8 mb-20">
         <h1 className="font-bold text-3xl text-center lg:text-4xl">Brzo naručivanje</h1>
 
-        <div className="flex flex-col items-center space-y-4">
-          <div className="flex items-center gap-2">
-            <Input
-              type="text"
-              className="border-2 border-[#323131cc] w-80"
-              placeholder="Unesite šifru, naziv ili barkod"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              onBlur={handleSearch}  // Aktivira pretragu kada korisnik izađe iz inputa
-            />
-          </div>
-        </div>
-
         <div className="flex items-center justify-center gap-10 lg:gap-20">
           <p>
             <span className="font-bold text-lg">Preostalo je: </span>
-            <span className="text-lg whitespace-nowrap">300.000 RSD</span>
+            <span className="text-lg whitespace-nowrap">{preostalo} RSD</span>
           </p>
         </div>
 
