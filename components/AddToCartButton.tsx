@@ -8,10 +8,11 @@ interface AddToCartButtonProp {
     title? : string,
     getKolicina: () => number,
     nazivArtikla: string,
-    disabled?: boolean
+    disabled?: boolean,
+    ukupnaKolicina: number
 }
 
-const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disabled=false}: AddToCartButtonProp) => {
+const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disabled=false, ukupnaKolicina}: AddToCartButtonProp) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (disabled) return;
@@ -22,15 +23,23 @@ const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disa
       return;
     }
     
-    const kolicina = getKolicina();
-
+    const novaKolicina = getKolicina();
     const existing = localStorage.getItem("cart");
     let cart: Record<number, { kolicina: number }> = existing ? JSON.parse(existing) : {};
 
+    const trenutnoUKorpi = cart[id]?.kolicina ?? 0;
+
+    if (trenutnoUKorpi + novaKolicina > ukupnaKolicina) {
+      toast.error("Nema dovoljno artikala na stanju!", {
+        description: `Maksimalno možete dodati još ${Math.max(ukupnaKolicina - trenutnoUKorpi, 0)} kom.`,
+      });
+      return;
+    }
+
     if (cart[id]) {
-        cart[id].kolicina += kolicina;
+        cart[id].kolicina += novaKolicina;
     } else {
-        cart[id] = { kolicina };
+        cart[id] = { kolicina: novaKolicina };
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));

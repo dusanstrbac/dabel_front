@@ -90,6 +90,7 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina }: ArtikalType) =
               getKolicina={() => Number(1)}
               nazivArtikla={naziv}
               disabled={Number(kolicina) <= 0}
+              ukupnaKolicina={Number(kolicina)}
             />
           </div>
         </div>

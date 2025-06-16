@@ -33,6 +33,7 @@ export default function Proizvod() {
   const [email, setEmail] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [preostalo, setPreostalo] = useState<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -77,6 +78,20 @@ export default function Proizvod() {
 
     fetchData();
   }, [id]);
+
+  useEffect(() => {
+    if (!proizvod) return;
+
+    const lokalnaKorpa = localStorage.getItem("korpa");
+    const korpa = lokalnaKorpa ? JSON.parse(lokalnaKorpa) : [];
+
+    const stavka = korpa.find((item: { id: number }) => item.id === Number(proizvod.idArtikla));
+    const vecUKorpi = stavka ? stavka.kolicina : 0;
+
+    const dozvoljeno = Math.max(Number(proizvod.kolicina) - vecUKorpi, 0);
+    setPreostalo(dozvoljeno);
+  }, [proizvod]);
+
 
   if (loading) return <div className="px-4 md:px-10 lg:px-[40px] py-6">Učitavanje...</div>;
   if (error) return <div className="px-4 md:px-10 lg:px-[40px] py-6 text-red-600">{error}</div>;
@@ -185,9 +200,10 @@ const akcijskaCena = (proizvod.artikalCene && proizvod.artikalCene.length > 0 &&
               name="inputProizvod"
               className="w-16 border rounded px-2 py-1 text-center"
               type="number"
-              min={1}
-              max={proizvod.kolicina}
-              defaultValue={1}
+              min={preostalo > 0 ? 1 : 0}
+              max={preostalo}
+              defaultValue={preostalo > 0 ? 1 : 0}
+              disabled={preostalo === 0}
             />
               ) : (
                 <input
@@ -204,9 +220,10 @@ const akcijskaCena = (proizvod.artikalCene && proizvod.artikalCene.length > 0 &&
               id={proizvod.idArtikla}
               className="w-full sm:w-auto px-6 py-2"
               title="Dodaj u korpu"
-              getKolicina={() => Number(inputRef.current?.value || 1)}
+              getKolicina={() => Math.min(Number(inputRef.current?.value || 1), preostalo)}
               nazivArtikla={proizvod.naziv}
-              disabled={Number(proizvod.kolicina) <= 0}
+              disabled={Number(proizvod.kolicina) <= 0 || preostalo===0}
+              ukupnaKolicina={preostalo}
             />      
           </div>
         </div>
