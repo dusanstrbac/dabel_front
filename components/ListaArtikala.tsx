@@ -15,40 +15,24 @@ import {
 import { useRouter, useSearchParams } from "next/navigation"
 import { ListaArtikalaProps } from "@/types/artikal"
 
-const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
-  const [trenutnaStrana, setTrenutnaStrana] = useState(1)
+const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: ListaArtikalaProps) => {
   const artikliPoStrani = 8
   const router = useRouter()
   const searchParams = useSearchParams()
+  const trenutnaStrana = currentPage;
 
   // Primer: filter state, možeš dodati i filtering logiku
   const [filteri, setFilteri] = useState({})
 
-  const brojStranica = useMemo(() => Math.ceil(artikli.length / artikliPoStrani), [artikli])
+  const brojStranica = useMemo(() => Math.ceil(totalCount / artikliPoStrani), [totalCount])
 
-  // Sinhronizuj trenutnu stranu sa query parametrom u URL-u
-  useEffect(() => {
-    const page = searchParams.get('page')
-    if (page) {
-      const pageNumber = parseInt(page, 10)
-      if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= brojStranica) {
-        setTrenutnaStrana(pageNumber)
-      }
-    }
-  }, [searchParams, brojStranica])
-
-  const prikazaniArtikli = useMemo(() => {
-    return artikli.slice(
-      (trenutnaStrana - 1) * artikliPoStrani,
-      trenutnaStrana * artikliPoStrani
-    )
-  }, [trenutnaStrana, artikli])
-
+  const prikazaniArtikli = artikli;
   // Funkcija za menjanje strane i update URL-a bez reloada
-  const idiNaStranu = (broj: number) => {
+  const idiNaStranu = (broj: number, event?:React.MouseEvent) => {
+    if(event) event.preventDefault();
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return
 
-    setTrenutnaStrana(broj)
+    onPageChange(broj);
 
     const url = new URL(window.location.href)
     url.searchParams.set('page', broj.toString())
@@ -61,7 +45,7 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
     // Ovde dodaj logiku za filtriranje artikala ako je potrebno
   }
 
-  if (artikli.length === 0) {
+  if (!artikli || artikli.length === 0) {
     return <p className="text-center py-5 text-gray-500">Nema artikala za prikaz.</p>
   }
 
@@ -75,16 +59,16 @@ const ListaArtikala = ({ artikli = [] }: ListaArtikalaProps) => {
       {/* Lista artikala */}
       <div className="w-full md:w-3/4">
         <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
-          {prikazaniArtikli.map((artikal) => (
+          {prikazaniArtikli.map((artikal, idx) => (
             <ArticleCard
-              key={artikal.idArtikla}
+              key={artikal.idArtikla ?? idx}
               naziv={artikal.naziv}
               idArtikla={artikal.idArtikla}
               barkod={artikal.barkod}
               kategorijaId={artikal.kategorijaId}
               jm={artikal.jm}
               artikalAtributi={artikal.artikalAtributi}
-              artikalCene={artikal.artikalCene}
+              artikalCene={artikal.artikalCene ?? []}
             />
           ))}
         </div>

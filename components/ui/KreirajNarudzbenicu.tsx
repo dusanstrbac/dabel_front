@@ -1,21 +1,22 @@
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArtikalType } from "@/types/artikal";
 
 interface KreirajNarudzbenicuProps {
-  artikli: any[];
+  artikli: ArtikalType[];
+  partner: KorisnikPodaciType;
   idDokumenta: number;
-  idPartner: string;
   imeiPrezime: string;
   mestoIsporuke: string;
   grad: string;
   telefon: string;
   email: string;
+  napomena: string;
   valid: () => boolean;
 }
 
 
-const KreirajNarudzbenicu = ({ artikli, idDokumenta, idPartner, imeiPrezime, mestoIsporuke, grad, telefon, email, valid }: KreirajNarudzbenicuProps) => {
+const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mestoIsporuke, grad, telefon, email, valid, napomena }: KreirajNarudzbenicuProps) => {
     const router = useRouter();
 
     const handleClick = async () => {
@@ -34,30 +35,33 @@ const KreirajNarudzbenicu = ({ artikli, idDokumenta, idPartner, imeiPrezime, mes
         const payload = {
             idDokumenta,
             tip: "narudzbenica",
-            idPartnera: idPartner,
+            idPartnera: partner.idPartnera,
             brojDokumenta: idDokumenta.toString(),
-            idKomercijaliste: idPartner,
+            idKomercijaliste: partner.idPartnera,
             datumDokumenta: now,
             datumVazenja: datumVazenja.toISOString(),
+            Lokacija: mestoIsporuke,
+            napomena: napomena,
             stavkeDokumenata: artikli.map((value) => ({
                 idDokumenta: idDokumenta.toString(),
-                idArtikla: value.id.toString() || "",
+                idArtikla: value.idArtikla.toString() || "",
                 nazivArtikla: value.naziv || "",
-                cena: value.cena || 0,
-                originalnaCena: value.originalnaCena || 0,
+                cena: value.artikalCene[0].cena || 0,
+                originalnaCena: value.artikalCene[0].cena || 0,
                 kolicina: value.kolicina.toString() || "0",
-                pdv: value.pdv.toString() || "20",
-                ukupnaCena: Number((value.kolicina * value.cena).toFixed(2)),
+                // pdv: value.pdv.toString() || "20", -- PRoveriti da li pdv je isti za sve 
+                ukupnaCena: Number((Number(value.kolicina) * value.artikalCene[0].cena).toFixed(2)),
             })),
         };
 
         console.log("Saljem dokument:", JSON.stringify(payload, null, 2));
 
         try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/UpisiDokument`, {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Dokument/UpisiDokument`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                
             },
                 body: JSON.stringify(payload),
             });
@@ -68,8 +72,24 @@ const KreirajNarudzbenicu = ({ artikli, idDokumenta, idPartner, imeiPrezime, mes
             }
 
             const data = await res.text();
-            console.log("✅ Uspešno poslato:", data);
+            console.log("✅ Uspešno poslatoooooooooo:", data);
             
+
+            console.log(idDokumenta);
+            
+            sessionStorage.setItem("narudzbenica-podaci", JSON.stringify({
+                idDokumenta,
+                artikli,
+                partner,
+                DatumKreiranja: now,
+                imeiPrezime,
+                mestoIsporuke,
+                grad,
+                telefon,
+                email,
+            }));
+
+            console.log("Da vidim samo sta saljemo u /dokument: ", sessionStorage);
             router.push("/dokument");
             } catch (err) {
                 console.error("❌ Greška pri slanju POST zahteva:", err);

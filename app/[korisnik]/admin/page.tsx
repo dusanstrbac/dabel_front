@@ -1,36 +1,20 @@
 'use client';
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-import {  Dialog, Tabs,
-} from "radix-ui"
+import {  Dialog, Tabs } from "radix-ui"
 import { Paginacija, PaginacijaLink, PaginacijaPrethodna, PaginacijaSadrzaj, PaginacijaSledeca, PaginacijaStavka, PaginacijaTackice } from "@/components/ui/pagination";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { ComboboxDemo } from "@/components/ui/ComboboxDemo";
 import PromeniButton from "@/components/ui/promeniButton";
+import { artikalProp, StavkaType } from "@/types/artikal";
 
 
+
+    
 
 const admin = () => {
-
-    type artikalProp = {
-        idArtikla: string;
-        naziv: string;
-        barkod: string;
-        jm: string;
-    };
-
-    type Props = {
-        artikal: artikalProp;
-    };
-
-
-    const [adminList, setAdminList] = useState([
-            {
-                naziv: "ActiveFaxInputDirectory",
-                opis: "Putanja do ulaznog direktorijuma za Active Fax. Ovaj direktorijum je vidljiv za fax server.",
-                vrednost: "\\\\10.0.2.19\\FaxInput"
-            },
+     const [adminList, setAdminList] = useState([
             {
                 naziv: "AdminMail",
                 opis: "Administratorski mail nalog",
@@ -57,9 +41,54 @@ const admin = () => {
                 vrednost: "10"
             },
             {
+                naziv: "BlokadaPoručivanja",
+                opis: "Sistem blokira dalje poručivanje robe ukoliko korisnik ima neuplaćenu fakturu (Da/Ne)",
+                vrednost: "Da"
+            },
+            {//ask
                 naziv: "DaLiKlasaIzAnalize",
                 opis: "Da li se koristi klasifikacija iz analize za fin limite on-line naručivanja ili samo dozvoljeno zaduženje (1=Da, 0=Ne)",
                 vrednost: "0"
+            },
+            {
+                naziv: "EmailAdresaPosiljaoca",
+                opis: "Email adresa koja će se videti na primljenoj poruci kod primaoca (F111)",
+                vrednost: "mail@dabel.rs"
+            },
+            {
+                naziv: "GraceKontroleNaplate",
+                opis: "Koji je grace period u danima u kome se neće zabraniti poručivanje iako nije platio.",
+                vrednost: "3"
+            },
+            {
+                naziv: "GradFirmeZaIzvestaje",
+                opis: "Grad firme za izveštavanje",
+                vrednost: "Nova Pazova"
+            },
+            {
+                naziv: "GrupaPartneraSvacijePravoUnosa",
+                opis: "Grupa partnera u kojoj svi korisnici Dabel web mogu unositi narudžbenice.",
+                vrednost: "58"
+            },
+            {
+                naziv: "KoeficijentKvalitetaRada",
+                opis: "Kojim se koeficijentom množi dozvoljeno zaduženje kako bi se dobio plan prodaje po partneru (0-1)",
+                vrednost: "0.7"
+            },
+            {
+                naziv: "KoeficijentKvalitetaRadaGR",
+                opis: "Granice koeficijenata rada za kartone - dve cifre odvojene zarezima",
+                vrednost: "30,90"
+            },
+            {//ask
+                naziv: "KontaZaPregled",
+                opis: "Konta koja će se pratiti u izveštajima (karticama)",
+                vrednost: "'2010','2020','885','CGD','KSD','MKD','BHD'"
+            },
+            {
+                naziv: "Korpa.MinIznosZaIsporuku",
+                opis: "Granični iznos bez PDV ispod koga se naplaćuje isporuka robe.",
+                vrednost: "7000"
             }
     ]);
     
@@ -79,53 +108,56 @@ const admin = () => {
         }
     ]);
 
+    const [articleList, setArticleList] = React.useState<artikalProp[]>([]);
+    const [selectedItem, setSelectedItem] = useState<StavkaType | null>(null);
     const [trenutnaStrana, setTrenutnaStrana] = useState(1)
+    const [featuredArtikli, setFeaturedArtikli] = useState<artikalProp[]>([]);
+    const scrollRef = useRef<HTMLDivElement | null>(null);    
+    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     const stavkiPoStrani = 5
+
+    const brojStranica = useMemo(() => Math.ceil(adminList.length / stavkiPoStrani), [adminList]);
+
+    const paginiraneStavke = useMemo(() => {
+        return adminList.slice(
+            (trenutnaStrana - 1) * stavkiPoStrani,
+            trenutnaStrana * stavkiPoStrani
+        );
+    }, [adminList, trenutnaStrana]);
+
     const router = useRouter()
     const searchParams = useSearchParams()
-
-    useEffect(() => {
-    const page = searchParams.get('page')
-    if (page) {
-        const pageNumber = parseInt(page, 10)
-        if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= brojStranica) {
-        setTrenutnaStrana(pageNumber)
-        }
-    }
-    }, [searchParams]) 
-
-    const prikazaneStavke = useMemo(() => {
-    return adminList.slice(
-        (trenutnaStrana - 1) * stavkiPoStrani,
-        trenutnaStrana * stavkiPoStrani
-    )
-    }, [trenutnaStrana])
-
-    const idiNaStranu = (broj: number) => {
-    if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return
-    
-    setTrenutnaStrana(broj)
-    router.push(`?page=${broj}`,{scroll : false})
-
-    }
-
-    
-    //  DEO ZA SEARCH I PRIKAZ
 
     const options = adminList.map((item) => ({
         value: `${item.naziv} ${item.opis}`,
         label: item.naziv,
     }));
-
-    type StavkaType = {
-        naziv: string;
-        opis: string;
-        vrednost: string;
-    };
+    
     const userSelectedFromSearch = useRef(false);
 
 
-    const [selectedItem, setSelectedItem] = useState<StavkaType | null>(null);
+
+    useEffect(() => {
+        const page = searchParams.get('page')
+        if (page) {
+            const pageNumber = parseInt(page, 10)
+            if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= brojStranica) {
+                setTrenutnaStrana(pageNumber)
+            }
+        }
+    }, [searchParams]) 
+
+
+    const idiNaStranu = (broj: number) => {
+        if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return
+        
+        setTrenutnaStrana(broj)
+        router.push(`?page=${broj}`,{scroll : false})
+
+    }
+
+    
+    //  DEO ZA SEARCH I PRIKAZ
 
     const handleSelectOption = (label: string) => {
         const found = adminList.find((article: StavkaType) => article.naziv === label);
@@ -140,37 +172,6 @@ const admin = () => {
             setSelectedItem(found); // koristi samo za fokus/edit, ne za filtriranje
         }
     };
-    
-    useEffect(() => {
-        if (selectedItem && userSelectedFromSearch.current) {
-            const selectedIndex = adminList.findIndex(
-                (item) => item.naziv === selectedItem.naziv
-            );
-            if (selectedIndex !== -1) {
-                const pageNumber = Math.floor(selectedIndex / stavkiPoStrani) + 1;
-                setTrenutnaStrana(pageNumber);
-                router.push(`?page=${pageNumber}`, { scroll: false });
-
-                setTimeout(() => {
-                    scrollRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-                }, 100);
-            }
-
-            userSelectedFromSearch.current = false;
-        }
-    }, [selectedItem, adminList]);
-
-
-    const handleSelectedChange = (novaVrednost: string) => {
-        if(!selectedItem) return;
-        const updated = [...adminList];
-        const index = updated.findIndex(item => item.naziv === selectedItem.naziv);
-        if (index !== -1) {
-            updated[index].vrednost = novaVrednost;
-            setAdminList(updated);
-            setSelectedItem({...updated[index]});
-        }
-    };
 
     const handleChange = (index: number, newValue: string) => {
         const updatedList = [...adminList];
@@ -178,45 +179,12 @@ const admin = () => {
         setAdminList(updatedList);
     };
 
-    
-    const [featuredArtikli, setFeaturedArtikli] = useState<artikalProp[]>([]);
-    const scrollRef = useRef<HTMLDivElement | null>(null);
-
-    const brojStranica = useMemo(() => Math.ceil(adminList.length / stavkiPoStrani), [adminList]);
-
-    const paginiraneStavke = useMemo(() => {
-        return adminList.slice(
-            (trenutnaStrana - 1) * stavkiPoStrani,
-            trenutnaStrana * stavkiPoStrani
-        );
-    }, [adminList, trenutnaStrana]);
-
-
     const handlePromeniArtikal = (stariId: string, noviArtikal: artikalProp) => {
         setFeaturedArtikli((prev) =>
             prev.map((a) => a.idArtikla === stariId ? { ...noviArtikal } : a
         ));
     };
 
-
-    useEffect(() => {
-    if (selectedItem && userSelectedFromSearch.current) {
-        const selectedIndex = adminList.findIndex(
-            (item) => item.naziv === selectedItem.naziv
-        );
-        if (selectedIndex !== -1) {
-            const pageNumber = Math.floor(selectedIndex / stavkiPoStrani) + 1;
-            setTrenutnaStrana(pageNumber);
-            router.push(`?page=${pageNumber}`, { scroll: false });
-        }
-        userSelectedFromSearch.current = false;  // resetuj nakon promene
-    }
-    }, [selectedItem, adminList]);
-
-    
-    const [articleList, setArticleList] = React.useState<artikalProp[]>([]);
-
-    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     useEffect(() => {
         async function fetchArtikle() {
             try {
@@ -313,10 +281,11 @@ const admin = () => {
                                     <p className="align-top font-medium text-2xl">{article.naziv}</p>
                                     <p className="align-top text-left text-gray-500 max-w-4xl">{article.opis}</p>
                                     <input
-                                        className="border-b border-red-200 px-2 py-1 h-10 mt-3 mb-9 w-[300px] max-w-[300px] min-h-[40px] justify-items-start"
+                                        className="border-b border-red-200 px-2 py-1 h-10 mt-3 mb-9  min-w-[400px] min-h-[40px] justify-items-start"
                                         type="text"
-                                        value={article.vrednost}
-                                        onChange={(e) => handleChange(globalIndex, e.target.value)}
+                                        defaultValue={article.vrednost}
+                                        onBlur={(e) => handleChange(globalIndex, e.target.value)}
+                                        // sta ova funkcija handleChange radi???
                                     />
                                 </div>
                             </div>

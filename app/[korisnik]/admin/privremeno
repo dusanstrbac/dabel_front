@@ -1,10 +1,5 @@
 const [adminList, setAdminList] = useState([
             {
-                naziv: "ActiveFaxInputDirectory",
-                opis: "Putanja do ulaznog direktorijuma za Active Fax. Ovaj direktorijum je vidljiv za fax server.",
-                vrednost: "\\\\10.0.2.19\\FaxInput"
-            },
-            {
                 naziv: "AdminMail",
                 opis: "Administratorski mail nalog",
                 vrednost: "gojko.d@dabel.rs"
@@ -30,19 +25,14 @@ const [adminList, setAdminList] = useState([
                 vrednost: "10"
             },
             {
+                naziv: "BlokadaPoručivanja",
+                opis: "Sistem blokira dalje poručivanje robe ukoliko korisnik ima neuplaćenu fakturu (Da/Ne)",
+                vrednost: "Da"
+            },
+            {//ask
                 naziv: "DaLiKlasaIzAnalize",
                 opis: "Da li se koristi klasifikacija iz analize za fin limite on-line naručivanja ili samo dozvoljeno zaduženje (1=Da, 0=Ne)",
                 vrednost: "0"
-            },
-            {
-                naziv: "DefaultCenovnik",
-                opis: "Pretpostavljeni cenovnik",
-                vrednost: "04"
-            },
-            {
-                naziv: "DefaultValuta",
-                opis: "Podrazumevana valuta pri naručivanju. Posebna se postavlja na nivou partnera (pored cenovnika, objekta).",
-                vrednost: "RSD"
             },
             {
                 naziv: "EmailAdresaPosiljaoca",
@@ -74,7 +64,7 @@ const [adminList, setAdminList] = useState([
                 opis: "Granice koeficijenata rada za kartone - dve cifre odvojene zarezima",
                 vrednost: "30,90"
             },
-            {
+            {//ask
                 naziv: "KontaZaPregled",
                 opis: "Konta koja će se pratiti u izveštajima (karticama)",
                 vrednost: "'2010','2020','885','CGD','KSD','MKD','BHD'"
@@ -96,7 +86,7 @@ const [adminList, setAdminList] = useState([
             },
             {
                 naziv: "KvalitetRada.LimitDozvoljenogZaduzenjaZaKartone",
-                opis: "Granični iznos dozvoljenog zaduženja za partnera iznad  kojeg partner ulazi u Izveštaj o kvalitetu rada.",
+                opis: "Granični iznos dozvoljenog zaduženja za partnera iznad kojeg partner ulazi u Izveštaj o kvalitetu rada.",
                 vrednost: "50000"
             },
             {
@@ -104,7 +94,7 @@ const [adminList, setAdminList] = useState([
                 opis: "Kvalitet rada: limit minimalnog duga iznad kojeg se izveštava",
                 vrednost: "500"
             },
-            {
+            {//ask
                 naziv: "LokacijaKontrolneDatotekeFaxServer",
                 opis: "Lokacija kontrolne datoteke na FAX serveru. Primer: c\\faxes\\",
                 vrednost: ""
@@ -124,17 +114,17 @@ const [adminList, setAdminList] = useState([
                 opis: "Minimalni iznos jedne API narudžbenice",
                 vrednost: "10000"
             },
-            {
+            {//ask
                 naziv: "Narucivanje.DodatniPopustPoruka",
                 opis: "Poruka koja će se prikazati pri potvrdi narudžbenice (dodatna 2% na kraju godine).",
                 vrednost: "Poručivanjem preko Dabel Web portala ostvarujete popust od dodatnih {0}% na svaku Vašu porudžbinu. Na ovoj porudžbini ustedećete {1:0.00} RSD bez PDV. Hvala što koristite naš servis."
             },
-            {
+            {//ask
                 naziv: "Narucivanje.DodatniPopustProcenat",
                 opis: "Dodatni popust koji će se obračunati u B2B narudžbenicama za samostalno naručivanje (bilo je 2% na kraju godine).",
                 vrednost: "5"
             },
-            {
+            {//ask
                 naziv: "Narucivanje.HelpFileName",
                 opis: "Putanja i naziv datoteke uputstva za poručivanje za partnere.",
                 vrednost: "C:/Temp/DabelOnLineManual.pdf"
@@ -144,12 +134,12 @@ const [adminList, setAdminList] = useState([
                 opis: "Slobodan tekst koji će se štampati na narudžbenici",
                 vrednost: "U zavisnosti od brzine slanja dokumenta zavisi raspoloživost robe."
             },
-            {
+            {//ask, jel se ovo unosi rucno?
                 naziv: "Narucivanje.KontaktIme",
                 opis: "Kontakt koji se štampa na dokumentu porudžbenice.",
                 vrednost: ""
             },
-            {
+            {//ask
                 naziv: "Narucivanje.KontaktTelefon",
                 opis: "Broj telefona kao kontakt koji se štampa na dokumentu porudžbenice.",
                 vrednost: ""
@@ -194,7 +184,7 @@ const [adminList, setAdminList] = useState([
                 opis: "Tip dokumenta Rezervacije",
                 vrednost: "88"
             },
-            {
+            {//ask
                 naziv: "Narucivanje.UploadTempFileLokacija",
                 opis: "Privremena lokacija za otpremanje fajlova.",
                 vrednost: "d:/TemporaryUoploads"
@@ -214,7 +204,7 @@ const [adminList, setAdminList] = useState([
                 opis: "Vrsta dokumenta Rezervacije",
                 vrednost: "88"
             },
-            {
+            {//ask
                 naziv: "Narucivanje.ZatvoriNextDokument",
                 opis: "Da li se Next dokument (narudzbenica) zatvara nakon slanja u NexT ili ne (0).",
                 vrednost: ""
@@ -234,12 +224,12 @@ const [adminList, setAdminList] = useState([
                 opis: "Šifra objekta u kome se vode osnovna sredstva kod partnera.",
                 vrednost: "G"
             },
-            {
+            {//ask
                 naziv: "OSOTipDok",
                 opis: "Tip dokumenta kojim se menja stanje osnovnih sredstava kod partnera.",
                 vrednost: "04"
             },
-            {
+            {//ask
                 naziv: "OSVrstaDok",
                 opis: "Vrsta dokumenta kojim se menja stanje osnovnih sredstava kod partnera.",
                 vrednost: "14"

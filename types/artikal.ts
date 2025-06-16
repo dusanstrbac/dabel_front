@@ -4,6 +4,7 @@ export type ArtikalType = {
   barkod: string;
   jm: string;
   kategorijaId: string;
+  kolicina: string;
   artikalCene: ArtikalCena[];
   artikalAtributi: ArtikalAtribut[];
 };
@@ -26,6 +27,20 @@ export type ArtikalCena = {
   };
 };
 
+export type artikalProp = {
+  idArtikla: string;
+  naziv: string;
+  barkod: string;
+  jm: string;
+};
+
+export type StavkaType = {
+  naziv: string;
+  opis: string;
+  vrednost: string;
+};
+
+
 export type ArtikalAtribut = {
   idArtikla: string;
   imeAtributa: string;
@@ -33,7 +48,10 @@ export type ArtikalAtribut = {
 };
 
 export interface ListaArtikalaProps {
-  artikli?: ArtikalType[] 
+  artikli: ArtikalType[];
+  totalCount: number;
+  currentPage: number;
+  onPageChange: (page: number) => void;
 }
 
 export interface SortiranjeButtonProps {
@@ -65,3 +83,7 @@ export const defaultFilters: ArtikalFilterProp = {
   Boja: [],
   
 };
+
+
+
+

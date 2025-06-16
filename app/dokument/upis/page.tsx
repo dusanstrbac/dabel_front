@@ -1,54 +1,28 @@
     'use client';
 
-    import { Button } from "@/components/ui/button";
     import { useRef } from "react";
     import { KeyboardEvent, RefObject } from "react";
     import { useEffect, useState } from "react";
     import { dajKorisnikaIzTokena } from "@/lib/auth";
     import { Input } from "@/components/ui/input";
     import KreirajNarudzbenicu from "@/components/ui/KreirajNarudzbenicu";
-import { Console } from "console";
-import { number } from "zod";
+    import { ArtikalType } from "@/types/artikal";
 
-    interface Partner {
-        idPartnera: string;
-        ime: string;
-        email: string;
-        adresa: string;
-        grad: string;
-        delatnost: string;
-        zip: string;
-        pib: string;
-        maticniBroj: string;
-        telefon: string;
-        finKarta: {
-            nerealizovano: string;
-            raspolozivoStanje: string;
-            kredit: string;
-            nijeDospelo: string;
-        };
-        partnerDostava: {
-            adresa: string;
-            grad: string;
-            drzava: string;
-            postBroj: string;
-        };
-        partnerRabat: {
-            rabat: number;
-        };
-    }
+    
 
 
     const DokumentUpis = () => {
-        const [artikli, setArtikli] = useState<any[]>([]);
+        const [artikli, setArtikli] = useState<ArtikalType[]>([]);
         const [isClient, setIsClient] = useState(false);
-        const [partner, setPartner] = useState<Partner | null>(null);
+        const [partner, setPartner] = useState<KorisnikPodaciType>();
 
         const [mestoIsporuke, setMestoIsporuke] = useState("");
         const [imeiPrezime, setImeiPrezime] = useState("");
         const [grad, setGrad] = useState("");
         const [telefon, setTelefon] = useState("");
         const [email, setEmail] = useState("");
+        const [napomena, setNapomena] = useState("");
+
 
         const [idDokumenta, setIdDokumenta] = useState<number>(0);
 
@@ -58,6 +32,7 @@ import { number } from "zod";
         const gradRef = useRef<HTMLInputElement>(null);
         const telefonRef = useRef<HTMLInputElement>(null);
         const adresaRef = useRef<HTMLInputElement>(null);
+        const napomenaRef = useRef<HTMLInputElement>(null);
 
         const handleKeyDown = (
             e: KeyboardEvent<HTMLInputElement>,
@@ -69,8 +44,6 @@ import { number } from "zod";
             }
         };
 
-
-
         const proveriPolja = () => {
             const novaGreske: { [key: string]: string } = {};
 
@@ -78,8 +51,8 @@ import { number } from "zod";
             if (!telefon.trim()) novaGreske.telefon = "Niste uneli Telefon";
             if (!grad.trim()) novaGreske.grad = "Niste uneli Grad";
             if (!imeiPrezime.trim()) novaGreske.imeiPrezime = "Niste uneli Ime i Prezime";
-            if (!mestoIsporuke.trim()) novaGreske.mestoIsporuke = "Niste uneli Adresu";
-            
+            if (!mestoIsporuke.trim()) novaGreske.mestoIsporuke = "Niste uneli Adresu"; //adresa
+
             setGreske(novaGreske);
             return Object.keys(novaGreske).length === 0;
         };
@@ -110,15 +83,18 @@ import { number } from "zod";
                 const response = await fetch(url);
                 const data = await response.json();
 
-                const transformed = data.map((artikal: any) => ({
+
+                const transformed = data.map((artikal: ArtikalType) => ({
                     ...artikal,
                     id: artikal.idArtikla,
                     naziv: artikal.naziv,
-                    cena: artikal.artikalCene.cena ?? artikal.artikalCene.akcija.cena ?? 0, 
-                    originalnaCena: artikal.artikalCene.cena,
-                    pdv: artikal.pdv ?? 20,
-                    kolicina: cart[artikal.idArtikla].kolicina,
+                    cena: artikal.artikalCene[0].akcija.cena ?? 0,  
+                    originalnaCena: artikal.artikalCene[0].cena,
+                    // pdv: artikal.pdv ?? 20,
+                    kolicina: cart[artikal.idArtikla]?.kolicina,
                 }));
+
+                console.log("Dobijeni artikli: ", transformed);
 
                 setArtikli(transformed);
                 } catch (err) {
@@ -141,7 +117,7 @@ import { number } from "zod";
                     const data = await res.json();
                     setPartner(data[0]);
 
-                    console.log(data);
+                    console.log("Dobijeni partner: ", data);
 
                 } catch (err) {
                     console.error("Greška pri fetchovanju partnera:", err);
@@ -158,7 +134,6 @@ import { number } from "zod";
             fetchArtikli();
             fetchPartner();
         }, []);
-
 
     if (!isClient) return null;
 
@@ -180,91 +155,103 @@ import { number } from "zod";
                                 <div className="flex flex-col">
                                     <label className="font-semibold mb-1">Ime i prezime</label>
                                     <Input
-                                    ref={imeRef}
-                                    type="text"
-                                    value={imeiPrezime}
-                                    onChange={(e) => setImeiPrezime(e.target.value)}
-                                    onKeyDown={(e) => handleKeyDown(e, emailRef)}
-                                    placeholder="Unesite ime i prezime"
-                                    className={`w-full border rounded p-2 ${greske.imeiPrezime ? "border-red-500" : "border-gray-300"}`}
+                                        ref={imeRef}
+                                        type="text"
+                                        value={imeiPrezime}
+                                        onChange={(e) => setImeiPrezime(e.target.value)}
+                                        onKeyDown={(e) => handleKeyDown(e, emailRef)}
+                                        placeholder="Unesite ime i prezime"
+                                        className={`w-full border rounded p-2 ${greske.imeiPrezime ? "border-red-500" : "border-gray-300"}`}
                                     />
                                     {greske.imeiPrezime && (
-                                    <p className="text-red-500 text-sm mt-1">{greske.imeiPrezime}</p>
+                                        <p className="text-red-500 text-sm mt-1">{greske.imeiPrezime}</p>
                                     )}
                                 </div>
 
                                 <div className="flex flex-col">
                                     <label className="font-semibold mb-1">E-mail</label>
                                     <Input
-                                    ref={emailRef}
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    onKeyDown={(e) => handleKeyDown(e, gradRef)}
-                                    placeholder="Unesite email adresu"
-                                    className={`w-full border rounded p-2 ${greske.email ? "border-red-500" : "border-gray-300"}`}
+                                        ref={emailRef}
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        onKeyDown={(e) => handleKeyDown(e, gradRef)}
+                                        placeholder="Unesite email adresu"
+                                        className={`w-full border rounded p-2 ${greske.email ? "border-red-500" : "border-gray-300"}`}
                                     />
                                     {greske.email && (
-                                    <p className="text-red-500 text-sm mt-1">{greske.email}</p>
+                                        <p className="text-red-500 text-sm mt-1">{greske.email}</p>
                                     )}
                                 </div>
 
                                 <div className="flex flex-col">
                                     <label className="font-semibold mb-1">Grad</label>
                                     <Input
-                                    ref={gradRef}
-                                    type="text"
-                                    value={grad}
-                                    onChange={(e) => setGrad(e.target.value)}
-                                    onKeyDown={(e) => handleKeyDown(e, telefonRef)}
-                                    placeholder="Unesite grad"
-                                    className={`w-full border rounded p-2 ${greske.grad ? "border-red-500" : "border-gray-300"}`}
+                                        ref={gradRef}
+                                        type="text"
+                                        value={grad}
+                                        onChange={(e) => setGrad(e.target.value)}
+                                        onKeyDown={(e) => handleKeyDown(e, telefonRef)}
+                                        placeholder="Unesite grad"
+                                        className={`w-full border rounded p-2 ${greske.grad ? "border-red-500" : "border-gray-300"}`}
                                     />
                                     {greske.grad && (
-                                    <p className="text-red-500 text-sm mt-1">{greske.grad}</p>
+                                        <p className="text-red-500 text-sm mt-1">{greske.grad}</p>
                                     )}
                                 </div>
 
                                 <div className="flex flex-col">
                                     <label className="font-semibold mb-1">Telefon</label>
                                     <Input
-                                    ref={telefonRef}
-                                    type="text"
-                                    inputMode="numeric"
-                                    pattern="[0-9]*"
-                                    value={telefon}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        const numeric = value.replace(/\D/g, "");
-                                        setTelefon(numeric);
+                                        ref={telefonRef}
+                                        type="text"
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
+                                        value={telefon}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            const numeric = value.replace(/\D/g, "");
+                                            setTelefon(numeric);
                                     }}
-                                    onKeyDown={(e) => handleKeyDown(e, adresaRef)}
-                                    placeholder="Unesite broj telefona"
-                                    className={`w-full border rounded p-2 ${greske.telefon ? "border-red-500" : "border-gray-300"}`}
+                                        onKeyDown={(e) => handleKeyDown(e, adresaRef)}
+                                        placeholder="Unesite broj telefona"
+                                        className={`w-full border rounded p-2 ${greske.telefon ? "border-red-500" : "border-gray-300"}`}
                                     />
                                     {greske.telefon && (
-                                    <p className="text-red-500 text-sm mt-1">{greske.telefon}</p>
+                                        <p className="text-red-500 text-sm mt-1">{greske.telefon}</p>
                                     )}
                                 </div>
 
                                 <div className="flex flex-col md:col-span-2">
                                     <label className="font-semibold mb-1">Adresa isporuke</label>
                                     <Input
-                                    ref={adresaRef}
-                                    type="text"
-                                    value={mestoIsporuke}
-                                    onChange={(e) => setMestoIsporuke(e.target.value)}
-                                    placeholder="Unesite adresu"
-                                    className={`w-full border rounded p-2 ${greske.mestoIsporuke ? "border-red-500" : "border-gray-300"}`}
+                                        ref={adresaRef}
+                                        type="text"
+                                        value={mestoIsporuke}
+                                        onChange={(e) => setMestoIsporuke(e.target.value)}
+                                        placeholder="Unesite adresu"
+                                        className={`w-full border rounded p-2 ${greske.mestoIsporuke ? "border-red-500" : "border-gray-300"}`}
                                     />
                                     {greske.mestoIsporuke && (
-                                    <p className="text-red-500 text-sm mt-1">{greske.mestoIsporuke}</p>
+                                        <p className="text-red-500 text-sm mt-1">{greske.mestoIsporuke}</p>
                                     )}
+                                </div>
+
+                                <div className="flex flex-col md:col-span-2">
+                                    <label className="font-semibold mb-1">Napomena</label>
+                                    <Input
+                                        ref={napomenaRef}
+                                        type="text"
+                                        value={napomena}
+                                        onChange={(e) => setNapomena(e.target.value)}
+                                        placeholder="Unesite adresu"
+                                        className={`w-full border rounded p-2 "border-gray-300"`}
+                                    />
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex flex-col w-full">
+                        <div className="flex flex-col w-full mt-8">
                             <h1 className="text-center font-light text-2xl border-b pb-2">Podaci o partneru</h1>
                             {/* PARTNER */}
                             <div className="flex flex-col sm:flex-row items-center justify-between w-full px-5 my-8 ">
@@ -296,7 +283,7 @@ import { number } from "zod";
                         <div className="flex flex-col max-h-[550px] overflow-y-auto pr-2 gap-5 ">
                         {artikli.map((artikal) => (
                                 <div
-                                    key={artikal.id}
+                                    key={artikal.idArtikla}
                                     className="w-full flex items-center gap-4 border-1 p-1 rounded shadow-sm max-h-[500px]"
                                 >
                                     <img
@@ -306,14 +293,18 @@ import { number } from "zod";
                                     />
                                     <div className="flex flex-col lg:flex-col w-full">
                                             <p className="flex font-semibold text-lg">{artikal.naziv}</p>
-                                            <p className="text-red-500 text-lg whitespace-nowrap md:hidden lg:hidden block">Cena: {artikal.cena} RSD</p>
+                                            <p className="text-red-500 text-lg whitespace-nowrap md:hidden lg:hidden block">Cena: {(artikal.artikalCene[0].akcija.cena && artikal.artikalCene[0].akcija.cena > 0 
+                                                                                                                                                                            ? artikal.artikalCene[0].akcija.cena 
+                                                                                                                                                                            : artikal.artikalCene[0].cena)} RSD</p>
                                         <div className="flex flex-col lg:flex-row gap-1 justify-between text-gray-400 max-w-[300px] text-sm">
-                                            <p>Šifra: {artikal.id}</p>
-                                            <p>Količina: {artikal.kolicina}</p>
-                                            <p>Pakovanje: {artikal.pakovanje}</p>
+                                            <p>Šifra: {artikal.idArtikla}</p>
+                                            <p>Količina: {artikal.artikalCene[0].akcija.kolicina}</p> 
+                                            {/* <p>Pakovanje: {artikal.pakovanje}</p> */}
                                         </div>
                                     </div>
-                                    <p className="text-red-500 text-lg whitespace-nowrap hidden md:block lg:block">Cena: {artikal.cena} RSD</p>
+                                    <p className="text-red-500 text-lg whitespace-nowrap hidden md:block lg:block">Cena: {(artikal.artikalCene[0].akcija.cena && artikal.artikalCene[0].akcija.cena > 0 
+                                                                                                                                                                            ? artikal.artikalCene[0].akcija.cena 
+                                                                                                                                                                            : artikal.artikalCene[0].cena)} RSD</p>
                                 </div>
                             ))}
                         </div>
@@ -328,15 +319,17 @@ import { number } from "zod";
                     <KreirajNarudzbenicu
                         artikli={artikli}
                         idDokumenta={idDokumenta}
-                        idPartner={partner.idPartnera}
+                        partner={partner}
+                        //inputi
                         imeiPrezime={imeiPrezime}
                         mestoIsporuke={mestoIsporuke}
                         grad={grad}
                         telefon={telefon}
                         email={email}
                         valid={proveriPolja}
+                        napomena={napomena}
                     />
-                    )}
+                )}
             </div>
         </div>
     );
