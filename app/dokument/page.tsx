@@ -187,17 +187,20 @@ const DokumentPage = () => {
 
         <div className="border border-black w-full">
           <div className="border-b border-black px-2 py-1">
-            <p>Napomena</p>
+            <p className="font-semibold uppercase text-sm tracking-wide">Napomena</p>
           </div>
-            <p className="px-2 py-1 text-sm space-y-10">{partnerInfo.napomena}</p>
+          <div className="px-2 py-2 text-sm space-y-1">
+            <p >{partnerInfo.napomena}</p>
+          </div>
         </div>
 
-        <div className="border border-black w-full ">
+        <div className="border border-black w-full mt-5">
           <div className="border-b border-black px-2 py-1">
             <p className="font-semibold uppercase text-sm tracking-wide">Dokument kreirao:</p>
           </div>
           <div className="px-2 py-1 text-sm space-y-1">
-            <p><span className="">Korisničko ime:</span> 3005???</p>
+            <p><span className="">Korisničko ime:</span> 3005???</p> 
+            {/* Ovo da se sredi? */}
             <p><span className="">Ime i prezime:</span> {partnerInfo.imeiPrezime || "Nepoznato"}</p>
             <p><span className="">Email adresa:</span> {partnerInfo.email}</p>
             <p><span className="">Mob. telefon:</span> {partnerInfo.telefon}</p>
