@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import NaruciButton from "@/components/ui/NaruciButton";
 import Image from "next/image";
+import RezervisiButton from "@/components/RezervisiButton";
 
 type ArtikalCena = {
   cena: number;
@@ -181,7 +182,7 @@ const Korpa = () => {
               return (
                 <TableRow key={index}>
                   <TableCell className="text-center">
-                    <Image
+                    <img
                       src={getSlikaArtikla(article.idArtikla)}
                       alt={article.naziv}
                       width={64}
@@ -243,7 +244,8 @@ const Korpa = () => {
           </TableFooter>
         </Table>
 
-        <div className="flex justify-end pt-2">
+        <div className="flex justify-end gap-4 pt-4">
+          <RezervisiButton ukupnaCena={totalAmount} />
           <NaruciButton />
         </div>
       </div>
@@ -261,7 +263,7 @@ const Korpa = () => {
 
           return (
             <Card key={index} className="p-3 shadow-md flex flex-col sm:flex-row gap-2 items-center mb-4">
-              <Image
+              <img
                 src={getSlikaArtikla(article.idArtikla)}
                 alt={article.naziv}
                 width={128}
@@ -315,11 +317,14 @@ const Korpa = () => {
           <span>Ukupno (bez PDV):</span>
           <span>{formatCena(totalAmount)} RSD</span>
         </div>
+        
         <div className="flex justify-between font-semibold text-red-600">
           <span>Ukupno (sa PDV):</span>
           <span>{formatCena(totalAmountWithPDV)} RSD</span>
         </div>
-        <div className="flex justify-end pt-2">
+        
+        <div className="flex gap-2 items-center justify-center pt-4">
+          <RezervisiButton ukupnaCena={totalAmount}/>
           <NaruciButton />
         </div>
       </div>

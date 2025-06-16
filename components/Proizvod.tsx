@@ -9,6 +9,7 @@ import AddToCartButton from "./AddToCartButton";
 import ClientLightbox from "./ui/ClientLightbox";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { ArtikalAtribut, ArtikalType } from "@/types/artikal";
+import { CircleAlert } from "lucide-react";
 
 const Lightbox = dynamic(() => import("yet-another-react-lightbox"), {
   ssr: false,
@@ -51,6 +52,7 @@ export default function Proizvod() {
 
         const data = await res.json();
         if (!data || data.length === 0) throw new Error("Proizvod nije pronađen");
+        console.log(data);
 
         const osnovni: ArtikalType = data[0];
         setProizvod(osnovni);
@@ -178,8 +180,15 @@ export default function Proizvod() {
         </div>
 
         {/* Dodavanje u omiljeno i korpu */}
-        <div className="flex flex-col gap-4 w-full lg:w-1/3 items-start justify-end lg:items-end">
+        <div className="flex flex-col gap-2 w-full lg:w-1/3 items-start justify-end lg:items-end">
           {korisnik?.idKorisnika && <DodajUOmiljeno idArtikla={proizvod.idArtikla} idPartnera={korisnik.idKorisnika} inicijalniStatus={proizvod.status === "1"} />}
+          
+          <div className="flex items-center gap-2">
+            <CircleAlert width={18} height={18} color={Number(proizvod.kolicina) > 20 ? "green" : "red"} />
+            <p className={Number(proizvod.kolicina) > 20 ? "text-green-600" : "text-red-500"}>
+              Ostalo je još {proizvod.kolicina} artikala.
+            </p>
+          </div>
           <div className="flex gap-2 w-full sm:w-auto flex-wrap mt-2">
             <input
               ref={inputRef}
