@@ -298,7 +298,7 @@
                                                                                                                                                                             : artikal.artikalCene[0].cena)} RSD</p>
                                         <div className="flex flex-col lg:flex-row gap-1 justify-between text-gray-400 max-w-[300px] text-sm">
                                             <p>Šifra: {artikal.idArtikla}</p>
-                                            <p>Količina: {artikal.artikalCene[0].akcija.kolicina}</p> 
+                                            <p>Količina: {artikal.kolicina}</p> 
                                             {/* <p>Pakovanje: {artikal.pakovanje}</p> */}
                                         </div>
                                     </div>

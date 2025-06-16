@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ArtikalCena, ArtikalType } from "@/types/artikal";
+import { parse } from "path";
 
 
 type PartnerInfo = {
@@ -9,7 +10,8 @@ type PartnerInfo = {
   idDokumenta: string;
   DatumKreiranja: Date; 
   imeiPrezime: string;
-  mestoIsporuke: string;
+  mestoIsporuke: string; //lokacija
+  napomena: string;
   grad: string;
   telefon: string;
   email: string;
@@ -35,6 +37,7 @@ const DokumentPage = () => {
         DatumKreiranja: new Date(parsed.DatumKreiranja),
         imeiPrezime: parsed.imeiPrezime,
         mestoIsporuke: parsed.mestoIsporuke,
+        napomena: parsed.napomena,
         grad: parsed.grad,
         telefon: parsed.telefon,
         email: parsed.email,
@@ -183,6 +186,13 @@ const DokumentPage = () => {
         </p>
 
         <div className="border border-black w-full">
+          <div className="border-b border-black px-2 py-1">
+            <p>Napomena</p>
+          </div>
+            <p className="px-2 py-1 text-sm space-y-10">{partnerInfo.napomena}</p>
+        </div>
+
+        <div className="border border-black w-full ">
           <div className="border-b border-black px-2 py-1">
             <p className="font-semibold uppercase text-sm tracking-wide">Dokument kreirao:</p>
           </div>

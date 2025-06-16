@@ -84,6 +84,7 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mesto
                 DatumKreiranja: now,
                 imeiPrezime,
                 mestoIsporuke,
+                napomena,
                 grad,
                 telefon,
                 email,
