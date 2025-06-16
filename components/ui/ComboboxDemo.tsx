@@ -41,33 +41,27 @@ export function ComboboxDemo({
   const [selectedValue, setSelectedValue] = React.useState<string | null>(null);
   const [inputValue, setInputValue] = React.useState("");
 
-  const filtrirani = options.filter((opt) =>
-    (opt.value?.toLowerCase()?.includes(inputValue.toLowerCase()) ||
-    opt.label?.toLowerCase()?.includes(inputValue.toLowerCase()))
-  );
+  const filtrirani = React.useMemo(() => {
+    return options.filter((opt) =>
+      opt.value.toLowerCase().includes(inputValue.toLowerCase()) ||
+      opt.label.toLowerCase().includes(inputValue.toLowerCase())
+    );
+  }, [inputValue, options]);
+
 
   const selectedOption = options.find((opt) => opt.value === selectedValue);
 
-  const closeTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-
-  React.useEffect(() => {
-    return () => {
-      if (closeTimeoutRef.current) {
-        clearTimeout(closeTimeoutRef.current);
-      }
-    }
-  }, []);
-
   //Funkcija za selekciju koja postavlja stanje, poziva callback i zakazuje zatvaranje sa delay
   function handleSelect(value: string) {
-    const selectedOption = options.find(option => option.value === value);
-    if(selectedOption) {
-      console.log("Izabrao sam:", selectedOption.value);
-      setSelectedValue(selectedOption.value);
-      onSelectOption(selectedOption.label);
-      setOpen(false); 
+  const option = options.find((option) => option.value === value);
+    if (option) {
+      console.log("Izabrao sam:", option.value);
+      setSelectedValue(option.value);
+      onSelectOption(option.label);
+      setOpen(false);
     }
-  };
+  }
+
 
   return (
     <Popover

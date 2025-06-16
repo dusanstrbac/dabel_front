@@ -72,7 +72,6 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mesto
             }
 
             const data = await res.text();
-            console.log("✅ Uspešno poslatoooooooooo:", data);
             
 
             console.log(idDokumenta);
