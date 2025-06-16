@@ -40,7 +40,7 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mesto
             idKomercijaliste: partner.idPartnera,
             datumDokumenta: now,
             datumVazenja: datumVazenja.toISOString(),
-            Lokacija: mestoIsporuke,
+            lokacija: mestoIsporuke,
             napomena: napomena,
             stavkeDokumenata: artikli.map((value) => ({
                 idDokumenta: idDokumenta.toString(),

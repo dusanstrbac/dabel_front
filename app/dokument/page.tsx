@@ -1,8 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ArtikalCena, ArtikalType } from "@/types/artikal";
-import { parse } from "path";
+import { ArtikalType } from "@/types/artikal";
 
 
 type PartnerInfo = {
@@ -116,7 +115,6 @@ const DokumentPage = () => {
         <div className="border border-black p-4 mt-4 w-full max-w-full">
           <h3 className="font-semibold mb-1">Naručeno</h3>
           <p>{partnerInfo.idDokumenta}</p>
-          {/* ZASTO JE OVO UNDEFINED????? */}
         </div>
 
         <div className="border border-black p-4 mt-4 w-full max-w-full">
@@ -124,7 +122,6 @@ const DokumentPage = () => {
           {partnerInfo.mestoIsporuke}
         </div>
         <p className="mt-1">Datum izdavanja: {partnerInfo.DatumKreiranja.toLocaleString("sr-RS")}</p>
-        {/* sredi datum */}
       </div>
 
       {/* Artikli */}
