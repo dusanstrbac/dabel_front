@@ -22,7 +22,7 @@ interface myProps {
 }
 
 const FormTable = ({ title }: myProps) => {
-  const korisnik = dajKorisnikaIzTokena();
+  // const korisnik = dajKorisnikaIzTokena();
   const [error, setError] = useState("");
   const [dokumenta, setDokumenta] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +35,13 @@ const FormTable = ({ title }: myProps) => {
 
 
   const itemsPerPage = 15;
+
+  const [korisnik, setKorisnik] = useState<any>(null);
+
+  useEffect(() => {
+    setKorisnik(dajKorisnikaIzTokena());
+  }, []);
+
 
   // sortiraj dokumenta po izabranom ključu i redosledu
   const sortiranaDokumenta = [...dokumenta].sort((a, b) => {
@@ -86,6 +93,14 @@ const FormTable = ({ title }: myProps) => {
     izvuciDokumenta();
   }, [korisnik]);
 
+  //Kreiranje statusa za dokument
+  useEffect(() => {
+    console.log("Dokumenti (statusi):", dokumenta.map((dokument, index) =>
+      dokument.status || (index % 2 === 0 ? "U obradi" : "Poslat")
+    ));
+  }, [dokumenta]);
+
+
   if (loading) return <div>Učitavanje podataka...</div>;
   if (error) return <div>Greška: {error}</div>;
   if (!dokumenta.length) return <div>Nema podataka.</div>;
@@ -132,13 +147,13 @@ const FormTable = ({ title }: myProps) => {
           </TableHeader>
           <TableBody>
             {paginatedDokumenta.map((dokument, index) => {
-              const status = dokument.status || (index % 2 === 0 ? "U obradi" : "Poslat");
-              console.log("Evo ga status ", status);
               const ukupno =
                 dokument.stavkeDokumenata?.reduce(
                   (sum: number, stavka: any) => sum + stavka.ukupnaCena,
                   0
                 ) ?? 0;
+
+                const status = dokument.status || (index % 2 === 0 ? "U obradi" : "Poslat");
 
               return (
                 <TableRow key={index} className="hover:odd:bg-gray-300">
@@ -158,7 +173,7 @@ const FormTable = ({ title }: myProps) => {
                       <span
                         className={`
                           inline-block w-3 h-3 rounded-full border
-                          ${status === "U obradi" ? "border-yellow-500" : "border-green-600"}
+                          ${status === "U obradi" ? "border-yellow-500 border-2" : "border-green-600 border-2"}
                         `}
                       />
                       <span className="text-sm">{status}</span>
@@ -183,7 +198,8 @@ const FormTable = ({ title }: myProps) => {
           <TableFooter>
             <TableRow className="bg-gray-400 hover:bg-gray-400">
               <TableCell className="font-medium">Ukupno:</TableCell>
-              <TableCell></TableCell>
+              <TableCell/>
+              <TableCell/>
               {prikazNarudzbenica && (
                 <TableCell/>
               )}

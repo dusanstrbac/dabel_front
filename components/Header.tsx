@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { deleteCookie, getCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import PretragaProizvoda from "./PretragaProizvoda";
+import { any } from "zod";
 
 
 export default function Header() {
@@ -91,6 +92,9 @@ const headerMainNav = [
     { icon: <Heart className="w-4 h-4" />, text: "Omiljeni artikli", href: "/heart" },
     { icon: <ShoppingCart className="w-4 h-4" />, text: "Korpa", href: "/korpa" },
   ];
+
+
+  const [openKorisnikMeni, setOpenKorisnikMeni] = useState(false);
 
   useEffect(() => {    
     if(korisnik && korisnik.korisnickoIme) {
@@ -266,7 +270,7 @@ const headerMainNav = [
           </div>
           <div>
           {/* KORISNIK MENU */}
-            <Sheet>
+            <Sheet open={openKorisnikMeni} onOpenChange={setOpenKorisnikMeni}>
               <SheetTrigger>
                 <User className="w-6 h-8" />
               </SheetTrigger>
@@ -279,7 +283,7 @@ const headerMainNav = [
                 <div className="pl-2 flex flex-col">
                   <ScrollArea>
                       {menuItems.map((item) => (
-                        <Link href={item.href} key={item.id} className="flex gap-3 items-center pb-4">
+                        <Link href={item.href} key={item.id} className="flex gap-3 items-center pb-4" onClick={() => setOpenKorisnikMeni(false)}>
                           <span className="">{item.icon}</span>
                           <span className="text-[18px]">{item.text}</span>
                         </Link>
@@ -289,12 +293,19 @@ const headerMainNav = [
                        
                        <Link href='#' className="flex gap-3 items-center pb-4">
                           <LogOut className="w-6 h-6" />
-                          <span className="text-[18px] text-red-500" onClick={odjaviKorisnika}>Odjava</span>
+                          <span className="text-[18px] text-red-500" onClick={() => {
+                              odjaviKorisnika();
+                              setOpenKorisnikMeni(false);
+                          }}>Odjava</span>
                         </Link> ) : (
 
                           <Link href='#' className="flex gap-3 items-center pb-4">
                           <LogOut className="w-6 h-6" />
-                          <span className="text-[18px]" onClick={() => router.push('/login')}>Prijavi se</span>
+                          <span className="text-[18px]" onClick={() => {
+                              router.push('/login');
+                              setOpenKorisnikMeni(false);
+                            }}>
+                                Prijavi se</span>
                         </Link>
 
                       )}
