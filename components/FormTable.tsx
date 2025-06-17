@@ -109,9 +109,9 @@ const FormTable = ({ title }: myProps) => {
 
   return (
     <div className="flex flex-col gap-2 lg:gap-4 mt-[20px] lg:items-center lg:justify-center">
-      <div className="flex justify-between items-center w-full lg:w-[800px]">
+      <div className="flex sm:flex-row flex-col justify-between items-center w-full lg:w-[800px]">
         <h1 className="font-bold text-3xl">{title}</h1>
-        <div className="flex gap-2">
+        <div className="flex sm:flex-row flex-col jusitfy-end gap-2">
           <Button
             variant={"outline"}
             className="cursor-pointer"
