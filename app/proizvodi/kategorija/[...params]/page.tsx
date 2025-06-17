@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { ArtikalFilterProp, ArtikalType } from '@/types/artikal';
 import ListaArtikala from '@/components/ListaArtikala';
 import SortiranjeButton from '@/components/SortiranjeButton';
+import { useRouter } from 'next/navigation';
+
 
 export default function ProizvodiPage() {
   const { params } = useParams();
@@ -12,12 +14,20 @@ export default function ProizvodiPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [currentPage, setCurrentPage] = useState(1);
   const [sortKey, setSortKey] = useState<'cena' | 'naziv'>('cena');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   
   const searchParams = useSearchParams();
+  const router = useRouter();
+
+
+  const pageFromUrl = useMemo(() => {
+    const pageParam = searchParams.get('page');
+    const parsed = parseInt(pageParam || '1', 10);
+    return isNaN(parsed) || parsed < 1 ? 1 : parsed;
+  }, [searchParams]);
 
   useEffect(() => {
     if (!params || params.length === 0) return;
@@ -34,8 +44,8 @@ export default function ProizvodiPage() {
       RobnaMarka: [],
       Upotreba: [],
       Boja: [],
-    }, currentPage);
-  }, [params, currentPage, sortKey, sortOrder]); // dodato sortKey i sortOrder
+    }, pageFromUrl);
+  }, [params, pageFromUrl, sortKey, sortOrder]); // dodato sortKey i sortOrder
 
   const handleSortChange = (key: 'cena' | 'naziv', order: 'asc' | 'desc') => {
   setSortKey(key);
@@ -129,8 +139,8 @@ useEffect(() => {
     RobnaMarka: [],
     Upotreba: [],
     Boja: [],
-  }, currentPage);
-}, [params, currentPage]);
+  }, pageFromUrl);
+}, [params, pageFromUrl]);
 
   if (!params || params.length === 0) {
     return <p>Greška: Očekuje se najmanje jedna ruta (kategorija).</p>;
@@ -157,7 +167,19 @@ useEffect(() => {
           <p>Nema rezultata za ovu {podkategorija ? 'podkategoriju' : 'kategoriju'}.</p>
         )}
 
-        {loading ? <p>Učitavanje...</p> : <ListaArtikala artikli={artikli} totalCount={totalCount} currentPage={currentPage} onPageChange={setCurrentPage} />}
+        {loading ? <p>Učitavanje...</p> : <ListaArtikala
+                                              artikli={artikli}
+                                              totalCount={totalCount}
+                                              currentPage={pageFromUrl}
+                                              // onPageChange={setCurrentPage}
+                                              onPageChange={(page) => {
+                                                const params = new URLSearchParams(searchParams.toString());
+                                                params.set('page', page.toString());
+                                                router.push(`?${params.toString()}`);
+                                                window.scrollTo({ top: 0, behavior: "smooth" });
+                                              }}
+                                          />
+                                          }
       </div>
     </div>
   );

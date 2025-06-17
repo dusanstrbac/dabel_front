@@ -109,7 +109,7 @@ const FormTable = ({ title }: myProps) => {
 
   return (
     <div className="flex flex-col gap-2 lg:gap-4 mt-[20px] lg:items-center lg:justify-center">
-      <div className="flex sm:flex-row flex-col justify-between items-center w-full lg:w-[800px]">
+      <div className="flex sm:flex-row flex-col justify-between items-center w-full lg:w-[800px] gap-3">
         <h1 className="font-bold text-3xl">{title}</h1>
         <div className="flex sm:flex-row flex-col jusitfy-end gap-2">
           <Button
@@ -199,9 +199,11 @@ const FormTable = ({ title }: myProps) => {
             <TableRow className="bg-gray-400 hover:bg-gray-400">
               <TableCell className="font-medium">Ukupno:</TableCell>
               <TableCell/>
-              <TableCell/>
               {prikazNarudzbenica && (
+                <>
                 <TableCell/>
+                <TableCell/>
+                </>
               )}
               <TableCell className="text-right">{ukupnaSuma.toFixed(2)}</TableCell>
             </TableRow>
