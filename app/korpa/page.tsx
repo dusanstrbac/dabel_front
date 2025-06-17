@@ -23,6 +23,7 @@ type Artikal = {
   pakovanje: number;
   jm: string;
   barkod: string;
+  kolicina: string;
   stanje?: string;
 };
 
@@ -220,6 +221,7 @@ const Korpa = () => {
                       min="0"
                       className="w-20 border rounded px-2 py-1 text-center"
                       value={quantities[index]}
+                      max={article.kolicina}
                       onChange={(e) => updateQuantity(index, Number(e.target.value))}
                     />
                   </TableCell>

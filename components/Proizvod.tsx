@@ -33,6 +33,7 @@ export default function Proizvod() {
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [preostalo, setPreostalo] = useState<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const korisnik = dajKorisnikaIzTokena();
@@ -52,18 +53,18 @@ export default function Proizvod() {
 
         const data = await res.json();
         if (!data || data.length === 0) throw new Error("Proizvod nije pronađen");
-        console.log(data);
+        //console.log(data);
 
         const osnovni: ArtikalType = data[0];
         setProizvod(osnovni);
 
         if (osnovni?.artikalAtributi) {
-          const filtriraniAtributi = osnovni.artikalAtributi.filter(attr =>
-            prikazaniAtributi.includes(attr.imeAtributa)
-          );
+
+          const filtriraniAtributi = osnovni.artikalAtributi
+          .filter(attr => prikazaniAtributi.includes(attr.imeAtributa))
+
           setAtributi(filtriraniAtributi);
-        } else {
-          setAtributi([]);
+        
         }
       } catch (e) {
         setError((e as Error).message || "Došlo je do greške prilikom učitavanja proizvoda");
@@ -76,14 +77,23 @@ export default function Proizvod() {
     fetchData();
   }, [id]);
 
-  if (loading)
-    return <div className="px-4 md:px-10 lg:px-[40px] py-6">Učitavanje...</div>;
-  if (error)
-    return (
-      <div className="px-4 md:px-10 lg:px-[40px] py-6 text-red-600">{error}</div>
-    );
-  if (!proizvod)
-    return <div className="px-4 md:px-10 lg:px-[40px] py-6">Proizvod nije pronađen</div>;
+  useEffect(() => {
+    if (!proizvod) return;
+
+    const lokalnaKorpa = localStorage.getItem("korpa");
+    const korpa = lokalnaKorpa ? JSON.parse(lokalnaKorpa) : [];
+
+    const stavka = korpa.find((item: { id: number }) => item.id === Number(proizvod.idArtikla));
+    const vecUKorpi = stavka ? stavka.kolicina : 0;
+
+    const dozvoljeno = Math.max(Number(proizvod.kolicina) - vecUKorpi, 0);
+    setPreostalo(dozvoljeno);
+  }, [proizvod]);
+
+
+  if (loading) return <div className="px-4 md:px-10 lg:px-[40px] py-6">Učitavanje...</div>;
+  if (error) return <div className="px-4 md:px-10 lg:px-[40px] py-6 text-red-600">{error}</div>;
+  if (!proizvod) return <div className="px-4 md:px-10 lg:px-[40px] py-6">Proizvod nije pronađen</div>;
 
   const openLightbox = (index: number) => {
     setCurrentImageIndex(index);
@@ -144,16 +154,25 @@ export default function Proizvod() {
           <div className="flex flex-col gap-3 w-full">
             <h1 className="text-xl md:text-2xl font-bold">{proizvod.naziv}</h1>
             <span className="text-red-500 text-lg md:text-xl font-bold">
-              {akcijskaCena ? (
-                <>
-                  <span className="line-through text-gray-400">{cena} RSD</span>
-                  <span className="pl-[5px]">{akcijskaCena} RSD</span>
-                </>
+              {Number(proizvod.kolicina) > 0 ? (
+                akcijskaCena ? (
+                  <>
+                    <span className="line-through text-gray-400">{cena} RSD</span>
+                    <span className="pl-[5px]">{akcijskaCena} RSD</span>
+                  </>
+                ) : (
+                  `${cena} RSD`
+                )
               ) : (
-                `${cena} RSD`
+                <span className="text-red-500">Nije dostupno</span>
               )}
             </span>
-            <ul className="text-sm md:text-base space-y-1 mt-3">
+            {Number(proizvod.kolicina) == 0 ? (
+                <span className="text-red-500">Proizvod ponovo dostupan od: 12.06.2025</span>//dodati datum kada ce proizvod biti opet na stanju
+              ) : (
+                <span className="text-red-500"></span>
+              )}
+            <ul className="text-sm md:text-base space-y-1">
               <li>
                 <span className="font-semibold">Šifra proizvoda:</span> {proizvod.idArtikla}
               </li>
@@ -179,33 +198,46 @@ export default function Proizvod() {
           </div>
         </div>
 
-        {/* Dodavanje u omiljeno i korpu */}
-        <div className="flex flex-col gap-2 w-full lg:w-1/3 items-start justify-end lg:items-end">
-          {korisnik?.idKorisnika && <DodajUOmiljeno idArtikla={proizvod.idArtikla} idPartnera={korisnik.idKorisnika} inicijalniStatus={proizvod.status === "1"} />}
-          
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-4 w-full lg:w-1/3 items-start justify-end lg:items-end">
+          {korisnik?.idKorisnika && <DodajUOmiljeno idArtikla={proizvod.idArtikla} idPartnera={korisnik.idKorisnika} />}
+                    <div className="flex items-center gap-2">
             <CircleAlert width={18} height={18} color={Number(proizvod.kolicina) > 20 ? "green" : "red"} />
             <p className={Number(proizvod.kolicina) > 20 ? "text-green-600" : "text-red-500"}>
               Ostalo je još {proizvod.kolicina} artikala.
             </p>
-          </div>
-          <div className="flex gap-2 w-full sm:w-auto flex-wrap mt-2">
-            <input
+            </div>
+          <div className="flex gap-2 w-full sm:w-auto flex-wrap">
+            {Number(proizvod.kolicina) > 0 ? (
+                <input
               ref={inputRef}
               name="inputProizvod"
               className="w-16 border rounded px-2 py-1 text-center"
               type="number"
-              min={1}
-              max={50}
-              defaultValue={1}
+              min={preostalo > 0 ? 1 : 0}
+              max={preostalo}
+              defaultValue={preostalo > 0 ? 1 : 0}
+              disabled={preostalo === 0}
             />
+              ) : (
+                <input
+              ref={inputRef}
+              name="inputProizvod"
+              className="w-16 border rounded px-2 py-1 text-center"
+              type="number"
+              min={0}
+              max={0}
+              defaultValue={0}
+            />
+              )}
             <AddToCartButton
               id={proizvod.idArtikla}
               className="w-full sm:w-auto px-6 py-2"
               title="Dodaj u korpu"
-              getKolicina={() => Number(inputRef.current?.value || 1)}
+              getKolicina={() => Math.min(Number(inputRef.current?.value || 1), preostalo)}
               nazivArtikla={proizvod.naziv}
-            />
+              disabled={Number(proizvod.kolicina) <= 0 || preostalo===0}
+              ukupnaKolicina={preostalo}
+            />      
           </div>
         </div>
       </div>

@@ -358,6 +358,12 @@ const headerMainNav = [
                       >
                         {item.icon}
                         <span>{item.text}</span>
+
+                        {item.text === "Korpa" && brojRazlicitihArtikala > 0 && (
+                          <span className="ml-2 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                            {brojRazlicitihArtikala}
+                          </span>
+                        )}
                       </Link>
                     ))}
                   </div>

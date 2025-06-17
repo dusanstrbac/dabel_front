@@ -61,7 +61,9 @@ export default function ProizvodiPage() {
       }
     });
 
-    const fullUrl = `http://localhost:7235/api/Artikal/DajArtikleSaPaginacijom?${queryParams.toString()}`;
+    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
+    const fullUrl = `${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${queryParams.toString()}`;
 
     try {
       const res = await fetch(fullUrl);
