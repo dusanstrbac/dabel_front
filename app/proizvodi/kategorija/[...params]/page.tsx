@@ -13,17 +13,35 @@ export default function ProizvodiPage() {
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortKey, setSortKey] = useState<'cena' | 'naziv'>('cena');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
   
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const pageParam = searchParams.get('page');
-    const pageNumber = pageParam ? parseInt(pageParam, 10) : 1;
-    
-    if (!isNaN(pageNumber) && pageNumber !== currentPage) {
-      setCurrentPage(pageNumber);
-    }
-  }, [searchParams]);
+    if (!params || params.length === 0) return;
+
+    const kategorija = decodeURIComponent(params[0]);
+    const podkategorija = params.length > 1 ? decodeURIComponent(params[1]) : null;
+
+    fetchArtikli(kategorija, podkategorija, {
+      naziv: '',
+      jedinicaMere: '',
+      Materijal: [],
+      Model: [],
+      Pakovanje: [],
+      RobnaMarka: [],
+      Upotreba: [],
+      Boja: [],
+    }, currentPage);
+  }, [params, currentPage, sortKey, sortOrder]); // dodato sortKey i sortOrder
+
+  const handleSortChange = (key: 'cena' | 'naziv', order: 'asc' | 'desc') => {
+  setSortKey(key);
+  setSortOrder(order);
+};
+
 
 
   // Za sada fetch-ujemo stranicu 1, možeš kasnije da dodaš state za stranicu i filtere
@@ -127,7 +145,12 @@ useEffect(() => {
         <h1 className="font-bold text-3xl mb-[5px]">
           {kategorija} {podkategorija ? `/ ${podkategorija}` : ''}
         </h1>
-        <SortiranjeButton artikli={artikli} setArtikli={setArtikli} />
+        <SortiranjeButton
+          sortKey={sortKey}
+          sortOrder={sortOrder}
+          onSortChange={handleSortChange}
+        />
+
       </div>
       <div>
         {!loading && artikli.length === 0 && (

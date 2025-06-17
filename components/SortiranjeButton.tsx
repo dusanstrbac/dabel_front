@@ -1,12 +1,11 @@
 'use client';
 
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { SortiranjeButtonProps } from "@/types/artikal";
 
 type SortKey = 'cena' | 'naziv';
 type SortOrder = 'asc' | 'desc';
 
-interface Props extends SortiranjeButtonProps {
+interface Props {
   sortKey: SortKey;
   sortOrder: SortOrder;
   onSortChange: (key: SortKey, order: SortOrder) => void;
