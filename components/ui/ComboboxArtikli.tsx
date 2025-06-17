@@ -33,6 +33,22 @@ type Props = {
   iskljuceniArtikli?: Artikal[];
 };
 
+// Custom debounce hook
+function useDebounce<T>(value: T, delay = 150): T {
+  const [debounced, setDebounced] = React.useState(value);
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debounced;
+}
+
+// String normalization helper
+const normalizeString = (str: string = "") =>
+  str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
 const ComboboxArtikliComponent: React.FC<Props> = ({
   articleList,
   onSelectOption,
@@ -42,61 +58,32 @@ const ComboboxArtikliComponent: React.FC<Props> = ({
 }) => {
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("");
-  const [debouncedInput, setDebouncedInput] = React.useState("");
+  const debouncedInput = useDebounce(inputValue, 150);
 
-  const [selected, setSelected] = React.useState<Artikal | null>(null);
-
-
-  React.useEffect(() => {
-    const inicijalni = articleList.find((a) => a.idArtikla === currentArtikalId) || null;
-    setSelected(inicijalni);
-  }, [currentArtikalId, articleList]);
-
-
-
-  React.useEffect(() => {
-    const timeout = setTimeout(() => {
-      setDebouncedInput(inputValue);
-    }, 150);
-    return () => clearTimeout(timeout);
-  }, [inputValue]);
+  const selectedArtikal = React.useMemo(() => {
+    return articleList.find((a) => a.idArtikla === currentArtikalId) || null;
+  }, [articleList, currentArtikalId]);
 
   const filteredList = React.useMemo(() => {
     if (!debouncedInput) return articleList;
 
-    const normalizedInput = debouncedInput
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
+    const normalizedInput = normalizeString(debouncedInput);
 
-    return articleList.filter((artikal) => {
-      const naziv = artikal.naziv
-        ?.normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase() || "";
-      const barkod = artikal.barkod?.toLowerCase() || "";
-      const id = artikal.idArtikla?.toLowerCase() || "";
-
-      return (
-        naziv.includes(normalizedInput) ||
-        barkod.includes(normalizedInput) ||
-        id.includes(normalizedInput)
-      );
-    });
+    return articleList.filter((artikal) =>
+      normalizeString(artikal.naziv).includes(normalizedInput) ||
+      normalizeString(artikal.barkod).includes(normalizedInput) ||
+      normalizeString(artikal.idArtikla).includes(normalizedInput)
+    );
   }, [debouncedInput, articleList]);
 
-  const isDisabled = (artikal: Artikal): boolean => {
-    return (
-      iskljuceniArtikli.some(
-        (a) => a.idArtikla === artikal.idArtikla && a.idArtikla !== currentArtikalId
-      )
+  const isDisabled = (artikal: Artikal): boolean =>
+    iskljuceniArtikli.some(
+      (a) => a.idArtikla === artikal.idArtikla && a.idArtikla !== currentArtikalId
     );
-  };
 
   const handleSelect = (id: string) => {
     const artikal = articleList.find((a) => a.idArtikla === id);
     if (artikal && !isDisabled(artikal)) {
-      setSelected(artikal);
       onSelectOption(artikal);
       setOpen(false);
       setInputValue("");
@@ -112,7 +99,7 @@ const ComboboxArtikliComponent: React.FC<Props> = ({
           className="w-[650px] justify-between"
           onClick={() => setOpen(true)}
         >
-          {selected?.naziv || placeholder}
+          {selectedArtikal?.naziv || placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -180,3 +167,4 @@ const ComboboxArtikliComponent: React.FC<Props> = ({
 };
 
 export const ComboboxArtikli = React.memo(ComboboxArtikliComponent);
+//vidi da li ovo uopste radi????????????????????
