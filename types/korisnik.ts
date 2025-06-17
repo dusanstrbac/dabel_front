@@ -18,6 +18,12 @@ interface KorisnikPodaciType {
     korisnikDostava: KorisnikDostavaType
 }
 
+
+interface LokacijePartnera{
+    id:string,
+    
+}
+
 interface KorisnikDostavaType {
     idPartnera: string,
     adresa: string,

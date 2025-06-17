@@ -161,7 +161,7 @@ const Page = () => {
                         <SortirajDugme />
                     </div>
                 
-                <ListaArtikala />
+                <ListaArtikala/>
             </div>
         </div>
     );

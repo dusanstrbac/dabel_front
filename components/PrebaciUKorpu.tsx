@@ -10,6 +10,11 @@ interface RowItem {
   kolicina: number;
 }
 
+interface Artikal {
+  idArtikla: string;
+  barKod: string;
+}
+
 interface PrebaciUKorpuProps {
   rows: RowItem[];
 }
@@ -22,32 +27,51 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
     }
 
     try {
-      const sifre = rows.map((r) => r.sifra);
+      // Razdvajamo unete šifre na ID-ove i barKod-ove
+      const ids: string[] = [];
+      const barKods: string[] = [];
+
+      rows.forEach((r) => {
+        if (/^\d{13}$/.test(r.sifra)) {
+          barKods.push(r.sifra); // ako je 13 cifara, tretiraj kao barkod
+        } else {
+          ids.push(r.sifra); // ostalo tretiraj kao IdArtikla
+        }
+      });
+
+      const payload = { Ids: ids, BarKod: barKods };
+      console.log("Payload koji se šalje:", payload);
 
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-      const { data } = await axios.post(`${apiAddress}/api/Artikal/ProveriValidnost`, rows.map(row => row.sifra));
+      const { data } = await axios.post(
+        `${apiAddress}/api/Artikal/ProveriValidnost`,
+        payload
+      );
 
-      const validneSifre: string[] = data.validneSifre;
+      const artikli: Artikal[] = data.artikli;
 
-      if (!validneSifre || validneSifre.length === 0) {
+      if (!artikli || artikli.length === 0) {
         toast("Nijedan artikal nije pronađen u bazi.");
         return;
       }
 
-      const validniRows = rows.filter((row) =>
-        validneSifre.includes(row.sifra)
-      );
-
       const existing = localStorage.getItem("cart");
-      let cart: Record<string, { kolicina: number }> = existing
+      let cart: Record<string, { kolicina: number; barKod?: string }> = existing
         ? JSON.parse(existing)
         : {};
 
-      validniRows.forEach(({ sifra, kolicina }) => {
-        if (cart[sifra]) {
-          cart[sifra].kolicina += kolicina;
+      artikli.forEach(({ idArtikla, barKod }) => {
+        // Pronađi odgovarajući unos u rows po ID-ju ili barKodu
+        const row = rows.find((r) => r.sifra === idArtikla || r.sifra === barKod);
+        if (!row) return;
+
+        if (cart[idArtikla]) {
+          cart[idArtikla].kolicina += row.kolicina;
         } else {
-          cart[sifra] = { kolicina };
+          cart[idArtikla] = {
+            kolicina: row.kolicina,
+            barKod
+          };
         }
       });
 
@@ -55,10 +79,14 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
       window.dispatchEvent(new Event("storage"));
 
       toast("Artikli su uspešno dodati u korpu", {
-        description: `Ukupno dodatih: ${validniRows.length}`,
+        description: `Ukupno dodatih: ${artikli.length}`,
       });
-    } catch (error) {
-      console.error("Greška prilikom poziva:", error);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error("Greška prilikom poziva:", error.response?.data || error.message);
+      } else {
+        console.error("Nepoznata greška:", error);
+      }
       toast("Došlo je do greške prilikom dodavanja u korpu.");
     }
   };

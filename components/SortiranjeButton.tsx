@@ -1,35 +1,17 @@
 'use client';
 
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { SortiranjeButtonProps } from "@/types/artikal";
 
-const SortiranjeButton = ({ artikli, setArtikli }: SortiranjeButtonProps) => {
-    
-  // Funkcije za sortiranje
-  const sortirajRastuce = () => {
-    console.log('Sortiraj rastuce pozvano', artikli);  // Proveri artikle pre sortiranja
-    const sorted = [...artikli].sort((a, b) => {
-      // Pristupamo ceni iz artikalCene[0].cena
-      const cenaA = a.artikalCene?.[0]?.cena || 0;
-      const cenaB = b.artikalCene?.[0]?.cena || 0;
-      return cenaA - cenaB;
-    });
-    console.log('Sorted rastuce', sorted);  // Proveri sortirane artikle
-    setArtikli(sorted);
-  };
+type SortKey = 'cena' | 'naziv';
+type SortOrder = 'asc' | 'desc';
 
-  const sortirajOpadajuce = () => {
-    console.log('Sortiraj opadajuce pozvano', artikli);  // Proveri artikle pre sortiranja
-    const sorted = [...artikli].sort((a, b) => {
-      // Pristupamo ceni iz artikalCene[0].cena
-      const cenaA = a.artikalCene?.[0]?.cena || 0;
-      const cenaB = b.artikalCene?.[0]?.cena || 0;
-      return cenaB - cenaA;
-    });
-    console.log('Sorted opadajuce', sorted);  // Proveri sortirane artikle
-    setArtikli(sorted);
-  };
+interface Props {
+  sortKey: SortKey;
+  sortOrder: SortOrder;
+  onSortChange: (key: SortKey, order: SortOrder) => void;
+}
 
+const SortiranjeButton = ({ sortKey, sortOrder, onSortChange }: Props) => {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -37,18 +19,37 @@ const SortiranjeButton = ({ artikli, setArtikli }: SortiranjeButtonProps) => {
           Sortiraj
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-44">
+      <PopoverContent className="w-48">
         <div className="flex flex-col gap-2">
-          <button onClick={sortirajRastuce} className="text-left hover:underline">
-            Cena: Rastuće
+          <button
+            onClick={() => onSortChange('cena', 'asc')}
+            className="text-left hover:underline"
+          >
+            Cena: Rastuće {sortKey === 'cena' && sortOrder === 'asc' && '✓'}
           </button>
-          <button onClick={sortirajOpadajuce} className="text-left hover:underline">
-            Cena: Opadajuće
+          <button
+            onClick={() => onSortChange('cena', 'desc')}
+            className="text-left hover:underline"
+          >
+            Cena: Opadajuće {sortKey === 'cena' && sortOrder === 'desc' && '✓'}
+          </button>
+
+          <button
+            onClick={() => onSortChange('naziv', 'asc')}
+            className="text-left hover:underline"
+          >
+            Naziv: A-Z {sortKey === 'naziv' && sortOrder === 'asc' && '✓'}
+          </button>
+          <button
+            onClick={() => onSortChange('naziv', 'desc')}
+            className="text-left hover:underline"
+          >
+            Naziv: Z-A {sortKey === 'naziv' && sortOrder === 'desc' && '✓'}
           </button>
         </div>
       </PopoverContent>
     </Popover>
   );
-}
+};
 
 export default SortiranjeButton;

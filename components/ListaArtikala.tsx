@@ -13,7 +13,7 @@ import {
   PaginacijaTackice,
 } from "@/components/ui/pagination"
 import { useRouter, useSearchParams } from "next/navigation"
-import { ListaArtikalaProps } from "@/types/artikal"
+import { ArtikalFilterProp, ListaArtikalaProps } from "@/types/artikal"
 
 const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: ListaArtikalaProps) => {
   const artikliPoStrani = 8
@@ -21,26 +21,33 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
   const searchParams = useSearchParams()
   const trenutnaStrana = currentPage;
 
-  // Primer: filter state, možeš dodati i filtering logiku
-  const [filteri, setFilteri] = useState({})
+  const [filteri, setFilteri] = useState<ArtikalFilterProp>({
+    naziv: '',
+    jedinicaMere: '',
+    Materijal: [],
+    Model: [],
+    Pakovanje: [],
+    RobnaMarka: [],
+    Upotreba: [],
+    Boja: [],
+  })
 
   const brojStranica = useMemo(() => Math.ceil(totalCount / artikliPoStrani), [totalCount])
 
   const prikazaniArtikli = artikli;
   // Funkcija za menjanje strane i update URL-a bez reloada
   const idiNaStranu = (broj: number, event?:React.MouseEvent) => {
-    if(event) event.preventDefault();
-    if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return
+  if(event) event.preventDefault();
+  console.log("Idi na stranu:", broj);
+  if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return;
 
-    onPageChange(broj);
+  onPageChange(broj);
+  const url = new URL(window.location.href);
+  url.searchParams.set('page', broj.toString());
+  router.push(`${url.pathname}${url.search}`, { scroll: false });
+}
 
-    const url = new URL(window.location.href)
-    url.searchParams.set('page', broj.toString())
-
-    router.push(`${url.pathname}${url.search}`, { scroll: false })
-  }
-
-  const onFilterChange = (noviFilteri: any) => {
+  const onFilterChange = (noviFilteri: ArtikalFilterProp) => {
     setFilteri(noviFilteri)
     // Ovde dodaj logiku za filtriranje artikala ako je potrebno
   }
@@ -53,7 +60,7 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
     <div className="flex flex-col md:flex-row w-full px-1 gap-4">
       {/* Filter sekcija */}
       <div className="w-full md:w-1/4">
-        <ArtikalFilter onFilterChange={onFilterChange} />
+        <ArtikalFilter artikli={artikli} onFilterChange={onFilterChange} />
       </div>
 
       {/* Lista artikala */}
@@ -66,6 +73,7 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
               idArtikla={artikal.idArtikla}
               barkod={artikal.barkod}
               kategorijaId={artikal.kategorijaId}
+              kolicina={artikal.kolicina}
               jm={artikal.jm}
               artikalAtributi={artikal.artikalAtributi}
               artikalCene={artikal.artikalCene ?? []}
@@ -73,66 +81,60 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
           ))}
         </div>
 
-        {/* Paginacija */}
-        <Paginacija className="my-[20px]">
-          <PaginacijaSadrzaj>
-            {/* Prethodna stranica */}
-            <PaginacijaStavka>
-              <PaginacijaPrethodna
-                onClick={() => idiNaStranu(trenutnaStrana - 1)}
-                disabled={trenutnaStrana === 1}
-              />
-            </PaginacijaStavka>
-
-            {/* Brojevi stranica */}
-            {[...Array(brojStranica)].map((_, i) => {
-              const broj = i + 1
-
-              // Prikaz prve, poslednje i okolnih stranica trenutnoj
-              if (
-                broj === 1 ||
-                broj === brojStranica ||
-                Math.abs(trenutnaStrana - broj) <= 1
-              ) {
-                return (
-                  <PaginacijaStavka key={broj}>
-                    <PaginacijaLink
-                      isActive={trenutnaStrana === broj}
-                      onClick={() => idiNaStranu(broj)}
-                    >
-                      {broj}
-                    </PaginacijaLink>
+            {/* Paginacija */}
+            {brojStranica > 1 && (
+              <Paginacija className="my-[20px]">
+                <PaginacijaSadrzaj>
+                  <PaginacijaStavka>
+                    <PaginacijaPrethodna
+                      onClick={() => idiNaStranu(trenutnaStrana - 1)}
+                      disabled={trenutnaStrana === 1}
+                    />
                   </PaginacijaStavka>
-                )
-              }
 
-              // "..." za skrivene stranice
-              if (
-                (broj === 2 && trenutnaStrana > 3) ||
-                (broj === brojStranica - 1 && trenutnaStrana < brojStranica - 2)
-              ) {
-                return (
-                  <PaginacijaStavka key={`ellipsis-${broj}`}>
-                    <PaginacijaTackice />
+                  {[...Array(brojStranica)].map((_, i) => {
+                    const broj = i + 1
+                    if (
+                      broj === 1 ||
+                      broj === brojStranica ||
+                      Math.abs(trenutnaStrana - broj) <= 1
+                    ) {
+                      return (
+                        <PaginacijaStavka key={broj}>
+                          <PaginacijaLink
+                            isActive={trenutnaStrana === broj}
+                            onClick={() => idiNaStranu(broj)}
+                          >
+                            {broj}
+                          </PaginacijaLink>
+                        </PaginacijaStavka>
+                      )
+                    }
+                    if (
+                      (broj === 2 && trenutnaStrana > 3) ||
+                      (broj === brojStranica - 1 && trenutnaStrana < brojStranica - 2)
+                    ) {
+                      return (
+                        <PaginacijaStavka key={`ellipsis-${broj}`}>
+                          <PaginacijaTackice />
+                        </PaginacijaStavka>
+                      )
+                    }
+                    return null
+                  })}
+
+                  <PaginacijaStavka>
+                    <PaginacijaSledeca
+                      onClick={() => idiNaStranu(trenutnaStrana + 1)}
+                      disabled={trenutnaStrana === brojStranica}
+                    />
                   </PaginacijaStavka>
-                )
-              }
-
-              return null
-            })}
-
-            {/* Sledeća stranica */}
-            <PaginacijaStavka>
-              <PaginacijaSledeca
-                onClick={() => idiNaStranu(trenutnaStrana + 1)}
-                disabled={trenutnaStrana === brojStranica}
-              />
-            </PaginacijaStavka>
-          </PaginacijaSadrzaj>
-        </Paginacija>
+                </PaginacijaSadrzaj>
+              </Paginacija>
+            )}
       </div>
     </div>
   )
 }
 
-export default ListaArtikala
+export default ListaArtikala;

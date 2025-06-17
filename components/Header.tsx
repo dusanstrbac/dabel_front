@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut, Smartphone } from "lucide-react";
+import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut, Smartphone, FileText } from "lucide-react";
 import Image from "next/image";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
@@ -75,6 +75,7 @@ const headerMainNav = [
   const menuItems = [
     { id: 'podaci', icon: <User2 className="h-6 w-6" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
     { id: 'istorija', icon: <History className="h-6 w-6" />, text: "Istorija poručivanja", href: username ? `/${username}/profil/istorija` : '/login' },
+    { id: 'narudzbenica', icon: <FileText className="h-6 w-6" />, text: "Narudžbenica", href: username ? `/${username}/profil/narudzbenica` : '/login' },
     { id: 'uplate', icon: <Wallet className="h-6 w-6" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
     { id: 'roba', icon: <Package className="h-6 w-6" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
     { id: 'korisnici', icon: <Users className="h-6 w-6" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : `/login` },
@@ -358,6 +359,12 @@ const headerMainNav = [
                       >
                         {item.icon}
                         <span>{item.text}</span>
+
+                        {item.text === "Korpa" && brojRazlicitihArtikala > 0 && (
+                          <span className="ml-2 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                            {brojRazlicitihArtikala}
+                          </span>
+                        )}
                       </Link>
                     ))}
                   </div>
