@@ -17,8 +17,6 @@ export default function ProizvodiPage() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   
-  const searchParams = useSearchParams();
-
   useEffect(() => {
     if (!params || params.length === 0) return;
 

@@ -35,6 +35,7 @@ export default function Proizvod() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [preostalo, setPreostalo] = useState<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [lajkovano, setLajkovano] = useState(false);
 
   const korisnik = dajKorisnikaIzTokena();
 
@@ -52,6 +53,7 @@ export default function Proizvod() {
         if (!res.ok) throw new Error("Greška prilikom učitavanja proizvoda");
 
         const data = await res.json();
+        console.log(data);
         if (!data || data.length === 0) throw new Error("Proizvod nije pronađen");
         //console.log(data);
 
@@ -62,10 +64,15 @@ export default function Proizvod() {
 
           const filtriraniAtributi = osnovni.artikalAtributi
           .filter(attr => prikazaniAtributi.includes(attr.imeAtributa))
-
           setAtributi(filtriraniAtributi);
-        
         }
+
+        if(osnovni?.status === "1") {
+          setLajkovano(true);
+        } else {
+          setLajkovano(false);
+        }
+
       } catch (e) {
         setError((e as Error).message || "Došlo je do greške prilikom učitavanja proizvoda");
         setProizvod(null);
@@ -199,8 +206,10 @@ export default function Proizvod() {
         </div>
 
         <div className="flex flex-col gap-4 w-full lg:w-1/3 items-start justify-end lg:items-end">
-          {korisnik?.idKorisnika && <DodajUOmiljeno idArtikla={proizvod.idArtikla} idPartnera={korisnik.idKorisnika} />}
-                    <div className="flex items-center gap-2">
+          {korisnik?.idKorisnika && (
+            <DodajUOmiljeno idArtikla={proizvod.idArtikla} idPartnera={korisnik.idKorisnika} inicijalniStatus={proizvod.status === "1"} />
+          )}
+          <div className="flex items-center gap-2">
             <CircleAlert width={18} height={18} color={Number(proizvod.kolicina) > 20 ? "green" : "red"} />
             <p className={Number(proizvod.kolicina) > 20 ? "text-green-600" : "text-red-500"}>
               Ostalo je još {proizvod.kolicina} artikala.

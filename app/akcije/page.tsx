@@ -13,6 +13,9 @@ const Akcije = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
+  const [sortKey, setSortKey] = useState<'cena' | 'naziv'>('cena');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -25,6 +28,13 @@ const Akcije = () => {
       setCurrentPage(pageNumber);
     }
   }, [searchParams]);
+
+
+  const handleSortChange = (key: 'cena' | 'naziv', order: 'asc' | 'desc') => {
+    setSortKey(key);
+    setSortOrder(order);
+  };
+
 
   const fetchAkcijeArtikli = async () => {
   try {
@@ -68,7 +78,11 @@ const Akcije = () => {
     <div className="lg:p-4">
       <div className="w-full mx-auto flex justify-between items-center p-2">
         <h1 className="font-bold text-3xl">Akcije</h1>
-        <SortiranjeButton artikli={artikli} setArtikli={setArtikli} />
+                <SortiranjeButton
+          sortKey={sortKey}
+          sortOrder={sortOrder}
+          onSortChange={handleSortChange}
+        />
       </div>
 
       {loading ? (
