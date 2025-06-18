@@ -32,6 +32,9 @@ const Korpa = () => {
   const [quantities, setQuantities] = useState<number[]>([]);
   const [isClient, setIsClient] = useState(false);
 
+  
+
+
   useEffect(() => {
     setIsClient(true);
 
@@ -129,14 +132,22 @@ const Korpa = () => {
     return sum + rounded * cena;
   }, 0);
 
-    const totalAmountWithPDV = totalAmount * 1.2;
+  const totalAmountWithPDV = totalAmount * 1.2;
 
-    const getSlikaArtikla = (idArtikla: string) => {
+  const getSlikaArtikla = (idArtikla: string) => {
     const baseUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS;
     return `${baseUrl}/s${idArtikla}.jpg`;
-    };
-
+  };
     
+    useEffect(() => {
+      if (isClient) {
+        sessionStorage.setItem("ukupnaCenaSaPDV", totalAmountWithPDV.toString());
+        sessionStorage.setItem("ukupnaCenaBezPDV", totalAmount.toString());
+      }
+    }, [totalAmount, totalAmountWithPDV, isClient]);
+
+
+
     if (!isClient) return null;
 
   return (
@@ -218,7 +229,7 @@ const Korpa = () => {
                   <TableCell className="text-center">
                     <input
                       type="number"
-                      min="0"
+                      min="1"
                       className="w-20 border rounded px-2 py-1 text-center"
                       value={quantities[index]}
                       max={article.kolicina}
@@ -296,7 +307,7 @@ const Korpa = () => {
                     <span className="mr-2">Trebovana količina:</span>
                     <input
                       type="number"
-                      min="0"
+                      min="1"
                       className="w-20 border rounded px-2 py-1 text-center"
                       value={quantities[index]}
                       onChange={(e) => updateQuantity(index, Number(e.target.value))}

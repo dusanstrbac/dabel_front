@@ -41,7 +41,8 @@ const DokumentPage = () => {
   const handlePrint = () => window.print();
 
   const izracunajStavku = (stavka: ArtikalType) => {
-    const cenaPosleRabata = stavka.artikalCene[0].cena * (1 - rabatPartnera / 100);
+    const artikalCena = stavka.artikalCene[0].akcija.cena > 0 ? stavka.artikalCene[0].akcija.cena : stavka.artikalCene[0].cena; 
+    const cenaPosleRabata = artikalCena * (1 - rabatPartnera / 100);
     const cenaBezPDV = cenaPosleRabata;
     const cenaSaPDV = cenaBezPDV * (1 + PDV / 100);
     const vrednost = cenaSaPDV * Number(stavka.kolicina);
@@ -141,7 +142,7 @@ const DokumentPage = () => {
                   <td className="border-r border-black px-2 py-1 text-left">{stavka.naziv || "Nepoznato"}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.jm}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.kolicina}</td>
-                  <td className="border-r border-black px-2 py-1">{stavka.artikalCene[0].cena.toFixed(2)}</td>
+                  <td className="border-r border-black px-2 py-1">{(stavka.artikalCene[0].akcija.cena > 0 ? stavka.artikalCene[0].akcija.cena : stavka.artikalCene[0].cena)}</td>
                   <td className="border-r border-black px-2 py-1">{rabatPartnera ?? 0}%</td>
                   <td className="border-r border-black px-2 py-1">{cenaBezPDV.toFixed(2)}</td>
                   <td className="border-r border-black px-2 py-1">{PDV} %</td>

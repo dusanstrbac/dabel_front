@@ -1,12 +1,13 @@
     'use client';
 
-    import { useRef } from "react";
+    import { useMemo, useRef } from "react";
     import { KeyboardEvent, RefObject } from "react";
     import { useEffect, useState } from "react";
     import { dajKorisnikaIzTokena } from "@/lib/auth";
     import { Input } from "@/components/ui/input";
     import KreirajNarudzbenicu from "@/components/ui/KreirajNarudzbenicu";
     import { ArtikalType } from "@/types/artikal";
+import { number } from "zod";
 
     
 
@@ -16,6 +17,7 @@
         const [isClient, setIsClient] = useState(false);
         const [partner, setPartner] = useState<KorisnikPodaciType>();
 
+
         const [mestoIsporuke, setMestoIsporuke] = useState("");
         const [imeiPrezime, setImeiPrezime] = useState("");
         const [grad, setGrad] = useState("");
@@ -23,8 +25,13 @@
         const [email, setEmail] = useState("");
         const [napomena, setNapomena] = useState("");
 
+        const [cart, setCart] = useState<Record<string, { kolicina: number }>>({});
 
         const [idDokumenta, setIdDokumenta] = useState<number>(0);
+        const [ukupnaCenaSaPDV, setUkupnaCenaSaPDV] = useState<number>(0);
+        const [ukupnaCenaBezPDV, setUkupnaCenaBezPDV] = useState<number>(0);
+        const [cenaKolicina, setCenaKolicina] = useState<number>(0);
+
 
         const [greske, setGreske] = useState<{ [key: string]: string }>({});
         const imeRef = useRef<HTMLInputElement>(null);
@@ -56,20 +63,41 @@
             setGreske(novaGreske);
             return Object.keys(novaGreske).length === 0;
         };
+
+        const ukupnaCenaArtikala = useMemo(() => {
+            return artikli.reduce((suma, artikal) => {
+                const cena = artikal.artikalCene[0].akcija.cena && artikal.artikalCene[0].akcija.cena > 0
+                    ? artikal.artikalCene[0].akcija.cena
+                    : artikal.artikalCene[0].cena;
+                return suma + (cena * (cart[artikal.idArtikla]?.kolicina || 1));
+            }, 0);
+        }, [artikli]);
+
+        const dostava = ukupnaCenaSaPDV >= 10000 ? 0 : 1000;
+        const ukupnoSaDostavom = ukupnaCenaSaPDV + dostava;
+
         
 
         useEffect(() => {
             setIsClient(true);
 
-            let cart: Record<string, any> = {};
             try {
-                const storedCart = localStorage.getItem("cart");
-                cart = storedCart ? JSON.parse(storedCart) : {};
-            } catch (e) {
-                console.error("Nevalidan JSON u localStorage za 'cart'", e);
-            }
+            
+            const storedCart = localStorage.getItem("cart");
+            const parsedCart = storedCart ? JSON.parse(storedCart) : {};
+            setCart(parsedCart);
 
-            const storedIds = Object.keys(cart);
+            const ukupnaCenaSaPDV = sessionStorage.getItem("ukupnaCenaSaPDV");
+            //const ukupnaCenabezPDV = sessionStorage.getItem("ukupnaCenaBezPDV");
+
+
+            if (ukupnaCenaSaPDV){
+                setUkupnaCenaSaPDV(Number(ukupnaCenaSaPDV));
+            }
+            // if (ukupnaCenaBezPDV){
+            //     setUkupnaCenaBezPDV(Number(ukupnaCenaBezPDV));
+            // }
+            const storedIds = Object.keys(parsedCart);
             const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
 
@@ -91,7 +119,7 @@
                     cena: artikal.artikalCene[0].akcija.cena ?? 0,  
                     originalnaCena: artikal.artikalCene[0].cena,
                     // pdv: artikal.pdv ?? 20,
-                    kolicina: cart[artikal.idArtikla]?.kolicina,
+                    kolicina: parsedCart[artikal.idArtikla]?.kolicina,
                 }));
 
                 console.log("Dobijeni artikli: ", transformed);
@@ -112,7 +140,6 @@
                 const email = korisnik.email;
 
                 try {
-                    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
                     const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${email}`);
                     const data = await res.json();
                     setPartner(data[0]);
@@ -124,6 +151,8 @@
                 }
             };
 
+            
+
 
             // Generisanje novog ID-ja
             const poslednjiId = parseInt(localStorage.getItem("poslednjiIdDokumenta") || "0", 10);
@@ -133,6 +162,9 @@
 
             fetchArtikli();
             fetchPartner();
+            } catch (e) {
+                console.error("Nevalidan JSON u localStorage za 'cart'", e);
+            }
         }, []);
 
     if (!isClient) return null;
@@ -293,22 +325,53 @@
                                     />
                                     <div className="flex flex-col lg:flex-col w-full">
                                             <p className="flex font-semibold text-lg">{artikal.naziv}</p>
-                                            <p className="text-red-500 text-lg whitespace-nowrap md:hidden lg:hidden block">Cena: {(artikal.artikalCene[0].akcija.cena && artikal.artikalCene[0].akcija.cena > 0 
-                                                                                                                                                                            ? artikal.artikalCene[0].akcija.cena 
-                                                                                                                                                                            : artikal.artikalCene[0].cena)} RSD</p>
-                                        <div className="flex flex-col lg:flex-row gap-1 justify-between text-gray-400 max-w-[300px] text-sm">
+                                            <p className="text-red-500 text-xl whitespace-nowrap md:hidden lg:hidden block">{((artikal.artikalCene[0].akcija.cena > 0 
+                                                                                                                                                                        ? artikal.artikalCene[0].akcija.cena 
+                                                                                                                                                                        : artikal.artikalCene[0].cena) * 1.2 * (cart[artikal.idArtikla].kolicina)).toLocaleString("sr-RS")} RSD</p>
+                                        <div className="flex flex-col lg:flex-row gap-1 justify-between text-gray-400 max-w-[400px] text-sm">
                                             <p>Šifra: {artikal.idArtikla}</p>
                                             <p>Količina: {artikal.kolicina}</p> 
+                                            <p>Cena: {(artikal.artikalCene[0].akcija.cena > 0 
+                                                                                        ? artikal.artikalCene[0].akcija.cena
+                                                                                        : artikal.artikalCene[0].cena).toLocaleString("sr-RS")} RSD</p>
+                                            <p>PDV: 20%</p>
                                             {/* <p>Pakovanje: {artikal.pakovanje}</p> */}
                                         </div>
                                     </div>
-                                    <p className="text-red-500 text-lg whitespace-nowrap hidden md:block lg:block">Cena: {(artikal.artikalCene[0].akcija.cena && artikal.artikalCene[0].akcija.cena > 0 
-                                                                                                                                                                            ? artikal.artikalCene[0].akcija.cena 
-                                                                                                                                                                            : artikal.artikalCene[0].cena)} RSD</p>
+                                    <p className="text-red-500 text-xl whitespace-nowrap hidden md:block lg:block">{((artikal.artikalCene[0].akcija.cena > 0 
+                                                                                                                                                                ? artikal.artikalCene[0].akcija.cena  
+                                                                                                                                                                : artikal.artikalCene[0].cena)* 1.2 *(cart[artikal.idArtikla].kolicina)).toLocaleString("sr-RS")} RSD</p>
+                                
                                 </div>
                             ))}
                         </div>
                     )}
+                    <div className="flex flex-col w-full border-2 min-h-[40px]">
+                        <div className="flex items-center justify-between">
+                            <p className="font-medium">Ukupno</p>
+                            <p className="text-gray-500">
+                                {dostava > 0
+                                    ? `${ukupnaCenaSaPDV.toLocaleString("sr-RS")} RSD`
+                                    : ""}
+                            </p>
+                            
+                            {/* Hocu da ako postoji */}
+                        </div>
+
+                        <div className="flex items-center justify-between text-base">
+                            <p className="font-medium">Dostava:</p>
+                            <p className="text-right text-gray-500">
+                                {dostava > 0
+                                            ? `${dostava.toLocaleString("sr-RS")} RSD`
+                                            : "Besplatna dostava"}
+                            </p>
+                        </div>
+                        
+                        <div className="flex items-center justify-between text-lg font-bold mt-2">
+                            <p>Ukupno:</p>
+                            <p className="text-2xl">{ukupnoSaDostavom.toLocaleString("sr-RS")} RSD</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
