@@ -2,19 +2,9 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ArtikalType } from "@/types/artikal";
+import { PartnerInfo } from "@/types/dokument";
 
 
-type PartnerInfo = {
-  partner: KorisnikPodaciType;
-  idDokumenta: string;
-  DatumKreiranja: Date; 
-  imeiPrezime: string;
-  mestoIsporuke: string; //lokacija
-  napomena: string;
-  grad: string;
-  telefon: string;
-  email: string;
-};
 
 const PDV = 20;
 
