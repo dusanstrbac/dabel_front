@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut, Smartphone } from "lucide-react";
+import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut, Smartphone, FileText } from "lucide-react";
 import Image from "next/image";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { deleteCookie, getCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import PretragaProizvoda from "./PretragaProizvoda";
+import { any } from "zod";
 
 
 export default function Header() {
@@ -75,6 +76,7 @@ const headerMainNav = [
   const menuItems = [
     { id: 'podaci', icon: <User2 className="h-6 w-6" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
     { id: 'istorija', icon: <History className="h-6 w-6" />, text: "Istorija poručivanja", href: username ? `/${username}/profil/istorija` : '/login' },
+    { id: 'narudzbenica', icon: <FileText className="h-6 w-6" />, text: "Narudžbenica", href: username ? `/${username}/profil/narudzbenica` : '/login' },
     { id: 'uplate', icon: <Wallet className="h-6 w-6" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
     { id: 'roba', icon: <Package className="h-6 w-6" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
     { id: 'korisnici', icon: <Users className="h-6 w-6" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : `/login` },
@@ -90,6 +92,9 @@ const headerMainNav = [
     { icon: <Heart className="w-4 h-4" />, text: "Omiljeni artikli", href: "/heart" },
     { icon: <ShoppingCart className="w-4 h-4" />, text: "Korpa", href: "/korpa" },
   ];
+
+
+  const [openKorisnikMeni, setOpenKorisnikMeni] = useState(false);
 
   useEffect(() => {    
     if(korisnik && korisnik.korisnickoIme) {
@@ -265,7 +270,7 @@ const headerMainNav = [
           </div>
           <div>
           {/* KORISNIK MENU */}
-            <Sheet>
+            <Sheet open={openKorisnikMeni} onOpenChange={setOpenKorisnikMeni}>
               <SheetTrigger>
                 <User className="w-6 h-8" />
               </SheetTrigger>
@@ -278,7 +283,7 @@ const headerMainNav = [
                 <div className="pl-2 flex flex-col">
                   <ScrollArea>
                       {menuItems.map((item) => (
-                        <Link href={item.href} key={item.id} className="flex gap-3 items-center pb-4">
+                        <Link href={item.href} key={item.id} className="flex gap-3 items-center pb-4" onClick={() => setOpenKorisnikMeni(false)}>
                           <span className="">{item.icon}</span>
                           <span className="text-[18px]">{item.text}</span>
                         </Link>
@@ -288,12 +293,19 @@ const headerMainNav = [
                        
                        <Link href='#' className="flex gap-3 items-center pb-4">
                           <LogOut className="w-6 h-6" />
-                          <span className="text-[18px] text-red-500" onClick={odjaviKorisnika}>Odjava</span>
+                          <span className="text-[18px] text-red-500" onClick={() => {
+                              odjaviKorisnika();
+                              setOpenKorisnikMeni(false);
+                          }}>Odjava</span>
                         </Link> ) : (
 
                           <Link href='#' className="flex gap-3 items-center pb-4">
                           <LogOut className="w-6 h-6" />
-                          <span className="text-[18px]" onClick={() => router.push('/login')}>Prijavi se</span>
+                          <span className="text-[18px]" onClick={() => {
+                              router.push('/login');
+                              setOpenKorisnikMeni(false);
+                            }}>
+                                Prijavi se</span>
                         </Link>
 
                       )}

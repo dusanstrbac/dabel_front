@@ -158,7 +158,7 @@ export default function Proizvod() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 w-full">
+          <div className="flex flex-col gap-2 w-full">
             <h1 className="text-xl md:text-2xl font-bold">{proizvod.naziv}</h1>
             <span className="text-red-500 text-lg md:text-xl font-bold">
               {Number(proizvod.kolicina) > 0 ? (
@@ -205,7 +205,7 @@ export default function Proizvod() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 w-full lg:w-1/3 items-start justify-end lg:items-end">
+        <div className="flex flex-col gap-2 w-full lg:w-1/3 items-start justify-end lg:items-end">
           {korisnik?.idKorisnika && (
             <DodajUOmiljeno idArtikla={proizvod.idArtikla} idPartnera={korisnik.idKorisnika} inicijalniStatus={proizvod.status === "1"} />
           )}

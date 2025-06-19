@@ -4,6 +4,7 @@ import SortiranjeButton from "@/components/SortiranjeButton";
 import { ArtikalType } from "@/types/artikal";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 const Akcije = () => {
   const [artikli, setArtikli] = useState<ArtikalType[]>([]);
@@ -41,9 +42,10 @@ const Akcije = () => {
     setLoading(true);
     setError(null);
 
+    const korisnik = dajKorisnikaIzTokena();
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     const res = await fetch(
-      `${apiAddress}/api/Artikal/AkcijeSaPaginacijom?page=${currentPage}&pageSize=${pageSize}`
+      `${apiAddress}/api/Artikal/AkcijeSaPaginacijom?idPartnera=${korisnik?.idKorisnika}&page=${currentPage}&pageSize=${pageSize}`
     );
 
     if (!res.ok) throw new Error("Greška pri preuzimanju artikala");

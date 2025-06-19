@@ -1,6 +1,7 @@
 // Proveriti da li je potrebno ovaj JSON fajl da se menja
 
 interface KorisnikPodaciType {
+    idPartnera: string,
     ime: string,
     email: string,
     adresa: string,
@@ -10,12 +11,30 @@ interface KorisnikPodaciType {
     maticniBroj: string,
     pib: string,
     telefon: string,
-    nerealizovano: string,
-    raspolozivoStanje: string,
-    kredit: string,
-    nijeDospelo: string,
-    komercijalista: KorisnikPodaciKomercijalistaType,
     finKarta: FinKartaType,
+
+    komercijalista: KorisnikPodaciKomercijalistaType,
+    partnerRabat: KorisnikRabatType
+    korisnikDostava: KorisnikDostavaType
+}
+
+
+interface LokacijePartnera{
+    id:string,
+    
+}
+
+interface KorisnikDostavaType {
+    idPartnera: string,
+    adresa: string,
+    grad: string,
+    drzava: string,
+    postBroj: string,
+}
+
+interface KorisnikRabatType {
+    idPartnera: string,
+    rabat: number,
 }
 
 interface KorisnikPodaciKomercijalistaType {
