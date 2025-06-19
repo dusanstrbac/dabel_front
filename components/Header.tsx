@@ -14,8 +14,6 @@ import { useRouter } from "next/navigation";
 import { deleteCookie, getCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import PretragaProizvoda from "./PretragaProizvoda";
-import { any } from "zod";
-
 
 export default function Header() {
   const [korisnickoIme, setKorisnickoIme] = useState<string | null>(null);
@@ -23,31 +21,46 @@ export default function Header() {
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [brojRazlicitihArtikala, setBrojRazlicitihArtikala] = useState(0);
+  const [parametri, setParametri] = useState<any>([]);
+  const [WEBKontaktTelefon, setWEBKontaktTelefon] = useState<string>('N/A');
+  const [WebKontaktEmail, setWebKontaktEmail] = useState<string>('N/A');
+
   const korisnik = dajKorisnikaIzTokena();
   const username = korisnik?.korisnickoIme;
-  
-  useEffect(() => {
-    const updateCartCount = () => {
-      const existing = localStorage.getItem("cart");
-      if (existing) {
-        const cart = JSON.parse(existing);
-        const brojRazlicitih = Object.keys(cart).length;
-        setBrojRazlicitihArtikala(brojRazlicitih);
-      } else {
-        setBrojRazlicitihArtikala(0);
-      }
-    };
 
-    updateCartCount();
+ useEffect(() => {
+  const updateCartCount = () => {
+    const existing = localStorage.getItem("cart");
+    if (existing) {
+      const cart = JSON.parse(existing);
+      const brojRazlicitih = Object.keys(cart).length;
+      setBrojRazlicitihArtikala(brojRazlicitih);
+    } else {
+      setBrojRazlicitihArtikala(0);
+    }
 
-    // Event listener za slušanje promena korpe
-    window.addEventListener("storage", updateCartCount);
+    // Citanje parametrizacije
+    const parametriIzLocalStorage = JSON.parse(localStorage.getItem('webparametri') || '[]');
+    setParametri(parametriIzLocalStorage);
 
-    // Cleanup
-    return () => {
-      window.removeEventListener("storage", updateCartCount);
-    };
-  }, []);
+    // Učitajte parametre odmah
+    const WEBKontaktTelefon = parametriIzLocalStorage.find((param: any) => param.naziv === 'WEBKontaktTelefon')?.vrednost || 'N/A';
+    const WebKontaktEmail = parametriIzLocalStorage.find((param: any) => param.naziv === 'WebKontaktEmail')?.vrednost || 'N/A';
+
+    setWEBKontaktTelefon(WEBKontaktTelefon);
+    setWebKontaktEmail(WebKontaktEmail);
+  };
+
+  updateCartCount();
+
+  // Event listener za slušanje promena korpe
+  window.addEventListener("storage", updateCartCount);
+
+  // Cleanup
+  return () => {
+    window.removeEventListener("storage", updateCartCount);
+  };
+}, []);
 
 const headerMainNav = [ 
   { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/proizvodi/kategorija/' + encodeURIComponent('Okov građevinski') },
@@ -147,11 +160,11 @@ const headerMainNav = [
           <div className="w-[30%] flex items-center justify-center space-x-6">
             <div className="flex items-center space-x-2">
               <Phone className="text-gray-500 h-7 w-7" />
-              <span className="text-sm">+38122802860</span>
+              <span className="text-sm">{WEBKontaktTelefon}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Mail className="text-gray-500 h-7 w-7" />
-              <Link href='/' as="mailto:website@dabel.rs" className="text-sm">website@dabel.rs</Link>
+              <Link href='/' as="mailto:website@dabel.rs" className="text-sm">{WebKontaktEmail}</Link>
             </div>
           </div>
 
