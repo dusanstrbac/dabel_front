@@ -167,19 +167,20 @@ useEffect(() => {
           <p>Nema rezultata za ovu {podkategorija ? 'podkategoriju' : 'kategoriju'}.</p>
         )}
 
-        {loading ? <p>Učitavanje...</p> : <ListaArtikala
-                                              artikli={artikli}
-                                              totalCount={totalCount}
-                                              currentPage={pageFromUrl}
-                                              // onPageChange={setCurrentPage}
-                                              onPageChange={(page) => {
-                                                const params = new URLSearchParams(searchParams.toString());
-                                                params.set('page', page.toString());
-                                                router.push(`?${params.toString()}`);
-                                                window.scrollTo({ top: 0, behavior: "smooth" });
-                                              }}
-                                          />
-                                          }
+        {loading ? 
+          <p>Učitavanje...</p> : 
+          <ListaArtikala
+            artikli={artikli}
+            totalCount={totalCount}
+            currentPage={pageFromUrl}
+            onPageChange={(page) => {
+              const params = new URLSearchParams(searchParams.toString());
+              params.set('page', page.toString());
+              router.push(`?${params.toString()}`);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
+        }
       </div>
     </div>
   );

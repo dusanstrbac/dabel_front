@@ -17,7 +17,6 @@ const OmiljeniArtikli = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
-
   const [sortKey, setSortKey] = useState<SortKey>('naziv');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 

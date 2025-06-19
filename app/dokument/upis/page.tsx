@@ -4,10 +4,9 @@
     import { KeyboardEvent, RefObject } from "react";
     import { useEffect, useState } from "react";
     import { dajKorisnikaIzTokena } from "@/lib/auth";
-    import { Input } from "@/components/ui/input";
     import KreirajNarudzbenicu from "@/components/ui/KreirajNarudzbenicu";
     import { ArtikalType } from "@/types/artikal";
-import { number } from "zod";
+    import { ComboboxAdrese } from "@/components/ui/ComboboxAdrese";
 
     
 
@@ -179,108 +178,15 @@ import { number } from "zod";
                     <div className="flex flex-col max-w-[1200px] mx-auto">
                         
                             {/* OSOBA */}
-                        <div className="flex flex-col w-full">
-                            <h1 className="text-center font-light text-2xl border-b pb-2">Podaci o kontakt osobi</h1>
+                        <div className="flex flex-col items-center">
+                            <ComboboxAdrese
+                                dostavaList={partner?.partnerDostava ?? []}
+                                onSelectOption={(adresa) => {
+                                    console.log("Izabrana adresa:", adresa);
+                                    // možeš setovati selectedAdresa u roditeljskoj komponenti
+                                }}
+                            />
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                                <div className="flex flex-col">
-                                    <label className="font-semibold mb-1">Ime i prezime</label>
-                                    <Input
-                                        ref={imeRef}
-                                        type="text"
-                                        value={imeiPrezime}
-                                        onChange={(e) => setImeiPrezime(e.target.value)}
-                                        onKeyDown={(e) => handleKeyDown(e, emailRef)}
-                                        placeholder="Unesite ime i prezime"
-                                        className={`w-full border rounded p-2 ${greske.imeiPrezime ? "border-red-500" : "border-gray-300"}`}
-                                    />
-                                    {greske.imeiPrezime && (
-                                        <p className="text-red-500 text-sm mt-1">{greske.imeiPrezime}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col">
-                                    <label className="font-semibold mb-1">E-mail</label>
-                                    <Input
-                                        ref={emailRef}
-                                        type="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        onKeyDown={(e) => handleKeyDown(e, gradRef)}
-                                        placeholder="Unesite email adresu"
-                                        className={`w-full border rounded p-2 ${greske.email ? "border-red-500" : "border-gray-300"}`}
-                                    />
-                                    {greske.email && (
-                                        <p className="text-red-500 text-sm mt-1">{greske.email}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col">
-                                    <label className="font-semibold mb-1">Grad</label>
-                                    <Input
-                                        ref={gradRef}
-                                        type="text"
-                                        value={grad}
-                                        onChange={(e) => setGrad(e.target.value)}
-                                        onKeyDown={(e) => handleKeyDown(e, telefonRef)}
-                                        placeholder="Unesite grad"
-                                        className={`w-full border rounded p-2 ${greske.grad ? "border-red-500" : "border-gray-300"}`}
-                                    />
-                                    {greske.grad && (
-                                        <p className="text-red-500 text-sm mt-1">{greske.grad}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col">
-                                    <label className="font-semibold mb-1">Telefon</label>
-                                    <Input
-                                        ref={telefonRef}
-                                        type="text"
-                                        inputMode="numeric"
-                                        pattern="[0-9]*"
-                                        value={telefon}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            const numeric = value.replace(/\D/g, "");
-                                            setTelefon(numeric);
-                                    }}
-                                        onKeyDown={(e) => handleKeyDown(e, adresaRef)}
-                                        placeholder="Unesite broj telefona"
-                                        className={`w-full border rounded p-2 ${greske.telefon ? "border-red-500" : "border-gray-300"}`}
-                                    />
-                                    {greske.telefon && (
-                                        <p className="text-red-500 text-sm mt-1">{greske.telefon}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col md:col-span-2">
-                                    <label className="font-semibold mb-1">Adresa isporuke</label>
-                                    <Input
-                                        ref={adresaRef}
-                                        type="text"
-                                        value={mestoIsporuke}
-                                        onChange={(e) => setMestoIsporuke(e.target.value)}
-                                        placeholder="Unesite adresu"
-                                        className={`w-full border rounded p-2 ${greske.mestoIsporuke ? "border-red-500" : "border-gray-300"}`}
-                                    />
-                                    {greske.mestoIsporuke && (
-                                        <p className="text-red-500 text-sm mt-1">{greske.mestoIsporuke}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col md:col-span-2">
-                                    <label className="font-semibold mb-1">Napomena</label>
-                                    <Input
-                                        ref={napomenaRef}
-                                        type="text"
-                                        value={napomena}
-                                        onChange={(e) => setNapomena(e.target.value)}
-                                        placeholder="Unesite adresu"
-                                        className={`w-full border rounded p-2 "border-gray-300"`}
-                                    />
-                                </div>
-                            </div>
                         </div>
 
                         <div className="flex flex-col w-full mt-8">
@@ -380,7 +286,7 @@ import { number } from "zod";
 
             {/* NARUCI DUGME */}
             <div className="pt-5 flex justify-end">
-                {partner && (
+                {/* {partner && ( */}
                     <KreirajNarudzbenicu
                         artikli={artikli}
                         idDokumenta={idDokumenta}
@@ -394,7 +300,7 @@ import { number } from "zod";
                         valid={proveriPolja}
                         napomena={napomena}
                     />
-                )}
+                {/* )} */}
             </div>
         </div>
     );

@@ -81,12 +81,12 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mesto
                 artikli,
                 partner,
                 DatumKreiranja: now,
-                imeiPrezime,
+                // imeiPrezime,
                 mestoIsporuke,
                 napomena,
-                grad,
-                telefon,
-                email,
+                // grad,
+                // telefon,
+                // email,
             }));
 
             console.log("Da vidim samo sta saljemo u /dokument: ", sessionStorage);
