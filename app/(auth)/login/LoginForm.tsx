@@ -62,6 +62,13 @@ export default function LoginForm() {
           encode: (value) => value,
         });
 
+        // Učitaj parametre i sačuvaj ih u localStorage
+        const paramData = await axios.get(`${apiAddress}/api/Auth/WEBParametrizacija`);
+
+        if (paramData.data) {
+          localStorage.setItem("webparametri", JSON.stringify(paramData.data));
+        }
+
         router.push(redirectTo);
         router.refresh();
         
