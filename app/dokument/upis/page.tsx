@@ -300,6 +300,8 @@ import { number } from "zod";
                                     <p><strong>ZIP:</strong> {partner?.zip}</p>
                                     <p><strong>Delatnost:</strong> {partner?.delatnost}</p>
                                     <p><strong>Telefon:</strong> {partner?.telefon}</p>
+                                    <p><strong>Nebitno:</strong> {partner?.partnerDostava[0].adresa}</p>
+                                    
                                 </div>
                             </div>
                         </div>

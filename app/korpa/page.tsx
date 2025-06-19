@@ -32,11 +32,18 @@ const Korpa = () => {
   const [quantities, setQuantities] = useState<number[]>([]);
   const [isClient, setIsClient] = useState(false);
 
+
+  const [rabatPartnera, setRabatPartnera] = useState<number>(0);
+
+
   
 
 
   useEffect(() => {
     setIsClient(true);
+
+    // setRabatPartnera(parsed.partner.partnerRabat.rabat ?? 0);
+
 
     const cart = JSON.parse(localStorage.getItem("cart") || "{}");
     const storedIds = Object.keys(cart);
@@ -169,6 +176,7 @@ const Korpa = () => {
               <TableHead className="text-xl text-center font-light">Pakovanje</TableHead>
               <TableHead className="text-xl text-center font-light">Trebovana količina</TableHead>
               <TableHead className="text-xl text-center font-light">Količina</TableHead>
+              <TableHead className="text-xl text-center font-light">Rabat</TableHead>
               <TableHead className="text-xl text-center font-light">Iznos</TableHead>
               <TableHead className="text-xl text-center font-light">Iznos sa PDV</TableHead>
               <TableHead />
@@ -188,7 +196,8 @@ const Korpa = () => {
               const kolicina = getRoundedQuantity(quantities[index], pakovanje);
               const cena = getCenaZaArtikal(article);
               const originalnaCena = getOriginalnaCena(article);
-              const iznos = kolicina * cena;
+              const cenaPosleRabat = cena * (1 - rabatPartnera/100);
+              const iznos = kolicina * cenaPosleRabat;
               const iznosSaPDV = iznos * 1.2;
 
               return (
@@ -237,6 +246,7 @@ const Korpa = () => {
                     />
                   </TableCell>
                   <TableCell className="text-center">{kolicina}</TableCell>
+                  <TableCell className="text-center">{}</TableCell>
                   <TableCell className="text-center">{formatCena(iznos)} RSD</TableCell>
                   <TableCell className="text-center">{formatCena(iznosSaPDV)} RSD</TableCell>
                   <TableCell>

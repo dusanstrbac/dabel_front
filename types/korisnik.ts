@@ -14,8 +14,8 @@ interface KorisnikPodaciType {
     finKarta: FinKartaType,
 
     komercijalista: KorisnikPodaciKomercijalistaType,
-    partnerRabat: KorisnikRabatType
-    korisnikDostava: KorisnikDostavaType
+    partnerRabat: KorisnikRabatType,
+    partnerDostava: KorisnikDostavaType[],
 }
 
 

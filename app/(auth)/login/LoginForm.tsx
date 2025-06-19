@@ -52,7 +52,8 @@ export default function LoginForm() {
       );
 
       console.log(data);
-      const redirectTo = searchParams.get("redirectTo") || "/";
+      // const redirectTo = searchParams.get("redirectTo") || "/";
+        const redirectTo =  "/";
 
       if (data.token) {
         setCookie("AuthToken", data.token, {
