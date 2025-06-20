@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, Table
 import NaruciButton from "@/components/ui/NaruciButton";
 import Image from "next/image";
 import RezervisiButton from "@/components/RezervisiButton";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 type ArtikalCena = {
   cena: number;
@@ -42,8 +43,6 @@ const Korpa = () => {
   useEffect(() => {
     setIsClient(true);
 
-    // setRabatPartnera(parsed.partner.partnerRabat.rabat ?? 0);
-
 
     const cart = JSON.parse(localStorage.getItem("cart") || "{}");
     const storedIds = Object.keys(cart);
@@ -52,6 +51,9 @@ const Korpa = () => {
     }
     const queryString = storedIds.map(id => `ids=${id}`).join("&");
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
+    
+
     const url = `${apiAddress}/api/Artikal/DajArtikalId?${queryString}`;
 
 
@@ -74,6 +76,30 @@ const Korpa = () => {
         console.error("Greška pri učitavanju artikala:", error);
       }
     };
+
+    const fetchPartner = async () => {
+      const korisnik = dajKorisnikaIzTokena();
+      if (!korisnik) {
+          console.warn("Nema korisnika iz tokena.");
+          return;
+      }
+
+      const email = korisnik.email;
+
+      try {
+          const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${email}`);
+          const data = await res.json();
+
+          const partner = data[0];
+          if (partner.partnerRabat.rabat) {
+            setRabatPartnera(partner.partnerRabat.rabat);
+          }
+      } catch (err) {
+          console.error("Greška pri fetchovanju partnera:", err);
+      }
+    };
+
+    fetchPartner();
     fetchArticles();
   }, []);
 
@@ -132,19 +158,27 @@ const Korpa = () => {
     return Number(cena).toFixed(2);
   };
 
-  const totalAmount = quantities.reduce((sum, quantity, index) => {
-    const packSize = articleList[index]?.pakovanje || 1;
-    const cena = getCenaZaArtikal(articleList[index]);
-    const rounded = getRoundedQuantity(quantity, packSize);
-    return sum + rounded * cena;
-  }, 0);
+
+  const totalAmount = articleList.reduce((sum, artikal, index) => {
+    const packSize = artikal.pakovanje || 1;
+    const rounded = getRoundedQuantity(quantities[index], packSize);
+    const cena = getCenaZaArtikal(artikal);
+    const cenaSaRabat = cena * (1 - rabatPartnera / 100);
+    return sum + rounded * cenaSaRabat;
+}, 0);
 
   const totalAmountWithPDV = totalAmount * 1.2;
 
   const getSlikaArtikla = (idArtikla: string) => {
     const baseUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS;
     return `${baseUrl}/s${idArtikla}.jpg`;
+
+    
   };
+// console.log(getSlikaArtikla(artikal.idArtikla));
+//ovaj se crveni ovde, i verovatno ovamo gore ne moze da ide samo idArtikla jer kako ce on da zna ciji je to artikal??  i kako da ispravno console.log ovde?????
+  
+
     
     useEffect(() => {
       if (isClient) {
@@ -196,14 +230,14 @@ const Korpa = () => {
               const kolicina = getRoundedQuantity(quantities[index], pakovanje);
               const cena = getCenaZaArtikal(article);
               const originalnaCena = getOriginalnaCena(article);
-              const cenaPosleRabat = cena * (1 - rabatPartnera/100);
+              const cenaPosleRabat = cena * (1 - rabatPartnera / 100);
               const iznos = kolicina * cenaPosleRabat;
               const iznosSaPDV = iznos * 1.2;
 
               return (
                 <TableRow key={index}>
                   <TableCell className="text-center">
-                    <img
+                    <Image
                       src={getSlikaArtikla(article.idArtikla)}
                       alt={article.naziv}
                       width={64}
@@ -246,7 +280,7 @@ const Korpa = () => {
                     />
                   </TableCell>
                   <TableCell className="text-center">{kolicina}</TableCell>
-                  <TableCell className="text-center">{}</TableCell>
+                  <TableCell className="text-center">{rabatPartnera}</TableCell>
                   <TableCell className="text-center">{formatCena(iznos)} RSD</TableCell>
                   <TableCell className="text-center">{formatCena(iznosSaPDV)} RSD</TableCell>
                   <TableCell>
@@ -259,7 +293,7 @@ const Korpa = () => {
           <TableFooter>
             <TableRow>
               <TableCell className="font-bold text-center">Ukupno:</TableCell>
-              <TableCell colSpan={6}></TableCell>
+              <TableCell colSpan={7}></TableCell>
               <TableCell className="text-center font-bold">{formatCena(totalAmount)} RSD</TableCell>
               <TableCell className="text-center font-bold">{formatCena(totalAmountWithPDV)} RSD</TableCell>
               <TableCell />
@@ -281,7 +315,8 @@ const Korpa = () => {
           const kolicina = getRoundedQuantity(quantities[index], pakovanje);
           const cena = getCenaZaArtikal(article);
           const originalnaCena = getOriginalnaCena(article);
-          const iznos = kolicina * cena;
+          const cenaPosleRabat = cena * (1 - rabatPartnera / 100);
+          const iznos = kolicina * cenaPosleRabat;
           const iznosSaPDV = iznos * 1.2;
 
           return (

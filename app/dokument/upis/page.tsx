@@ -286,7 +286,7 @@
 
             {/* NARUCI DUGME */}
             <div className="pt-5 flex justify-end">
-                {/* {partner && ( */}
+                {partner && (
                     <KreirajNarudzbenicu
                         artikli={artikli}
                         idDokumenta={idDokumenta}
@@ -300,7 +300,7 @@
                         valid={proveriPolja}
                         napomena={napomena}
                     />
-                {/* )} */}
+                )}
             </div>
         </div>
     );
