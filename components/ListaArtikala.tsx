@@ -21,6 +21,8 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
   const searchParams = useSearchParams()
   const trenutnaStrana = currentPage;
 
+  
+
   const [filteri, setFilteri] = useState<ArtikalFilterProp>({
     naziv: '',
     jedinicaMere: '',
@@ -32,8 +34,12 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
     Boja: [],
   })
 
-  const brojStranica = useMemo(() => Math.ceil(totalCount / artikliPoStrani), [totalCount])
 
+  const brojStranica = useMemo(() => {
+    const br = Math.ceil(totalCount / artikliPoStrani);
+    return br < 1 ? 1 : br;
+  }, [totalCount]);
+  
   const prikazaniArtikli = artikli;
   // Funkcija za menjanje strane i update URL-a bez reloada
   const idiNaStranu = (broj: number, event?:React.MouseEvent) => {
@@ -42,9 +48,6 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
   if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return;
 
   onPageChange(broj);
-  const url = new URL(window.location.href);
-  url.searchParams.set('page', broj.toString());
-  router.push(`${url.pathname}${url.search}`, { scroll: false });
 }
 
   const onFilterChange = (noviFilteri: ArtikalFilterProp) => {

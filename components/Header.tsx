@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut, Smartphone } from "lucide-react";
+import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut, Smartphone, FileText } from "lucide-react";
 import Image from "next/image";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
@@ -11,10 +11,9 @@ import { ScrollArea } from "./ui/scroll-area";
 import KorisnikMenu from "./KorisnikMenu";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { deleteCookie, getCookie } from 'cookies-next';
+import { deleteCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import PretragaProizvoda from "./PretragaProizvoda";
-
 
 export default function Header() {
   const [korisnickoIme, setKorisnickoIme] = useState<string | null>(null);
@@ -22,31 +21,39 @@ export default function Header() {
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [brojRazlicitihArtikala, setBrojRazlicitihArtikala] = useState(0);
+  const [parametri, setParametri] = useState<any>([]);
+  const [WEBKontaktTelefon, setWEBKontaktTelefon] = useState<string>('N/A');
+  const [WebKontaktEmail, setWebKontaktEmail] = useState<string>('N/A');
   const korisnik = dajKorisnikaIzTokena();
   const username = korisnik?.korisnickoIme;
-  
-  useEffect(() => {
-    const updateCartCount = () => {
-      const existing = localStorage.getItem("cart");
-      if (existing) {
-        const cart = JSON.parse(existing);
-        const brojRazlicitih = Object.keys(cart).length;
-        setBrojRazlicitihArtikala(brojRazlicitih);
-      } else {
-        setBrojRazlicitihArtikala(0);
-      }
-    };
 
-    updateCartCount();
+ useEffect(() => {
+  const updateCartCount = () => {
+    const existing = localStorage.getItem("cart");
+    if (existing) {
+      const cart = JSON.parse(existing);
+      const brojRazlicitih = Object.keys(cart).length;
+      setBrojRazlicitihArtikala(brojRazlicitih);
+    } else {
+      setBrojRazlicitihArtikala(0);
+    }
 
-    // Event listener za slušanje promena korpe
-    window.addEventListener("storage", updateCartCount);
+    // Citanje parametrizacije
+    const parametriIzLocalStorage = JSON.parse(localStorage.getItem('webparametri') || '[]');
+    const WEBKontaktTelefon = parametriIzLocalStorage.find((param: any) => param.naziv === 'WEBKontaktTelefon')?.vrednost || 'N/A';
+    const WebKontaktEmail = parametriIzLocalStorage.find((param: any) => param.naziv === 'WebKontaktEmail')?.vrednost || 'N/A';
+    setParametri(parametriIzLocalStorage);
+    setWEBKontaktTelefon(WEBKontaktTelefon);
+    setWebKontaktEmail(WebKontaktEmail);
+  };
 
-    // Cleanup
-    return () => {
-      window.removeEventListener("storage", updateCartCount);
-    };
-  }, []);
+  updateCartCount();
+  // Event listener za slušanje promena korpe
+  window.addEventListener("storage", updateCartCount);
+  return () => {
+    window.removeEventListener("storage", updateCartCount);
+  };
+}, []);
 
 const headerMainNav = [ 
   { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/proizvodi/kategorija/' + encodeURIComponent('Okov građevinski') },
@@ -75,7 +82,7 @@ const headerMainNav = [
   const menuItems = [
     { id: 'podaci', icon: <User2 className="h-6 w-6" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
     { id: 'rezervacije', icon: <User2 className="h-6 w-6" />, text: "Rezervisana roba", href: username ? `/${username}/profil/rezervacije` : '/login' },
-    { id: 'istorija', icon: <History className="h-6 w-6" />, text: "Istorija poručivanja", href: username ? `/${username}/profil/istorija` : '/login' },
+    { id: 'narudzbenica', icon: <FileText className="h-6 w-6" />, text: "Narudžbenica", href: username ? `/${username}/profil/narudzbenica` : '/login' },
     { id: 'uplate', icon: <Wallet className="h-6 w-6" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
     { id: 'roba', icon: <Package className="h-6 w-6" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
     { id: 'korisnici', icon: <Users className="h-6 w-6" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : `/login` },
@@ -91,6 +98,9 @@ const headerMainNav = [
     { icon: <Heart className="w-4 h-4" />, text: "Omiljeni artikli", href: "/heart" },
     { icon: <ShoppingCart className="w-4 h-4" />, text: "Korpa", href: "/korpa" },
   ];
+
+
+  const [openKorisnikMeni, setOpenKorisnikMeni] = useState(false);
 
   useEffect(() => {    
     if(korisnik && korisnik.korisnickoIme) {
@@ -144,11 +154,11 @@ const headerMainNav = [
           <div className="w-[30%] flex items-center justify-center space-x-6">
             <div className="flex items-center space-x-2">
               <Phone className="text-gray-500 h-7 w-7" />
-              <span className="text-sm">+38122802860</span>
+              <span className="text-sm">{WEBKontaktTelefon}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Mail className="text-gray-500 h-7 w-7" />
-              <Link href='/' as="mailto:website@dabel.rs" className="text-sm">website@dabel.rs</Link>
+              <Link href='/' as="mailto:website@dabel.rs" className="text-sm">{WebKontaktEmail}</Link>
             </div>
           </div>
 
@@ -266,7 +276,7 @@ const headerMainNav = [
           </div>
           <div>
           {/* KORISNIK MENU */}
-            <Sheet>
+            <Sheet open={openKorisnikMeni} onOpenChange={setOpenKorisnikMeni}>
               <SheetTrigger>
                 <User className="w-6 h-8" />
               </SheetTrigger>
@@ -279,7 +289,7 @@ const headerMainNav = [
                 <div className="pl-2 flex flex-col">
                   <ScrollArea>
                       {menuItems.map((item) => (
-                        <Link href={item.href} key={item.id} className="flex gap-3 items-center pb-4">
+                        <Link href={item.href} key={item.id} className="flex gap-3 items-center pb-4" onClick={() => setOpenKorisnikMeni(false)}>
                           <span className="">{item.icon}</span>
                           <span className="text-[18px]">{item.text}</span>
                         </Link>
@@ -289,12 +299,19 @@ const headerMainNav = [
                        
                        <Link href='#' className="flex gap-3 items-center pb-4">
                           <LogOut className="w-6 h-6" />
-                          <span className="text-[18px] text-red-500" onClick={odjaviKorisnika}>Odjava</span>
+                          <span className="text-[18px] text-red-500" onClick={() => {
+                              odjaviKorisnika();
+                              setOpenKorisnikMeni(false);
+                          }}>Odjava</span>
                         </Link> ) : (
 
                           <Link href='#' className="flex gap-3 items-center pb-4">
                           <LogOut className="w-6 h-6" />
-                          <span className="text-[18px]" onClick={() => router.push('/login')}>Prijavi se</span>
+                          <span className="text-[18px]" onClick={() => {
+                              router.push('/login');
+                              setOpenKorisnikMeni(false);
+                            }}>
+                                Prijavi se</span>
                         </Link>
 
                       )}

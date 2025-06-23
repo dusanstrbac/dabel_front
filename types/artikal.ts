@@ -28,6 +28,19 @@ export type ArtikalCena = {
   };
 };
 
+export type artikalProp = {
+  idArtikla: string;
+  naziv: string;
+  barkod: string;
+  jm: string;
+};
+export type StavkaType = {
+  naziv: string;
+  opis: string;
+  vrednost: string;
+};
+
+
 export type ArtikalAtribut = {
   idArtikla: string;
   imeAtributa: string;
@@ -70,3 +83,7 @@ export const defaultFilters: ArtikalFilterProp = {
   Boja: [],
   
 };
+
+
+
+

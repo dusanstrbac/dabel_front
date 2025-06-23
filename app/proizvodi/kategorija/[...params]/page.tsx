@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { ArtikalFilterProp, ArtikalType } from '@/types/artikal';
 import ListaArtikala from '@/components/ListaArtikala';
 import SortiranjeButton from '@/components/SortiranjeButton';
+import { useRouter } from 'next/navigation';
+import { dajKorisnikaIzTokena } from '@/lib/auth';
+
 
 export default function ProizvodiPage() {
   const { params } = useParams();
@@ -12,18 +15,33 @@ export default function ProizvodiPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [currentPage, setCurrentPage] = useState(1);
   const [sortKey, setSortKey] = useState<'cena' | 'naziv'>('cena');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   
   const searchParams = useSearchParams();
+  const router = useRouter();
+
+
+  const pageFromUrl = useMemo(() => {
+    const pageParam = searchParams.get('page');
+    const parsed = parseInt(pageParam || '1', 10);
+    return isNaN(parsed) || parsed < 1 ? 1 : parsed;
+  }, [searchParams]);
 
   useEffect(() => {
     if (!params || params.length === 0) return;
 
     const kategorija = decodeURIComponent(params[0]);
     const podkategorija = params.length > 1 ? decodeURIComponent(params[1]) : null;
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    if (pageFromUrl > totalPages && totalPages > 0) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('page', '1');
+      router.replace(`?${params.toString()}`);
+    } 
 
     fetchArtikli(kategorija, podkategorija, {
       naziv: '',
@@ -34,8 +52,8 @@ export default function ProizvodiPage() {
       RobnaMarka: [],
       Upotreba: [],
       Boja: [],
-    }, currentPage);
-  }, [params, currentPage, sortKey, sortOrder]); // dodato sortKey i sortOrder
+    }, pageFromUrl);
+  }, [params, pageFromUrl, sortKey, sortOrder, totalCount, pageFromUrl]);
 
   const handleSortChange = (key: 'cena' | 'naziv', order: 'asc' | 'desc') => {
   setSortKey(key);
@@ -80,8 +98,10 @@ export default function ProizvodiPage() {
     });
 
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+    const korisnik = dajKorisnikaIzTokena();
+    const fullUrl = `${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${queryParams.toString()}&idPartnera=${korisnik?.idKorisnika}`;
+    // http://localhost:7235/api/Artikal/DajArtikleSaPaginacijom?page=1&pageSize=8&sortBy=naziv&sortOrder=asc&idPartnera=3005
 
-    const fullUrl = `${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${queryParams.toString()}`;
 
     try {
       const res = await fetch(fullUrl);
@@ -129,8 +149,8 @@ useEffect(() => {
     RobnaMarka: [],
     Upotreba: [],
     Boja: [],
-  }, currentPage);
-}, [params, currentPage]);
+  }, pageFromUrl);
+}, [params, pageFromUrl]);
 
   if (!params || params.length === 0) {
     return <p>Greška: Očekuje se najmanje jedna ruta (kategorija).</p>;
@@ -153,11 +173,20 @@ useEffect(() => {
 
       </div>
       <div>
-        {!loading && artikli.length === 0 && (
-          <p>Nema rezultata za ovu {podkategorija ? 'podkategoriju' : 'kategoriju'}.</p>
-        )}
-
-        {loading ? <p>Učitavanje...</p> : <ListaArtikala artikli={artikli} totalCount={totalCount} currentPage={currentPage} onPageChange={setCurrentPage} />}
+        {loading ? 
+          <p className='text-center'>Učitavanje...</p> : 
+          <ListaArtikala
+            artikli={artikli}
+            totalCount={totalCount}
+            currentPage={pageFromUrl}
+            onPageChange={(page) => {
+              const params = new URLSearchParams(searchParams.toString());
+              params.set('page', page.toString());
+              router.push(`?${params.toString()}`);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
+        }
       </div>
     </div>
   );

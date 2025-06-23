@@ -13,13 +13,16 @@ import {
 import { useEffect, useState } from "react";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import Pagination from "./ui/pagination";
+import { Link } from "lucide-react";
+import { usePathname } from "next/navigation"; 
+
 
 interface myProps {
   title: string;
 }
 
 const FormTable = ({ title }: myProps) => {
-  const korisnik = dajKorisnikaIzTokena();
+  // const korisnik = dajKorisnikaIzTokena();
   const [error, setError] = useState("");
   const [dokumenta, setDokumenta] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +30,18 @@ const FormTable = ({ title }: myProps) => {
   const [sortKey, setSortKey] = useState<'datum' | 'cena'>('datum');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
+  const pathname = usePathname();
+  const prikazNarudzbenica = pathname.includes(`/narudzbenica`);
+
+
   const itemsPerPage = 15;
+
+  const [korisnik, setKorisnik] = useState<any>(null);
+
+  useEffect(() => {
+    setKorisnik(dajKorisnikaIzTokena());
+  }, []);
+
 
   // sortiraj dokumenta po izabranom ključu i redosledu
   const sortiranaDokumenta = [...dokumenta].sort((a, b) => {
@@ -56,8 +70,10 @@ const FormTable = ({ title }: myProps) => {
 
   // učitavanje podataka
   useEffect(() => {
+    if (!korisnik) return;
     const izvuciDokumenta = async () => {
       try {
+        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const idKorisnika = korisnik?.idKorisnika;
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const res = await fetch(
@@ -78,15 +94,25 @@ const FormTable = ({ title }: myProps) => {
     izvuciDokumenta();
   }, [korisnik]);
 
+  //Kreiranje statusa za dokument
+  useEffect(() => {
+    console.log("Dokumenti (statusi):", dokumenta.map((dokument, index) =>
+      dokument.status || (index % 2 === 0 ? "U obradi" : "Poslat")
+    ));
+  }, [dokumenta]);
+
+
   if (loading) return <div>Učitavanje podataka...</div>;
   if (error) return <div>Greška: {error}</div>;
   if (!dokumenta.length) return <div>Nema podataka.</div>;
 
+
+
   return (
-    <div className="flex flex-col gap-2 lg:gap-4 mt-[20px] lg:items-center lg:justify-center">
-      <div className="flex justify-between items-center w-full lg:w-[800px]">
+    <div className="flex flex-col gap-2 lg:gap-4 my-[20px] lg:items-center lg:justify-center">
+      <div className="flex sm:flex-row flex-col justify-between items-center w-full lg:w-[800px] gap-3">
         <h1 className="font-bold text-3xl">{title}</h1>
-        <div className="flex gap-2">
+        <div className="flex sm:flex-row flex-col jusitfy-end gap-2">
           <Button
             variant={"outline"}
             className="cursor-pointer"
@@ -114,6 +140,9 @@ const FormTable = ({ title }: myProps) => {
             <TableRow>
               <TableHead className="lg:w-[200px] text-xl">Datum</TableHead>
               <TableHead className="text-xl">Dokument</TableHead>
+              {prikazNarudzbenica && (
+                <TableHead className="text-xl">Status</TableHead>
+              )}
               <TableHead className="text-xl text-right">Iznos</TableHead>
             </TableRow>
           </TableHeader>
@@ -124,6 +153,8 @@ const FormTable = ({ title }: myProps) => {
                   (sum: number, stavka: any) => sum + stavka.ukupnaCena,
                   0
                 ) ?? 0;
+
+                const status = dokument.status || (index % 2 === 0 ? "U obradi" : "Poslat");
 
               return (
                 <TableRow key={index} className="hover:odd:bg-gray-300">
@@ -138,7 +169,29 @@ const FormTable = ({ title }: myProps) => {
                       {dokument.brojDokumenta}
                     </a>
                   </TableCell>
+                  {prikazNarudzbenica && (
+                    <TableCell className="flex items-center gap-2">
+                      <span
+                        className={`
+                          inline-block w-3 h-3 rounded-full border
+                          ${status === "U obradi" ? "border-yellow-500 border-2" : "border-green-600 border-2"}
+                        `}
+                      />
+                      <span className="text-sm">{status}</span>
+                    </TableCell>
+                  )}
+
                   <TableCell className="text-right">{ukupno.toFixed(2)}</TableCell>
+                  {prikazNarudzbenica && (
+                    <TableCell className="flex justify-center">
+                      <a 
+                        href="#"
+                        className="text-blue-500 font-bold hover:underline justify-end"
+                      >
+                        Opoziv
+                      </a>
+                    </TableCell>
+                  )}
                 </TableRow>
               );
             })}
@@ -146,7 +199,13 @@ const FormTable = ({ title }: myProps) => {
           <TableFooter>
             <TableRow className="bg-gray-400 hover:bg-gray-400">
               <TableCell className="font-medium">Ukupno:</TableCell>
-              <TableCell></TableCell>
+              <TableCell/>
+              {prikazNarudzbenica && (
+                <>
+                <TableCell/>
+                <TableCell/>
+                </>
+              )}
               <TableCell className="text-right">{ukupnaSuma.toFixed(2)}</TableCell>
             </TableRow>
           </TableFooter>

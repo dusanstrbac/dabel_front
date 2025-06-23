@@ -35,6 +35,7 @@ const Akcije = () => {
     }
   }, [searchParams]);
 
+
   const fetchAkcijeArtikli = async () => {
   try {
     setLoading(true);
@@ -78,11 +79,11 @@ const Akcije = () => {
     <div className="lg:p-4">
       <div className="w-full mx-auto flex justify-between items-center p-2">
         <h1 className="font-bold text-3xl">Akcije</h1>
-        <SortiranjeButton
+                <SortiranjeButton
           sortKey={sortKey}
           sortOrder={sortOrder}
           onSortChange={handleSortChange}
-        /> 
+        />
       </div>
 
       {loading ? (
