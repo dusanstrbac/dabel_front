@@ -55,7 +55,6 @@ export function ComboboxDemo({
   function handleSelect(value: string) {
   const option = options.find((option) => option.value === value);
     if (option) {
-      console.log("Izabrao sam:", option.value);
       setSelectedValue(option.value);
       onSelectOption(option.label);
       setOpen(false);

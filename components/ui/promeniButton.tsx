@@ -17,30 +17,13 @@ type artikalProp = {
   jm: string;
 };
 
-const PromeniButton = ({
-  artikal,
-  articleList,
-  onArtikalPromenjen,
-  iskljuceniArtikli,
-}: {
-  artikal: artikalProp;
-  articleList: artikalProp[];
-  onArtikalPromenjen: (stariId: string, novi: artikalProp) => void;
-  iskljuceniArtikli: artikalProp[];
-}) => {
+const PromeniButton = ({ artikal, articleList, onArtikalPromenjen, iskljuceniArtikli } : { artikal: artikalProp; articleList: artikalProp[]; onArtikalPromenjen: (stariId: string, novi: artikalProp) => void; iskljuceniArtikli: artikalProp[]; }) => {
   const [localArticleList, setLocalArticleList] = useState<artikalProp[]>([]);
   const [selectedArtikal, setSelectedArtikal] = useState<artikalProp | null>(null);
 
-  console.log("🌀 PromeniButton renderovan");
-
   useEffect(() => {
-    console.log("📦 useEffect: articleList promenjen, upisujem u lokalni state...");
     setLocalArticleList(articleList);
   }, [articleList]);
-
-  useEffect(() => {
-    console.log("🔁 PromeniButton se ponovo renderovao");
-  });
 
   // Filtriraj artikle koji su već u upotrebi, osim trenutnog
   const dostupniArtikli = localArticleList.filter((a) => {
@@ -74,9 +57,9 @@ const PromeniButton = ({
       <DialogContent className="flex flex-col min-w-[700px] max-w-[1000px] boder-2 border-amber-800"> 
         {/* hocu da ovaj dialogContent malo prosirim u sirinu da bi on ispao lepsi */}
         <DialogHeader>
-          <DialogTitle>Izaberite artikals</DialogTitle>
+          <DialogTitle>Izaberite artikal</DialogTitle>
           <DialogDescription className="w-[800px]">
-            Odaberite artikal koji želite da zamenite
+            Odaberite artikal koji želite da postavite kao preporučen za sve kupce
           </DialogDescription>
         </DialogHeader>
 
@@ -90,17 +73,7 @@ const PromeniButton = ({
             placeholder="Pretraži artikle"
             currentArtikalId={artikal.idArtikla}
           />
-          <div className="flex justify-between">
-            <Button
-              className="min-w-[100px]"
-              onClick={() => {
-                console.log("❌ Kliknuto na 'Odbaci'");
-                setSelectedArtikal(null);
-              }}
-            >
-              Odbaci (ovo je višak??)
-            </Button>
-
+          <div className="flex justify-end">
             <Button
               className="w-[100px]"
               onClick={() => {

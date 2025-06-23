@@ -5,12 +5,14 @@ import { Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArtikalType } from '@/types/artikal';
+import { dajKorisnikaIzTokena } from '@/lib/auth';
 
 const PretragaProizvoda = () => {
   const [query, setQuery] = useState('');
   const [rezultati, setRezultati] = useState<ArtikalType[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
+  const korisnik = dajKorisnikaIzTokena();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,7 +28,7 @@ const PretragaProizvoda = () => {
         if (!trimmedQuery) return;
 
         const res = await fetch(
-          `${apiAddress}/api/Artikal/DajFilterArtikle?batchSize=1000&naziv=${encodeURIComponent(trimmedQuery)}`
+          `${apiAddress}/api/Artikal/DajFilterArtikle?idPartnera=${korisnik?.idKorisnika}&batchSize=1000&naziv=${encodeURIComponent(trimmedQuery)}`
         );
 
         const data = await res.json();
