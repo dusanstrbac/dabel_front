@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, User2, History, Package, Users, BadgeDollarSign, Youtube, Key, LogOut, Wallet, FileText } from 'lucide-react';
+import { User, User2, History, Package, Users, BadgeDollarSign, Youtube, Key, LogOut, Wallet, FileText, ShieldUser } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import Link from 'next/link';
 import { deleteCookie } from 'cookies-next';
@@ -39,6 +39,7 @@ export function KorisnikMenu() {
   }
 
   const menuItems = [
+    { icon: <ShieldUser className="h-4 w-4" />, text: "Admin podešavanja", href: username ? `/${username}/admin` : '/login' },
     { icon: <User2 className="h-4 w-4" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
     { icon: <FileText className="h-4 w-4" />, text: "Narudžbenica", href: username ? `/${username}/profil/narudzbenica` : '/login' },
     { icon: <Wallet className="h-4 w-4" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
