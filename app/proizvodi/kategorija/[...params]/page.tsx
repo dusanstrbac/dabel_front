@@ -6,6 +6,7 @@ import { ArtikalFilterProp, ArtikalType } from '@/types/artikal';
 import ListaArtikala from '@/components/ListaArtikala';
 import SortiranjeButton from '@/components/SortiranjeButton';
 import { useRouter } from 'next/navigation';
+import { dajKorisnikaIzTokena } from '@/lib/auth';
 
 
 export default function ProizvodiPage() {
@@ -34,6 +35,13 @@ export default function ProizvodiPage() {
 
     const kategorija = decodeURIComponent(params[0]);
     const podkategorija = params.length > 1 ? decodeURIComponent(params[1]) : null;
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    if (pageFromUrl > totalPages && totalPages > 0) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('page', '1');
+      router.replace(`?${params.toString()}`);
+    } 
 
     fetchArtikli(kategorija, podkategorija, {
       naziv: '',
@@ -45,7 +53,7 @@ export default function ProizvodiPage() {
       Upotreba: [],
       Boja: [],
     }, pageFromUrl);
-  }, [params, pageFromUrl, sortKey, sortOrder]); // dodato sortKey i sortOrder
+  }, [params, pageFromUrl, sortKey, sortOrder, totalCount, pageFromUrl]);
 
   const handleSortChange = (key: 'cena' | 'naziv', order: 'asc' | 'desc') => {
   setSortKey(key);
@@ -90,8 +98,10 @@ export default function ProizvodiPage() {
     });
 
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+    const korisnik = dajKorisnikaIzTokena();
+    const fullUrl = `${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${queryParams.toString()}&idPartnera=${korisnik?.idKorisnika}`;
+    // http://localhost:7235/api/Artikal/DajArtikleSaPaginacijom?page=1&pageSize=8&sortBy=naziv&sortOrder=asc&idPartnera=3005
 
-    const fullUrl = `${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${queryParams.toString()}`;
 
     try {
       const res = await fetch(fullUrl);
