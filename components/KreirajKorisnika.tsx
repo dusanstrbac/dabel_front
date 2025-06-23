@@ -56,8 +56,8 @@ const KreirajKorisnika = () => {
         Kredit: kredit,
       }
     };
-
-    const res = await fetch("http://localhost:7235/api/Partner/KreirajPartnera", {
+    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+    const res = await fetch(`${apiAddress}/api/Partner/KreirajPartnera`, {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

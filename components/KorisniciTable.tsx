@@ -19,9 +19,10 @@ const KorisniciTable = ({ title } : myProps )=> {
     const korisnikaPoStrani = 10;
 
     useEffect(() => {
+        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const fethujPartnere = async () => {
             try {
-                const res = await fetch("http://localhost:7235/api/Partner/DajPartnere");
+                const res = await fetch(`${apiAddress}/api/Partner/DajPartnere`);
                 const data = await res.json();
                 setTabelaStavke(data);
             } catch (err) {
