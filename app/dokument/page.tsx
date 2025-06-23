@@ -34,7 +34,6 @@ const DokumentPage = () => {
 
       localStorage.removeItem("cart");
       window.dispatchEvent(new Event("storage")); // za ažuriranje ikonice korpe
-      console.log("🗑️ Korpa je ispražnjena iz localStorage-a.");
     }
   }, []);
 
@@ -54,15 +53,13 @@ const DokumentPage = () => {
 
   const ukupno = stavke.reduce(
     (acc, stavka) => {
-      const { cenaBezPDV, cenaSaPDV, vrednost } = izracunajStavku(stavka);
+      const { cenaBezPDV, cenaSaPDV } = izracunajStavku(stavka);
       acc.ukupnoBezPDV += cenaBezPDV * Number(stavka.kolicina);
       acc.ukupnoSaPDV += cenaSaPDV * Number(stavka.kolicina);
       return acc;
     },
     { ukupnoBezPDV: 0, ukupnoSaPDV: 0 }
   );
-
-  console.log("koji majmun stize ovde ?", partnerInfo);
 
   if (!partnerInfo || stavke.length === 0) {
     return <div className="p-10 text-red-600">Nema dostupnih podataka za prikaz dokumenta.</div>;
