@@ -34,7 +34,6 @@ export type artikalProp = {
   barkod: string;
   jm: string;
 };
-
 export type StavkaType = {
   naziv: string;
   opis: string;

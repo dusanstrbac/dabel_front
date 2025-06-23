@@ -173,12 +173,8 @@ useEffect(() => {
 
       </div>
       <div>
-        {!loading && artikli.length === 0 && (
-          <p>Nema rezultata za ovu {podkategorija ? 'podkategoriju' : 'kategoriju'}.</p>
-        )}
-
         {loading ? 
-          <p>Učitavanje...</p> : 
+          <p className='text-center'>Učitavanje...</p> : 
           <ListaArtikala
             artikli={artikli}
             totalCount={totalCount}

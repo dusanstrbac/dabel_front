@@ -63,8 +63,7 @@ const admin = () => {
       try {
         const res = await fetch('http://10.0.0.38:7235/api/Auth/WEBParametrizacija');
         const data = await res.json();
-        setAdminList(data);  // Pošaljemo podatke u state adminList
-        console.log("Data received from API:", data);
+        setAdminList(data);
       } catch (err) {
         console.error("Error fetching admin parameters: ", err);
       }
@@ -89,7 +88,6 @@ const admin = () => {
         setTrenutnaStrana(pageNumber);
         router.push(`?page=${pageNumber}`, { scroll: false });
       }
-
       setSelectedItem(found);  // koristi samo za fokus/edit, ne za filtriranje
     }
   };
@@ -113,20 +111,14 @@ const admin = () => {
         deskripcija: updatedParam.deskripcija
       }),
     });
-
-    // Provera da li je server vratio uspešan status
     if (!res.ok) {
-      // Ako status nije OK, loguj detalje odgovora
       const errorText = await res.text();
-      console.error('Failed to update parameter, server response:', errorText);
-      throw new Error('Failed to update parameter');
+      console.error('Greska pri update parametara:', errorText);
+      throw new Error('Neuspešan update parametara');
     }
-
-    // Ako je uspešno, prikazujemo poruku o uspehu
     const responseText = await res.text();
     console.log(responseText);
   } catch (err) {
-    // Logovanje grešaka
     console.error('Error updating parameter:', err);
   }
 };
@@ -140,6 +132,7 @@ const admin = () => {
   useEffect(() => {
     async function fetchArtikle() {
       try {
+        // Promeniti fetch da cita artikle iz parametara, takodje tamo da ih i upisuje da bi se ova metoda obrisala
         const res = await fetch(`${apiAddress}/api/Artikal/DajArtikle`);
         const data: artikalProp[] = await res.json();
         setArticleList(data);
