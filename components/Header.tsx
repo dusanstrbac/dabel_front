@@ -11,7 +11,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import KorisnikMenu from "./KorisnikMenu";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { deleteCookie, getCookie } from 'cookies-next';
+import { deleteCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import PretragaProizvoda from "./PretragaProizvoda";
 
@@ -24,7 +24,6 @@ export default function Header() {
   const [parametri, setParametri] = useState<any>([]);
   const [WEBKontaktTelefon, setWEBKontaktTelefon] = useState<string>('N/A');
   const [WebKontaktEmail, setWebKontaktEmail] = useState<string>('N/A');
-
   const korisnik = dajKorisnikaIzTokena();
   const username = korisnik?.korisnickoIme;
 
@@ -41,22 +40,16 @@ export default function Header() {
 
     // Citanje parametrizacije
     const parametriIzLocalStorage = JSON.parse(localStorage.getItem('webparametri') || '[]');
-    setParametri(parametriIzLocalStorage);
-
-    // Učitajte parametre odmah
     const WEBKontaktTelefon = parametriIzLocalStorage.find((param: any) => param.naziv === 'WEBKontaktTelefon')?.vrednost || 'N/A';
     const WebKontaktEmail = parametriIzLocalStorage.find((param: any) => param.naziv === 'WebKontaktEmail')?.vrednost || 'N/A';
-
+    setParametri(parametriIzLocalStorage);
     setWEBKontaktTelefon(WEBKontaktTelefon);
     setWebKontaktEmail(WebKontaktEmail);
   };
 
   updateCartCount();
-
   // Event listener za slušanje promena korpe
   window.addEventListener("storage", updateCartCount);
-
-  // Cleanup
   return () => {
     window.removeEventListener("storage", updateCartCount);
   };
