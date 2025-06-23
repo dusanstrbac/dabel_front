@@ -61,7 +61,8 @@ const admin = () => {
 
     async function fetchAdminParams() {
       try {
-        const res = await fetch('http://10.0.0.38:7235/api/Auth/WEBParametrizacija');
+        
+        const res = await fetch(`${apiAddress}/api/Auth/WEBParametrizacija`);
         const data = await res.json();
         setAdminList(data);  // Pošaljemo podatke u state adminList
         console.log("Data received from API:", data);
