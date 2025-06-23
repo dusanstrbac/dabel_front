@@ -74,6 +74,7 @@ const headerMainNav = [
 
   const menuItems = [
     { id: 'podaci', icon: <User2 className="h-6 w-6" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
+    { id: 'rezervacije', icon: <User2 className="h-6 w-6" />, text: "Rezervisana roba", href: username ? `/${username}/profil/rezervacije` : '/login' },
     { id: 'istorija', icon: <History className="h-6 w-6" />, text: "Istorija poručivanja", href: username ? `/${username}/profil/istorija` : '/login' },
     { id: 'uplate', icon: <Wallet className="h-6 w-6" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
     { id: 'roba', icon: <Package className="h-6 w-6" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },

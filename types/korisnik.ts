@@ -14,12 +14,12 @@ interface KorisnikPodaciType {
     raspolozivoStanje: string,
     kredit: string,
     nijeDospelo: string,
-    komercijalista: KorisnikPodaciKomercijalistaType,
+    komercijalisti: KorisnikPodaciKomercijalistaType,
     finKarta: FinKartaType,
 }
 
 interface KorisnikPodaciKomercijalistaType {
-    ime: string,
+    naziv: string,
     telefon: string,
 }
 

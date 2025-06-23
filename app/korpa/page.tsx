@@ -218,7 +218,7 @@ const Korpa = () => {
                   <TableCell className="text-center">
                     <input
                       type="number"
-                      min="0"
+                      min="1"
                       className="w-20 border rounded px-2 py-1 text-center"
                       value={quantities[index]}
                       max={article.kolicina}
@@ -247,7 +247,7 @@ const Korpa = () => {
         </Table>
 
         <div className="flex justify-end gap-4 pt-4">
-          <RezervisiButton ukupnaCena={totalAmount} />
+          <RezervisiButton ukupnaCena={totalAmountWithPDV} />
           <NaruciButton />
         </div>
       </div>
@@ -296,7 +296,7 @@ const Korpa = () => {
                     <span className="mr-2">Trebovana količina:</span>
                     <input
                       type="number"
-                      min="0"
+                      min="1"
                       className="w-20 border rounded px-2 py-1 text-center"
                       value={quantities[index]}
                       onChange={(e) => updateQuantity(index, Number(e.target.value))}
@@ -326,7 +326,7 @@ const Korpa = () => {
         </div>
         
         <div className="flex gap-2 items-center justify-center pt-4">
-          <RezervisiButton ukupnaCena={totalAmount}/>
+          <RezervisiButton ukupnaCena={totalAmountWithPDV}/>
           <NaruciButton />
         </div>
       </div>

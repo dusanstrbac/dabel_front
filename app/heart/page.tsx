@@ -116,8 +116,6 @@ const OmiljeniArtikli = () => {
           sortKey={sortKey}
           sortOrder={sortOrder}
           onSortChange={handleSortChange}
-          artikli={artikli}
-          setArtikli={setArtikli}
         />
       </div>
 
