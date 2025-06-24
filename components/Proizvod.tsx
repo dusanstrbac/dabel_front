@@ -33,7 +33,7 @@ export default function Proizvod() {
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [preostalo, setPreostalo] = useState<number>(0);
+  const [preostalo, setPreostalo] = useState<number>(1);
   const inputRef = useRef<HTMLInputElement>(null);
   const [lajkovano, setLajkovano] = useState(false);
 
@@ -55,7 +55,6 @@ export default function Proizvod() {
         const data = await res.json();
         console.log(data);
         if (!data || data.length === 0) throw new Error("Proizvod nije pronađen");
-        //console.log(data);
 
         const osnovni: ArtikalType = data[0];
         setProizvod(osnovni);
@@ -205,48 +204,65 @@ export default function Proizvod() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 w-full lg:w-1/3 items-start justify-end lg:items-end">
+        <div className="flex flex-col gap-4 w-full lg:w-1/3 items-start justify-end lg:items-end">
           {korisnik?.idKorisnika && (
-            <DodajUOmiljeno idArtikla={proizvod.idArtikla} idPartnera={korisnik.idKorisnika} inicijalniStatus={proizvod.status === "1"} />
+            <DodajUOmiljeno
+              inicijalniStatus={proizvod.status === "1"}
+              idArtikla={proizvod.idArtikla}
+              idPartnera={korisnik.idKorisnika}
+            />
           )}
-          <div className="flex items-center gap-2">
-            <CircleAlert width={18} height={18} color={Number(proizvod.kolicina) > 20 ? "green" : "red"} />
-            <p className={Number(proizvod.kolicina) > 20 ? "text-green-600" : "text-red-500"}>
-              Ostalo je još {proizvod.kolicina} artikala.
-            </p>
-            </div>
+          <p className="text-sm text-gray-600">Datum poslednje kupovine: 19.06.2025.</p>
           <div className="flex gap-2 w-full sm:w-auto flex-wrap">
-            {Number(proizvod.kolicina) > 0 ? (
-                <input
-              ref={inputRef}
-              name="inputProizvod"
-              className="w-16 border rounded px-2 py-1 text-center"
-              type="number"
-              min={preostalo > 0 ? 1 : 0}
-              max={preostalo}
-              defaultValue={preostalo > 0 ? 1 : 0}
-              disabled={preostalo === 0}
-            />
-              ) : (
-                <input
-              ref={inputRef}
-              name="inputProizvod"
-              className="w-16 border rounded px-2 py-1 text-center"
-              type="number"
-              min={0}
-              max={0}
-              defaultValue={0}
-            />
+            <div className="flex items-center gap-1">
+              {Number(proizvod.kolicina) <= 10 && (
+                <div className="relative">
+                  <div className="group cursor-pointer">
+                    <CircleAlert
+                      width={18}
+                      height={18}
+                      color="red"
+                    />
+                    <div className="absolute left-6 top-1/2 -translate-y-1/2 bg-white text-red-500 border border-red-300 text-sm px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 whitespace-nowrap pointer-events-none">
+                      Preostala količina artikla: {proizvod.kolicina}
+                    </div>
+                  </div>
+                </div>
               )}
+            </div>
+            {Number(proizvod.kolicina) > 0 ? (
+              <input
+                ref={inputRef}
+                name="inputProizvod"
+                className="w-16 border rounded px-2 py-1 text-center"
+                type="number"
+                min={preostalo > 0 ? 1 : 0}
+                max={preostalo}
+                defaultValue={preostalo > 0 ? 1 : 0}
+                disabled={preostalo === 0}
+              />
+            ) : (
+              <input
+                ref={inputRef}
+                name="inputProizvod"
+                className="w-16 border rounded px-2 py-1 text-center"
+                type="number"
+                min={0}
+                max={0}
+                defaultValue={0}
+              />
+            )}
             <AddToCartButton
               id={proizvod.idArtikla}
               className="w-full sm:w-auto px-6 py-2"
               title="Dodaj u korpu"
-              getKolicina={() => Math.min(Number(inputRef.current?.value || 1), preostalo)}
+              getKolicina={() =>
+                Math.min(Number(inputRef.current?.value || 1), preostalo)
+              }
               nazivArtikla={proizvod.naziv}
-              disabled={Number(proizvod.kolicina) <= 0 || preostalo===0}
+              disabled={Number(proizvod.kolicina) <= 0 || preostalo === 0}
               ukupnaKolicina={preostalo}
-            />      
+            />
           </div>
         </div>
       </div>

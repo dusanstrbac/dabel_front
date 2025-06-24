@@ -17,24 +17,23 @@ const Akcije = () => {
   const [sortKey, setSortKey] = useState<'cena' | 'naziv'>('cena');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
-
   const searchParams = useSearchParams();
   const router = useRouter();
-
-  useEffect(() => {
-    const pageParam = searchParams.get("page");
-    const pageNumber = pageParam ? parseInt(pageParam, 10) : 1;
-
-    if (!isNaN(pageNumber) && pageNumber !== currentPage) {
-      setCurrentPage(pageNumber);
-    }
-  }, [searchParams]);
-
 
   const handleSortChange = (key: 'cena' | 'naziv', order: 'asc' | 'desc') => {
     setSortKey(key);
     setSortOrder(order);
   };
+
+  useEffect(() => {
+    const pageParam = searchParams.get("page");
+    const pageNumber = pageParam ? parseInt(pageParam, 10) : 1;
+  
+
+    if (!isNaN(pageNumber) && pageNumber !== currentPage) {
+      setCurrentPage(pageNumber);
+    }
+  }, [searchParams]);
 
 
   const fetchAkcijeArtikli = async () => {

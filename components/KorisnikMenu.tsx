@@ -41,6 +41,7 @@ export function KorisnikMenu() {
   const menuItems = [
     { icon: <ShieldUser className="h-4 w-4" />, text: "Admin podešavanja", href: username ? `/${username}/admin` : '/login' },
     { icon: <User2 className="h-4 w-4" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
+    { icon: <User2 className="h-4 w-4" />, text: "Rezervisana roba", href: username ? `/${username}/profil/rezervacije` : '/login' },
     { icon: <FileText className="h-4 w-4" />, text: "Narudžbenica", href: username ? `/${username}/profil/narudzbenica` : '/login' },
     { icon: <Wallet className="h-4 w-4" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
     { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
