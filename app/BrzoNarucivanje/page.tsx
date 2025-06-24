@@ -17,6 +17,7 @@ const BrzoNarucivanje = () => {
   const [rows, setRows] = useState([{ sifra: "", kolicina: "" }]);
   const [scannerActive, setScannerActive] = useState(false);
   const barcodeInputRef = useRef<HTMLInputElement>(null);
+  const quantityRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const handleBarcodeDetected = (text: string) => {
     const sifra = text.replace(/\D/g, "");
@@ -74,7 +75,6 @@ const BrzoNarucivanje = () => {
       kolicina: parseInt(row.kolicina, 10),
     }));
 
-  // Novi CSV parser
   const handleCSVUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -122,7 +122,6 @@ const BrzoNarucivanje = () => {
   };
 
   const handleDownloadTemplate = () => {
-    // Ručno pravljenje CSV template fajla
     const csvContent = "Šifra,Količina\n\n";
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -136,35 +135,18 @@ const BrzoNarucivanje = () => {
 
   return (
     <div className="flex min-h-screen">
-      {/* LEVI PANEL - sidebar na desktopu */}
       <aside className="hidden md:flex md:flex-col md:w-1/3 bg-gray-50 p-6 border-r border-gray-200 overflow-auto">
+        {/* Uputstva - levi panel */}
         <h2 className="text-2xl font-bold mb-4">Kako koristiti?</h2>
-        <p className="mb-2">
-          Ovde možeš da pročitaš uputstva za brzo naručivanje i skeniranje barkoda.
-        </p>
         <ul className="list-disc ml-5 text-gray-700 flex flex-col gap-4">
-          <li>
-            <strong>Uključi kameru za skeniranje barkoda:</strong> Klikni dugme
-            „Uključi kameru za skeniranje“, usmeri kameru na barkod i artikli će
-            se automatski dodavati.
-          </li>
-          <li>
-            <strong>Ručno unošenje artikala:</strong> Unesi šifru i količinu
-            u polja sa desne strane. Novi redovi se dodaju automatski.
-          </li>
-          <li>
-            <strong>Uvoz iz CSV fajla:</strong> Klikni na „Uvezi CSV“ i izaberi
-            fajl sa kolonama „Šifra“ i „Količina“.
-          </li>
-          <li>
-            <strong>Prebaci u korpu:</strong> Kada si spreman, klikni „Prebaci u korpu“.
-          </li>
+          <li><strong>Uključi kameru:</strong> klikni dugme i usmeri kameru na barkod.</li>
+          <li><strong>Ručno unošenje:</strong> unesi šifru, pritisni Enter i upiši količinu.</li>
+          <li><strong>CSV:</strong> koristi „Uvezi CSV“ dugme sa kolonama „Šifra“ i „Količina“.</li>
+          <li><strong>Prebaci u korpu:</strong> kada završiš, klikni na dugme.</li>
         </ul>
       </aside>
 
-      {/* DESNI PANEL */}
       <main className="flex-1 p-6 flex flex-col max-h-screen">
-        {/* Info dugme za mobilne */}
         <Dialog>
           <DialogTrigger asChild>
             <button
@@ -175,31 +157,16 @@ const BrzoNarucivanje = () => {
               i
             </button>
           </DialogTrigger>
-
           <DialogContent className="sm:max-w-sm">
             <DialogHeader>
               <DialogTitle>Kako koristiti?</DialogTitle>
             </DialogHeader>
-            <p className="mb-2">
-              Ovde možeš da pročitaš uputstva za brzo naručivanje i skeniranje barkoda.
-            </p>
+            {/* isti sadržaj kao u aside */}
             <ul className="list-disc ml-5 text-gray-700 flex flex-col gap-3">
-              <li>
-                <strong>Uključi kameru za skeniranje barkoda:</strong> Klikni dugme
-                „Uključi kameru za skeniranje“, usmeri kameru na barkod i artikli
-                će se automatski dodavati.
-              </li>
-              <li>
-                <strong>Ručno unošenje artikala:</strong> Unesi šifru i količinu
-                u polja sa desne strane. Novi redovi se dodaju automatski.
-              </li>
-              <li>
-                <strong>Uvoz iz CSV fajla:</strong> Klikni na „Uvezi CSV“ i izaberi
-                fajl sa kolonama „Šifra“ i „Količina“.
-              </li>
-              <li>
-                <strong>Prebaci u korpu:</strong> Kada si spreman, klikni „Prebaci u korpu“.
-              </li>
+              <li><strong>Uključi kameru:</strong> klikni dugme i usmeri kameru na barkod.</li>
+              <li><strong>Ručno unošenje:</strong> unesi šifru, pritisni Enter i upiši količinu.</li>
+              <li><strong>CSV:</strong> koristi „Uvezi CSV“ dugme sa kolonama „Šifra“ i „Količina“.</li>
+              <li><strong>Prebaci u korpu:</strong> kada završiš, klikni na dugme.</li>
             </ul>
             <DialogClose className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
               Zatvori
@@ -211,7 +178,6 @@ const BrzoNarucivanje = () => {
           Brzo naručivanje
         </h1>
 
-        {/* Dugme za paljenje skenera - centrirano ispod h1 */}
         <div className="flex justify-center mb-6">
           <button
             onClick={() => setScannerActive((prev) => !prev)}
@@ -225,7 +191,6 @@ const BrzoNarucivanje = () => {
           </button>
         </div>
 
-        {/* Komponenta kamere za skeniranje */}
         {scannerActive && (
           <div className="w-full max-w-md mb-6 mx-auto">
             <BarcodeScannerComponent
@@ -240,7 +205,6 @@ const BrzoNarucivanje = () => {
           </div>
         )}
 
-        {/* Input za barkod - nevidljiv */}
         <input
           ref={barcodeInputRef}
           type="text"
@@ -248,7 +212,6 @@ const BrzoNarucivanje = () => {
           className="absolute opacity-0 pointer-events-none h-0 w-0"
         />
 
-        {/* Dugme za preuzimanje šablona */}
         <div className="mb-6 text-center">
           <button
             className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 rounded shadow border cursor-pointer"
@@ -259,7 +222,6 @@ const BrzoNarucivanje = () => {
           </button>
         </div>
 
-        {/* Tabela sa unosom sifri i količina - koristi auto height */}
         <div className="flex flex-col items-center mb-6 max-h-[60vh] overflow-auto w-full">
           {rows.map((row, index) => {
             const isDummy =
@@ -279,9 +241,17 @@ const BrzoNarucivanje = () => {
                       isDummy ? "opacity-50 cursor-pointer" : ""
                     }`}
                     value={row.sifra}
-                    onChange={(e) => handleChange(index, "sifra", e.target.value)}
+                    onChange={(e) =>
+                      handleChange(index, "sifra", e.target.value)
+                    }
                     onFocus={() => {
                       if (isDummy) handleAddRow();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        quantityRefs.current[index]?.focus();
+                      }
                     }}
                   />
                 </div>
@@ -289,13 +259,16 @@ const BrzoNarucivanje = () => {
                 <div className="flex flex-col items-center">
                   <p className={isDummy ? "opacity-40" : ""}>Količina</p>
                   <Input
+                    ref={(el) => { quantityRefs.current[index] = el; }}
                     inputMode="numeric"
                     pattern="[0-9]*"
                     className={`border-2 border-[#323131cc] w-20 ${
                       isDummy ? "opacity-40 cursor-pointer" : ""
                     }`}
                     value={row.kolicina}
-                    onChange={(e) => handleChange(index, "kolicina", e.target.value)}
+                    onChange={(e) =>
+                      handleChange(index, "kolicina", e.target.value)
+                    }
                     onFocus={() => {
                       if (isDummy) handleAddRow();
                     }}
@@ -316,7 +289,6 @@ const BrzoNarucivanje = () => {
           })}
         </div>
 
-        {/* Dugme za upload CSV i prebaci u korpu */}
         <div className="flex flex-col items-center justify-center gap-4">
           <div className="flex flex-wrap gap-4 justify-center">
             <button
@@ -334,7 +306,6 @@ const BrzoNarucivanje = () => {
             />
           </div>
 
-          {/* Prebaci u korpu */}
           <PrebaciUKorpu rows={validItems} />
         </div>
       </main>
