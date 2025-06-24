@@ -38,6 +38,7 @@ interface KorisnikRabatType {
 
 interface KorisnikPodaciKomercijalistaType {
     naziv: string,
+    email: string,
     telefon: string,
 }
 

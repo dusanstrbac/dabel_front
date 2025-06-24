@@ -24,12 +24,12 @@ const DokumentPage = () => {
         idDokumenta: String(parsed.idDokumenta),
         partner: parsed.partner,
         DatumKreiranja: new Date(parsed.DatumKreiranja),
-        imeiPrezime: parsed.imeiPrezime,
+        // imeiPrezime: parsed.komercijalisti.naziv,
         mestoIsporuke: parsed.mestoIsporuke,
         napomena: parsed.napomena,
-        grad: parsed.grad,
+        // grad: parsed.grad,
         telefon: parsed.telefon,
-        email: parsed.email,
+        // email: parsed.email,
       });
 
       localStorage.removeItem("cart");
@@ -83,10 +83,9 @@ const DokumentPage = () => {
           {/* KONTAKT OSOBA */}
           <div className="border border-black p-4 w-[48%]">
             <h1 className="font-bold mb-2">Kontakt osoba:</h1>
-            <p>Ime i prezime: {partnerInfo.imeiPrezime || "Nepoznato"}</p>
-            <p>Mob. telefon: {partnerInfo.telefon || "Nepoznato"}</p>
-            <p>Grad: {partnerInfo.grad || "Nepoznato"}</p>
-            <p>Email adresa: {partnerInfo.email || "Nepoznato"}</p>
+            <p>Ime i prezime: {partnerInfo.partner.komercijalisti.naziv || "Nepoznato"}</p>
+            <p>Mob. telefon: {partnerInfo.partner.komercijalisti.telefon || "Nepoznato"}</p>
+            <p>Email adresa: {partnerInfo.partner.komercijalisti.email || "Nepoznato"}</p>
           </div>
 
           
@@ -188,9 +187,9 @@ const DokumentPage = () => {
           <div className="px-2 py-1 text-sm space-y-1">
             <p><span className="">Korisničko ime:</span> 3005???</p> 
             {/* Ovo da se sredi? */}
-            <p><span className="">Ime i prezime:</span> {partnerInfo.imeiPrezime || "Nepoznato"}</p>
-            <p><span className="">Email adresa:</span> {partnerInfo.email}</p>
-            <p><span className="">Mob. telefon:</span> {partnerInfo.telefon}</p>
+            <p><span className="">Ime i prezime:</span> {partnerInfo.partner.komercijalisti.naziv || "Nepoznato"}</p>
+            <p><span className="">Email adresa:</span> {partnerInfo.partner.komercijalisti.email}</p>
+            <p><span className="">Mob. telefon:</span> {partnerInfo.partner.komercijalisti.telefon}</p>
           </div>
         </div>
       </div>

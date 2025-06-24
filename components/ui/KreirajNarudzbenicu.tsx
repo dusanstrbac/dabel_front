@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ArtikalType } from "@/types/artikal";
+import { cn } from "@/lib/utils";
 
 interface KreirajNarudzbenicuProps {
   artikli: ArtikalType[];
@@ -12,10 +13,11 @@ interface KreirajNarudzbenicuProps {
   telefon: string;
   email: string;
   napomena: string;
+  disabled: boolean;
 }
 
 
-const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mestoIsporuke, grad, telefon, email, napomena }: KreirajNarudzbenicuProps) => {
+const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mestoIsporuke, grad, telefon, email, napomena, disabled }: KreirajNarudzbenicuProps) => {
     const router = useRouter();
 
     const handleClick = async () => {
@@ -101,6 +103,8 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mesto
     return(
         <Button
             onClick={handleClick}
+            disabled={disabled}
+            className={cn("...", disabled && "opacity-50 cursor-not-allowed")}
         >
             Kreiraj Narudžbenicu
         </Button>

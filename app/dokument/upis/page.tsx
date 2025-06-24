@@ -8,7 +8,7 @@
     import { ArtikalType } from "@/types/artikal";
     import { ComboboxAdrese } from "@/components/ui/ComboboxAdrese";
     import { Input } from "@/components/ui/input";
-import { LocationEdit } from "lucide-react";
+    import { LocationEdit } from "lucide-react";
 
 
     const DokumentUpis = () => {
@@ -171,6 +171,9 @@ import { LocationEdit } from "lucide-react";
                                         setMestoIsporuke(adresa.adresa);
                                     }}
                                 />
+                                {/* {mestoIsporuke.trim() === "" && (
+                                    <p className="text-sm text-red-500 mt-1">Molimo izaberite adresu isporuke.</p>
+                                )} */}
                             </div>
 
                             <div className="flex flex-col md:col-span-2 w-full max-w-[600px] mt-5">
@@ -259,8 +262,6 @@ import { LocationEdit } from "lucide-react";
                                     ? `${ukupnaCenaSaPDV.toLocaleString("sr-RS")} RSD`
                                     : ""}
                             </p>
-                            
-                            {/* Hocu da ako postoji */}
                         </div>
 
                         <div className="flex items-center justify-between text-base">
@@ -296,6 +297,7 @@ import { LocationEdit } from "lucide-react";
                         email={email}
                         // valid={proveriPolja}
                         napomena={napomena}
+                        disabled={mestoIsporuke.trim() === ""}
                     />
                 )}
             </div>
