@@ -12,7 +12,6 @@ interface KorisnikPodaciType {
     pib: string,
     telefon: string,
     finKarta: FinKartaType,
-
     komercijalista: KorisnikPodaciKomercijalistaType,
     partnerRabat: KorisnikRabatType,
     partnerDostava: KorisnikDostavaType[],
@@ -38,7 +37,7 @@ interface KorisnikRabatType {
 }
 
 interface KorisnikPodaciKomercijalistaType {
-    ime: string,
+    naziv: string,
     telefon: string,
 }
 

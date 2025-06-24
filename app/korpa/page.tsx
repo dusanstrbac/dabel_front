@@ -302,7 +302,7 @@ const Korpa = () => {
         </Table>
 
         <div className="flex justify-end gap-4 pt-4">
-          <RezervisiButton ukupnaCena={totalAmount} />
+          <RezervisiButton ukupnaCena={totalAmountWithPDV} />
           <NaruciButton />
         </div>
       </div>
@@ -382,7 +382,7 @@ const Korpa = () => {
         </div>
         
         <div className="flex gap-2 items-center justify-center pt-4">
-          <RezervisiButton ukupnaCena={totalAmount}/>
+          <RezervisiButton ukupnaCena={totalAmountWithPDV}/>
           <NaruciButton />
         </div>
       </div>
