@@ -80,6 +80,7 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
               jm={artikal.jm}
               artikalAtributi={artikal.artikalAtributi}
               artikalCene={artikal.artikalCene ?? []}
+              lastPurchaseDate="2025-06-20"
             />
           ))}
         </div>
