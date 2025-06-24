@@ -7,17 +7,13 @@ interface KreirajNarudzbenicuProps {
   artikli: ArtikalType[];
   partner: KorisnikPodaciType;
   idDokumenta: number;
-  imeiPrezime: string;
   mestoIsporuke: string;
-  grad: string;
-  telefon: string;
-  email: string;
   napomena: string;
   disabled: boolean;
 }
 
 
-const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mestoIsporuke, grad, telefon, email, napomena, disabled }: KreirajNarudzbenicuProps) => {
+const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, mestoIsporuke, napomena, disabled }: KreirajNarudzbenicuProps) => {
     const router = useRouter();
 
     const handleClick = async () => {
@@ -38,7 +34,7 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mesto
             tip: "narudzbenica",
             idPartnera: partner.idPartnera,
             brojDokumenta: idDokumenta.toString(),
-            idKomercijaliste: partner.idPartnera,
+            idKomercijaliste: partner.komercijalisti.id,
             datumDokumenta: now,
             datumVazenja: datumVazenja.toISOString(),
             lokacija: mestoIsporuke,
@@ -82,12 +78,8 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mesto
                 artikli,
                 partner,
                 DatumKreiranja: now,
-                // imeiPrezime,
                 mestoIsporuke,
                 napomena,
-                // grad,
-                // telefon,
-                // email,
             }));
 
             console.log("Da vidim samo sta saljemo u /dokument: ", sessionStorage);

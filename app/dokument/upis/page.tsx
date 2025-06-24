@@ -16,6 +16,7 @@
         const [isClient, setIsClient] = useState(false);
         const [partner, setPartner] = useState<KorisnikPodaciType>();
 
+        const imageUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS;
 
         const [mestoIsporuke, setMestoIsporuke] = useState("");
         const [imeiPrezime, setImeiPrezime] = useState("");
@@ -93,6 +94,7 @@
                 const data = await response.json();
 
 
+
                 const transformed = data.map((artikal: ArtikalType) => ({
                     ...artikal,
                     id: artikal.idArtikla,
@@ -102,7 +104,10 @@
                     // pdv: artikal.pdv ?? 20,
                     //OVO MORA DA SE VIDI
                     kolicina: parsedCart[artikal.idArtikla]?.kolicina,
+                    
                 }));
+                
+
 
                 setArtikli(transformed);
                 } catch (err) {
@@ -124,6 +129,10 @@
                     const data = await res.json();
                     setPartner(data[0]);
 
+                    console.log("Partner podaci:", data[0]);
+                    console.log("Komercijalista:", data[0].komercijalisti);
+
+
                     
                 } catch (err) {
                     console.error("Greška pri fetchovanju partnera:", err);
@@ -135,6 +144,7 @@
             const noviId = poslednjiId + 1;
             setIdDokumenta(noviId);
             
+            
 
             fetchArtikli();
             fetchPartner();
@@ -142,6 +152,9 @@
                 console.error("Nevalidan JSON u localStorage za 'cart'", e);
             }
         }, []);
+
+
+        //ne znam gde ovo da ubacim, pomagaj
 
 
     const rabat = useMemo(() => {
@@ -219,13 +232,15 @@
                         <p className="italic">Nema artikala u korpi.</p>
                     ) : (
                         <div className="flex flex-col max-h-[550px] overflow-y-auto pr-2 gap-5 ">
-                        {artikli.map((artikal) => (
+                        {artikli.map((artikal) => {
+                            const fotografijaProizvoda = `${imageUrl}/s${artikal.idArtikla}.jpg`;
+                            return (
                                 <div
                                     key={artikal.idArtikla}
                                     className="w-full flex items-center gap-4 border-1 p-1 rounded shadow-sm max-h-[500px]"
                                 >
                                     <img
-                                        src="/artikal.jpg"
+                                        src={fotografijaProizvoda}
                                         alt={artikal.naziv}
                                         className="w-16 h-16 object-cover"
                                     />
@@ -248,7 +263,8 @@
                                                                                                                                                                 ? artikal.artikalCene[0].akcija.cena  
                                                                                                                                                                 : artikal.artikalCene[0].cena)* 1.2 * rabat *(cart[artikal.idArtikla].kolicina)).toLocaleString("sr-RS")} RSD</p>
                                 </div>
-                            ))}
+                            );
+                            })}
                         </div>
                     )}
                     <div className="flex flex-col w-full min-h-[40px]">
@@ -290,12 +306,11 @@
                         idDokumenta={idDokumenta}
                         partner={partner}
                         //inputi
-                        imeiPrezime={imeiPrezime}
+                        // imeiPrezime={imeiPrezime}
                         mestoIsporuke={mestoIsporuke}
-                        grad={grad}
-                        telefon={telefon}
-                        email={email}
-                        // valid={proveriPolja}
+                        // grad={grad}
+                        // telefon={telefon}
+                        // email={email}
                         napomena={napomena}
                         disabled={mestoIsporuke.trim() === ""}
                     />

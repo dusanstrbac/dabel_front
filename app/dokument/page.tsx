@@ -4,8 +4,6 @@ import Image from "next/image";
 import { ArtikalType } from "@/types/artikal";
 import { PartnerInfo } from "@/types/dokument";
 
-
-
 const PDV = 20;
 
 const DokumentPage = () => {
@@ -24,12 +22,8 @@ const DokumentPage = () => {
         idDokumenta: String(parsed.idDokumenta),
         partner: parsed.partner,
         DatumKreiranja: new Date(parsed.DatumKreiranja),
-        // imeiPrezime: parsed.komercijalisti.naziv,
         mestoIsporuke: parsed.mestoIsporuke,
         napomena: parsed.napomena,
-        // grad: parsed.grad,
-        telefon: parsed.telefon,
-        // email: parsed.email,
       });
 
       localStorage.removeItem("cart");
@@ -185,8 +179,7 @@ const DokumentPage = () => {
             <p className="font-semibold uppercase text-sm tracking-wide">Dokument kreirao:</p>
           </div>
           <div className="px-2 py-1 text-sm space-y-1">
-            <p><span className="">Korisničko ime:</span> 3005???</p> 
-            {/* Ovo da se sredi? */}
+            <p><span className="">Korisničko ime:</span> {partnerInfo.partner.komercijalisti.id}</p> 
             <p><span className="">Ime i prezime:</span> {partnerInfo.partner.komercijalisti.naziv || "Nepoznato"}</p>
             <p><span className="">Email adresa:</span> {partnerInfo.partner.komercijalisti.email}</p>
             <p><span className="">Mob. telefon:</span> {partnerInfo.partner.komercijalisti.telefon}</p>
