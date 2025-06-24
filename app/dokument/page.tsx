@@ -170,6 +170,7 @@ const DokumentPage = () => {
           Isporučene količine mogu biti manje u zavisnosti od stanja na lageru
         </p>
 
+        {partnerInfo.napomena && partnerInfo.napomena.trim().length > 0 && (
         <div className="border border-black w-full">
           <div className="border-b border-black px-2 py-1">
             <p className="font-semibold uppercase text-sm tracking-wide">Napomena</p>
@@ -178,6 +179,7 @@ const DokumentPage = () => {
             <p >{partnerInfo.napomena}</p>
           </div>
         </div>
+        )}
 
         <div className="border border-black w-full mt-5">
           <div className="border-b border-black px-2 py-1">

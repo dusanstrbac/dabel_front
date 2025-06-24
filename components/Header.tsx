@@ -26,26 +26,55 @@ export default function Header() {
   const [WebKontaktEmail, setWebKontaktEmail] = useState<string>('N/A');
   const korisnik = dajKorisnikaIzTokena();
   const username = korisnik?.korisnickoIme;
+  const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
+
+useEffect(() => {
+
+  const parametriIzLocalStorage = JSON.parse(localStorage.getItem('webparametri') || '[]');
+
+    if (parametriIzLocalStorage.length > 0) {
+      const tel = parametriIzLocalStorage.find((param: any) => param.naziv === 'WEBKontaktTelefon')?.vrednost || 'N/A';
+      const mail = parametriIzLocalStorage.find((param: any) => param.naziv === 'WebKontaktEmail')?.vrednost || 'N/A';
+
+      setWEBKontaktTelefon(tel);
+      setWebKontaktEmail(mail);
+      setParametri(parametriIzLocalStorage);
+    } else
+    {
+      fetchParametri();
+    }
+  // Citanje parametrizacije
+    async function fetchParametri() {
+      try {
+        const res = await fetch(`${apiAddress}/api/Auth/WEBParametrizacija`);
+        const data = await res.json();
+        localStorage.setItem("webparametri", JSON.stringify(data));
+
+        const tel = data.find((param: any) => param.naziv === "WEBKontaktTelefon")?.vrednost || "N/A";
+        const mail = data.find((param: any) => param.naziv === "WebKontaktEmail")?.vrednost || "N/A";
+        
+        setWEBKontaktTelefon(tel);
+        setWebKontaktEmail(mail);
+        setParametri(data);
+      } catch (err) {
+        console.error("Greška pri fetchovanju web parametara", err);
+        setWEBKontaktTelefon("N/A");
+        setWebKontaktEmail("N/A");
+      }
+    };
+  
+}, []);
 
  useEffect(() => {
-  const updateCartCount = () => {
+  const updateCartCount = async () => {
     const existing = localStorage.getItem("cart");
     if (existing) {
       const cart = JSON.parse(existing);
-      const brojRazlicitih = Object.keys(cart).length;
-      setBrojRazlicitihArtikala(brojRazlicitih);
+         setBrojRazlicitihArtikala(Object.keys(cart).length);
     } else {
       setBrojRazlicitihArtikala(0);
     }
-
-    // Citanje parametrizacije
-    const parametriIzLocalStorage = JSON.parse(localStorage.getItem('webparametri') || '[]');
-    const WEBKontaktTelefon = parametriIzLocalStorage.find((param: any) => param.naziv === 'WEBKontaktTelefon')?.vrednost || 'N/A';
-    const WebKontaktEmail = parametriIzLocalStorage.find((param: any) => param.naziv === 'WebKontaktEmail')?.vrednost || 'N/A';
-    setParametri(parametriIzLocalStorage);
-    setWEBKontaktTelefon(WEBKontaktTelefon);
-    setWebKontaktEmail(WebKontaktEmail);
-  };
 
   updateCartCount();
   // Event listener za slušanje promena korpe
@@ -53,7 +82,11 @@ export default function Header() {
   return () => {
     window.removeEventListener("storage", updateCartCount);
   };
-}, []);
+}
+}, [])
+
+
+
 
 const headerMainNav = [ 
   { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/proizvodi/kategorija/' + encodeURIComponent('Okov građevinski') },

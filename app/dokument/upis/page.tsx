@@ -8,6 +8,7 @@
     import { ArtikalType } from "@/types/artikal";
     import { ComboboxAdrese } from "@/components/ui/ComboboxAdrese";
     import { Input } from "@/components/ui/input";
+import { LocationEdit } from "lucide-react";
 
 
     const DokumentUpis = () => {
@@ -72,15 +73,11 @@
 
             
             const ukupnaCenaSaPDV = sessionStorage.getItem("ukupnaCenaSaPDV");
-            //const ukupnaCenabezPDV = sessionStorage.getItem("ukupnaCenaBezPDV");
 
 
             if (ukupnaCenaSaPDV){
                 setUkupnaCenaSaPDV(Number(ukupnaCenaSaPDV));
             }
-            // if (ukupnaCenaBezPDV){
-            //     setUkupnaCenaBezPDV(Number(ukupnaCenaBezPDV));
-            // }
             const storedIds = Object.keys(parsedCart);
             const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
@@ -165,6 +162,8 @@
                         
                             {/* KOMERCIJALISTA */}
                         <div className="flex flex-col items-center">
+                            <div className="flex justify-center items-center gap-2 w-full">
+                                <LocationEdit className=""/>
                                 <ComboboxAdrese
                                     dostavaList={partner?.partnerDostava ?? []}
                                     onSelectOption={(adresa) => {
@@ -172,6 +171,7 @@
                                         setMestoIsporuke(adresa.adresa);
                                     }}
                                 />
+                            </div>
 
                             <div className="flex flex-col md:col-span-2 w-full max-w-[600px] mt-5">
                                 <label className="font-semibold mb-1">Napomena</label>
@@ -180,10 +180,9 @@
                                     value={napomena}
                                     onChange={(e) => setNapomena(e.target.value)}
                                     placeholder="Unesite napomenu"
-                                    className={`w-full border rounded p-2 "border-gray-300"`}
+                                    className={`w-full border rounded-md p-2 "border-gray-300"`}
                                 />
                             </div>
-
                         </div>
 
 
@@ -249,9 +248,12 @@
                             ))}
                         </div>
                     )}
-                    <div className="flex flex-col w-full border-2 min-h-[40px]">
+                    <div className="flex flex-col w-full min-h-[40px]">
                         <div className="flex items-center justify-between">
-                            <p className="font-medium">Ukupno</p>
+                            <p className="font-medium">{dostava > 0
+                                                        ? `Ukupno`
+                                                        : ""}
+                            </p>
                             <p className="text-gray-500">
                                 {dostava > 0
                                     ? `${ukupnaCenaSaPDV.toLocaleString("sr-RS")} RSD`

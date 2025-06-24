@@ -48,7 +48,7 @@ export const ComboboxAdrese: React.FC<Props> = ({
         <Button
           variant="outline"
           role="combobox"
-          className="w-full max-w-[280px] sm:max-w-[600px] truncate justify-between" //zasto ovde jebeno ne mogu da namestim da bude dinamicki velicina za ovu komponentu, znaci hocu da za lg ekrane bude max 600px a za male ekrane da bude minimum 300px takdoje zelim da ako text predje van ovog boxa onda da do dola pre nego sto ispadne text van boxa da umesto njega stoje "..." znaci valjda treba da se trimuje to da bi lepo izgledalo
+          className="w-full max-w-[280px] sm:max-w-[570px] truncate justify-between"
         >
           {selected
             ? `${selected.adresa}, ${selected.postBroj} ${selected.grad}`
@@ -56,7 +56,7 @@ export const ComboboxAdrese: React.FC<Props> = ({
           <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full sm:max-w-[280px] sm:min-w-[600px] p-2">
+      <PopoverContent className="w-full sm:max-w-[280px] sm:min-w-[570px] p-2">
         <Command>
           <CommandList>
             <CommandEmpty>Nema rezultata za pretragu.</CommandEmpty>
