@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import PrebaciUKorpu from "@/components/PrebaciUKorpu";
-import * as XLSX from "xlsx";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
 import {
   Dialog,
@@ -75,54 +74,61 @@ const BrzoNarucivanje = () => {
       kolicina: parseInt(row.kolicina, 10),
     }));
 
-  const handleExcelUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Novi CSV parser
+  const handleCSVUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (evt) => {
-      const data = evt.target?.result;
-      const workbook = XLSX.read(data, { type: "binary" });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
+    reader.onload = (event) => {
+      const text = event.target?.result;
+      if (typeof text !== "string") return;
 
-      const json = XLSX.utils.sheet_to_json(sheet, { defval: "", header: 0 });
-
-      const parsedRows = (json as any[]).map((row) => ({
-        sifra: String(row["Šifra"]).replace(/\D/g, ""),
-        kolicina: String(row["Količina"]).replace(/\D/g, ""),
-      }));
-
-      const validRows = parsedRows.filter((row) => row.sifra && row.kolicina);
-
-      if (validRows.length > 0) {
-        setRows([...validRows, { sifra: "", kolicina: "" }]);
-      } else {
-        alert("Excel fajl ne sadrži validne podatke.");
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length < 2) {
+        alert("CSV fajl je prazan ili nema dovoljno podataka");
+        return;
       }
+
+      const headers = lines[0].split(",").map((h) => h.trim());
+      const sifraIndex = headers.findIndex((h) => h === "Šifra");
+      const kolicinaIndex = headers.findIndex((h) => h === "Količina");
+
+      if (sifraIndex === -1 || kolicinaIndex === -1) {
+        alert("CSV mora imati kolone 'Šifra' i 'Količina'");
+        return;
+      }
+
+      const parsedRows = lines
+        .slice(1)
+        .map((line) => {
+          const cols = line.split(",");
+          return {
+            sifra: cols[sifraIndex]?.replace(/\D/g, "") || "",
+            kolicina: cols[kolicinaIndex]?.replace(/\D/g, "") || "",
+          };
+        })
+        .filter((row) => row.sifra && row.kolicina);
+
+      if (parsedRows.length === 0) {
+        alert("CSV fajl nema validne podatke");
+        return;
+      }
+
+      setRows([...parsedRows, { sifra: "", kolicina: "" }]);
     };
 
-    reader.readAsBinaryString(file);
+    reader.readAsText(file);
   };
 
   const handleDownloadTemplate = () => {
-    const worksheet = XLSX.utils.aoa_to_sheet([["Šifra", "Količina"]]);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "BrzaPorudzbina");
-
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-
-    const blob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-
+    // Ručno pravljenje CSV template fajla
+    const csvContent = "Šifra,Količina\n\n";
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "brza-porudzbina-sablon.xlsx";
+    link.download = "brza-porudzbina-sablon.csv";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -147,7 +153,7 @@ const BrzoNarucivanje = () => {
             u polja sa desne strane. Novi redovi se dodaju automatski.
           </li>
           <li>
-            <strong>Uvoz iz Excel fajla:</strong> Klikni na „Uvezi Excel“ i izaberi
+            <strong>Uvoz iz CSV fajla:</strong> Klikni na „Uvezi CSV“ i izaberi
             fajl sa kolonama „Šifra“ i „Količina“.
           </li>
           <li>
@@ -188,7 +194,7 @@ const BrzoNarucivanje = () => {
                 u polja sa desne strane. Novi redovi se dodaju automatski.
               </li>
               <li>
-                <strong>Uvoz iz Excel fajla:</strong> Klikni na „Uvezi Excel“ i izaberi
+                <strong>Uvoz iz CSV fajla:</strong> Klikni na „Uvezi CSV“ i izaberi
                 fajl sa kolonama „Šifra“ i „Količina“.
               </li>
               <li>
@@ -247,7 +253,7 @@ const BrzoNarucivanje = () => {
           <button
             className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 rounded shadow border cursor-pointer"
             onClick={handleDownloadTemplate}
-            title="Preuzmi Excel šablon za unos"
+            title="Preuzmi CSV šablon za unos"
           >
             📄 Preuzmi šablon
           </button>
@@ -310,26 +316,26 @@ const BrzoNarucivanje = () => {
           })}
         </div>
 
-        {/* Dugme za upload Excel i prebaci u korpu */}
+        {/* Dugme za upload CSV i prebaci u korpu */}
         <div className="flex flex-col items-center justify-center gap-4">
           <div className="flex flex-wrap gap-4 justify-center">
             <button
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-1 rounded-lg shadow cursor-pointer flex items-center gap-2"
-              onClick={() => document.getElementById("excelUpload")?.click()}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-1 rounded"
+              onClick={() => document.getElementById("csvUpload")?.click()}
             >
-              <span>📂</span>Uvezi Excel
+              Uvezi CSV
             </button>
-
             <input
               type="file"
-              accept=".xlsx,.xls,.csv"
-              id="excelUpload"
+              id="csvUpload"
+              accept=".csv,text/csv"
+              onChange={handleCSVUpload}
               className="hidden"
-              onChange={handleExcelUpload}
             />
-
-            <PrebaciUKorpu rows={validItems} />
           </div>
+
+          {/* Prebaci u korpu */}
+          <PrebaciUKorpu rows={validItems} />
         </div>
       </main>
     </div>
