@@ -37,6 +37,7 @@ const ArticleCard = ({
       return;
     }
 
+    sessionStorage.setItem("prethodnaRuta", window.location.href);
     router.push(`/proizvodi/${idArtikla}`);
   };
 

@@ -32,6 +32,7 @@ export default function Proizvod() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [prethodnaRuta, setPrethodnaRuta] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [preostalo, setPreostalo] = useState<number>(1);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -82,6 +83,13 @@ export default function Proizvod() {
 
     fetchData();
   }, [id]);
+
+  useEffect(() => {
+    const ruta = sessionStorage.getItem("prethodnaRuta");
+    if (ruta) {
+      setPrethodnaRuta(ruta);
+    }
+  }, []);
 
   useEffect(() => {
     if (!proizvod) return;

@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import Pagination from "./ui/pagination";
 import { Link } from "lucide-react";
-import { usePathname } from "next/navigation"; 
+import { usePathname, useSearchParams } from "next/navigation"; 
 
 
 interface myProps {
@@ -35,13 +35,12 @@ const FormTable = ({ title }: myProps) => {
 
 
   const itemsPerPage = 15;
-
+  const searchParams = useSearchParams();
   const [korisnik, setKorisnik] = useState<any>(null);
 
   useEffect(() => {
     setKorisnik(dajKorisnikaIzTokena());
   }, []);
-
 
   // sortiraj dokumenta po izabranom ključu i redosledu
   const sortiranaDokumenta = [...dokumenta].sort((a, b) => {
