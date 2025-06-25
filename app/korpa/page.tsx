@@ -54,7 +54,7 @@ const Korpa = () => {
 
     
 
-    const url = `${apiAddress}/api/Artikal/DajArtikalId?${queryString}`;
+    const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
 
 
 

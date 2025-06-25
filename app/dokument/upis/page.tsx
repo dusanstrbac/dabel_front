@@ -56,6 +56,12 @@
 
         
 
+        const loadCart = () => {
+            const storedCart = localStorage.getItem("cart");
+            const parsedCart = storedCart ? JSON.parse(storedCart) : {};
+            setCart(parsedCart);
+        };
+
         useEffect(() => {
             setIsClient(true);
 
@@ -87,7 +93,7 @@
                 if (storedIds.length === 0) return;
 
                 const queryString = storedIds.map(id => `ids=${id}`).join("&");
-                const url = `${apiAddress}/api/Artikal/DajArtikalId?${queryString}`;
+                const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
 
                 try {
                 const response = await fetch(url);
@@ -234,10 +240,16 @@
                         <div className="flex flex-col max-h-[550px] overflow-y-auto pr-2 gap-5 ">
                         {artikli.map((artikal) => {
                             const fotografijaProizvoda = `${imageUrl}/s${artikal.idArtikla}.jpg`;
+                            const osnovnaCena = artikal.artikalCene[0].akcija.cena > 0
+                                                                                ? artikal.artikalCene[0].akcija.cena
+                                                                                : artikal.artikalCene[0].cena;
+                            const kolicina = cart[artikal.idArtikla].kolicina || 1;
+                            const pravaCena = osnovnaCena * 1.2 * rabat * kolicina;
+                            
                             return (
                                 <div
                                     key={artikal.idArtikla}
-                                    className="w-full flex items-center gap-4 border-1 p-1 rounded shadow-sm max-h-[500px]"
+                                    className="w-full flex items-center gap-4 border-1 p-2 rounded-lg shadow-sm max-h-[500px]"
                                 >
                                     <img
                                         src={fotografijaProizvoda}
@@ -246,22 +258,16 @@
                                     />
                                     <div className="flex flex-col lg:flex-col w-full">
                                             <p className="flex font-semibold text-lg">{artikal.naziv}</p>
-                                            <p className="text-red-500 text-xl whitespace-nowrap md:hidden lg:hidden block">{((artikal.artikalCene[0].akcija.cena > 0 
-                                                                                                                                                                        ? artikal.artikalCene[0].akcija.cena 
-                                                                                                                                                                        : artikal.artikalCene[0].cena) * 1.2 * rabat * (cart[artikal.idArtikla].kolicina)).toLocaleString("sr-RS")} RSD</p>
+                                            <p className="text-red-500 text-xl whitespace-nowrap md:hidden lg:hidden block">{(pravaCena).toLocaleString("sr-RS")} RSD</p>
                                         <div className="flex flex-col lg:flex-row gap-1 justify-between text-gray-400 max-w-[400px] text-sm">
                                             <p>Šifra: {artikal.idArtikla}</p>
                                             <p>Količina: {artikal.kolicina}</p> 
-                                            <p>Cena: {(artikal.artikalCene[0].akcija.cena > 0 
-                                                                                        ? artikal.artikalCene[0].akcija.cena
-                                                                                        : artikal.artikalCene[0].cena).toLocaleString("sr-RS")} RSD</p>
+                                            <p>Cena: {(osnovnaCena).toLocaleString("sr-RS")} RSD</p>
                                             <p>PDV: 20%</p>
                                             {/* <p>Pakovanje: {artikal.pakovanje}</p> */}
                                         </div>
                                     </div>
-                                    <p className="text-red-500 text-xl whitespace-nowrap hidden md:block lg:block">{((artikal.artikalCene[0].akcija.cena > 0 
-                                                                                                                                                                ? artikal.artikalCene[0].akcija.cena  
-                                                                                                                                                                : artikal.artikalCene[0].cena)* 1.2 * rabat *(cart[artikal.idArtikla].kolicina)).toLocaleString("sr-RS")} RSD</p>
+                                    <p className="text-red-500 text-xl whitespace-nowrap hidden md:block lg:block">{(pravaCena).toLocaleString("sr-RS")} RSD</p>
                                 </div>
                             );
                             })}
