@@ -170,7 +170,7 @@ const Korpa = () => {
   const totalAmountWithPDV = totalAmount * 1.2;
 
   const getSlikaArtikla = (idArtikla: string) => {
-    const baseUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS;
+    const baseUrl = '/images';
     return `${baseUrl}/s${idArtikla}.jpg`;
 
     

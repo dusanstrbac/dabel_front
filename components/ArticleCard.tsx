@@ -22,7 +22,7 @@ const ArticleCard = ({
     setMounted(true);
   }, []);
 
-  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS;
+  const imageUrl = '/images';
   const fotografijaProizvoda = `${imageUrl}/s${idArtikla}.jpg`;
 
   const handleCardClick = (e: React.MouseEvent) => {

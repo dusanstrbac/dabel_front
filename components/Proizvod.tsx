@@ -106,8 +106,7 @@ export default function Proizvod() {
     setIsOpen(true);
   };
 
-  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS || "";
-
+  const imageUrl = '/images';
   const images = [
     { src: `${imageUrl}/s${proizvod.idArtikla}.jpg`, alt: "Glavna slika" },
     { src: `${imageUrl}/t${proizvod.idArtikla}.jpg`, alt: "Slika proizvoda" },

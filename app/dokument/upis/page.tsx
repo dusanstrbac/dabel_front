@@ -16,7 +16,7 @@
         const [isClient, setIsClient] = useState(false);
         const [partner, setPartner] = useState<KorisnikPodaciType>();
 
-        const imageUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS;
+        const imageUrl = '/images';
 
         const [mestoIsporuke, setMestoIsporuke] = useState("");
         const [imeiPrezime, setImeiPrezime] = useState("");
@@ -67,93 +67,93 @@
 
             try {
             
-            const storedCart = localStorage.getItem("cart");
-            const parsedCart = storedCart ? JSON.parse(storedCart) : {};
-            setCart(parsedCart);
+                const storedCart = localStorage.getItem("cart");
+                const parsedCart = storedCart ? JSON.parse(storedCart) : {};
+                setCart(parsedCart);
 
-            const parsedPartner = JSON.parse(sessionStorage.getItem("partner") || "null");
-            if (parsedPartner) {
-                setPartner(parsedPartner);
-            } else {
-                console.warn("Partner nije pronadjen u sesiji");
-            }
+                const parsedPartner = JSON.parse(sessionStorage.getItem("partner") || "null");
+                if (parsedPartner) {
+                    setPartner(parsedPartner);
+                } else {
+                    console.warn("Partner nije pronadjen u sesiji");
+                }
 
-            
-            const ukupnaCenaSaPDV = sessionStorage.getItem("ukupnaCenaSaPDV");
-
-
-            if (ukupnaCenaSaPDV){
-                setUkupnaCenaSaPDV(Number(ukupnaCenaSaPDV));
-            }
-            const storedIds = Object.keys(parsedCart);
-            const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+                
+                const ukupnaCenaSaPDV = sessionStorage.getItem("ukupnaCenaSaPDV");
 
 
-            const fetchArtikli = async () => {
-                if (storedIds.length === 0) return;
-
-                const queryString = storedIds.map(id => `ids=${id}`).join("&");
-                const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
-
-                try {
-                const response = await fetch(url);
-                const data = await response.json();
+                if (ukupnaCenaSaPDV){
+                    setUkupnaCenaSaPDV(Number(ukupnaCenaSaPDV));
+                }
+                const storedIds = Object.keys(parsedCart);
+                const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
 
+                const fetchArtikli = async () => {
+                    if (storedIds.length === 0) return;
 
-                const transformed = data.map((artikal: ArtikalType) => ({
-                    ...artikal,
-                    id: artikal.idArtikla,
-                    naziv: artikal.naziv,
-                    cena: artikal.artikalCene[0].akcija.cena ?? 0,  
-                    originalnaCena: artikal.artikalCene[0].cena,
-                    // pdv: artikal.pdv ?? 20,
-                    //OVO MORA DA SE VIDI
-                    kolicina: parsedCart[artikal.idArtikla]?.kolicina,
+                    const queryString = storedIds.map(id => `ids=${id}`).join("&");
+                    const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
+
+                    try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+
+
+                    const transformed = data.map((artikal: ArtikalType) => ({
+                        ...artikal,
+                        id: artikal.idArtikla,
+                        naziv: artikal.naziv,
+                        cena: artikal.artikalCene[0].akcija.cena ?? 0,  
+                        originalnaCena: artikal.artikalCene[0].cena,
+                        // pdv: artikal.pdv ?? 20,
+                        //OVO MORA DA SE VIDI
+                        kolicina: parsedCart[artikal.idArtikla]?.kolicina,
+                        
+                    }));
                     
-                }));
+
+
+                    setArtikli(transformed);
+                    } catch (err) {
+                        console.error("Greška pri učitavanju artikala:", err);
+                    }
+                };
+
+                const fetchPartner = async () => {
+                    const korisnik = dajKorisnikaIzTokena();
+                    if (!korisnik) {
+                        console.warn("Nema korisnika iz tokena.");
+                        return;
+                    }
+
+                    const email = korisnik.email;
+
+                    try {
+                        const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${email}`);
+                        const data = await res.json();
+                        setPartner(data[0]);
+
+                        console.log("Partner podaci:", data[0]);
+                        console.log("Komercijalista:", data[0].komercijalisti);
+
+
+                        
+                    } catch (err) {
+                        console.error("Greška pri fetchovanju partnera:", err);
+                    }
+                };
+
+                // Generisanje novog ID-ja
+                const poslednjiId = parseInt(localStorage.getItem("poslednjiIdDokumenta") || "0", 10);
+                const noviId = poslednjiId + 1;
+                setIdDokumenta(noviId);
+                
                 
 
-
-                setArtikli(transformed);
-                } catch (err) {
-                    console.error("Greška pri učitavanju artikala:", err);
-                }
-            };
-
-            const fetchPartner = async () => {
-                const korisnik = dajKorisnikaIzTokena();
-                if (!korisnik) {
-                    console.warn("Nema korisnika iz tokena.");
-                    return;
-                }
-
-                const email = korisnik.email;
-
-                try {
-                    const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${email}`);
-                    const data = await res.json();
-                    setPartner(data[0]);
-
-                    console.log("Partner podaci:", data[0]);
-                    console.log("Komercijalista:", data[0].komercijalisti);
-
-
-                    
-                } catch (err) {
-                    console.error("Greška pri fetchovanju partnera:", err);
-                }
-            };
-
-            // Generisanje novog ID-ja
-            const poslednjiId = parseInt(localStorage.getItem("poslednjiIdDokumenta") || "0", 10);
-            const noviId = poslednjiId + 1;
-            setIdDokumenta(noviId);
-            
-            
-
-            fetchArtikli();
-            fetchPartner();
+                fetchArtikli();
+                fetchPartner();
             } catch (e) {
                 console.error("Nevalidan JSON u localStorage za 'cart'", e);
             }
