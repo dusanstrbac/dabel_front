@@ -65,7 +65,7 @@ const PretragaProizvoda = () => {
         onFocus={() => query.length >= 2 && setShowDropdown(true)}
         //ovde zelim da kada se klikne enter da se ode na stranicu datoga artikla koji se bude pronasao
       />
-      <Search 
+      <Search
         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 pointer-events-none"
         // onClick={handleRedirect(artikal.idArtikla)}
         //ovo isto ocu da sredim da dodam ikonica da moze da kada se klikne da se ode do tamo  
