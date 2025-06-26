@@ -11,7 +11,7 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina }: ArtikalType) =
   const [isDisabled, setIsDisabled] = useState(false);
 
 
-  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS;
+  const imageUrl = '/images';
   const fotografijaProizvoda = `${imageUrl}/s${idArtikla}.jpg`;
   
   useEffect(() => {

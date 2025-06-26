@@ -1,7 +1,7 @@
 'use client'
 
 import { ArtikalFilterProp, ArtikalType } from '@/types/artikal'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import MultiRangeSlider from './ui/MultiRangeSlider'
 import {
   Collapsible,
@@ -45,6 +45,17 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, onFilterChange })
     Boja: [],
   })
 
+
+  const atributMapa: Record<string, string> = {
+    Materijal: 'Materijal',
+    Model: 'Model',
+    Pakovanje: 'Pakovanje',
+    RobnaMarka: 'Robna marka', // ovde pazimo na razmak
+    Upotreba: 'Upotreba',
+    Boja: 'Boja',
+  }
+
+
   useEffect(() => {
     if (!artikli || artikli.length === 0) return;
     console.log("Stigli artikli u filter:", artikli);
@@ -61,7 +72,7 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, onFilterChange })
         const values = artikli
           .map((artikal) => {
             const atribut = artikal.artikalAtributi?.find((a: any) =>
-              a.imeAtributa.toLowerCase().includes(kljuc.toLowerCase())
+              a.imeAtributa.toLowerCase() === kljuc.toLowerCase()
             )
             return atribut?.vrednost
           })
@@ -77,14 +88,15 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, onFilterChange })
   //console.log("Materijali iz artikala:", materijali);
 
     setFilterOptions({
-      jedinicaMere: getUniqueValues("jm"),//PROVERITI
-      Materijal: getUniqueValues("Materijal"),
-      Model: getUniqueValues("Model"),
-      Pakovanje: getUniqueValues("Pakovanje"),
-      RobnaMarka: getUniqueValues("Robna marka"),
-      Upotreba: getUniqueValues("Upotreba"),
-      Boja: getUniqueValues("boja"),
+      jedinicaMere: getUniqueValues("jm"),
+      Materijal: getUniqueValues(atributMapa.Materijal),
+      Model: getUniqueValues(atributMapa.Model),
+      Pakovanje: getUniqueValues(atributMapa.Pakovanje),
+      RobnaMarka: getUniqueValues(atributMapa.RobnaMarka),
+      Upotreba: getUniqueValues(atributMapa.Upotreba),
+      Boja: getUniqueValues(atributMapa.Boja),
     })
+
 
   }, [artikli]);
 
@@ -96,6 +108,96 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, onFilterChange })
     setFilters(updatedFilters)
     onFilterChange(updatedFilters)
   }
+
+  const parseFilterFromParams = (params: URLSearchParams): ArtikalFilterProp => {
+    const parseArray = (key: string) => {
+      const value = params.get(key)
+      return value ? value.split(',') : []
+    }
+
+    return {
+      naziv: params.get('naziv') || '',
+      jedinicaMere: params.get('jedinicaMere') || '',
+      Materijal: parseArray('Materijal'),
+      Model: parseArray('Model'),
+      Pakovanje: parseArray('Pakovanje'),
+      RobnaMarka: parseArray('RobnaMarka'),
+      Upotreba: parseArray('Upotreba'),
+      Boja: parseArray('Boja'),
+    }
+  }
+
+  const updateQueryParams = (filters: ArtikalFilterProp) => {
+    const params = new URLSearchParams()
+
+    if (filters.naziv) params.set('naziv', filters.naziv)
+    if (filters.jedinicaMere) params.set('jedinicaMere', filters.jedinicaMere)
+
+    const setArrayParam = (key: keyof ArtikalFilterProp) => {
+      if (filters[key] && Array.isArray(filters[key]) && filters[key].length > 0) {
+        params.set(key.toString(), (filters[key] as string[]).join(','))
+      }
+    }
+
+    setArrayParam('Materijal')
+    setArrayParam('Model')
+    setArrayParam('Pakovanje')
+    setArrayParam('RobnaMarka')
+    setArrayParam('Upotreba')
+    setArrayParam('Boja')
+
+    return params.toString()
+  }
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+
+    const parseArrayParam = (key: string) => {
+      const param = params.get(key)
+      return param ? param.split(',') : []
+    }
+
+    const noviFilteri: ArtikalFilterProp = {
+      naziv: params.get('naziv') || '',
+      jedinicaMere: params.get('jedinicaMere') || '',
+      Materijal: parseArrayParam('Materijal'),
+      Model: parseArrayParam('Model'),
+      Pakovanje: parseArrayParam('Pakovanje'),
+      RobnaMarka: parseArrayParam('RobnaMarka'),
+      Upotreba: parseArrayParam('Upotreba'),
+      Boja: parseArrayParam('Boja'),
+    }
+
+    setFilters(noviFilteri)
+  }, [])
+
+  const filtriraniArtikli = useMemo(() => {
+    return artikli.filter((artikal) => {
+      // Filter: jedinica mere
+      if (filters.jedinicaMere && artikal.jm !== filters.jedinicaMere) return false
+
+      // Filter: atributi
+      const atributiMap = Object.fromEntries(
+        (artikal.artikalAtributi || []).map((a: any) => [a.imeAtributa, a.vrednost])
+      )
+
+      const matchesAtribut = (key: keyof ArtikalFilterProp) => {
+        const selected = filters[key]
+        if (!selected || selected.length === 0) return true
+        const value = atributiMap[key]
+        return selected.includes(value)
+      }
+
+      return (
+        matchesAtribut('Materijal') &&
+        matchesAtribut('Model') &&
+        matchesAtribut('Pakovanje') &&
+        matchesAtribut('RobnaMarka') &&
+        matchesAtribut('Upotreba') &&
+        matchesAtribut('Boja')
+      )
+    })
+  }, [artikli, filters])
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-md max-w-xl mx-auto space-y-4 relative">

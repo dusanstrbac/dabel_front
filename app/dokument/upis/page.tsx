@@ -77,7 +77,7 @@
                 if (storedIds.length === 0) return;
 
                 const queryString = storedIds.map(id => `ids=${id}`).join("&");
-                const url = `${apiAddress}/api/Artikal/DajArtikalId?${queryString}`;
+                const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
 
                 try {
                 const response = await fetch(url);

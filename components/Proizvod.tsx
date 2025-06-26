@@ -48,7 +48,7 @@ export default function Proizvod() {
       setError(null);
       try {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const res = await fetch(`${apiAddress}/api/Artikal/DajArtikalId?ids=${productId}`);
+        const res = await fetch(`${apiAddress}/api/Artikal/DajArtikalPoId?ids=${productId}`);
 
         if (!res.ok) throw new Error("Greška prilikom učitavanja proizvoda");
 
@@ -106,7 +106,7 @@ export default function Proizvod() {
     setIsOpen(true);
   };
 
-  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS || "";
+  const imageUrl = '/images';
 
   const images = [
     { src: `${imageUrl}/s${proizvod.idArtikla}.jpg`, alt: "Glavna slika" },
