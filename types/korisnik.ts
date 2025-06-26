@@ -10,6 +10,7 @@ interface KorisnikPodaciType {
     maticniBroj: string,
     pib: string,
     telefon: string,
+    uloga?: string,
     finKarta: FinKartaType,
     komercijalista: KorisnikPodaciKomercijalistaType,
     partnerRabat: KorisnikRabatType,
