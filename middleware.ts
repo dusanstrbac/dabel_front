@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 const PUBLIC_FILE = /\.(.*)$/; // Public fajlovi iz projekta ( fotografije, ikonice ... )
 const AUTH_EXEMPT_ROUTES = [
     "/login", 
-    "/api/Auth/LoginPodaci"
+    "/api/Auth/LoginPodaci",
+    "/register"
 ];
 
 // Sve api rute su zasticene osim ovih iznad da bi korisnik mogao da ih pozove i da se uloguje.

@@ -101,15 +101,37 @@ export function KorisnikMenu() {
         
         <DropdownMenuItem asChild>
           {isLoggedIn ? (
-            <button onClick={odjaviKorisnika} className="flex cursor-pointer w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm text-red-600 hover:bg-gray-100">
-              <LogOut className="h-4 w-4" />
-              <span>Odjava</span>
-            </button> ) : (
-            <button onClick={() => router.push('/login')} className="flex cursor-pointer w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm hover:bg-gray-100">
-              <LogOut className="h-4 w-4" />
-              <span>Prijavi se</span>
-            </button>
-            )} 
+            <DropdownMenuItem asChild>
+              <button
+                onClick={odjaviKorisnika}
+                className="flex cursor-pointer w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm text-red-600 hover:bg-gray-100"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Odjava</span>
+              </button>
+            </DropdownMenuItem>
+            ) : (
+            <div>
+              <DropdownMenuItem asChild>
+                <button
+                  onClick={() => router.push('/login')}
+                  className="flex cursor-pointer w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm hover:bg-gray-100"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Prijavi se</span>
+                </button>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <button
+                  onClick={() => router.push('/register')}
+                  className="flex cursor-pointer w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm hover:bg-gray-100"
+                >
+                  <User2 className="h-4 w-4" />
+                  <span>Registruj se</span>
+                </button>
+              </DropdownMenuItem>
+            </div>
+          )}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

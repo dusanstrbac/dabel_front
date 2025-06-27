@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut, Smartphone, FileText } from "lucide-react";
+import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut, Smartphone, FileText, ShieldUser } from "lucide-react";
 import Image from "next/image";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
@@ -26,6 +26,7 @@ export default function Header() {
   const [WebKontaktEmail, setWebKontaktEmail] = useState<string>('N/A');
   const korisnik = dajKorisnikaIzTokena();
   const username = korisnik?.korisnickoIme;
+  const uloga = korisnik?.webUloga;
 
  useEffect(() => {
   const updateCartCount = () => {
@@ -80,15 +81,24 @@ const headerMainNav = [
 
 
   const menuItems = [
-    { id: 'podaci', icon: <User2 className="h-6 w-6" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
-    { id: 'rezervacije', icon: <User2 className="h-6 w-6" />, text: "Rezervisana roba", href: username ? `/${username}/profil/rezervacije` : '/login' },
-    { id: 'narudzbenica', icon: <FileText className="h-6 w-6" />, text: "Narudžbenica", href: username ? `/${username}/profil/narudzbenica` : '/login' },
-    { id: 'uplate', icon: <Wallet className="h-6 w-6" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
-    { id: 'roba', icon: <Package className="h-6 w-6" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
-    { id: 'korisnici', icon: <Users className="h-6 w-6" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : `/login` },
-    { id: 'cenovnik', icon: <BadgeDollarSign className="h-6 w-6" />, text: "Cenovnik", href: "/admin/cenovnik" },
-    { id: 'uputstva', icon: <Youtube className="h-6 w-6" />, text: "Video uputstva", href: "/video" },
-    { id: 'podesavanja', icon: <Key className="h-6 w-6" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
+
+    // Stavke koje se samo prikazuju administratoru
+    ...(uloga === "ADMINISTRATOR" ? [
+      { icon: <ShieldUser className="h-4 w-4" />, text: "Admin podešavanja", href: username ? `/${username}/admin` : '/login' },
+    ]: []),
+    ...(uloga === "PARTNER" ? [
+      { icon: <User2 className="h-4 w-4" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
+      { icon: <User2 className="h-4 w-4" />, text: "Rezervisana roba", href: username ? `/${username}/profil/rezervacije` : '/login' },
+      { icon: <FileText className="h-4 w-4" />, text: "Narudžbenica", href: username ? `/${username}/profil/narudzbenica` : '/login' },
+      { icon: <Wallet className="h-4 w-4" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
+      { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
+      { icon: <Users className="h-4 w-4" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : '/login' },
+      { icon: <BadgeDollarSign className="h-4 w-4" />, text: "Cenovnik", href: "/admin/cenovnik" },
+      { icon: <Youtube className="h-4 w-4" />, text: "Video uputstva", href: "/video" },
+    ]: []),    
+    ...(uloga === "PARTNER" || uloga === "ADMINISTRATOR" ? [
+      { icon: <Key className="h-4 w-4" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
+    ]: []),
   ];
 
   const dodatniLinkovi = [
@@ -289,32 +299,41 @@ const headerMainNav = [
                 <div className="pl-2 flex flex-col">
                   <ScrollArea>
                       {menuItems.map((item) => (
-                        <Link href={item.href} key={item.id} className="flex gap-3 items-center pb-4" onClick={() => setOpenKorisnikMeni(false)}>
+                        <Link href={item.href} key={item.href} className="flex gap-3 items-center pb-4" onClick={() => setOpenKorisnikMeni(false)}>
                           <span className="">{item.icon}</span>
                           <span className="text-[18px]">{item.text}</span>
                         </Link>
                       ))}
 
                       {isLoggedIn ? (
-                       
-                       <Link href='#' className="flex gap-3 items-center pb-4">
+                        <Link href="#" className="flex gap-3 items-center pb-4">
                           <LogOut className="w-6 h-6" />
                           <span className="text-[18px] text-red-500" onClick={() => {
-                              odjaviKorisnika();
-                              setOpenKorisnikMeni(false);
+                            odjaviKorisnika();
+                            setOpenKorisnikMeni(false);
                           }}>Odjava</span>
-                        </Link> ) : (
-
-                          <Link href='#' className="flex gap-3 items-center pb-4">
-                          <LogOut className="w-6 h-6" />
-                          <span className="text-[18px]" onClick={() => {
+                        </Link>
+                      ) : (
+                        <>
+                          <Link href="#" className="flex gap-3 items-center pb-4">
+                            <LogOut className="w-6 h-6" />
+                            <span className="text-[18px]" onClick={() => {
                               router.push('/login');
                               setOpenKorisnikMeni(false);
                             }}>
-                                Prijavi se</span>
-                        </Link>
-
+                              Prijavi se
+                            </span>
+                          </Link>
+                          <Link href="/register" className="flex gap-3 items-center pb-4">
+                            <User2 className="w-6 h-6" />
+                            <span className="text-[18px]" onClick={() => setOpenKorisnikMeni(false)}>
+                              Registruj se
+                            </span>
+                          </Link>
+                        </>
                       )}
+
+
                   </ScrollArea>
                 </div>
               </SheetContent>
