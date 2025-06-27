@@ -4,7 +4,8 @@ const PUBLIC_FILE = /\.(.*)$/; // Public fajlovi iz projekta ( fotografije, ikon
 const AUTH_EXEMPT_ROUTES = [
     "/login", 
     "/api/Auth/LoginPodaci",
-    "/register"
+    "/register",
+    "/aktivacija"
 ];
 
 // Sve api rute su zasticene osim ovih iznad da bi korisnik mogao da ih pozove i da se uloguje.

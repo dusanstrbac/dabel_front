@@ -4,161 +4,74 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import axios from "axios";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 
-const formSchema = z.object({
-  korisnickoIme: z.string().min(1, "Korisničko ime je obavezno"),
-  lozinka: z.string().min(4, "Lozinka mora imati najmanje 4 karaktera"),
-  email: z.string().email("Email nije validan"),
-  maticniBroj: z.string().min(1, "Matični broj je obavezan"),
+const emailSchema = z.object({
+  email: z.string().email("Unesite validan email"),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+type EmailFormValues = z.infer<typeof emailSchema>;
 
-export default function KreirajWebPartnerForm() {
-  const router = useRouter();
+export default function PosaljiLinkZaAktivacijuForm() {
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      korisnickoIme: "",
-      lozinka: "",
-      email: "",
-      maticniBroj: "",
-    },
+  const form = useForm<EmailFormValues>({
+    resolver: zodResolver(emailSchema),
   });
 
-  async function onSubmit(values: FormValues) {
+  async function onSubmit(values: EmailFormValues) {
     setLoading(true);
     setError(null);
-    setSuccessMessage(null);
+    setSuccess(null);
 
     try {
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-
-      const payload = {
-        KorisnickoIme: values.korisnickoIme,
-        Lozinka: values.lozinka,
+      // Saljemo email na backend, token generise backend
+      const response = await axios.post(`${apiAddress}/api/Partner/PosaljiLinkZaAktivaciju`, {
         Email: values.email,
-        MaticniBroj: values.maticniBroj,
-      };
-
-      const { data } = await axios.post(`${apiAddress}/api/Partner/KreirajPartnera`, payload, {
-        withCredentials: true,
       });
 
-      if (data?.poruka) {
-        setSuccessMessage(data.poruka);
-        router.push("/");
-        form.reset();
+      if (response.data?.poruka) {
+        setSuccess(response.data.poruka);
       } else {
-        setError("Nepoznata greška prilikom kreiranja partnera.");
+        setError("Nepoznata greška prilikom slanja linka.");
       }
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.poruka || err.response?.data?.message || err.message);
-      } else {
-        setError("Došlo je do greške prilikom slanja podataka.");
-      }
+    } catch (e: any) {
+      setError(e.response?.data?.poruka || e.message || "Greška u slanju linka.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-4 shadow rounded">
-      <h1 className="text-2xl font-bold text-center">Registruj web nalog</h1>
-      <p className="text-center mb-6">Unesite tražene podatke da bi ste kreirali web nalog</p>
+    <div className="max-w-md mx-auto p-4 shadow rounded mt-10">
+      <h1 className="text-2xl font-bold mb-4 text-center">Aktivirajte nalog</h1>
+      
+      {error && <div className="mb-4 text-red-600 bg-red-100 p-2 rounded">{error}</div>}
+      {success && <div className="mb-4 text-green-600 bg-green-100 p-2 rounded">{success}</div>}
 
-      {error && (
-        <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>
-      )}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <input
+          type="email"
+          placeholder="Unesite email"
+          {...form.register("email")}
+          disabled={loading}
+          className="w-full border p-2 rounded"
+        />
+        {form.formState.errors.email && (
+          <p className="text-red-600 text-sm">{form.formState.errors.email.message}</p>
+        )}
 
-      {successMessage && (
-        <div className="mb-4 p-2 bg-green-100 text-green-700 rounded">{successMessage}</div>
-      )}
-
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-
-          <FormField
-            control={form.control}
-            name="korisnickoIme"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Korisničko ime</FormLabel>
-                <FormControl>
-                  <Input placeholder="Unesite korisničko ime" {...field} disabled={loading} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="Unesite email" {...field} disabled={loading} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-
-
-          <FormField
-            control={form.control}
-            name="maticniBroj"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Matični broj</FormLabel>
-                <FormControl>
-                  <Input placeholder="Unesite matični broj" {...field} disabled={loading} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="lozinka"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Lozinka</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="Unesite lozinku" {...field} disabled={loading} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <Button type="submit" disabled={loading} className="w-full cursor-pointer">
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Kreiranje...
-              </>
-            ) : (
-              "Kreiraj"
-            )}
-          </Button>
-        </form>
-      </Form>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-60"
+        >
+          {loading ? "Šaljem..." : "Pošalji link za aktivaciju"}
+        </button>
+      </form>
     </div>
   );
 }
