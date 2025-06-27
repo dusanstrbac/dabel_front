@@ -101,7 +101,7 @@ const admin = () => {
   const updatedParam = updatedList[index];
 
   try {
-    const res = await fetch('http://10.0.0.38:7235/api/Auth/UpisParametra', {
+    const res = await fetch(`${apiAddress}/api/Auth/UpisParametra`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -146,25 +146,27 @@ const admin = () => {
   }, []);
 
   return (
-    <div className="p-4">
+    <div className="py-2">
       <h1 className="text-left font-bold text-2xl">Podešavanja</h1>
-      <Tabs.Root defaultValue="tab1" orientation="vertical" className="my-7 flex border rounded-md border-gray-500 py-4 px-2">
-        <Tabs.List aria-label="" className="w-[200px] flex flex-col items-center justify-items-start gap-4">
-          {menuList.map((article, index) => (
+      <Tabs.Root defaultValue="tab1" orientation="vertical" className="flex flex-col lg:flex-row my-7 border rounded-md border-gray-500 py-4 px-2">
+        
+        <Tabs.List aria-label="" className="w-full lg:w-[200px] flex flex-col items-center justify-items-center gap-4 mb-5">
+          {menuList.map((item, index) => (
             <div key={index} className="contents">
-              <Tabs.Trigger value={article.index} className="w-full py-1 border border-gray-500 hover:bg-[#ebe8e89e] cursor-pointer">
-                {article.txt}
+              <Tabs.Trigger value={item.index} className="w-full max-w-[750px] py-1 border border-gray-500 hover:bg-[#ebe8e89e] cursor-pointer">
+                {item.txt}
               </Tabs.Trigger>
             </div>
           ))}
         </Tabs.List>
-        <div className="flex flex-col w-full ml-3 border-l border-gray-300">
-          <Tabs.Content value="tab1" className="ml-5">
+
+        <div className="flex flex-col w-full ml-3 lg:border-l border-gray-300">
+          <Tabs.Content value="tab1" className="">
             {/* ISTAKNUTI ARTIKLI */}
             <div> 
               {featuredArtikli.map((article) => (
-                <div key={article.idArtikla} className="flex mx-4 pt-5 pb-5 items-center justify-between border-b border-b-red-200">
-                  <div className="flex">
+                <div key={article.idArtikla} className="flex sm:flex-row flex-col mx-4 pt-5 pb-5 items-center justify-between border-b border-b-red-200">
+                  <div className="flex flex-col sm:flex-row">
                     <img
                       src="/artikal.jpg"
                       alt="slika artikla"
@@ -172,8 +174,8 @@ const admin = () => {
                       height={150}
                       className="object-cover"
                     />
-                    <div className="flex flex-col justify-between px-4 py-2 h-[150px] w-full">
-                      <div>
+                    <div className="flex flex-col justify-between px-4 py-2 w-full">
+                      <div className="">
                         <p className="text-lg font-semibold">{article.naziv}</p>
                         <p className="text-gray-500">ID: {article.idArtikla}</p>
                         <p className="text-gray-500">Barkod: {article.barkod}</p>
@@ -200,8 +202,10 @@ const admin = () => {
           </Tabs.Content>
           <Tabs.Content value="tab2">Bice ovde nesto</Tabs.Content>
           <Tabs.Content value="tab3" className="flex flex-col ml-5 mr-5 justify-between"> 
+
+
             {/* PARAMETRI SISTEMA */}
-            <div className="flex relative justify-end">
+            <div className="flex relative justify-end min-w-[200px]">
               <ComboboxDemo
                 options={options}
                 onSelectOption={handleSelectOption}
@@ -218,8 +222,8 @@ const admin = () => {
               return (
                 <div key={index} className={`p-2 ${isSelected ? "bg-[#8282820b] rounded-md" : ""}`} ref={ref}>
                   <div key={article.naziv} className="contents">
-                    <p className="align-top font-medium text-2xl">{article.naziv}</p>
-                    <p className="align-top text-left text-gray-500 max-w-4xl">{article.deskripcija}</p>
+                    <p className="align-top font-medium text-xl">{article.naziv}</p>
+                    <p className="align-top text-left text-gray-500 max-w-4xl whitespace-break-spaces">{article.deskripcija}</p>
                     <input
                       className="border-b border-red-200 px-2 py-1 h-10 mt-3 mb-9  min-w-[400px] min-h-[40px] justify-items-start"
                       type="text"

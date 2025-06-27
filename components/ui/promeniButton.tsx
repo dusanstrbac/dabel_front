@@ -37,28 +37,19 @@ const PromeniButton = ({ artikal, articleList, onArtikalPromenjen, iskljuceniArt
   });
 
   return (
-    <Dialog
-      onOpenChange={(open) => {
-        console.log(`📍 Dialog ${open ? "otvoren" : "zatvoren"}`);
-        if (open) {
-          console.log("✅ Kliknuto na dugme 'Promeni'");
-        }
-      }}
-    >
+    <Dialog>
       <DialogTrigger asChild>
         <button
-          onClick={() => console.log("🖱 Klik na <Promeni> dugme")}
           className="flex items-center justify-center mr-15 mx-4 my-2 w-[150px] h-[40px] border-2 rounded-md text-lg hover:bg-gray-100 cursor-pointer"
         >
           Promeni
         </button>
       </DialogTrigger>
 
-      <DialogContent className="flex flex-col min-w-[700px] max-w-[1000px] boder-2 border-amber-800"> 
-        {/* hocu da ovaj dialogContent malo prosirim u sirinu da bi on ispao lepsi */}
+      <DialogContent className="flex flex-col"> 
         <DialogHeader>
           <DialogTitle>Izaberite artikal</DialogTitle>
-          <DialogDescription className="w-[800px]">
+          <DialogDescription>
             Odaberite artikal koji želite da postavite kao preporučen za sve kupce
           </DialogDescription>
         </DialogHeader>
@@ -67,7 +58,6 @@ const PromeniButton = ({ artikal, articleList, onArtikalPromenjen, iskljuceniArt
           <ComboboxArtikli
             articleList={dostupniArtikli}
             onSelectOption={(artikal) => {
-              console.log("🔽 Combobox: izabran artikal:", artikal);
               setSelectedArtikal(artikal);
             }}
             placeholder="Pretraži artikle"
@@ -77,9 +67,7 @@ const PromeniButton = ({ artikal, articleList, onArtikalPromenjen, iskljuceniArt
             <Button
               className="w-[100px]"
               onClick={() => {
-                console.log("💾 Kliknuto na 'Sačuvaj' dugme");
                 if (selectedArtikal) {
-                  console.log("✅ Artikal za čuvanje:", selectedArtikal);
                   onArtikalPromenjen(artikal.idArtikla, selectedArtikal);
                 } else {
                   console.warn("⚠️ Nije izabran nijedan artikal za čuvanje!");

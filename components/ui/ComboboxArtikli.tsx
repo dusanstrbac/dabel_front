@@ -96,16 +96,24 @@ const ComboboxArtikliComponent: React.FC<Props> = ({
         <Button
           variant="outline"
           role="combobox"
-          className="w-[650px] justify-between"
+          className="w-full justify-between h-full"
           onClick={() => setOpen(true)}
         >
-          {selectedArtikal?.naziv || placeholder}
+          <p className="max-w-[400px] whitespace-break-spaces">{selectedArtikal?.naziv || placeholder}</p>
           <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent disablePortal className="min-w-[620px] p-2">
-        <Command>
+      <PopoverContent 
+          side="bottom"
+          disablePortal 
+          align="center"
+          sideOffset={8}
+          avoidCollisions={false}
+          className="w-[clamp(220px,80vw,600px)] p-2"
+      
+      >
+        <Command className="flex w-full">
           <input
             type="text"
             placeholder={placeholder}
@@ -115,13 +123,13 @@ const ComboboxArtikliComponent: React.FC<Props> = ({
             autoFocus
           />
 
-          <CommandList>
+          <CommandList className="w-full">
             <CommandEmpty>
               {inputValue
                 ? `🚫 Nema rezultata za: "${inputValue}"`
                 : "🚫 Nema dostupnih artikala"}
             </CommandEmpty>
-            <CommandGroup>
+            <CommandGroup className="w-full">
               <List
                 height={215}
                 itemCount={filteredList.length}
@@ -139,7 +147,7 @@ const ComboboxArtikliComponent: React.FC<Props> = ({
                         value={artikal.idArtikla}
                         onSelect={() => handleSelect(artikal.idArtikla)}
                         className={cn(
-                          "flex items-center px-3 py-2 text-sm",
+                          "flex items-center px-3 py-2 text-sm w-full",
                           disabled
                             ? "text-muted-foreground cursor-not-allowed opacity-60"
                             : "cursor-pointer hover:bg-accent"
@@ -167,4 +175,3 @@ const ComboboxArtikliComponent: React.FC<Props> = ({
 };
 
 export const ComboboxArtikli = React.memo(ComboboxArtikliComponent);
-//vidi da li ovo uopste radi????????????????????
