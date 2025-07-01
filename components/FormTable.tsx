@@ -67,6 +67,13 @@ const FormTable = ({ title }: myProps) => {
     return sum + suma;
   }, 0);
 
+  const ukupnaSumaSvihDokumenata = dokumenta.reduce((sum, dok) => {
+    const suma = dok.stavkeDokumenata?.reduce((s: number, st: any) => s + st.ukupnaCena, 0) ?? 0;
+    return sum + suma;
+  }, 0);
+
+
+
   // učitavanje podataka
   useEffect(() => {
     if (!korisnik) return;
@@ -196,15 +203,23 @@ const FormTable = ({ title }: myProps) => {
           </TableBody>
           <TableFooter>
             <TableRow className="bg-gray-400 hover:bg-gray-400">
-              <TableCell className="font-medium">Ukupno:</TableCell>
+              <TableCell className="font-medium">Ukupno po strani:</TableCell>
               <TableCell/>
               {prikazNarudzbenica && (
                 <>
                 <TableCell/>
-                <TableCell/>
                 </>
               )}
               <TableCell className="text-right">{ukupnaSuma.toFixed(2)}</TableCell>
+              <TableCell/>
+              
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">Ukupno:</TableCell>
+              <TableCell/>
+              <TableCell/>
+              <TableCell className="text-right">{ukupnaSumaSvihDokumenata.toFixed(2)}</TableCell>
+              <TableCell/>
             </TableRow>
           </TableFooter>
         </Table>

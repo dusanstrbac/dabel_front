@@ -104,11 +104,19 @@ export default function Proizvod() {
     setIsOpen(true);
   };
 
+
+  const imageUrl = '/images';
   const images = [
-    { src: `/images/s${proizvod?.idArtikla}.jpg`, alt: "Glavna slika" },
-    { src: `/images/t${proizvod?.idArtikla}.jpg`, alt: "Slika proizvoda" },
-    { src: `/images/k${proizvod?.idArtikla}.jpg`, alt: "Upotreba" },
+    { src: `${imageUrl}/s${proizvod?.idArtikla}.jpg`, alt: "Glavna slika" },
+    { src: `${imageUrl}/t${proizvod?.idArtikla}.jpg`, alt: "Slika proizvoda" },
+    { src: `${imageUrl}/k${proizvod?.idArtikla}.jpg`, alt: "Upotreba" },
   ];
+  
+  // const images = [
+  //   { src: `/images/s${proizvod?.idArtikla}.jpg`, alt: "Glavna slika" },
+  //   { src: `/images/t${proizvod?.idArtikla}.jpg`, alt: "Slika proizvoda" },
+  //   { src: `/images/k${proizvod?.idArtikla}.jpg`, alt: "Upotreba" },
+  // ];
 
 
 

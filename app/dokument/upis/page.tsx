@@ -273,31 +273,34 @@
                             })}
                         </div>
                     )}
-                    <div className="flex flex-col w-full min-h-[40px]">
-                        <div className="flex items-center justify-between">
-                            <p className="font-medium">{dostava > 0
-                                                        ? `Ukupno`
-                                                        : ""}
-                            </p>
-                            <p className="text-gray-500">
-                                {dostava > 0
-                                    ? `${ukupnaCenaSaPDV.toLocaleString("sr-RS")} RSD`
-                                    : ""}
-                            </p>
-                        </div>
+                    <div className="flex flex-col w-full min-h-[40px] items-end p-2">
+                        <div className="max-w-[400px] w-full">
 
-                        <div className="flex items-center justify-between text-base">
-                            <p className="font-medium">Dostava:</p>
-                            <p className="text-right text-gray-500">
-                                {dostava > 0
-                                            ? `${dostava.toLocaleString("sr-RS")} RSD`
-                                            : "Besplatna dostava"}
-                            </p>
-                        </div>
-                        
-                        <div className="flex items-center justify-between text-lg font-bold mt-2">
-                            <p>Ukupno:</p>
-                            <p className="text-2xl">{ukupnoSaDostavom.toLocaleString("sr-RS")} RSD</p>
+                            <div className="flex items-center justify-between">
+                                <p className="font-medium">{dostava > 0
+                                                            ? `Ukupno`
+                                                            : ""}
+                                </p>
+                                <p className="text-gray-500">
+                                    {dostava > 0
+                                        ? `${ukupnaCenaSaPDV.toLocaleString("sr-RS")} RSD`
+                                        : ""}
+                                </p>
+                            </div>
+                            
+                            <div className="flex items-center justify-between text-base">
+                                <p className="font-medium">Dostava:</p>
+                                <p className="text-right text-gray-500">
+                                    {dostava > 0
+                                                ? `${dostava.toLocaleString("sr-RS")} RSD`
+                                                : "Besplatna dostava"}
+                                </p>
+                            </div>
+                            
+                            <div className="flex items-center justify-between text-lg font-bold mt-2">
+                                <p>Ukupno:</p>
+                                <p className="text-2xl">{ukupnoSaDostavom.toLocaleString("sr-RS")} RSD</p>
+                            </div>
                         </div>
                     </div>
                 </div>

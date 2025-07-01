@@ -17,8 +17,6 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, mestoIsporuke, nap
     const router = useRouter();
 
     const handleClick = async () => {
-        // const validno = valid();
-        // if (!validno) return;
 
         const now = new Date().toISOString();
 
@@ -87,10 +85,7 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, mestoIsporuke, nap
             } catch (err) {
                 console.error("❌ Greška pri slanju POST zahteva:", err);
             }
-
         };
-
-
 
     return(
         <Button
