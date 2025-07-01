@@ -13,7 +13,7 @@ const notFound = () => {
             <h1 className="font-light text-3xl text-center">Ova stranica nije pronadjena</h1>
 
             <Button
-                className="w-30 h-10"
+                className="w-30 h-10 cursor-pointer"
                 onClick={() => router.back()}
             >
                 <p className="text-lg">Nazad</p>
