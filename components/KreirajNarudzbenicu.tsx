@@ -16,16 +16,9 @@ const KreirajNarudzbenicu = ({ artikli, partner, imeiPrezime, mestoIsporuke, gra
     const router = useRouter();
 
     const handleClick = () => {
-        console.log("✅ Kreiranje narudžbenice...");
-        console.log("🧾 Artikli:", artikli);
-        console.log("👤 Partner:", partner);
-        console.log("📇 Kontakt osoba:", imeiPrezime);
-        console.log("📦 Mesto isporuke:", mestoIsporuke, grad, telefon, email);
-        
         const validno = valid();
         if(!validno) return;
 
-        // Sve podatke pakujemo u objektu
         const payload = {
             artikli,
             partner,
