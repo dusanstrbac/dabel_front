@@ -1,3 +1,4 @@
+import { ArtikalType } from "./artikal"
 
 export type PartnerInfo = {
   partner: KorisnikPodaciType,

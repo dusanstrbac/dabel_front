@@ -1,4 +1,3 @@
-// Proveriti da li je potrebno ovaj JSON fajl da se menja
 
 interface KorisnikPodaciType {
     idPartnera: string,
@@ -11,16 +10,15 @@ interface KorisnikPodaciType {
     maticniBroj: string,
     pib: string,
     telefon: string,
+    uloga?: string,
     finKarta: FinKartaType,
     komercijalisti: KorisnikPodaciKomercijalistaType,
     partnerRabat: KorisnikRabatType,
     partnerDostava: KorisnikDostavaType[],
 }
 
-
 interface LokacijePartnera{
     id:string,
-    
 }
 
 interface KorisnikDostavaType {

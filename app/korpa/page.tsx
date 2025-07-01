@@ -8,6 +8,7 @@ import NaruciButton from "@/components/ui/NaruciButton";
 import Image from "next/image";
 import RezervisiButton from "@/components/RezervisiButton";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { toast } from "sonner";
 
 type ArtikalCena = {
   cena: number;
@@ -35,10 +36,7 @@ const Korpa = () => {
 
 
   const [rabatPartnera, setRabatPartnera] = useState<number>(0);
-
-
-  
-
+  const [nerealizovanIznos, setNerealizovanIznos] = useState<number>(0);
 
   useEffect(() => {
     setIsClient(true);
@@ -93,6 +91,12 @@ const Korpa = () => {
           const partner = data[0];
           if (partner.partnerRabat.rabat) {
             setRabatPartnera(partner.partnerRabat.rabat);
+          }
+          if(partner.finKarta?.nerealizovano) {
+            setNerealizovanIznos(partner.finKarta.nerealizovano);
+          }
+          if(partner.finKarta?.nerealizovano > 0) {
+            toast.error("Imate neplaćene faktute, pa vam je poručivanje zabranjeno");
           }
       } catch (err) {
           console.error("Greška pri fetchovanju partnera:", err);
@@ -170,15 +174,9 @@ const Korpa = () => {
   const totalAmountWithPDV = totalAmount * 1.2;
 
   const getSlikaArtikla = (idArtikla: string) => {
-    const baseUrl = '/images';
-    return `${baseUrl}/s${idArtikla}.jpg`;
-
-    
+    const baseUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS;
+    return `${baseUrl}/s${idArtikla}.jpg`;    
   };
-// console.log(getSlikaArtikla(artikal.idArtikla));
-//ovaj se crveni ovde, i verovatno ovamo gore ne moze da ide samo idArtikla jer kako ce on da zna ciji je to artikal??  i kako da ispravno console.log ovde?????
-  
-
     
     useEffect(() => {
       if (isClient) {
@@ -187,6 +185,10 @@ const Korpa = () => {
       }
     }, [totalAmount, totalAmountWithPDV, isClient]);
 
+  const narucivanjeDisabled = nerealizovanIznos > 0;
+  const razlogZabraneNarucivanja = narucivanjeDisabled
+    ? "Imate  neizmirene dugove."
+    : undefined;
 
 
     if (!isClient) return null;
@@ -303,7 +305,7 @@ const Korpa = () => {
 
         <div className="flex justify-end gap-4 pt-4">
           <RezervisiButton ukupnaCena={totalAmountWithPDV} />
-          <NaruciButton />
+          <NaruciButton disabled={narucivanjeDisabled} />
         </div>
       </div>
 
@@ -383,7 +385,7 @@ const Korpa = () => {
         
         <div className="flex gap-2 items-center justify-center pt-4">
           <RezervisiButton ukupnaCena={totalAmountWithPDV}/>
-          <NaruciButton />
+          <NaruciButton disabled={narucivanjeDisabled} />
         </div>
       </div>
     </div>

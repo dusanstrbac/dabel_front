@@ -11,6 +11,7 @@ import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { ArtikalAtribut, ArtikalType } from "@/types/artikal";
 import { CircleAlert } from "lucide-react";
 
+// Dinamički uvoz Lightbox-a
 const Lightbox = dynamic(() => import("yet-another-react-lightbox"), {
   ssr: false,
 });
@@ -54,25 +55,19 @@ export default function Proizvod() {
         if (!res.ok) throw new Error("Greška prilikom učitavanja proizvoda");
 
         const data = await res.json();
-        console.log(data);
         if (!data || data.length === 0) throw new Error("Proizvod nije pronađen");
 
         const osnovni: ArtikalType = data[0];
         setProizvod(osnovni);
 
         if (osnovni?.artikalAtributi) {
-
-          const filtriraniAtributi = osnovni.artikalAtributi
-          .filter(attr => prikazaniAtributi.includes(attr.imeAtributa))
+          const filtriraniAtributi = osnovni.artikalAtributi.filter(attr =>
+            prikazaniAtributi.includes(attr.imeAtributa)
+          );
           setAtributi(filtriraniAtributi);
         }
 
-        if(osnovni?.status === "1") {
-          setLajkovano(true);
-        } else {
-          setLajkovano(false);
-        }
-
+        setLajkovano(osnovni?.status === "1");
       } catch (e) {
         setError((e as Error).message || "Došlo je do greške prilikom učitavanja proizvoda");
         setProizvod(null);
@@ -104,34 +99,35 @@ export default function Proizvod() {
     setPreostalo(dozvoljeno);
   }, [proizvod]);
 
-
-  if (loading) return <div className="px-4 md:px-10 lg:px-[40px] py-6">Učitavanje...</div>;
-  if (error) return <div className="px-4 md:px-10 lg:px-[40px] py-6 text-red-600">{error}</div>;
-  if (!proizvod) return <div className="px-4 md:px-10 lg:px-[40px] py-6">Proizvod nije pronađen</div>;
-
   const openLightbox = (index: number) => {
     setCurrentImageIndex(index);
     setIsOpen(true);
   };
 
-  const imageUrl = '/images';
   const images = [
-    { src: `${imageUrl}/s${proizvod.idArtikla}.jpg`, alt: "Glavna slika" },
-    { src: `${imageUrl}/t${proizvod.idArtikla}.jpg`, alt: "Slika proizvoda" },
-    { src: `${imageUrl}/k${proizvod.idArtikla}.jpg`, alt: "Upotreba" },
+    { src: `/images/s${proizvod?.idArtikla}.jpg`, alt: "Glavna slika" },
+    { src: `/images/t${proizvod?.idArtikla}.jpg`, alt: "Slika proizvoda" },
+    { src: `/images/k${proizvod?.idArtikla}.jpg`, alt: "Upotreba" },
   ];
 
+
+
   const cena =
-    proizvod.artikalCene && proizvod.artikalCene.length > 0
+    proizvod?.artikalCene && proizvod.artikalCene.length > 0
       ? proizvod.artikalCene[0].cena
       : 0;
 
   const akcijskaCena =
-    proizvod.artikalCene &&
+    proizvod?.artikalCene &&
     proizvod.artikalCene.length > 0 &&
     proizvod.artikalCene[0].akcija?.cena !== 0
       ? Number(proizvod.artikalCene[0].akcija.cena)
       : undefined;
+
+  // Loader i error handling
+  if (loading) return <div className="px-4 md:px-10 lg:px-[40px] py-6">Učitavanje...</div>;
+  if (error) return <div className="px-4 md:px-10 lg:px-[40px] py-6 text-red-600">{error}</div>;
+  if (!proizvod) return <div className="px-4 md:px-10 lg:px-[40px] py-6">Proizvod nije pronađen</div>;
 
   return (
     <main className="px-4 md:px-10 lg:px-[40px] py-6">
@@ -180,11 +176,9 @@ export default function Proizvod() {
                 <span className="text-red-500">Nije dostupno</span>
               )}
             </span>
-            {Number(proizvod.kolicina) == 0 ? (
-                <span className="text-red-500">Proizvod ponovo dostupan od: 12.06.2025</span>//dodati datum kada ce proizvod biti opet na stanju
-              ) : (
-                <span className="text-red-500"></span>
-              )}
+            {Number(proizvod.kolicina) == 0 && (
+              <span className="text-red-500">Proizvod ponovo dostupan od: 12.06.2025</span>
+            )}
             <ul className="text-sm md:text-base space-y-1">
               <li>
                 <span className="font-semibold">Šifra proizvoda:</span> {proizvod.idArtikla}
@@ -200,8 +194,7 @@ export default function Proizvod() {
               {atributi.length > 0 ? (
                 atributi.map(attr => (
                   <li key={attr.imeAtributa}>
-                    <span className="font-semibold">{attr.imeAtributa}:</span>{" "}
-                    {attr.vrednost || "-"}
+                    <span className="font-semibold">{attr.imeAtributa}:</span> {attr.vrednost || "-"}
                   </li>
                 ))
               ) : (
@@ -225,11 +218,7 @@ export default function Proizvod() {
               {Number(proizvod.kolicina) <= 10 && (
                 <div className="relative">
                   <div className="group cursor-pointer">
-                    <CircleAlert
-                      width={18}
-                      height={18}
-                      color="red"
-                    />
+                    <CircleAlert width={18} height={18} color="red" />
                     <div className="absolute left-6 top-1/2 -translate-y-1/2 bg-white text-red-500 border border-red-300 text-sm px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 whitespace-nowrap pointer-events-none">
                       Preostala količina artikla: {proizvod.kolicina}
                     </div>

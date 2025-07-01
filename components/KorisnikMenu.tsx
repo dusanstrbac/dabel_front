@@ -15,6 +15,7 @@ export function KorisnikMenu() {
   const router = useRouter();
   const korisnik = dajKorisnikaIzTokena();
   const username = korisnik?.korisnickoIme;
+  const uloga = korisnik?.webUloga;
 
   useEffect(() => {
     const korisnik = dajKorisnikaIzTokena();
@@ -37,18 +38,25 @@ export function KorisnikMenu() {
       </div>
     );
   }
-
   const menuItems = [
-    { icon: <ShieldUser className="h-4 w-4" />, text: "Admin podešavanja", href: username ? `/${username}/admin` : '/login' },
-    { icon: <User2 className="h-4 w-4" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
-    { icon: <User2 className="h-4 w-4" />, text: "Rezervisana roba", href: username ? `/${username}/profil/rezervacije` : '/login' },
-    { icon: <FileText className="h-4 w-4" />, text: "Narudžbenica", href: username ? `/${username}/profil/narudzbenica` : '/login' },
-    { icon: <Wallet className="h-4 w-4" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
-    { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
-    { icon: <Users className="h-4 w-4" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : '/login' },
-    { icon: <BadgeDollarSign className="h-4 w-4" />, text: "Cenovnik", href: "/admin/cenovnik" },
-    { icon: <Youtube className="h-4 w-4" />, text: "Video uputstva", href: "/video" },
-    { icon: <Key className="h-4 w-4" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
+
+    // Stavke koje se samo prikazuju administratoru
+    ...(uloga === "ADMINISTRATOR" ? [
+      { icon: <ShieldUser className="h-4 w-4" />, text: "Admin podešavanja", href: username ? `/${username}/admin` : '/login' },
+    ]: []),
+    ...(uloga === "PARTNER" ? [
+      { icon: <User2 className="h-4 w-4" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
+      { icon: <User2 className="h-4 w-4" />, text: "Rezervisana roba", href: username ? `/${username}/profil/rezervacije` : '/login' },
+      { icon: <FileText className="h-4 w-4" />, text: "Narudžbenica", href: username ? `/${username}/profil/narudzbenica` : '/login' },
+      { icon: <Wallet className="h-4 w-4" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
+      { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
+      { icon: <Users className="h-4 w-4" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : '/login' },
+      { icon: <BadgeDollarSign className="h-4 w-4" />, text: "Cenovnik", href: "/admin/cenovnik" },
+      { icon: <Youtube className="h-4 w-4" />, text: "Video uputstva", href: "/video" },
+    ]: []),    
+    ...(uloga === "PARTNER" || uloga === "ADMINISTRATOR" ? [
+      { icon: <Key className="h-4 w-4" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
+    ]: []),
   ];
 
 
@@ -93,15 +101,37 @@ export function KorisnikMenu() {
         
         <DropdownMenuItem asChild>
           {isLoggedIn ? (
-            <button onClick={odjaviKorisnika} className="flex cursor-pointer w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm text-red-600 hover:bg-gray-100">
-              <LogOut className="h-4 w-4" />
-              <span>Odjava</span>
-            </button> ) : (
-            <button onClick={() => router.push('/login')} className="flex cursor-pointer w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm hover:bg-gray-100">
-              <LogOut className="h-4 w-4" />
-              <span>Prijavi se</span>
-            </button>
-            )} 
+            <DropdownMenuItem asChild>
+              <button
+                onClick={odjaviKorisnika}
+                className="flex cursor-pointer w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm text-red-600 hover:bg-gray-100"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Odjava</span>
+              </button>
+            </DropdownMenuItem>
+            ) : (
+            <div>
+              <DropdownMenuItem asChild>
+                <button
+                  onClick={() => router.push('/login')}
+                  className="flex cursor-pointer w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm hover:bg-gray-100"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Prijavi se</span>
+                </button>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <button
+                  onClick={() => router.push('/register')}
+                  className="flex cursor-pointer w-full items-center gap-3 rounded-sm px-2 py-1.5 text-sm hover:bg-gray-100"
+                >
+                  <User2 className="h-4 w-4" />
+                  <span>Registruj se</span>
+                </button>
+              </DropdownMenuItem>
+            </div>
+          )}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
