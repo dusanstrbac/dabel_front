@@ -189,12 +189,17 @@ const FormTable = ({ title }: myProps) => {
                   <TableCell className="text-right">{ukupno.toFixed(2)}</TableCell>
                   {prikazNarudzbenica && (
                     <TableCell className="flex justify-center">
-                      <a 
-                        href="#"
-                        className="text-blue-500 font-bold hover:underline justify-end"
-                      >
-                        Opoziv
-                      </a>
+                      {status === "U obradi" ? (
+                        <a
+                          href="#"
+                          className="text-blue-500 font-bold hover:underline justify-end"
+                          onClick={(e) => {
+                            e.preventDefault();
+                          }}
+                        >
+                          Opoziv
+                        </a>
+                      ) : null}
                     </TableCell>
                   )}
                 </TableRow>
