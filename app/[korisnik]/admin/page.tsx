@@ -133,7 +133,8 @@ const admin = () => {
   useEffect(() => {
     async function fetchArtikle() {
       try {
-        // Promeniti fetch da cita artikle iz parametara, takodje tamo da ih i upisuje da bi se ova metoda obrisala
+        // Promeniti fetch da cita artikle iz parametara, takodje tamo da ih i upisuje da bi se ova metoda obrisala.
+        // Promeniti fetch da ne postoji vise ovaj DajArtikle jer je los
         const res = await fetch(`${apiAddress}/api/Artikal/DajArtikle`);
         const data: artikalProp[] = await res.json();
         setArticleList(data);
