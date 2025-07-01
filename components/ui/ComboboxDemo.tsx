@@ -77,13 +77,13 @@ export function ComboboxDemo({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[500px] justify-between right-0 flex"
+          className="w-full min-w-[250px] justify-between right-0 flex"
         >
           {selectedOption?.label || placeholder}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[500px] p-2 max-h-80">
+      <PopoverContent className="w-full min-w-[250px] p-2 max-h-80">
         <Command>
           <CommandInput
             placeholder={placeholder} 

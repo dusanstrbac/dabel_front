@@ -27,26 +27,17 @@ export default function Header() {
   const korisnik = dajKorisnikaIzTokena();
   const username = korisnik?.korisnickoIme;
   const uloga = korisnik?.webUloga;
+  const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
  useEffect(() => {
-  const updateCartCount = () => {
+  const updateCartCount = async () => {
     const existing = localStorage.getItem("cart");
     if (existing) {
       const cart = JSON.parse(existing);
-      const brojRazlicitih = Object.keys(cart).length;
-      setBrojRazlicitihArtikala(brojRazlicitih);
+         setBrojRazlicitihArtikala(Object.keys(cart).length);
     } else {
       setBrojRazlicitihArtikala(0);
     }
-
-    // Citanje parametrizacije
-    const parametriIzLocalStorage = JSON.parse(localStorage.getItem('webparametri') || '[]');
-    const WEBKontaktTelefon = parametriIzLocalStorage.find((param: any) => param.naziv === 'WEBKontaktTelefon')?.vrednost || 'N/A';
-    const WebKontaktEmail = parametriIzLocalStorage.find((param: any) => param.naziv === 'WebKontaktEmail')?.vrednost || 'N/A';
-    setParametri(parametriIzLocalStorage);
-    setWEBKontaktTelefon(WEBKontaktTelefon);
-    setWebKontaktEmail(WebKontaktEmail);
-  };
 
   updateCartCount();
   // Event listener za slušanje promena korpe
@@ -54,7 +45,50 @@ export default function Header() {
   return () => {
     window.removeEventListener("storage", updateCartCount);
   };
-}, []);
+}
+}, [])
+
+
+
+    useEffect(() => {
+      const ucitajParametre = async () => {
+        try {
+          const local = localStorage.getItem("WEBParametrizacija");
+
+          if (local) {
+            const parsed = JSON.parse(local);
+            const telefon = parsed.find((p: any) => p.naziv === "WEBKontaktTelefon")?.vrednost;
+            const email = parsed.find((p: any) => p.naziv === "WebKontaktEmail")?.vrednost;
+
+            if (telefon) setWEBKontaktTelefon(telefon);
+            if (email) setWebKontaktEmail(email);
+            return;
+          }
+
+          const res = await fetch(`${apiAddress}/api/Auth/WEBParametrizacija`);
+          if (!res.ok) throw new Error("Greška pri fetchovanju parametara");
+
+          const data = await res.json();
+          localStorage.setItem("WEBParametrizacija", JSON.stringify(data)); 
+
+          const telefon = data.find((p: any) => p.naziv === "WEBKontaktTelefon")?.vrednost;
+          const email = data.find((p: any) => p.naziv === "WebKontaktEmail")?.vrednost;
+
+          if (telefon) setWEBKontaktTelefon(telefon);
+          if (email) setWebKontaktEmail(email);
+
+        } catch (err) {
+          console.error("Greška pri učitavanju WEB parametara:", err);
+        }
+      };
+
+      ucitajParametre();
+    }, [apiAddress]);
+
+
+
+
+
 
 const headerMainNav = [ 
   { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/proizvodi/kategorija/' + encodeURIComponent('Okov građevinski') },

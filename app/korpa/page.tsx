@@ -54,6 +54,8 @@ const Korpa = () => {
 
     const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
 
+
+
     const fetchArticles = async () => {
       try {
         const response = await fetch(url);
@@ -172,7 +174,7 @@ const Korpa = () => {
   const totalAmountWithPDV = totalAmount * 1.2;
 
   const getSlikaArtikla = (idArtikla: string) => {
-    const baseUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS;
+    const baseUrl = '/images';
     return `${baseUrl}/s${idArtikla}.jpg`;    
   };
     

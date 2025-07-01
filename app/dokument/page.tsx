@@ -4,8 +4,6 @@ import Image from "next/image";
 import { ArtikalType } from "@/types/artikal";
 import { PartnerInfo } from "@/types/dokument";
 
-
-
 const PDV = 20;
 
 const DokumentPage = () => {
@@ -24,12 +22,8 @@ const DokumentPage = () => {
         idDokumenta: String(parsed.idDokumenta),
         partner: parsed.partner,
         DatumKreiranja: new Date(parsed.DatumKreiranja),
-        imeiPrezime: parsed.imeiPrezime,
         mestoIsporuke: parsed.mestoIsporuke,
         napomena: parsed.napomena,
-        grad: parsed.grad,
-        telefon: parsed.telefon,
-        email: parsed.email,
       });
 
       localStorage.removeItem("cart");
@@ -83,10 +77,9 @@ const DokumentPage = () => {
           {/* KONTAKT OSOBA */}
           <div className="border border-black p-4 w-[48%]">
             <h1 className="font-bold mb-2">Kontakt osoba:</h1>
-            <p>Ime i prezime: {partnerInfo.imeiPrezime || "Nepoznato"}</p>
-            <p>Mob. telefon: {partnerInfo.telefon || "Nepoznato"}</p>
-            <p>Grad: {partnerInfo.grad || "Nepoznato"}</p>
-            <p>Email adresa: {partnerInfo.email || "Nepoznato"}</p>
+            <p>Ime i prezime: {partnerInfo.partner.komercijalisti.naziv || "Nepoznato"}</p>
+            <p>Mob. telefon: {partnerInfo.partner.komercijalisti.telefon || "Nepoznato"}</p>
+            <p>Email adresa: {partnerInfo.partner.komercijalisti.email || "Nepoznato"}</p>
           </div>
 
           
@@ -170,6 +163,7 @@ const DokumentPage = () => {
           Isporučene količine mogu biti manje u zavisnosti od stanja na lageru
         </p>
 
+        {partnerInfo.napomena && partnerInfo.napomena.trim().length > 0 && (
         <div className="border border-black w-full">
           <div className="border-b border-black px-2 py-1">
             <p className="font-semibold uppercase text-sm tracking-wide">Napomena</p>
@@ -178,17 +172,17 @@ const DokumentPage = () => {
             <p >{partnerInfo.napomena}</p>
           </div>
         </div>
+        )}
 
         <div className="border border-black w-full mt-5">
           <div className="border-b border-black px-2 py-1">
             <p className="font-semibold uppercase text-sm tracking-wide">Dokument kreirao:</p>
           </div>
           <div className="px-2 py-1 text-sm space-y-1">
-            <p><span className="">Korisničko ime:</span> 3005???</p> 
-            {/* Ovo da se sredi? */}
-            <p><span className="">Ime i prezime:</span> {partnerInfo.imeiPrezime || "Nepoznato"}</p>
-            <p><span className="">Email adresa:</span> {partnerInfo.email}</p>
-            <p><span className="">Mob. telefon:</span> {partnerInfo.telefon}</p>
+            <p><span className="">Korisničko ime:</span> {partnerInfo.partner.komercijalisti.id}</p> 
+            <p><span className="">Ime i prezime:</span> {partnerInfo.partner.komercijalisti.naziv || "Nepoznato"}</p>
+            <p><span className="">Email adresa:</span> {partnerInfo.partner.komercijalisti.email}</p>
+            <p><span className="">Mob. telefon:</span> {partnerInfo.partner.komercijalisti.telefon}</p>
           </div>
         </div>
       </div>

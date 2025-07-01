@@ -33,6 +33,7 @@ export default function Proizvod() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [prethodnaRuta, setPrethodnaRuta] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [preostalo, setPreostalo] = useState<number>(1);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -79,6 +80,13 @@ export default function Proizvod() {
   }, [id]);
 
   useEffect(() => {
+    const ruta = sessionStorage.getItem("prethodnaRuta");
+    if (ruta) {
+      setPrethodnaRuta(ruta);
+    }
+  }, []);
+
+  useEffect(() => {
     if (!proizvod) return;
 
     const lokalnaKorpa = localStorage.getItem("korpa");
@@ -96,11 +104,19 @@ export default function Proizvod() {
     setIsOpen(true);
   };
 
+
+  const imageUrl = '/images';
   const images = [
-    { src: `/images/s${proizvod?.idArtikla}.jpg`, alt: "Glavna slika" },
-    { src: `/images/t${proizvod?.idArtikla}.jpg`, alt: "Slika proizvoda" },
-    { src: `/images/k${proizvod?.idArtikla}.jpg`, alt: "Upotreba" },
+    { src: `${imageUrl}/s${proizvod?.idArtikla}.jpg`, alt: "Glavna slika" },
+    { src: `${imageUrl}/t${proizvod?.idArtikla}.jpg`, alt: "Slika proizvoda" },
+    { src: `${imageUrl}/k${proizvod?.idArtikla}.jpg`, alt: "Upotreba" },
   ];
+  
+  // const images = [
+  //   { src: `/images/s${proizvod?.idArtikla}.jpg`, alt: "Glavna slika" },
+  //   { src: `/images/t${proizvod?.idArtikla}.jpg`, alt: "Slika proizvoda" },
+  //   { src: `/images/k${proizvod?.idArtikla}.jpg`, alt: "Upotreba" },
+  // ];
 
 
 

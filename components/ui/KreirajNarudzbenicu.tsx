@@ -1,26 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ArtikalType } from "@/types/artikal";
+import { cn } from "@/lib/utils";
 
 interface KreirajNarudzbenicuProps {
   artikli: ArtikalType[];
   partner: KorisnikPodaciType;
   idDokumenta: number;
-  imeiPrezime: string;
   mestoIsporuke: string;
-  grad: string;
-  telefon: string;
-  email: string;
   napomena: string;
+  disabled: boolean;
 }
 
 
-const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mestoIsporuke, grad, telefon, email, napomena }: KreirajNarudzbenicuProps) => {
+const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, mestoIsporuke, napomena, disabled }: KreirajNarudzbenicuProps) => {
     const router = useRouter();
 
     const handleClick = async () => {
-        // const validno = valid();
-        // if (!validno) return;
 
         const now = new Date().toISOString();
 
@@ -36,7 +32,7 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mesto
             tip: "narudzbenica",
             idPartnera: partner.idPartnera,
             brojDokumenta: idDokumenta.toString(),
-            idKomercijaliste: partner.idPartnera,
+            idKomercijaliste: partner.komercijalisti.id,
             datumDokumenta: now,
             datumVazenja: datumVazenja.toISOString(),
             lokacija: mestoIsporuke,
@@ -80,12 +76,8 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mesto
                 artikli,
                 partner,
                 DatumKreiranja: now,
-                // imeiPrezime,
                 mestoIsporuke,
                 napomena,
-                // grad,
-                // telefon,
-                // email,
             }));
 
             console.log("Da vidim samo sta saljemo u /dokument: ", sessionStorage);
@@ -93,14 +85,13 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mesto
             } catch (err) {
                 console.error("❌ Greška pri slanju POST zahteva:", err);
             }
-
         };
-
-
 
     return(
         <Button
             onClick={handleClick}
+            disabled={disabled}
+            className={cn("...", disabled && "opacity-50 cursor-not-allowed")}
         >
             Kreiraj Narudžbenicu
         </Button>

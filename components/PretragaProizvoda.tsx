@@ -64,7 +64,10 @@ const PretragaProizvoda = () => {
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => query.length >= 2 && setShowDropdown(true)}
       />
-      <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 pointer-events-none" />
+      <Search
+        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 pointer-events-none"
+        // onClick={handleRedirect(artikal.idArtikla)}
+      />
 
       {/* Dropdown rezultati */}
       {showDropdown && rezultati.length > 0 && (

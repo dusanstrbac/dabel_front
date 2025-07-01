@@ -8,6 +8,7 @@
     import { ArtikalType } from "@/types/artikal";
     import { ComboboxAdrese } from "@/components/ui/ComboboxAdrese";
     import { Input } from "@/components/ui/input";
+    import { LocationEdit } from "lucide-react";
 
 
     const DokumentUpis = () => {
@@ -15,6 +16,7 @@
         const [isClient, setIsClient] = useState(false);
         const [partner, setPartner] = useState<KorisnikPodaciType>();
 
+        const imageUrl = '/images';
 
         const [mestoIsporuke, setMestoIsporuke] = useState("");
         const [imeiPrezime, setImeiPrezime] = useState("");
@@ -54,97 +56,111 @@
 
         
 
+        const loadCart = () => {
+            const storedCart = localStorage.getItem("cart");
+            const parsedCart = storedCart ? JSON.parse(storedCart) : {};
+            setCart(parsedCart);
+        };
+
         useEffect(() => {
             setIsClient(true);
 
             try {
             
-            const storedCart = localStorage.getItem("cart");
-            const parsedCart = storedCart ? JSON.parse(storedCart) : {};
-            setCart(parsedCart);
+                const storedCart = localStorage.getItem("cart");
+                const parsedCart = storedCart ? JSON.parse(storedCart) : {};
+                setCart(parsedCart);
 
-            const parsedPartner = JSON.parse(sessionStorage.getItem("partner") || "null");
-            if (parsedPartner) {
-                setPartner(parsedPartner);
-            } else {
-                console.warn("Partner nije pronadjen u sesiji");
-            }
-
-            
-            const ukupnaCenaSaPDV = sessionStorage.getItem("ukupnaCenaSaPDV");
-            //const ukupnaCenabezPDV = sessionStorage.getItem("ukupnaCenaBezPDV");
-
-
-            if (ukupnaCenaSaPDV){
-                setUkupnaCenaSaPDV(Number(ukupnaCenaSaPDV));
-            }
-            // if (ukupnaCenaBezPDV){
-            //     setUkupnaCenaBezPDV(Number(ukupnaCenaBezPDV));
-            // }
-            const storedIds = Object.keys(parsedCart);
-            const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-
-
-            const fetchArtikli = async () => {
-                if (storedIds.length === 0) return;
-
-                const queryString = storedIds.map(id => `ids=${id}`).join("&");
-                const url = `${apiAddress}/api/Artikal/DajArtikalId?${queryString}`;
-
-                try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-
-                const transformed = data.map((artikal: ArtikalType) => ({
-                    ...artikal,
-                    id: artikal.idArtikla,
-                    naziv: artikal.naziv,
-                    cena: artikal.artikalCene[0].akcija.cena ?? 0,  
-                    originalnaCena: artikal.artikalCene[0].cena,
-                    // pdv: artikal.pdv ?? 20,
-                    //OVO MORA DA SE VIDI
-                    kolicina: parsedCart[artikal.idArtikla]?.kolicina,
-                }));
-
-                setArtikli(transformed);
-                } catch (err) {
-                    console.error("Greška pri učitavanju artikala:", err);
-                }
-            };
-
-            const fetchPartner = async () => {
-                const korisnik = dajKorisnikaIzTokena();
-                if (!korisnik) {
-                    console.warn("Nema korisnika iz tokena.");
-                    return;
+                const parsedPartner = JSON.parse(sessionStorage.getItem("partner") || "null");
+                if (parsedPartner) {
+                    setPartner(parsedPartner);
+                } else {
+                    console.warn("Partner nije pronadjen u sesiji");
                 }
 
-                const email = korisnik.email;
+                
+                const ukupnaCenaSaPDV = sessionStorage.getItem("ukupnaCenaSaPDV");
 
-                try {
-                    const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${email}`);
-                    const data = await res.json();
-                    setPartner(data[0]);
 
+                if (ukupnaCenaSaPDV){
+                    setUkupnaCenaSaPDV(Number(ukupnaCenaSaPDV));
+                }
+                const storedIds = Object.keys(parsedCart);
+                const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
+
+                const fetchArtikli = async () => {
+                    if (storedIds.length === 0) return;
+
+                    const queryString = storedIds.map(id => `ids=${id}`).join("&");
+                    const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
+
+                    try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+
+
+                    const transformed = data.map((artikal: ArtikalType) => ({
+                        ...artikal,
+                        id: artikal.idArtikla,
+                        naziv: artikal.naziv,
+                        cena: artikal.artikalCene[0].akcija.cena ?? 0,  
+                        originalnaCena: artikal.artikalCene[0].cena,
+                        // pdv: artikal.pdv ?? 20,
+                        //OVO MORA DA SE VIDI
+                        kolicina: parsedCart[artikal.idArtikla]?.kolicina,
+                        
+                    }));
                     
-                } catch (err) {
-                    console.error("Greška pri fetchovanju partnera:", err);
-                }
-            };
 
-            // Generisanje novog ID-ja
-            const poslednjiId = parseInt(localStorage.getItem("poslednjiIdDokumenta") || "0", 10);
-            const noviId = poslednjiId + 1;
-            setIdDokumenta(noviId);
-            
 
-            fetchArtikli();
-            fetchPartner();
+                    setArtikli(transformed);
+                    } catch (err) {
+                        console.error("Greška pri učitavanju artikala:", err);
+                    }
+                };
+
+                const fetchPartner = async () => {
+                    const korisnik = dajKorisnikaIzTokena();
+                    if (!korisnik) {
+                        console.warn("Nema korisnika iz tokena.");
+                        return;
+                    }
+
+                    const email = korisnik.email;
+
+                    try {
+                        const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${email}`);
+                        const data = await res.json();
+                        setPartner(data[0]);
+
+                        console.log("Partner podaci:", data[0]);
+                        console.log("Komercijalista:", data[0].komercijalisti);
+
+
+                        
+                    } catch (err) {
+                        console.error("Greška pri fetchovanju partnera:", err);
+                    }
+                };
+
+                // Generisanje novog ID-ja
+                const poslednjiId = parseInt(localStorage.getItem("poslednjiIdDokumenta") || "0", 10);
+                const noviId = poslednjiId + 1;
+                setIdDokumenta(noviId);
+                
+                
+
+                fetchArtikli();
+                fetchPartner();
             } catch (e) {
                 console.error("Nevalidan JSON u localStorage za 'cart'", e);
             }
         }, []);
+
+
+        //ne znam gde ovo da ubacim, pomagaj
 
 
     const rabat = useMemo(() => {
@@ -165,6 +181,8 @@
                         
                             {/* KOMERCIJALISTA */}
                         <div className="flex flex-col items-center">
+                            <div className="flex justify-center items-center gap-2 w-full">
+                                <LocationEdit className=""/>
                                 <ComboboxAdrese
                                     dostavaList={partner?.partnerDostava ?? []}
                                     onSelectOption={(adresa) => {
@@ -172,6 +190,10 @@
                                         setMestoIsporuke(adresa.adresa);
                                     }}
                                 />
+                                {/* {mestoIsporuke.trim() === "" && (
+                                    <p className="text-sm text-red-500 mt-1">Molimo izaberite adresu isporuke.</p>
+                                )} */}
+                            </div>
 
                             <div className="flex flex-col md:col-span-2 w-full max-w-[600px] mt-5">
                                 <label className="font-semibold mb-1">Napomena</label>
@@ -180,10 +202,9 @@
                                     value={napomena}
                                     onChange={(e) => setNapomena(e.target.value)}
                                     placeholder="Unesite napomenu"
-                                    className={`w-full border rounded p-2 "border-gray-300"`}
+                                    className={`w-full border rounded-md p-2 "border-gray-300"`}
                                 />
                             </div>
-
                         </div>
 
 
@@ -217,62 +238,69 @@
                         <p className="italic">Nema artikala u korpi.</p>
                     ) : (
                         <div className="flex flex-col max-h-[550px] overflow-y-auto pr-2 gap-5 ">
-                        {artikli.map((artikal) => (
+                        {artikli.map((artikal) => {
+                            const fotografijaProizvoda = `${imageUrl}/s${artikal.idArtikla}.jpg`;
+                            const osnovnaCena = artikal.artikalCene[0].akcija.cena > 0
+                                                                                ? artikal.artikalCene[0].akcija.cena
+                                                                                : artikal.artikalCene[0].cena;
+                            const kolicina = cart[artikal.idArtikla].kolicina || 1;
+                            const pravaCena = osnovnaCena * 1.2 * rabat * kolicina;
+                            
+                            return (
                                 <div
                                     key={artikal.idArtikla}
-                                    className="w-full flex items-center gap-4 border-1 p-1 rounded shadow-sm max-h-[500px]"
+                                    className="w-full flex items-center gap-4 border-1 p-2 rounded-lg shadow-sm max-h-[500px]"
                                 >
                                     <img
-                                        src="/artikal.jpg"
+                                        src={fotografijaProizvoda}
                                         alt={artikal.naziv}
                                         className="w-16 h-16 object-cover"
                                     />
                                     <div className="flex flex-col lg:flex-col w-full">
                                             <p className="flex font-semibold text-lg">{artikal.naziv}</p>
-                                            <p className="text-red-500 text-xl whitespace-nowrap md:hidden lg:hidden block">{((artikal.artikalCene[0].akcija.cena > 0 
-                                                                                                                                                                        ? artikal.artikalCene[0].akcija.cena 
-                                                                                                                                                                        : artikal.artikalCene[0].cena) * 1.2 * rabat * (cart[artikal.idArtikla].kolicina)).toLocaleString("sr-RS")} RSD</p>
+                                            <p className="text-red-500 text-xl whitespace-nowrap md:hidden lg:hidden block">{(pravaCena).toLocaleString("sr-RS")} RSD</p>
                                         <div className="flex flex-col lg:flex-row gap-1 justify-between text-gray-400 max-w-[400px] text-sm">
                                             <p>Šifra: {artikal.idArtikla}</p>
                                             <p>Količina: {artikal.kolicina}</p> 
-                                            <p>Cena: {(artikal.artikalCene[0].akcija.cena > 0 
-                                                                                        ? artikal.artikalCene[0].akcija.cena
-                                                                                        : artikal.artikalCene[0].cena).toLocaleString("sr-RS")} RSD</p>
+                                            <p>Cena: {(osnovnaCena).toLocaleString("sr-RS")} RSD</p>
                                             <p>PDV: 20%</p>
                                             {/* <p>Pakovanje: {artikal.pakovanje}</p> */}
                                         </div>
                                     </div>
-                                    <p className="text-red-500 text-xl whitespace-nowrap hidden md:block lg:block">{((artikal.artikalCene[0].akcija.cena > 0 
-                                                                                                                                                                ? artikal.artikalCene[0].akcija.cena  
-                                                                                                                                                                : artikal.artikalCene[0].cena)* 1.2 * rabat *(cart[artikal.idArtikla].kolicina)).toLocaleString("sr-RS")} RSD</p>
+                                    <p className="text-red-500 text-xl whitespace-nowrap hidden md:block lg:block">{(pravaCena).toLocaleString("sr-RS")} RSD</p>
                                 </div>
-                            ))}
+                            );
+                            })}
                         </div>
                     )}
-                    <div className="flex flex-col w-full border-2 min-h-[40px]">
-                        <div className="flex items-center justify-between">
-                            <p className="font-medium">Ukupno</p>
-                            <p className="text-gray-500">
-                                {dostava > 0
-                                    ? `${ukupnaCenaSaPDV.toLocaleString("sr-RS")} RSD`
-                                    : ""}
-                            </p>
-                            
-                            {/* Hocu da ako postoji */}
-                        </div>
+                    <div className="flex flex-col w-full min-h-[40px] items-end p-2">
+                        <div className="max-w-[400px] w-full">
 
-                        <div className="flex items-center justify-between text-base">
-                            <p className="font-medium">Dostava:</p>
-                            <p className="text-right text-gray-500">
-                                {dostava > 0
-                                            ? `${dostava.toLocaleString("sr-RS")} RSD`
-                                            : "Besplatna dostava"}
-                            </p>
-                        </div>
-                        
-                        <div className="flex items-center justify-between text-lg font-bold mt-2">
-                            <p>Ukupno:</p>
-                            <p className="text-2xl">{ukupnoSaDostavom.toLocaleString("sr-RS")} RSD</p>
+                            <div className="flex items-center justify-between">
+                                <p className="font-medium">{dostava > 0
+                                                            ? `Ukupno`
+                                                            : ""}
+                                </p>
+                                <p className="text-gray-500">
+                                    {dostava > 0
+                                        ? `${ukupnaCenaSaPDV.toLocaleString("sr-RS")} RSD`
+                                        : ""}
+                                </p>
+                            </div>
+                            
+                            <div className="flex items-center justify-between text-base">
+                                <p className="font-medium">Dostava:</p>
+                                <p className="text-right text-gray-500">
+                                    {dostava > 0
+                                                ? `${dostava.toLocaleString("sr-RS")} RSD`
+                                                : "Besplatna dostava"}
+                                </p>
+                            </div>
+                            
+                            <div className="flex items-center justify-between text-lg font-bold mt-2">
+                                <p>Ukupno:</p>
+                                <p className="text-2xl">{ukupnoSaDostavom.toLocaleString("sr-RS")} RSD</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -287,13 +315,13 @@
                         idDokumenta={idDokumenta}
                         partner={partner}
                         //inputi
-                        imeiPrezime={imeiPrezime}
+                        // imeiPrezime={imeiPrezime}
                         mestoIsporuke={mestoIsporuke}
-                        grad={grad}
-                        telefon={telefon}
-                        email={email}
-                        // valid={proveriPolja}
+                        // grad={grad}
+                        // telefon={telefon}
+                        // email={email}
                         napomena={napomena}
+                        disabled={mestoIsporuke.trim() === ""}
                     />
                 )}
             </div>

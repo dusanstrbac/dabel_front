@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import Pagination from "./ui/pagination";
 import { Link } from "lucide-react";
-import { usePathname } from "next/navigation"; 
+import { usePathname, useSearchParams } from "next/navigation"; 
 
 
 interface myProps {
@@ -35,13 +35,12 @@ const FormTable = ({ title }: myProps) => {
 
 
   const itemsPerPage = 15;
-
+  const searchParams = useSearchParams();
   const [korisnik, setKorisnik] = useState<any>(null);
 
   useEffect(() => {
     setKorisnik(dajKorisnikaIzTokena());
   }, []);
-
 
   // sortiraj dokumenta po izabranom ključu i redosledu
   const sortiranaDokumenta = [...dokumenta].sort((a, b) => {
@@ -67,6 +66,13 @@ const FormTable = ({ title }: myProps) => {
     const suma = dok.stavkeDokumenata?.reduce((s: number, st: any) => s + st.ukupnaCena, 0) ?? 0;
     return sum + suma;
   }, 0);
+
+  const ukupnaSumaSvihDokumenata = dokumenta.reduce((sum, dok) => {
+    const suma = dok.stavkeDokumenata?.reduce((s: number, st: any) => s + st.ukupnaCena, 0) ?? 0;
+    return sum + suma;
+  }, 0);
+
+
 
   // učitavanje podataka
   useEffect(() => {
@@ -197,15 +203,23 @@ const FormTable = ({ title }: myProps) => {
           </TableBody>
           <TableFooter>
             <TableRow className="bg-gray-400 hover:bg-gray-400">
-              <TableCell className="font-medium">Ukupno:</TableCell>
+              <TableCell className="font-medium">Ukupno po strani:</TableCell>
               <TableCell/>
               {prikazNarudzbenica && (
                 <>
                 <TableCell/>
-                <TableCell/>
                 </>
               )}
               <TableCell className="text-right">{ukupnaSuma.toFixed(2)}</TableCell>
+              <TableCell/>
+              
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">Ukupno:</TableCell>
+              <TableCell/>
+              <TableCell/>
+              <TableCell className="text-right">{ukupnaSumaSvihDokumenata.toFixed(2)}</TableCell>
+              <TableCell/>
             </TableRow>
           </TableFooter>
         </Table>
