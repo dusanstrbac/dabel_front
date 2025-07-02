@@ -187,10 +187,10 @@ const BrzoNarucivanje = () => {
         </h1>
 
         <div className="flex justify-center mb-6">
-          <Popover>
-            <PopoverTrigger asChild>
+          
+          <Dialog open={scannerActive} onOpenChange={setScannerActive}>
+            <DialogTrigger asChild>
               <button
-                onClick={() => setScannerActive((prev) => !prev)}
                 className={`px-6 py-2 rounded-md font-semibold transition-colors duration-300 cursor-pointer ${
                   scannerActive ? "bg-red-600 text-white" : "bg-blue-600 text-white"
                 }`}
@@ -199,25 +199,32 @@ const BrzoNarucivanje = () => {
                   ? "Isključi kameru za skeniranje"
                   : "Uključi kameru za skeniranje"}
               </button>
-            </PopoverTrigger>
+            </DialogTrigger>
 
-            {scannerActive && (
-              <PopoverContent side="bottom" align="center" className="w-[370px] p-2">
-              {/* <div className="w-full max-w-md mb-6 mx-auto"> */}
-                  <BarcodeScannerComponent
-                    width={350}
-                    height={250}
-                    onUpdate={(err, result) => {
-                        if (result) {
-                        handleBarcodeDetected(result.getText());
-                        }
-                    }}
-                  />
-              {/* </div> */}
-              </PopoverContent>
-            )}
+{/* max-w-[300px] w-[400px] md:max-w-full p-4 */}
+            <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6">
+              <DialogHeader>
+                <DialogTitle className="text-center text-lg mb-2">Skeniranje barkoda</DialogTitle>
+              </DialogHeader>
+              
+              <div className="flex justify-center">
+                <BarcodeScannerComponent
+                  width={360}
+                  height={280}
+                  onUpdate={(err, result) => {
+                    if (result) {
+                      handleBarcodeDetected(result.getText());
+                    }
+                  }}
+                />
+              </div>
 
-          </Popover>
+              <DialogClose className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                Zatvori
+              </DialogClose>
+            </DialogContent>
+          </Dialog>
+
         </div>
 
         
