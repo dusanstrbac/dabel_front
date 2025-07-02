@@ -1,4 +1,5 @@
 'use client';
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -51,7 +52,7 @@ export default function LoginForm() {
         }
       );
 
-        const redirectTo =  "/";
+      const redirectTo =  "/";
 
       if (data.token) {
         setCookie("AuthToken", data.token, {
@@ -85,7 +86,7 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="mx-auto max-w-md space-y-6 pt-10">
+    <div className="mx-auto max-w-md space-y-6 pt-10 px-4 sm:px-6 lg:px-8">
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-bold">Prijava</h1>
         <p className="text-muted-foreground">Unesite svoje podatke za pristup nalogu</p>

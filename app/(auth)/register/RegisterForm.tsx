@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useState } from "react";
 import axios from "axios";
+import { Button } from "@/components/ui/button";
 
 // ✅ Validacija za email i JMBG (13 cifara)
 const emailSchema = z.object({
@@ -50,7 +51,7 @@ export default function PosaljiLinkZaAktivacijuForm() {
 
   return (
     <div className="max-w-md mx-auto p-4 shadow rounded mt-10">
-      <h1 className="text-2xl font-bold mb-4 text-center">Aktivirajte nalog</h1>
+      <h1 className="text-3xl font-bold mb-4 text-center">Aktivirajte nalog</h1>
 
       {error && <div className="mb-4 text-red-600 bg-red-100 p-2 rounded">{error}</div>}
       {success && <div className="mb-4 text-green-600 bg-green-100 p-2 rounded">{success}</div>}
@@ -78,13 +79,13 @@ export default function PosaljiLinkZaAktivacijuForm() {
           <p className="text-red-600 text-sm">{form.formState.errors.jmbg.message}</p>
         )}
 
-        <button
+        <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-60"
+          className="w-full mt-4 cursor-pointer hover:opacity-90"
         >
           {loading ? "Šaljem..." : "Pošalji link za aktivaciju"}
-        </button>
+        </Button>
       </form>
     </div>
   );
