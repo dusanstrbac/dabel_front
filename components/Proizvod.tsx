@@ -30,6 +30,8 @@ export default function Proizvod() {
   const { id } = useParams();
   const [proizvod, setProizvod] = useState<ArtikalType | null>(null);
   const [atributi, setAtributi] = useState<ArtikalAtribut[]>([]);
+  const [lastPurchaseDate, setLastPurchaseDate] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -87,6 +89,25 @@ export default function Proizvod() {
   }, []);
 
   useEffect(() => {
+  if (!proizvod || !korisnik?.idKorisnika) return;
+
+  const fetchDatumPoslednjeKupovine = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Artikal/ArtikalDatumKupovine?idPartnera=${korisnik.idKorisnika}&idArtikla=${proizvod.idArtikla}`);
+      if (response.ok) {
+        const data = await response.json();
+        setLastPurchaseDate(data.datumPoslednjeKupovine || null);
+      }
+    } catch (error) {
+      console.error("Greška prilikom dohvatanja datuma poslednje kupovine:", error);
+    }
+  };
+
+  fetchDatumPoslednjeKupovine();
+}, [proizvod, korisnik]);
+
+
+  useEffect(() => {
     if (!proizvod) return;
 
     const lokalnaKorpa = localStorage.getItem("korpa");
@@ -111,14 +132,6 @@ export default function Proizvod() {
     { src: `${imageUrl}/t${proizvod?.idArtikla}.jpg`, alt: "Slika proizvoda" },
     { src: `${imageUrl}/k${proizvod?.idArtikla}.jpg`, alt: "Upotreba" },
   ];
-  
-  // const images = [
-  //   { src: `/images/s${proizvod?.idArtikla}.jpg`, alt: "Glavna slika" },
-  //   { src: `/images/t${proizvod?.idArtikla}.jpg`, alt: "Slika proizvoda" },
-  //   { src: `/images/k${proizvod?.idArtikla}.jpg`, alt: "Upotreba" },
-  // ];
-
-
 
   const cena =
     proizvod?.artikalCene && proizvod.artikalCene.length > 0
@@ -220,7 +233,15 @@ export default function Proizvod() {
               idPartnera={korisnik.idKorisnika}
             />
           )}
-          <p className="text-sm text-gray-600">Datum poslednje kupovine: 19.06.2025.</p>
+          {lastPurchaseDate ? (
+            <p className="text-sm text-gray-600">
+              Datum poslednje kupovine: {new Date(lastPurchaseDate).toLocaleDateString('sr-RS', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </p>
+          ) : null}
           <div className="flex gap-2 w-full sm:w-auto flex-wrap">
             <div className="flex items-center gap-1">
               {Number(proizvod.kolicina) <= 10 && (

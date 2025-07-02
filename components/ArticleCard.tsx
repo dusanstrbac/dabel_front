@@ -5,22 +5,34 @@ import { ArtikalType } from '@/types/artikal';
 import { useEffect, useState } from 'react';
 
 interface ArticleCardProps extends ArtikalType {
-  lastPurchaseDate?: string; // Dodato polje za datum poslednje kupovine
+  idPartnera: string;
+    lastPurchaseDate?: string;  // <- dodaj ovo
 }
 
-const ArticleCard = ({
-  naziv,
-  idArtikla,
-  artikalCene,
-  kolicina,
-  lastPurchaseDate,
-}: ArticleCardProps) => {
+const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera}: ArticleCardProps) => {
   const router = useRouter(); 
   const [isMounted, setMounted] = useState(false);
+  const [lastPurchaseDate, setLastPurchaseDate] = useState<string | undefined>(undefined);
+
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+
+    const fetchDatumPoslednjeKupovine = async() => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Artikal/ArtikalDatumKupovine?idPartnera=${idPartnera}&idArtikla=${idArtikla}`);
+        if(response.ok) {
+          const data = await response.json();
+          setLastPurchaseDate(data.datumPoslednjeKupovine);
+        }
+      } catch (error) {
+        console.error("Došlo je do greške prilikom dohvatanja istorije kupovine: ", error);
+      }
+    };
+
+    if(idArtikla && idPartnera) fetchDatumPoslednjeKupovine();
+
+  }, [idArtikla, idPartnera]);
 
   const imageUrl = '/images';
   const fotografijaProizvoda = `${imageUrl}/s${idArtikla}.jpg`;
@@ -82,7 +94,6 @@ const ArticleCard = ({
         <h2 className="text-sm lg:text-lg font-semibold text-center">{naziv}</h2>
 
         {/* Datum poslednje kupovine */}
-        {/* {formatDate(lastPurchaseDate)} */}
         {lastPurchaseDate && (
           <p className="text-xs text-center text-gray-600 italic">
             Poslednja kupovina: {formatDate(lastPurchaseDate)}
