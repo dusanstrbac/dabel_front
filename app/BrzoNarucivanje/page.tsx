@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import PrebaciUKorpu from "@/components/PrebaciUKorpu";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
+
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,12 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
 
 const BrzoNarucivanje = () => {
   const [rows, setRows] = useState([{ sifra: "", kolicina: "" }]);
@@ -19,33 +26,34 @@ const BrzoNarucivanje = () => {
   const barcodeInputRef = useRef<HTMLInputElement>(null);
   const quantityRefs = useRef<Array<HTMLInputElement | null>>([]);
 
+  
   const handleBarcodeDetected = (text: string) => {
-    const sifra = text.replace(/\D/g, "");
-    if (!sifra) return;
+        const sifra = text.replace(/\D/g, "");
+        if (!sifra) return;
 
-    setRows((prevRows) => {
-      const alreadyExists = prevRows.find((row) => row.sifra === sifra);
-      if (alreadyExists) {
-        return prevRows.map((row) =>
-          row.sifra === sifra
-            ? { ...row, kolicina: String(Number(row.kolicina) + 1) }
-            : row
-        );
-      } else {
-        const newRows = [...prevRows];
-        if (
-          newRows.length > 0 &&
-          newRows[newRows.length - 1].sifra === "" &&
-          newRows[newRows.length - 1].kolicina === ""
-        ) {
-          newRows[newRows.length - 1] = { sifra, kolicina: "1" };
+        setRows((prevRows) => {
+        const alreadyExists = prevRows.find((row) => row.sifra === sifra);
+        if (alreadyExists) {
+            return prevRows.map((row) =>
+            row.sifra === sifra
+                ? { ...row, kolicina: String(Number(row.kolicina) + 1) }
+                : row
+            );
         } else {
-          newRows.push({ sifra, kolicina: "1" });
+            const newRows = [...prevRows];
+            if (
+                newRows.length > 0 &&
+                newRows[newRows.length - 1].sifra === "" &&
+                newRows[newRows.length - 1].kolicina === ""
+            ) {
+                newRows[newRows.length - 1] = { sifra, kolicina: "1" };
+            } else {
+                newRows.push({ sifra, kolicina: "1" });
+            }
+            return [...newRows, { sifra: "", kolicina: "" }];
         }
-        return [...newRows, { sifra: "", kolicina: "" }];
-      }
-    });
-  };
+        });
+    };
 
   const handleChange = (
     index: number,
@@ -179,31 +187,40 @@ const BrzoNarucivanje = () => {
         </h1>
 
         <div className="flex justify-center mb-6">
-          <button
-            onClick={() => setScannerActive((prev) => !prev)}
-            className={`px-6 py-2 rounded-md font-semibold transition-colors duration-300 cursor-pointer ${
-              scannerActive ? "bg-red-600 text-white" : "bg-blue-600 text-white"
-            }`}
-          >
-            {scannerActive
-              ? "Isključi kameru za skeniranje"
-              : "Uključi kameru za skeniranje"}
-          </button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                onClick={() => setScannerActive((prev) => !prev)}
+                className={`px-6 py-2 rounded-md font-semibold transition-colors duration-300 cursor-pointer ${
+                  scannerActive ? "bg-red-600 text-white" : "bg-blue-600 text-white"
+                }`}
+              >
+                {scannerActive
+                  ? "Isključi kameru za skeniranje"
+                  : "Uključi kameru za skeniranje"}
+              </button>
+            </PopoverTrigger>
+
+            {scannerActive && (
+              <PopoverContent side="bottom" align="center" className="w-[370px] p-2">
+              {/* <div className="w-full max-w-md mb-6 mx-auto"> */}
+                  <BarcodeScannerComponent
+                    width={350}
+                    height={250}
+                    onUpdate={(err, result) => {
+                        if (result) {
+                        handleBarcodeDetected(result.getText());
+                        }
+                    }}
+                  />
+              {/* </div> */}
+              </PopoverContent>
+            )}
+
+          </Popover>
         </div>
 
-        {scannerActive && (
-          <div className="w-full max-w-md mb-6 mx-auto">
-            <BarcodeScannerComponent
-              width={350}
-              height={250}
-              onUpdate={(err, result) => {
-                if (result) {
-                  handleBarcodeDetected(result.getText());
-                }
-              }}
-            />
-          </div>
-        )}
+        
 
         <input
           ref={barcodeInputRef}
