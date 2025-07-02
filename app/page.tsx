@@ -18,7 +18,7 @@ export default function Home() {
       <main className="flex flex-col items-center gap-2 px-1">
         <HeroImage />
         <div>
-          <ListaArtikala artikli={artikli}/>
+          
         </div>
       </main>
       </Suspense>

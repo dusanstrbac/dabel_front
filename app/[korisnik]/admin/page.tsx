@@ -221,7 +221,7 @@ const admin = () => {
               const ref = isSelected ? scrollRef : null;
               
               return (
-                <div key={index} className={`p-2 ${isSelected ? "bg-[#8282820b] rounded-md" : ""}`} ref={ref}>
+                <div key={index} className={`p-2 ${isSelected ? "bg-gray-100 rounded-md" : ""}`} ref={ref}>
                   <div key={article.naziv} className="contents">
                     <p className="align-top font-medium text-xl">{article.naziv}</p>
                     <p className="align-top text-left text-gray-500 max-w-4xl whitespace-break-spaces">{article.deskripcija}</p>
