@@ -13,15 +13,12 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+
 
 
 const BrzoNarucivanje = () => {
   const [rows, setRows] = useState([{ sifra: "", kolicina: "" }]);
+
   const [scannerActive, setScannerActive] = useState(false);
   const barcodeInputRef = useRef<HTMLInputElement>(null);
   const quantityRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -53,6 +50,7 @@ const BrzoNarucivanje = () => {
             return [...newRows, { sifra: "", kolicina: "" }];
         }
         });
+        setScannerActive(false);
     };
 
   const handleChange = (
@@ -201,7 +199,7 @@ const BrzoNarucivanje = () => {
               </button>
             </DialogTrigger>
 
-{/* max-w-[300px] w-[400px] md:max-w-full p-4 */}
+              {/* max-w-[300px] w-[400px] md:max-w-full p-4 */}
             <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6">
               <DialogHeader>
                 <DialogTitle className="text-center text-lg mb-2">Skeniranje barkoda</DialogTitle>
@@ -224,10 +222,8 @@ const BrzoNarucivanje = () => {
               </DialogClose>
             </DialogContent>
           </Dialog>
-
         </div>
 
-        
 
         <input
           ref={barcodeInputRef}
@@ -261,7 +257,7 @@ const BrzoNarucivanje = () => {
                   <Input
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    className={`border-2 border-[#323131cc] w-45 ${
+                    className={`border-2 border-[#323131cc] w-full ${
                       isDummy ? "opacity-50 cursor-pointer" : ""
                     }`}
                     value={row.sifra}
@@ -286,7 +282,7 @@ const BrzoNarucivanje = () => {
                     ref={(el) => { quantityRefs.current[index] = el; }}
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    className={`border-2 border-[#323131cc] w-20 ${
+                    className={`border-2 border-[#323131cc] w-full max-w-[50] ${
                       isDummy ? "opacity-40 cursor-pointer" : ""
                     }`}
                     value={row.kolicina}
