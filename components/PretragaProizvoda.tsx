@@ -72,7 +72,7 @@ const PretragaProizvoda = () => {
   };
 
   return (
-    <div className="w-[40%] relative ml-16 mr-2">
+    <div className="w-full lg:w-[40%] relative lg:ml-16 mr-2">
       <div className='relative'>
         <Input
           placeholder="Pretraga"
@@ -84,7 +84,7 @@ const PretragaProizvoda = () => {
         
         <div className="absolute inset-y-0 right-2 flex items-center gap-2">
           <Search
-            className="text-gray-500 h-5 w-5"
+            className="cursor-pointer text-gray-500 hover:text-black h-5 w-5"
           />
 
           <Dialog open={scannerActive} onOpenChange={setScannerActive}>

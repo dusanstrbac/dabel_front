@@ -14,16 +14,6 @@ import { useRouter } from "next/navigation";
 import { deleteCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import PretragaProizvoda from "./PretragaProizvoda";
-import BarcodeScannerComponent from "react-qr-barcode-scanner";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose,
-} from "@/components/ui/dialog";
 
 export default function Header() {
   const [korisnickoIme, setKorisnickoIme] = useState<string | null>(null);
@@ -32,13 +22,14 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [brojRazlicitihArtikala, setBrojRazlicitihArtikala] = useState(0);
   const [parametri, setParametri] = useState<any>([]);
-  const [scannerActive, setScannerActive] = useState(false);
   const [WEBKontaktTelefon, setWEBKontaktTelefon] = useState<string>('N/A');
   const [WebKontaktEmail, setWebKontaktEmail] = useState<string>('N/A');
   const korisnik = dajKorisnikaIzTokena();
   const username = korisnik?.korisnickoIme;
   const uloga = korisnik?.webUloga;
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
+
 
  useEffect(() => {
   const updateCartCount = async () => {
@@ -97,11 +88,6 @@ export default function Header() {
     }, [apiAddress]);
 
 
-
- const handleBarcodeRedirect = (idArtikla: string) => {
-    router.push(`/proizvodi/${idArtikla}`);
-    setScannerActive(false);
-  };
 
 
 const headerMainNav = [ 
@@ -458,50 +444,11 @@ const headerMainNav = [
           </div>
         </div>
         {/* Pretraga */}
+
         <div className="relative mt-3">
-          <div className='relative'>
-            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
-            
-            <Input
-              placeholder="Pretraga"
-              className="pl-8 border border-black rounded-md"
-            />
-
-            <div className="absolute inset-y-0 right-2 flex items-center gap-2">
-              
-
-              <Dialog open={scannerActive} onOpenChange={setScannerActive}>
-                <DialogTrigger asChild>
-                  <Camera className="cursor-pointer text-gray-500 hover:text-black h-5 w-5"/>
-                </DialogTrigger>
-
-                  {/* max-w-[300px] w-[400px] md:max-w-full p-4 */}
-                <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6">
-                  <DialogHeader>
-                    <DialogTitle className="text-center text-lg mb-2">Skeniranje barkoda</DialogTitle>
-                  </DialogHeader>
-                  
-                  <div className="flex justify-center">
-                    <BarcodeScannerComponent
-                      width={400}
-                      height={310}
-                      onUpdate={(err, result) => {
-                        if (result) {
-                          const barkod = result.getText(); 
-                          handleBarcodeRedirect(barkod);
-                        }
-                      }}
-                    />
-                  </div>
-
-                  <DialogClose className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                    Zatvori
-                  </DialogClose>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
+          <PretragaProizvoda/>
         </div>
+
       </div>
     </header>
   );
