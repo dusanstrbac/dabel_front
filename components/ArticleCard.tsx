@@ -80,7 +80,7 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera}: Art
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-60 z-10 rounded-2xl pointer-events-none"></div>
 
       {/* Slika */}
-      <div className="w-full h-[200px] flex justify-center items-center overflow-hidden rounded-2xl border-1 border-blue-300">
+      <div className="w-full h-[200px] flex justify-center items-center overflow-hidden rounded-2xl">
         <img
           src={fotografijaProizvoda}
           alt={naziv}
