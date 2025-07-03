@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut, Smartphone, FileText, ShieldUser } from "lucide-react";
+import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut, Smartphone, FileText, ShieldUser, Camera } from "lucide-react";
 import Image from "next/image";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
@@ -28,6 +28,8 @@ export default function Header() {
   const username = korisnik?.korisnickoIme;
   const uloga = korisnik?.webUloga;
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
+
 
  useEffect(() => {
   const updateCartCount = async () => {
@@ -84,8 +86,6 @@ export default function Header() {
 
       ucitajParametre();
     }, [apiAddress]);
-
-
 
 
 
@@ -444,13 +444,11 @@ const headerMainNav = [
           </div>
         </div>
         {/* Pretraga */}
+
         <div className="relative mt-3">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
-          <Input
-            placeholder="Pretraga"
-            className="pl-8 border border-black rounded-md"
-          />
+          <PretragaProizvoda/>
         </div>
+
       </div>
     </header>
   );

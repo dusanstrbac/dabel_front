@@ -32,6 +32,7 @@ const FormTable = ({ title }: myProps) => {
 
   const pathname = usePathname();
   const prikazNarudzbenica = pathname.includes(`/narudzbenica`);
+  const prikazPoslataRoba = pathname.includes(`/roba`);
 
 
   const itemsPerPage = 15;
@@ -89,7 +90,19 @@ const FormTable = ({ title }: myProps) => {
           throw new Error("Greška pri učitavanju podataka.");
         }
         const data = await res.json();
-        setDokumenta(data);
+
+
+        const dokumentiSaStatusom = data.map((dok: any, index: number) => ({
+          ...dok,
+          status: index % 2 === 0 ? "U obradi" : "Poslat", // dummy logika
+        }));
+
+        // Ako je stranica "poslato", filtriraj samo one
+        const dokumentiZaPrikaz = prikazPoslataRoba
+          ? dokumentiSaStatusom.filter((d: any) => d.status === "Poslat")
+          : dokumentiSaStatusom;
+
+        setDokumenta(dokumentiZaPrikaz);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -159,7 +172,9 @@ const FormTable = ({ title }: myProps) => {
                   0
                 ) ?? 0;
 
-                const status = dokument.status || (index % 2 === 0 ? "U obradi" : "Poslat");
+                const status = dokument.status;
+
+                // const status = dokument.status || (index % 2 === 0 ? "U obradi" : "Poslat");
 
               return (
                 <TableRow key={index} className="hover:odd:bg-gray-300">
@@ -211,20 +226,25 @@ const FormTable = ({ title }: myProps) => {
               <TableCell className="font-medium">Ukupno po strani:</TableCell>
               <TableCell/>
               {prikazNarudzbenica && (
-                <>
                 <TableCell/>
-                </>
               )}
               <TableCell className="text-right">{ukupnaSuma.toFixed(2)}</TableCell>
-              <TableCell/>
+              {prikazNarudzbenica && (
+                <TableCell/>
+              )}
               
             </TableRow>
             <TableRow>
               <TableCell className="font-medium">Ukupno:</TableCell>
               <TableCell/>
-              <TableCell/>
+              {prikazNarudzbenica && (
+                <TableCell/>
+              )}
+              
               <TableCell className="text-right">{ukupnaSumaSvihDokumenata.toFixed(2)}</TableCell>
-              <TableCell/>
+              {prikazNarudzbenica && (
+                <TableCell/>
+              )}
             </TableRow>
           </TableFooter>
         </Table>

@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import PrebaciUKorpu from "@/components/PrebaciUKorpu";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
+
 import {
   Dialog,
   DialogContent,
@@ -13,39 +14,44 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
+
+
 const BrzoNarucivanje = () => {
   const [rows, setRows] = useState([{ sifra: "", kolicina: "" }]);
+
   const [scannerActive, setScannerActive] = useState(false);
   const barcodeInputRef = useRef<HTMLInputElement>(null);
   const quantityRefs = useRef<Array<HTMLInputElement | null>>([]);
 
+  
   const handleBarcodeDetected = (text: string) => {
-    const sifra = text.replace(/\D/g, "");
-    if (!sifra) return;
+        const sifra = text.replace(/\D/g, "");
+        if (!sifra) return;
 
-    setRows((prevRows) => {
-      const alreadyExists = prevRows.find((row) => row.sifra === sifra);
-      if (alreadyExists) {
-        return prevRows.map((row) =>
-          row.sifra === sifra
-            ? { ...row, kolicina: String(Number(row.kolicina) + 1) }
-            : row
-        );
-      } else {
-        const newRows = [...prevRows];
-        if (
-          newRows.length > 0 &&
-          newRows[newRows.length - 1].sifra === "" &&
-          newRows[newRows.length - 1].kolicina === ""
-        ) {
-          newRows[newRows.length - 1] = { sifra, kolicina: "1" };
+        setRows((prevRows) => {
+        const alreadyExists = prevRows.find((row) => row.sifra === sifra);
+        if (alreadyExists) {
+            return prevRows.map((row) =>
+            row.sifra === sifra
+                ? { ...row, kolicina: String(Number(row.kolicina) + 1) }
+                : row
+            );
         } else {
-          newRows.push({ sifra, kolicina: "1" });
+            const newRows = [...prevRows];
+            if (
+                newRows.length > 0 &&
+                newRows[newRows.length - 1].sifra === "" &&
+                newRows[newRows.length - 1].kolicina === ""
+            ) {
+                newRows[newRows.length - 1] = { sifra, kolicina: "1" };
+            } else {
+                newRows.push({ sifra, kolicina: "1" });
+            }
+            return [...newRows, { sifra: "", kolicina: "" }];
         }
-        return [...newRows, { sifra: "", kolicina: "" }];
-      }
-    });
-  };
+        });
+        setScannerActive(false);
+    };
 
   const handleChange = (
     index: number,
@@ -179,31 +185,45 @@ const BrzoNarucivanje = () => {
         </h1>
 
         <div className="flex justify-center mb-6">
-          <button
-            onClick={() => setScannerActive((prev) => !prev)}
-            className={`px-6 py-2 rounded-md font-semibold transition-colors duration-300 cursor-pointer ${
-              scannerActive ? "bg-red-600 text-white" : "bg-blue-600 text-white"
-            }`}
-          >
-            {scannerActive
-              ? "Isključi kameru za skeniranje"
-              : "Uključi kameru za skeniranje"}
-          </button>
+          
+          <Dialog open={scannerActive} onOpenChange={setScannerActive}>
+            <DialogTrigger asChild>
+              <button
+                className={`px-6 py-2 rounded-md font-semibold transition-colors duration-300 cursor-pointer ${
+                  scannerActive ? "bg-red-600 text-white" : "bg-blue-600 text-white"
+                }`}
+              >
+                {scannerActive
+                  ? "Isključi kameru za skeniranje"
+                  : "Uključi kameru za skeniranje"}
+              </button>
+            </DialogTrigger>
+
+              {/* max-w-[300px] w-[400px] md:max-w-full p-4 */}
+            <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6">
+              <DialogHeader>
+                <DialogTitle className="text-center text-lg mb-2">Skeniranje barkoda</DialogTitle>
+              </DialogHeader>
+              
+              <div className="flex justify-center">
+                <BarcodeScannerComponent
+                  width={360}
+                  height={280}
+                  onUpdate={(err, result) => {
+                    if (result) {
+                      handleBarcodeDetected(result.getText());
+                    }
+                  }}
+                />
+              </div>
+
+              <DialogClose className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                Zatvori
+              </DialogClose>
+            </DialogContent>
+          </Dialog>
         </div>
 
-        {scannerActive && (
-          <div className="w-full max-w-md mb-6 mx-auto">
-            <BarcodeScannerComponent
-              width={350}
-              height={250}
-              onUpdate={(err, result) => {
-                if (result) {
-                  handleBarcodeDetected(result.getText());
-                }
-              }}
-            />
-          </div>
-        )}
 
         <input
           ref={barcodeInputRef}
@@ -237,7 +257,7 @@ const BrzoNarucivanje = () => {
                   <Input
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    className={`border-2 border-[#323131cc] w-45 ${
+                    className={`border-2 border-[#323131cc] w-full ${
                       isDummy ? "opacity-50 cursor-pointer" : ""
                     }`}
                     value={row.sifra}
@@ -262,7 +282,7 @@ const BrzoNarucivanje = () => {
                     ref={(el) => { quantityRefs.current[index] = el; }}
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    className={`border-2 border-[#323131cc] w-20 ${
+                    className={`border-2 border-[#323131cc] w-full max-w-[50] ${
                       isDummy ? "opacity-40 cursor-pointer" : ""
                     }`}
                     value={row.kolicina}
