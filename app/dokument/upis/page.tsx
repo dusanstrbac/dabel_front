@@ -54,6 +54,7 @@
         const dostava = ukupnaCenaSaPDV >= 10000 ? 0 : 1000;
         const ukupnoSaDostavom = ukupnaCenaSaPDV + dostava;
 
+
         
 
         const loadCart = () => {
@@ -88,39 +89,6 @@
                 const storedIds = Object.keys(parsedCart);
                 const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
-
-                const fetchArtikli = async () => {
-                    if (storedIds.length === 0) return;
-
-                    const queryString = storedIds.map(id => `ids=${id}`).join("&");
-                    const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
-
-                    try {
-                    const response = await fetch(url);
-                    const data = await response.json();
-
-
-
-                    const transformed = data.map((artikal: ArtikalType) => ({
-                        ...artikal,
-                        id: artikal.idArtikla,
-                        naziv: artikal.naziv,
-                        cena: artikal.artikalCene[0].akcija.cena ?? 0,  
-                        originalnaCena: artikal.artikalCene[0].cena,
-                        // pdv: artikal.pdv ?? 20,
-                        //OVO MORA DA SE VIDI
-                        kolicina: parsedCart[artikal.idArtikla]?.kolicina,
-                        
-                    }));
-                    
-
-
-                    setArtikli(transformed);
-                    } catch (err) {
-                        console.error("Greška pri učitavanju artikala:", err);
-                    }
-                };
-
                 const fetchPartner = async () => {
                     const korisnik = dajKorisnikaIzTokena();
                     if (!korisnik) {
@@ -145,6 +113,75 @@
                     }
                 };
 
+                const rabatVrednost = partner?.partnerRabat?.rabat ?? 0;
+                    const rabatKoeficijent = 1 - rabatVrednost / 100;
+
+
+                const fetchArtikli = async () => {
+                    if (storedIds.length === 0) return;
+
+                    const queryString = storedIds.map(id => `ids=${id}`).join("&");
+                    const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
+
+                    try {
+
+
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    
+
+                    const transformed = data.map((artikal: ArtikalType) => {
+                        const osnovnaCena = artikal.artikalCene[0].akcija.cena > 0
+                                                                            ? artikal.artikalCene[0].akcija.cena
+                                                                            : artikal.artikalCene[0].cena;
+                        const kolicina = parsedCart[artikal.idArtikla]?.kolicina || 1;
+                        const pravaCena = osnovnaCena * 1.2 * rabatKoeficijent * kolicina;
+
+                        return {
+                            ...artikal,
+                            id: artikal.idArtikla,
+                            naziv: artikal.naziv,
+                            cena: osnovnaCena,
+                            originalnaCena: artikal.artikalCene[0].cena,
+                            kolicina,
+                            osnovnaCena,
+                            pravaCena, // <-- dodaj ovo
+                        };
+                    });
+
+                        // ...artikal,
+                        // id: artikal.idArtikla,
+                        // naziv: artikal.naziv,
+                        // cena: artikal.artikalCene[0].akcija.cena ?? 0,  
+                        // originalnaCena: artikal.artikalCene[0].cena,
+                        // // pdv: artikal.pdv ?? 20,
+                        // //OVO MORA DA SE VIDI
+                        // kolicina: parsedCart[artikal.idArtikla]?.kolicina,
+                        
+                    
+                    
+
+
+                    setArtikli(transformed);
+
+                    const pravaCenaMap: Record<string, number> = {};
+                    data.forEach((artikal: ArtikalType) => {
+                        const osnovnaCena = artikal.artikalCene[0].akcija.cena > 0
+                                                                                ? artikal.artikalCene[0].akcija.cena
+                                                                                : artikal.artikalCene[0].cena;
+                        const kolicina = parsedCart[artikal.idArtikla]?.kolicina || 1;
+                        const pravaCena = osnovnaCena * 1.2 * rabatKoeficijent * kolicina;
+                        pravaCenaMap[artikal.idArtikla] = pravaCena;
+                    });
+
+                    sessionStorage.setItem("cene-sa-pdv", JSON.stringify(pravaCenaMap));
+                    } catch (err) {
+                        console.error("Greška pri učitavanju artikala:", err);
+                    }
+                };
+
+                
                 // Generisanje novog ID-ja
                 const poslednjiId = parseInt(localStorage.getItem("poslednjiIdDokumenta") || "0", 10);
                 const noviId = poslednjiId + 1;
@@ -163,10 +200,7 @@
         //ne znam gde ovo da ubacim, pomagaj
 
 
-    const rabat = useMemo(() => {
-        const vrednost = partner?.partnerRabat?.rabat ?? 1;
-        return 1 - vrednost / 100;
-    }, [partner]);
+    
 
 
     if (!isClient) return null;
@@ -240,11 +274,12 @@
                         <div className="flex flex-col max-h-[550px] overflow-y-auto pr-2 gap-5 ">
                         {artikli.map((artikal) => {
                             const fotografijaProizvoda = `${imageUrl}/s${artikal.idArtikla}.jpg`;
-                            const osnovnaCena = artikal.artikalCene[0].akcija.cena > 0
-                                                                                ? artikal.artikalCene[0].akcija.cena
-                                                                                : artikal.artikalCene[0].cena;
-                            const kolicina = cart[artikal.idArtikla].kolicina || 1;
-                            const pravaCena = osnovnaCena * 1.2 * rabat * kolicina;
+                            // const osnovnaCena = artikal.artikalCene[0].akcija.cena > 0
+                            //                                                     ? artikal.artikalCene[0].akcija.cena
+                            //                                                     : artikal.artikalCene[0].cena;
+                            // const kolicina = cart[artikal.idArtikla].kolicina || 1;
+                            // const pravaCena = osnovnaCena * 1.2 * rabat * kolicina;
+
                             
                             return (
                                 <div
@@ -258,16 +293,27 @@
                                     />
                                     <div className="flex flex-col lg:flex-col w-full">
                                             <p className="flex font-semibold text-lg">{artikal.naziv}</p>
-                                            <p className="text-red-500 text-xl whitespace-nowrap md:hidden lg:hidden block">{(pravaCena).toLocaleString("sr-RS")} RSD</p>
+                                            {/* <p className="text-red-500 text-xl whitespace-nowrap md:hidden lg:hidden block">{(artikal.pravaCena).toLocaleString("sr-RS")} RSD</p> */}
+                                            {artikal.pravaCena !== undefined && (
+                                                <p className="text-red-500 text-xl whitespace-nowrap md:hidden lg:hidden block">
+                                                    {artikal.pravaCena.toLocaleString("sr-RS")} RSD
+                                                </p>
+                                            )}
+
                                         <div className="flex flex-col lg:flex-row gap-1 justify-between text-gray-400 max-w-[400px] text-sm">
                                             <p>Šifra: {artikal.idArtikla}</p>
                                             <p>Količina: {artikal.kolicina}</p> 
-                                            <p>Cena: {(osnovnaCena).toLocaleString("sr-RS")} RSD</p>
+                                            {artikal.osnovnaCena !== undefined && (
+                                                <p>Cena: {artikal.osnovnaCena.toLocaleString("sr-RS")} RSD</p>
+                                            )}
+                                            
                                             <p>PDV: 20%</p>
                                             {/* <p>Pakovanje: {artikal.pakovanje}</p> */}
                                         </div>
                                     </div>
-                                    <p className="text-red-500 text-xl whitespace-nowrap hidden md:block lg:block">{(pravaCena).toLocaleString("sr-RS")} RSD</p>
+                                    {artikal.pravaCena !== undefined && ( 
+                                        <p className="text-red-500 text-xl whitespace-nowrap hidden md:block lg:block">{(artikal.pravaCena).toLocaleString("sr-RS")} RSD</p>
+                                    )}
                                 </div>
                             );
                             })}
@@ -314,12 +360,7 @@
                         artikli={artikli}
                         idDokumenta={idDokumenta}
                         partner={partner}
-                        //inputi
-                        // imeiPrezime={imeiPrezime}
                         mestoIsporuke={mestoIsporuke}
-                        // grad={grad}
-                        // telefon={telefon}
-                        // email={email}
                         napomena={napomena}
                         disabled={mestoIsporuke.trim() === ""}
                     />

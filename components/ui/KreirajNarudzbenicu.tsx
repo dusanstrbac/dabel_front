@@ -23,6 +23,7 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, mestoIsporuke, nap
         // Datum važenja +7 dana
         const datumVazenja = new Date();
         datumVazenja.setDate(datumVazenja.getDate() + 7);
+        const ceneSaPDV = JSON.parse(sessionStorage.getItem("cene-sa-pdv") || "{}");
 
         // Ažuriraj localStorage sa novim ID-jem
         localStorage.setItem("poslednjiIdDokumenta", idDokumenta.toString());
@@ -41,11 +42,15 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, mestoIsporuke, nap
                 idDokumenta: idDokumenta.toString(),
                 idArtikla: value.idArtikla.toString() || "",
                 nazivArtikla: value.naziv || "",
-                cena: value.artikalCene[0].cena || 0,
+                cena: ceneSaPDV[value.idArtikla] 
+                                                ? ceneSaPDV[value.idArtikla] / Number(value.kolicina || 1)
+                                                : value.artikalCene[0].cena || 0,
                 originalnaCena: value.artikalCene[0].cena || 0,
                 kolicina: value.kolicina.toString() || "0",
                 // pdv: value.pdv.toString() || "20", -- PRoveriti da li pdv je isti za sve 
-                ukupnaCena: Number((Number(value.kolicina) * value.artikalCene[0].cena).toFixed(2)),
+                ukupnaCena: ceneSaPDV[value.idArtikla]
+                                                    ? Number(ceneSaPDV[value.idArtikla].toFixed(2))
+                                                    : Number((Number(value.kolicina) * value.artikalCene[0].cena).toFixed(2))
             })),
         };
 
@@ -81,7 +86,9 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, mestoIsporuke, nap
             }));
 
             console.log("Da vidim samo sta saljemo u /dokument: ", sessionStorage);
-            router.push("/dokument");
+            window.open("/dokument", "_blank"); 
+            router.push("/"); 
+
             } catch (err) {
                 console.error("❌ Greška pri slanju POST zahteva:", err);
             }

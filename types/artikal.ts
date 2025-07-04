@@ -6,6 +6,8 @@ export type ArtikalType = {
   kolicina: string;
   kategorijaId: string;
   status?: string;
+  pravaCena?: number;
+  osnovnaCena?: number;
   artikalCene: ArtikalCena[];
   artikalAtributi: ArtikalAtribut[];
 };
