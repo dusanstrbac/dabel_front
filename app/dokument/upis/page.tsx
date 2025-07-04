@@ -66,75 +66,66 @@
         useEffect(() => {
             setIsClient(true);
 
-            try {
-            
-                const storedCart = localStorage.getItem("cart");
-                const parsedCart = storedCart ? JSON.parse(storedCart) : {};
-                setCart(parsedCart);
+            const storedCart = localStorage.getItem("cart");
+            const parsedCart = storedCart ? JSON.parse(storedCart) : {};
+            setCart(parsedCart);
 
-                const parsedPartner = JSON.parse(sessionStorage.getItem("partner") || "null");
-                if (parsedPartner) {
-                    setPartner(parsedPartner);
-                } else {
-                    console.warn("Partner nije pronadjen u sesiji");
+            const ukupnaCenaSaPDV = sessionStorage.getItem("ukupnaCenaSaPDV");
+            if (ukupnaCenaSaPDV){
+                setUkupnaCenaSaPDV(Number(ukupnaCenaSaPDV));
+            }
+
+            const korisnik = dajKorisnikaIzTokena();
+            const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
+            if (!korisnik) {
+                console.warn("Nema korisnika iz tokena.");
+                return;
+            }
+
+            const fetchPartner = async () => {
+                try {
+                    const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${korisnik.email}`);
+                    const data = await res.json();
+                    setPartner(data[0]);
+                } catch (err) {
+                    console.error("Greška pri fetchovanju partnera:", err);
                 }
+            };
 
-                
-                const ukupnaCenaSaPDV = sessionStorage.getItem("ukupnaCenaSaPDV");
+            const poslednjiId = parseInt(localStorage.getItem("poslednjiIdDokumenta") || "0", 10);
+            setIdDokumenta(poslednjiId + 1);
 
-
-                if (ukupnaCenaSaPDV){
-                    setUkupnaCenaSaPDV(Number(ukupnaCenaSaPDV));
-                }
-                const storedIds = Object.keys(parsedCart);
-                const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-
-                const fetchPartner = async () => {
-                    const korisnik = dajKorisnikaIzTokena();
-                    if (!korisnik) {
-                        console.warn("Nema korisnika iz tokena.");
-                        return;
-                    }
-
-                    const email = korisnik.email;
-
-                    try {
-                        const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${email}`);
-                        const data = await res.json();
-                        setPartner(data[0]);
-
-                        console.log("Partner podaci:", data[0]);
-                        console.log("Komercijalista:", data[0].komercijalisti);
+            fetchPartner();
+        }, []);
 
 
-                        
-                    } catch (err) {
-                        console.error("Greška pri fetchovanju partnera:", err);
-                    }
-                };
+        useEffect(() => {
+            if (!partner) return;
 
-                const rabatVrednost = partner?.partnerRabat?.rabat ?? 0;
-                    const rabatKoeficijent = 1 - rabatVrednost / 100;
+            const storedCart = localStorage.getItem("cart");
+            const parsedCart = storedCart ? JSON.parse(storedCart) : {};
+            const storedIds = Object.keys(parsedCart);
+            const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
+            const rabatVrednost = partner?.partnerRabat?.rabat ?? 0;
+            const rabatKoeficijent = 1 - rabatVrednost / 100;
 
-                const fetchArtikli = async () => {
-                    if (storedIds.length === 0) return;
+            const fetchArtikli = async () => {
+                if (storedIds.length === 0) return;
 
-                    const queryString = storedIds.map(id => `ids=${id}`).join("&");
-                    const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
+                const queryString = storedIds.map(id => `ids=${id}`).join("&");
+                const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
 
-                    try {
-
-
+                try {
                     const response = await fetch(url);
                     const data = await response.json();
 
-                    
-
                     const transformed = data.map((artikal: ArtikalType) => {
                         const osnovnaCena = artikal.artikalCene[0].akcija.cena > 0
-                                                                            ? artikal.artikalCene[0].akcija.cena
-                                                                            : artikal.artikalCene[0].cena;
+                            ? artikal.artikalCene[0].akcija.cena
+                            : artikal.artikalCene[0].cena;
+
                         const kolicina = parsedCart[artikal.idArtikla]?.kolicina || 1;
                         const pravaCena = osnovnaCena * 1.2 * rabatKoeficijent * kolicina;
 
@@ -146,55 +137,33 @@
                             originalnaCena: artikal.artikalCene[0].cena,
                             kolicina,
                             osnovnaCena,
-                            pravaCena, // <-- dodaj ovo
+                            pravaCena,
                         };
                     });
-
-                        // ...artikal,
-                        // id: artikal.idArtikla,
-                        // naziv: artikal.naziv,
-                        // cena: artikal.artikalCene[0].akcija.cena ?? 0,  
-                        // originalnaCena: artikal.artikalCene[0].cena,
-                        // // pdv: artikal.pdv ?? 20,
-                        // //OVO MORA DA SE VIDI
-                        // kolicina: parsedCart[artikal.idArtikla]?.kolicina,
-                        
-                    
-                    
-
 
                     setArtikli(transformed);
 
                     const pravaCenaMap: Record<string, number> = {};
                     data.forEach((artikal: ArtikalType) => {
                         const osnovnaCena = artikal.artikalCene[0].akcija.cena > 0
-                                                                                ? artikal.artikalCene[0].akcija.cena
-                                                                                : artikal.artikalCene[0].cena;
+                            ? artikal.artikalCene[0].akcija.cena
+                            : artikal.artikalCene[0].cena;
+
                         const kolicina = parsedCart[artikal.idArtikla]?.kolicina || 1;
                         const pravaCena = osnovnaCena * 1.2 * rabatKoeficijent * kolicina;
                         pravaCenaMap[artikal.idArtikla] = pravaCena;
                     });
 
                     sessionStorage.setItem("cene-sa-pdv", JSON.stringify(pravaCenaMap));
-                    } catch (err) {
-                        console.error("Greška pri učitavanju artikala:", err);
-                    }
-                };
+                } catch (err) {
+                    console.error("Greška pri učitavanju artikala:", err);
+                }
+            };
 
-                
-                // Generisanje novog ID-ja
-                const poslednjiId = parseInt(localStorage.getItem("poslednjiIdDokumenta") || "0", 10);
-                const noviId = poslednjiId + 1;
-                setIdDokumenta(noviId);
-                
-                
+            fetchArtikli();
+        }, [partner]);
 
-                fetchArtikli();
-                fetchPartner();
-            } catch (e) {
-                console.error("Nevalidan JSON u localStorage za 'cart'", e);
-            }
-        }, []);
+
 
 
         //ne znam gde ovo da ubacim, pomagaj
