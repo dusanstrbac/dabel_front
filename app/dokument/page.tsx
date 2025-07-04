@@ -10,8 +10,13 @@ const DokumentPage = () => {
   const [stavke, setStavke] = useState<ArtikalType[]>([]);
   const [partnerInfo, setPartnerInfo] = useState<PartnerInfo>();
   const [rabatPartnera, setRabatPartnera] = useState<number>(0);
+  const [dostava, setDostava] = useState<number>(0);
+  const [ukupnoSaDostavom, setUkupnoSaDostavom] = useState<number>(0);
+
 
   useEffect(() => {
+    const dostavaSession = sessionStorage.getItem("dostava");
+    const ukupnoSaDostavomSession = sessionStorage.getItem("ukupnoSaDostavom");
     const data = sessionStorage.getItem("narudzbenica-podaci");
     if (data) {
       const parsed = JSON.parse(data);
@@ -26,7 +31,14 @@ const DokumentPage = () => {
         napomena: parsed.napomena,
       });
 
+      if (dostavaSession) setDostava(Number(dostavaSession));
+      if (ukupnoSaDostavomSession) setUkupnoSaDostavom(Number(ukupnoSaDostavomSession));
+
+
       localStorage.removeItem("cart");
+      sessionStorage.removeItem("cene-sa-pdv");
+      sessionStorage.removeItem("dostava");
+      sessionStorage.removeItem("ukupnoSaDostavom");
       window.dispatchEvent(new Event("storage")); // za ažuriranje ikonice korpe
     }
   }, []);
@@ -151,9 +163,15 @@ const DokumentPage = () => {
           <span className="font-semibold">Ukupno bez PDV:</span>
           <span>{ukupno.ukupnoBezPDV.toFixed(2)} RSD</span>
         </div>
+        {dostava > 0 && (
+          <div className="flex gap-4">
+            <span className="font-semibold">Dostava:</span>
+            <span>{dostava.toLocaleString("sr-RS")} RSD</span>
+          </div>
+        )}
         <div className="flex gap-4">
           <span className="font-semibold">Ukupno sa PDV:</span>
-          <span>{ukupno.ukupnoSaPDV.toFixed(2)} RSD</span>
+          <span>{ukupnoSaDostavom.toFixed(2)} RSD</span>
         </div>
       </div>
 

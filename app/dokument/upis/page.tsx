@@ -165,6 +165,15 @@
 
 
 
+    useEffect(() => {
+        if (ukupnaCenaSaPDV === 0) return;
+
+        sessionStorage.setItem("dostava", JSON.stringify(dostava));
+        sessionStorage.setItem("ukupnoSaDostavom", JSON.stringify(ukupnoSaDostavom));
+    }, [ukupnaCenaSaPDV, dostava, ukupnoSaDostavom]);
+
+
+
 
         //ne znam gde ovo da ubacim, pomagaj
 
