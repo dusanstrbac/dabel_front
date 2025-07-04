@@ -1,24 +1,20 @@
 'use client';
 import Header from "@/components/Header";
 import HeroImage from "@/components/HeroImage";
-import ListaArtikala from "@/components/ListaArtikala";
-import { ArtikalType } from "@/types/artikal";
-import { Suspense, useState } from "react";
+import PoruciPonovo from "@/components/PoruciPonovo";
+import { Suspense } from "react";
 
 export default function Home() {
-
-  // Uraditi fetch metodu za preporucene artikle ( takodje kesirati na par sati )
-  const [artikli, setArtikli] = useState<ArtikalType[]>([]);
 
 
   return (
     <>
     <Suspense fallback={<div>Učitavanje...</div>}> 
       <Header />
-      <main className="flex flex-col items-center gap-2 px-1">
+      <main className="flex flex-col items-center gap-2">
         <HeroImage />
-        <div>
-          
+        <div className="w-full px-2">
+          <PoruciPonovo />
         </div>
       </main>
       </Suspense>

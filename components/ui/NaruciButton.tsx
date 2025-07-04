@@ -3,7 +3,6 @@ import { Button } from "./button";
 
 const NaruciButton = ({ disabled, reason }: { disabled?: boolean; reason?: string }) => {
 
-  console.log('status dugmeta', disabled);
   return (
     <div style={{ display: "inline-block" }}>
       <Button

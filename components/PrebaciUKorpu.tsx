@@ -92,7 +92,7 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
   };
 
   return (
-    <Button onClick={handleAddToCart} variant="default">
+    <Button onClick={handleAddToCart} variant="default" className="cursor-pointer">
       <ShoppingCartIcon className="w-5 h-5 text-white mr-2" />
       Prebaci u korpu
     </Button>
