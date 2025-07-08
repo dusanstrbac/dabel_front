@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { dajKorisnikaIzTokena } from '@/lib/auth';
 
 export default function PrikazDokumenta() {
   const params = useParams();
@@ -10,6 +11,7 @@ export default function PrikazDokumenta() {
   const [dokument, setDokument] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const korisnik = dajKorisnikaIzTokena();
 
   useEffect(() => {
     if (!brojDokumenta) return;
@@ -17,13 +19,12 @@ export default function PrikazDokumenta() {
     const fetchDokument = async () => {
       try {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const res = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?brojDokumenta=${brojDokumenta}`);
-        console.log(brojDokumenta);
-
+        const res = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?brojDokumenta=${brojDokumenta}&idPartnera=${korisnik?.idKorisnika}`);
         if (!res.ok) throw new Error('Greška pri učitavanju dokumenta.');
 
         const data = await res.json();
         setDokument(data);
+        console.log(data);
       } catch (err: any) {
         setError(err.message);
       } finally {
