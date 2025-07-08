@@ -6,14 +6,13 @@ import { cn } from "@/lib/utils";
 interface KreirajNarudzbenicuProps {
   artikli: ArtikalType[];
   partner: KorisnikPodaciType;
-  idDokumenta: number;
   mestoIsporuke: string;
   napomena: string;
   disabled: boolean;
 }
 
 
-const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, mestoIsporuke, napomena, disabled }: KreirajNarudzbenicuProps) => {
+const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabled }: KreirajNarudzbenicuProps) => {
     const router = useRouter();
 
     const handleClick = async () => {
@@ -25,21 +24,15 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, mestoIsporuke, nap
         datumVazenja.setDate(datumVazenja.getDate() + 7);
         const ceneSaPDV = JSON.parse(sessionStorage.getItem("cene-sa-pdv") || "{}");
 
-        // Ažuriraj localStorage sa novim ID-jem
-        localStorage.setItem("poslednjiIdDokumenta", idDokumenta.toString());
-
         const payload = {
-            idDokumenta,
             tip: "narudzbenica",
             idPartnera: partner.idPartnera,
-            brojDokumenta: idDokumenta.toString(),
             idKomercijaliste: partner.komercijalisti.id,
             datumDokumenta: now,
             datumVazenja: datumVazenja.toISOString(),
             lokacija: mestoIsporuke,
             napomena: napomena,
             stavkeDokumenata: artikli.map((value) => ({
-                idDokumenta: idDokumenta.toString(),
                 idArtikla: value.idArtikla.toString() || "",
                 nazivArtikla: value.naziv || "",
                 cena: ceneSaPDV[value.idArtikla] 
@@ -71,21 +64,6 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, mestoIsporuke, nap
                 return;
             }
 
-            const data = await res.text();
-            
-
-            console.log(idDokumenta);
-            
-            sessionStorage.setItem("narudzbenica-podaci", JSON.stringify({
-                idDokumenta,
-                artikli,
-                partner,
-                DatumKreiranja: now,
-                mestoIsporuke,
-                napomena,
-            }));
-
-            console.log("Da vidim samo sta saljemo u /dokument: ", sessionStorage);
             window.open("/dokument", "_blank"); 
             router.push("/"); 
 

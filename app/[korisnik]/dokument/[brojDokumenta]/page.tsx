@@ -18,12 +18,11 @@ export default function PrikazDokumenta() {
       try {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const res = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?brojDokumenta=${brojDokumenta}`);
-        console.log(brojDokumenta);
-
         if (!res.ok) throw new Error('Greška pri učitavanju dokumenta.');
 
         const data = await res.json();
         setDokument(data);
+        console.log(data);
       } catch (err: any) {
         setError(err.message);
       } finally {

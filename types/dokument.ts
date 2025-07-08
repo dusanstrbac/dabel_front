@@ -1,9 +1,25 @@
-import { ArtikalType } from "./artikal"
 
-export type PartnerInfo = {
+export type DokumentInfo = {
   partner: KorisnikPodaciType,
-  idDokumenta: string,
-  DatumKreiranja: Date, 
-  mestoIsporuke: string, //lokacija
+  tip: "narudzbenica",
+  idPartnera: string,
+  brojDokumenta: number,
+  idKomercijaliste: string,
+  datumDokumenta: Date,
+  datumVazenja: Date,
+  lokacija: string,
   napomena: string,
+  stavkeDokumenata: [
+      {
+          id: number,
+          brojDokumenta: number,
+          idArtikla: string,
+          nazivArtikla: string,
+          cena: number,
+          originalnaCena: number,
+          kolicina: string,
+          pdv: string,
+          ukupnaCena: number
+      }
+  ]
 }

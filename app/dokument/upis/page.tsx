@@ -19,15 +19,10 @@
         const imageUrl = '/images';
 
         const [mestoIsporuke, setMestoIsporuke] = useState("");
-        const [imeiPrezime, setImeiPrezime] = useState("");
-        const [grad, setGrad] = useState("");
-        const [telefon, setTelefon] = useState("");
-        const [email, setEmail] = useState("");
         const [napomena, setNapomena] = useState("");
 
         const [cart, setCart] = useState<Record<string, { kolicina: number }>>({});
 
-        const [idDokumenta, setIdDokumenta] = useState<number>(0);
         const [ukupnaCenaSaPDV, setUkupnaCenaSaPDV] = useState<number>(0);
 
         // const proveriPolja = () => {
@@ -93,8 +88,6 @@
                 }
             };
 
-            const poslednjiId = parseInt(localStorage.getItem("poslednjiIdDokumenta") || "0", 10);
-            setIdDokumenta(poslednjiId + 1);
 
             fetchPartner();
         }, []);
@@ -336,7 +329,6 @@
                 {partner && (
                     <KreirajNarudzbenicu
                         artikli={artikli}
-                        idDokumenta={idDokumenta}
                         partner={partner}
                         mestoIsporuke={mestoIsporuke}
                         napomena={napomena}
