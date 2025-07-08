@@ -8,20 +8,47 @@ type DekodiranToken = {
   webUloga: string; // WEB uloga korisnika
   exp: number;
   iat: number;
+  idPartnera?: string;
+  nerealizovano?: string;
+  raspolozivoStanje?: string;
+  kredit?: string;
+  nijeDospelo?: string;
 };
 
-export function dajKorisnikaIzTokena(): { email: string; korisnickoIme: string; idKorisnika: string; webUloga: string; } | null {
+export function dajKorisnikaIzTokena(): {
+  email: string;
+  korisnickoIme: string;
+  idKorisnika: string;
+  webUloga: string;
+  finKarta?: {
+    idPartnera: string;
+    nerealizovano: number;
+    raspolozivoStanje: number;
+    kredit: number;
+    nijeDospelo: number;
+  };
+} | null {
   const token = getCookie("AuthToken");
 
   if (!token || typeof token !== "string") return null;
 
   try {
     const decoded = jwtDecode<DekodiranToken>(token);
+
     return {
       email: decoded.email,
       korisnickoIme: decoded.sub,
       idKorisnika: decoded.id,
       webUloga: decoded.webUloga,
+      finKarta: decoded.idPartnera
+        ? {
+            idPartnera: decoded.idPartnera,
+            nerealizovano: parseFloat(decoded.nerealizovano || "0"),
+            raspolozivoStanje: parseFloat(decoded.raspolozivoStanje || "0"),
+            kredit: parseFloat(decoded.kredit || "0"),
+            nijeDospelo: parseFloat(decoded.nijeDospelo || "0"),
+          }
+        : undefined,
     };
   } catch (error) {
     console.error("Greška pri dekodiranju tokena:", error);

@@ -32,6 +32,5 @@ export function middleware(request: NextRequest) {
     loginUrl.searchParams.set("redirectTo", pathname); // redirectTo znaci da ga vraca na rutu u koju je prvobitno hteo da udje
     return NextResponse.redirect(loginUrl);
   }
-
   return NextResponse.next();
 }
