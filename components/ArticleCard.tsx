@@ -18,20 +18,31 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera}: Art
   useEffect(() => {
     setMounted(true);
 
-    const fetchDatumPoslednjeKupovine = async() => {
+    const fetchDatumPoslednjeKupovine = async () => {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Artikal/ArtikalDatumKupovine?idPartnera=${idPartnera}&idArtikla=${idArtikla}`);
-        if(response.ok) {
-          const data = await response.json();
-          setLastPurchaseDate(data.datumPoslednjeKupovine);
+
+        if (response.status === 404) {
+          // Artikal nije kupljen – samo ignorisi
+          return;
         }
+
+        if (!response.ok) {
+          // Sve ostale greške loguj (500 itd.)
+          console.error("Greška u fetchovanju datuma kupovine:", await response.text());
+          return;
+        }
+
+        const data = await response.json();
+        setLastPurchaseDate(data.datumPoslednjeKupovine);
       } catch (error) {
-        console.error("Došlo je do greške prilikom dohvatanja istorije kupovine: ", error);
+        console.error("Došlo je do greške prilikom dohvatanja istorije kupovine:", error);
       }
     };
 
-    if(idArtikla && idPartnera) fetchDatumPoslednjeKupovine();
-
+    if (idArtikla && idPartnera) {
+      fetchDatumPoslednjeKupovine();
+    }
   }, [idArtikla, idPartnera]);
 
   const imageUrl = '/images';

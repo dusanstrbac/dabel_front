@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import AddToCartButton from "./AddToCartButton";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 type ArtikalIstorijaDTO = {
   idPartnera: string;
@@ -20,13 +21,15 @@ const PoruciPonovo = () => {
   const [artikli, setArtikli] = useState<ArtikalIstorijaDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<Record<string, { kolicina: number }> | null>(null);
-
   const router = useRouter();
+  const korisnik = dajKorisnikaIzTokena();
+  const idKorisnika = korisnik?.idKorisnika;
 
   useEffect(() => {
-    fetch("http://localhost:7235/api/Artikal/ArtikalDatumKupovine?idPartnera=0241")
+    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+    fetch(`${apiAddress}/api/Artikal/ArtikalDatumKupovine?idPartnera=${idKorisnika}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Greška pri dohvaćanju");
+        if (!res.ok) throw new Error("Greška prilikom učitavanja");
         return res.json();
       })
       .then((data) => setArtikli(data))

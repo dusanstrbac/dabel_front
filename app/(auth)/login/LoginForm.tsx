@@ -11,6 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { setCookie } from "cookies-next";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 // Validation schema
 const formSchema = z.object({
@@ -138,7 +139,7 @@ export default function LoginForm() {
               </FormItem>
             )}
           />
-
+          <p className="float-right text-sm font-semibold">Nemate nalog? <Link href={'/register'} className="font-normal text-blue-500 hover:text-blue-300">Registrujte se besplatno</Link></p>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <>

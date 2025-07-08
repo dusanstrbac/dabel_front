@@ -6,6 +6,7 @@ import * as z from "zod";
 import { useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 // ✅ Validacija za email i JMBG (13 cifara)
 const emailSchema = z.object({
@@ -51,7 +52,8 @@ export default function PosaljiLinkZaAktivacijuForm() {
 
   return (
     <div className="max-w-md mx-auto p-4 shadow rounded mt-10">
-      <h1 className="text-3xl font-bold mb-4 text-center">Aktivirajte nalog</h1>
+      <h1 className="text-3xl font-bold mb-1 text-center">Aktivirajte nalog</h1>
+      <p className="text-muted-foreground text-center mb-4">Unesite svoje podatke za pristup nalogu</p>
 
       {error && <div className="mb-4 text-red-600 bg-red-100 p-2 rounded">{error}</div>}
       {success && <div className="mb-4 text-green-600 bg-green-100 p-2 rounded">{success}</div>}
@@ -78,11 +80,11 @@ export default function PosaljiLinkZaAktivacijuForm() {
         {form.formState.errors.jmbg && (
           <p className="text-red-600 text-sm">{form.formState.errors.jmbg.message}</p>
         )}
-
+        <p className="text-sm float-right font-semibold">Već posedujete nalog? <Link href={'/login'} className="font-normal text-blue-500 hover:text-blue-300">Prijavite se ovde</Link></p>
         <Button
           type="submit"
           disabled={loading}
-          className="w-full mt-4 cursor-pointer hover:opacity-90"
+          className="w-full cursor-pointer hover:opacity-90"
         >
           {loading ? "Šaljem..." : "Pošalji link za aktivaciju"}
         </Button>

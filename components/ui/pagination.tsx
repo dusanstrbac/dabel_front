@@ -4,13 +4,29 @@ import * as React from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
-  MoreHorizontalIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useSearchParams, useRouter } from "next/navigation";
 
-// Navigacija za paginaciju
+// Hook za praćenje da li je ekran mobilni (širina < 640px)
+function useIsMobile(breakpoint = 640) {
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth < breakpoint);
+    }
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, [breakpoint]);
+
+  return isMobile;
+}
+
 function Paginacija({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
@@ -23,7 +39,6 @@ function Paginacija({ className, ...props }: React.ComponentProps<"nav">) {
   );
 }
 
-// Kontejner za sadržaj stranica
 function PaginacijaSadrzaj({
   className,
   ...props
@@ -31,18 +46,16 @@ function PaginacijaSadrzaj({
   return (
     <ul
       data-slot="paginacija-sadrzaj"
-      className={cn("flex flex-row items-center gap-1", className)}
+      className={cn("flex flex-row items-center gap-1 flex-wrap justify-center", className)}
       {...props}
     />
   );
 }
 
-// Stavka u paginaciji
 function PaginacijaStavka({ ...props }: React.ComponentProps<"li">) {
   return <li data-slot="paginacija-stavka" {...props} />;
 }
 
-// Tipovi za link
 type PaginacijaLinkProps = {
   isActive?: boolean;
   disabled?: boolean;
@@ -61,40 +74,38 @@ function PaginacijaLink({
   disabled,
   ...props
 }: PaginacijaLinkProps) {
-
-const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-  e.preventDefault();
-  if (!disabled && onClick) {
-    onClick(e);
-  }
-};
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!disabled && onClick) {
+      onClick(e);
+    }
+  };
 
   return (
-  <Button
-    aria-current={isActive ? "page" : undefined}
-    disabled={disabled}
-    onClick={handleClick}
-    type="button"
-    data-slot="paginacija-link"
-    data-active={isActive}
-    className={cn(
-      buttonVariants({
-        variant: isActive ? "outline" : "ghost",
-        size: "sm",
-      }),
-      disabled && "pointer-events-none opacity-50",
-      isActive && "bg-blue-600 text-white border-blue-600",
-      !isActive && "hover:bg-blue-200 hover:border-blue-400",
-      className
-    )}
-    {...props}
-  >
-    {children}
-  </Button>
+    <Button
+      aria-current={isActive ? "page" : undefined}
+      disabled={disabled}
+      onClick={handleClick}
+      type="button"
+      data-slot="paginacija-link"
+      data-active={isActive}
+      className={cn(
+        buttonVariants({
+          variant: isActive ? "outline" : "ghost",
+          size: size === "default" ? "sm" : size,
+        }),
+        disabled && "pointer-events-none opacity-50",
+        isActive && "bg-blue-600 text-white border-blue-600",
+        !isActive && "hover:bg-blue-200 hover:border-blue-400",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </Button>
   );
 }
 
-// Prethodna stranica
 function PaginacijaPrethodna({
   className,
   ...props
@@ -117,7 +128,6 @@ function PaginacijaPrethodna({
   );
 }
 
-// Sledeća stranica
 function PaginacijaSledeca({
   className,
   ...props
@@ -140,25 +150,6 @@ function PaginacijaSledeca({
   );
 }
 
-// Višestruke stranice (npr. ... )
-function PaginacijaTackice({
-  className,
-  ...props
-}: React.ComponentProps<"span">) {
-  return (
-    <span
-      aria-hidden
-      data-slot="paginacija-tackice"
-      className={cn("flex size-9 items-center justify-center", className)}
-      {...props}
-    >
-      <MoreHorizontalIcon className="size-4" />
-      <span className="sr-only">Još stranica</span>
-    </span>
-  );
-}
-
-// Glavna komponenta za paginaciju
 interface PaginationProps {
   totalItems: number;
   itemsPerPage: number;
@@ -177,17 +168,16 @@ function Pagination({
   const router = useRouter();
   const searchParams = useSearchParams();
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const isMobile = useIsMobile();
 
-  // Provera da li je komponenta mountovana
   const [isMounted, setIsMounted] = React.useState(false);
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Sync sa URL parametrima
   React.useEffect(() => {
     if (!isMounted) return;
-    
+
     const page = searchParams.get('page');
     if (page) {
       const pageNumber = parseInt(page, 10);
@@ -205,9 +195,14 @@ function Pagination({
     router.push(`?page=${page}`, { scroll: false });
   };
 
-
-
   if (totalPages <= 1) return null;
+
+  // Paginacija za mobilni prikaz
+  const mobilePages = [
+    currentPage - 1,
+    currentPage,
+    currentPage + 1,
+  ].filter(p => p >= 1 && p <= totalPages);
 
   return (
     <Paginacija className={className}>
@@ -219,42 +214,55 @@ function Pagination({
           />
         </PaginacijaStavka>
 
-        {Array.from({ length: totalPages }, (_, i) => {
-          const page = i + 1;
-          
-          // Prikazujemo prvu stranicu, poslednju i okolinu trenutne
-          if (
-            page === 1 ||
-            page === totalPages ||
-            (page >= currentPage - 1 && page <= currentPage + 1)
-          ) {
-            return (
+        {isMobile
+          ? mobilePages.map((page) => (
               <PaginacijaStavka key={page}>
                 <PaginacijaLink
                   isActive={currentPage === page}
                   onClick={(e) => handlePageChange(page, e)}
+                  size="sm"
                 >
                   {page}
                 </PaginacijaLink>
               </PaginacijaStavka>
-            );
-          }
+            ))
+          : Array.from({ length: totalPages }, (_, i) => {
+              const page = i + 1;
+              // Desktop: prikaži prvu, poslednju i okolinu trenutne stranice
+              if (
+                page === 1 ||
+                page === totalPages ||
+                (page >= currentPage - 1 && page <= currentPage + 1)
+              ) {
+                return (
+                  <PaginacijaStavka key={page}>
+                    <PaginacijaLink
+                      isActive={currentPage === page}
+                      onClick={(e) => handlePageChange(page, e)}
+                    >
+                      {page}
+                    </PaginacijaLink>
+                  </PaginacijaStavka>
+                );
+              }
 
-          // Dodajemo "..." između blokova
-          if (
-            (page === 2 && currentPage > 3) ||
-            (page === totalPages - 1 && currentPage < totalPages - 2)
-          ) {
-            return (
-              <PaginacijaStavka key={`ellipsis-${page}`}>
-                <PaginacijaTackice />
-              </PaginacijaStavka>
-            );
-          }
+              if (
+                (page === 2 && currentPage > 3) ||
+                (page === totalPages - 1 && currentPage < totalPages - 2)
+              ) {
+                // Tackice na desktopu
+                return (
+                  <PaginacijaStavka key={`ellipsis-${page}`}>
+                    <span className="flex h-9 w-9 items-center justify-center text-gray-500 select-none">
+                      ...
+                    </span>
+                  </PaginacijaStavka>
+                );
+              }
 
-          return null;
-        })}
-
+              return null;
+            })}
+        
         <PaginacijaStavka>
           <PaginacijaSledeca
             onClick={(e) => handlePageChange(currentPage + 1, e)}
@@ -274,6 +282,5 @@ export {
   PaginacijaStavka,
   PaginacijaPrethodna,
   PaginacijaSledeca,
-  PaginacijaTackice,
   Pagination as default
 };

@@ -10,7 +10,6 @@ import {
   PaginacijaLink,
   PaginacijaPrethodna,
   PaginacijaSledeca,
-  PaginacijaTackice,
 } from "@/components/ui/pagination";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ArtikalFilterProp, ListaArtikalaProps } from "@/types/artikal";
@@ -136,7 +135,6 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
                 ) {
                   return (
                     <PaginacijaStavka key={`ellipsis-${broj}`}>
-                      <PaginacijaTackice />
                     </PaginacijaStavka>
                   );
                 }
