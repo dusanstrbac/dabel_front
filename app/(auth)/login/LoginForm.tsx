@@ -5,7 +5,7 @@ import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { setCookie } from "cookies-next";
@@ -51,8 +51,7 @@ export default function LoginForm() {
         }
       );
 
-      console.log(data);
-      const redirectTo = searchParams.get("redirectTo") || "/";
+        const redirectTo =  "/";
 
       if (data.token) {
         setCookie("AuthToken", data.token, {

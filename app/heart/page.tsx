@@ -106,6 +106,7 @@ const OmiljeniArtikli = () => {
     setCurrentPage(1);
   };
 
+  
   return (
     <div className="lg:p-4">
       <div className="w-full mx-auto flex justify-between items-center p-2">

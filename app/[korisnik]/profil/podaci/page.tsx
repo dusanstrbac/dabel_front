@@ -12,6 +12,7 @@ const ProfilPodaci = () => {
     const fetchKorisnikData = async () => {
       try {
         const korisnik = dajKorisnikaIzTokena();
+        //console.log("KORISNIK: " + korisnik?.idKorisnika);
 
         if (!korisnik) {
           setLoading(false);
@@ -112,10 +113,10 @@ const ProfilPodaci = () => {
       <div className='mt-[40px] lg:mt-[40px] flex gap-[20px]'>
                 <UserCircle color='grey' size={80} className='p-[20px] border border-gray-400 rounded-[25px]'/>
                 <div className='flex flex-col'>
-                    <h1 className='font-bold text-xl'>{userData?.komercijalista.naziv}</h1>
+                    <h1 className='font-bold text-xl'>Marko Kraljevic</h1>
                     <div className='flex items-center gap-2'>
                         <Phone color='grey' />
-                        <p className='text-lg'>{userData?.komercijalista.telefon}</p>
+                        <p className='text-lg'>06012345678</p>
                     </div>
                 </div>
       </div>

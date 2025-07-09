@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, User2, History, Package, Users, BadgeDollarSign, Youtube, Key, LogOut, Wallet, FileText } from 'lucide-react';
+import { User, User2, History, Package, Users, BadgeDollarSign, Youtube, Key, LogOut, Wallet, FileText, ShieldUser } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import Link from 'next/link';
 import { deleteCookie } from 'cookies-next';
@@ -15,6 +15,7 @@ export function KorisnikMenu() {
   const router = useRouter();
   const korisnik = dajKorisnikaIzTokena();
   const username = korisnik?.korisnickoIme;
+  const uloga = korisnik?.webUloga;
 
   useEffect(() => {
     const korisnik = dajKorisnikaIzTokena();
@@ -37,17 +38,25 @@ export function KorisnikMenu() {
       </div>
     );
   }
-
   const menuItems = [
-    { icon: <User2 className="h-4 w-4" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
-    { icon: <User2 className="h-4 w-4" />, text: "Rezervisana roba", href: username ? `/${username}/profil/rezervacije` : '/login' },
-    { icon: <FileText className="h-4 w-4" />, text: "Narudžbenica", href: username ? `/${username}/profil/narudzbenica` : '/login' },
-    { icon: <Wallet className="h-4 w-4" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
-    { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
-    { icon: <Users className="h-4 w-4" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : '/login' },
-    { icon: <BadgeDollarSign className="h-4 w-4" />, text: "Cenovnik", href: "/admin/cenovnik" },
-    { icon: <Youtube className="h-4 w-4" />, text: "Video uputstva", href: "/video" },
-    { icon: <Key className="h-4 w-4" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
+
+    // Stavke koje se samo prikazuju administratoru
+    ...(uloga === "ADMINISTRATOR" ? [
+      { icon: <ShieldUser className="h-4 w-4" />, text: "Admin podešavanja", href: username ? `/${username}/admin` : '/login' },
+    ]: []),
+    ...(uloga === "PARTNER" ? [
+      { icon: <User2 className="h-4 w-4" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
+      { icon: <User2 className="h-4 w-4" />, text: "Rezervisana roba", href: username ? `/${username}/profil/rezervacije` : '/login' },
+      { icon: <FileText className="h-4 w-4" />, text: "Narudžbenica", href: username ? `/${username}/profil/narudzbenica` : '/login' },
+      { icon: <Wallet className="h-4 w-4" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
+      { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
+      { icon: <Users className="h-4 w-4" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : '/login' },
+      { icon: <BadgeDollarSign className="h-4 w-4" />, text: "Cenovnik", href: "/admin/cenovnik" },
+      { icon: <Youtube className="h-4 w-4" />, text: "Video uputstva", href: "/video" },
+    ]: []),    
+    ...(uloga === "PARTNER" || uloga === "ADMINISTRATOR" ? [
+      { icon: <Key className="h-4 w-4" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
+    ]: []),
   ];
 
 

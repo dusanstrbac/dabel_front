@@ -1,19 +1,24 @@
 "use client";
 import { Button } from "./button";
-import { useRouter } from "next/navigation";
 
-const NaruciButton = () => {
-  const router = useRouter();
+const NaruciButton = ({ disabled, reason }: { disabled?: boolean; reason?: string }) => {
 
-  const handleNaruci = () => {
-    router.push('/dokument/upis');
-  };
-
+  console.log('status dugmeta', disabled);
   return (
-    <div>
-      <Button variant="outline" className="px-10 py-4 cursor-pointer" onClick={handleNaruci}>
+    <div style={{ display: "inline-block" }}>
+      <Button
+        variant="outline"
+        className="px-10 py-4 cursor-pointer"
+        disabled={disabled}
+      >
         Naruči
       </Button>
+
+      {disabled && reason && (
+        <p style={{ color: "red", marginTop: 8, fontSize: 14 }}>
+          {reason}
+        </p>
+      )}
     </div>
   );
 };

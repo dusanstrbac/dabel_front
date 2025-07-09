@@ -2,19 +2,9 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ArtikalType } from "@/types/artikal";
+import { PartnerInfo } from "@/types/dokument";
 
 
-type PartnerInfo = {
-  partner: KorisnikPodaciType;
-  idDokumenta: string;
-  DatumKreiranja: Date; 
-  imeiPrezime: string;
-  mestoIsporuke: string; //lokacija
-  napomena: string;
-  grad: string;
-  telefon: string;
-  email: string;
-};
 
 const PDV = 20;
 
@@ -44,7 +34,6 @@ const DokumentPage = () => {
 
       localStorage.removeItem("cart");
       window.dispatchEvent(new Event("storage")); // za ažuriranje ikonice korpe
-      console.log("🗑️ Korpa je ispražnjena iz localStorage-a.");
     }
   }, []);
 
@@ -64,15 +53,13 @@ const DokumentPage = () => {
 
   const ukupno = stavke.reduce(
     (acc, stavka) => {
-      const { cenaBezPDV, cenaSaPDV, vrednost } = izracunajStavku(stavka);
+      const { cenaBezPDV, cenaSaPDV } = izracunajStavku(stavka);
       acc.ukupnoBezPDV += cenaBezPDV * Number(stavka.kolicina);
       acc.ukupnoSaPDV += cenaSaPDV * Number(stavka.kolicina);
       return acc;
     },
     { ukupnoBezPDV: 0, ukupnoSaPDV: 0 }
   );
-
-  console.log("koji majmun stize ovde ?", partnerInfo);
 
   if (!partnerInfo || stavke.length === 0) {
     return <div className="p-10 text-red-600">Nema dostupnih podataka za prikaz dokumenta.</div>;
@@ -152,7 +139,7 @@ const DokumentPage = () => {
                   <td className="border-r border-black px-2 py-1 text-left">{stavka.naziv || "Nepoznato"}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.jm}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.kolicina}</td>
-                  <td className="border-r border-black px-2 py-1">{stavka.artikalCene[0].cena.toFixed(2)}</td>
+                  <td className="border-r border-black px-2 py-1">{(stavka.artikalCene[0].akcija.cena > 0 ? stavka.artikalCene[0].akcija.cena : stavka.artikalCene[0].cena)}</td>
                   <td className="border-r border-black px-2 py-1">{rabatPartnera ?? 0}%</td>
                   <td className="border-r border-black px-2 py-1">{cenaBezPDV.toFixed(2)}</td>
                   <td className="border-r border-black px-2 py-1">{PDV} %</td>

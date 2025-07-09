@@ -7,6 +7,8 @@ import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, Table
 import NaruciButton from "@/components/ui/NaruciButton";
 import Image from "next/image";
 import RezervisiButton from "@/components/RezervisiButton";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { toast } from "sonner";
 
 type ArtikalCena = {
   cena: number;
@@ -32,8 +34,32 @@ const Korpa = () => {
   const [quantities, setQuantities] = useState<number[]>([]);
   const [isClient, setIsClient] = useState(false);
 
+
+  const [rabatPartnera, setRabatPartnera] = useState<number>(0);
+  const [nerealizovanIznos, setNerealizovanIznos] = useState<number>(0);
+
+  const [validnaKolicina, setValidnaKolicina] = useState(true);
+
+  useEffect(() => {
+    const postojiPrekoracenje = articleList.some((article, index) => {
+      const kolicinaNaStanju = Number(article.kolicina) || 0;
+      const trazenaKolicina = getRoundedQuantity(quantities[index], article.pakovanje || 1);
+      return trazenaKolicina > kolicinaNaStanju;
+    });
+
+    setValidnaKolicina(!postojiPrekoracenje);
+  }, [quantities, articleList]);
+
+  useEffect(() => {
+    if (!validnaKolicina) {
+      toast.error("Uneta količina je veća od dostupne na stanju.");
+    }
+  }, [validnaKolicina]);
+
+
   useEffect(() => {
     setIsClient(true);
+
 
     const cart = JSON.parse(localStorage.getItem("cart") || "{}");
     const storedIds = Object.keys(cart);
@@ -43,8 +69,6 @@ const Korpa = () => {
     const queryString = storedIds.map(id => `ids=${id}`).join("&");
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
-
-
 
     const fetchArticles = async () => {
       try {
@@ -64,6 +88,36 @@ const Korpa = () => {
         console.error("Greška pri učitavanju artikala:", error);
       }
     };
+
+    const fetchPartner = async () => {
+      const korisnik = dajKorisnikaIzTokena();
+      if (!korisnik) {
+          console.warn("Nema korisnika iz tokena.");
+          return;
+      }
+
+      const email = korisnik.email;
+
+      try {
+          const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${email}`);
+          const data = await res.json();
+
+          const partner = data[0];
+          if (partner.partnerRabat.rabat) {
+            setRabatPartnera(partner.partnerRabat.rabat);
+          }
+          if(partner.finKarta?.nerealizovano) {
+            setNerealizovanIznos(partner.finKarta.nerealizovano);
+          }
+          if(partner.finKarta?.nerealizovano > 0) {
+            toast.error("Imate neplaćene faktute, pa vam je poručivanje zabranjeno");
+          }
+      } catch (err) {
+          console.error("Greška pri fetchovanju partnera:", err);
+      }
+    };
+
+    fetchPartner();
     fetchArticles();
   }, []);
 
@@ -122,21 +176,35 @@ const Korpa = () => {
     return Number(cena).toFixed(2);
   };
 
-  const totalAmount = quantities.reduce((sum, quantity, index) => {
-    const packSize = articleList[index]?.pakovanje || 1;
-    const cena = getCenaZaArtikal(articleList[index]);
-    const rounded = getRoundedQuantity(quantity, packSize);
-    return sum + rounded * cena;
-  }, 0);
 
-    const totalAmountWithPDV = totalAmount * 1.2;
+  const totalAmount = articleList.reduce((sum, artikal, index) => {
+    const packSize = artikal.pakovanje || 1;
+    const rounded = getRoundedQuantity(quantities[index], packSize);
+    const cena = getCenaZaArtikal(artikal);
+    const cenaSaRabat = cena * (1 - rabatPartnera / 100);
+    return sum + rounded * cenaSaRabat;
+}, 0);
 
-    const getSlikaArtikla = (idArtikla: string) => {
+  const totalAmountWithPDV = totalAmount * 1.2;
+
+  const getSlikaArtikla = (idArtikla: string) => {
     const baseUrl = process.env.NEXT_PUBLIC_IMAGE_ADDRESS;
-    return `${baseUrl}/s${idArtikla}.jpg`;
-    };
-
+    return `${baseUrl}/s${idArtikla}.jpg`;    
+  };
     
+    useEffect(() => {
+      if (isClient) {
+        sessionStorage.setItem("ukupnaCenaSaPDV", totalAmountWithPDV.toString());
+        sessionStorage.setItem("ukupnaCenaBezPDV", totalAmount.toString());
+      }
+    }, [totalAmount, totalAmountWithPDV, isClient]);
+
+  const narucivanjeDisabled = nerealizovanIznos > 0;
+  const razlogZabraneNarucivanja = narucivanjeDisabled
+    ? "Imate  neizmirene dugove."
+    : undefined;
+
+
     if (!isClient) return null;
 
   return (
@@ -158,6 +226,7 @@ const Korpa = () => {
               <TableHead className="text-xl text-center font-light">Pakovanje</TableHead>
               <TableHead className="text-xl text-center font-light">Trebovana količina</TableHead>
               <TableHead className="text-xl text-center font-light">Količina</TableHead>
+              <TableHead className="text-xl text-center font-light">Rabat</TableHead>
               <TableHead className="text-xl text-center font-light">Iznos</TableHead>
               <TableHead className="text-xl text-center font-light">Iznos sa PDV</TableHead>
               <TableHead />
@@ -177,13 +246,14 @@ const Korpa = () => {
               const kolicina = getRoundedQuantity(quantities[index], pakovanje);
               const cena = getCenaZaArtikal(article);
               const originalnaCena = getOriginalnaCena(article);
-              const iznos = kolicina * cena;
+              const cenaPosleRabat = cena * (1 - rabatPartnera / 100);
+              const iznos = kolicina * cenaPosleRabat;
               const iznosSaPDV = iznos * 1.2;
 
               return (
                 <TableRow key={index}>
                   <TableCell className="text-center">
-                    <img
+                    <Image
                       src={getSlikaArtikla(article.idArtikla)}
                       alt={article.naziv}
                       width={64}
@@ -222,10 +292,19 @@ const Korpa = () => {
                       className="w-20 border rounded px-2 py-1 text-center"
                       value={quantities[index]}
                       max={article.kolicina}
-                      onChange={(e) => updateQuantity(index, Number(e.target.value))}
+                      onChange={(e) => {
+                        let enteredValue = Number(e.target.value);
+                        const maxKolicina = Number(article.kolicina);
+
+                        if (isNaN(enteredValue) || enteredValue < 1) enteredValue = 1;
+                        if (enteredValue > maxKolicina) enteredValue = maxKolicina;
+
+                        updateQuantity(index, enteredValue);
+                      }}
                     />
                   </TableCell>
                   <TableCell className="text-center">{kolicina}</TableCell>
+                  <TableCell className="text-center">{rabatPartnera}</TableCell>
                   <TableCell className="text-center">{formatCena(iznos)} RSD</TableCell>
                   <TableCell className="text-center">{formatCena(iznosSaPDV)} RSD</TableCell>
                   <TableCell>
@@ -238,7 +317,7 @@ const Korpa = () => {
           <TableFooter>
             <TableRow>
               <TableCell className="font-bold text-center">Ukupno:</TableCell>
-              <TableCell colSpan={6}></TableCell>
+              <TableCell colSpan={7}></TableCell>
               <TableCell className="text-center font-bold">{formatCena(totalAmount)} RSD</TableCell>
               <TableCell className="text-center font-bold">{formatCena(totalAmountWithPDV)} RSD</TableCell>
               <TableCell />
@@ -248,7 +327,7 @@ const Korpa = () => {
 
         <div className="flex justify-end gap-4 pt-4">
           <RezervisiButton ukupnaCena={totalAmountWithPDV} />
-          <NaruciButton />
+          <NaruciButton disabled={narucivanjeDisabled || !validnaKolicina} />
         </div>
       </div>
 
@@ -260,7 +339,8 @@ const Korpa = () => {
           const kolicina = getRoundedQuantity(quantities[index], pakovanje);
           const cena = getCenaZaArtikal(article);
           const originalnaCena = getOriginalnaCena(article);
-          const iznos = kolicina * cena;
+          const cenaPosleRabat = cena * (1 - rabatPartnera / 100);
+          const iznos = kolicina * cenaPosleRabat;
           const iznosSaPDV = iznos * 1.2;
 
           return (
@@ -327,7 +407,7 @@ const Korpa = () => {
         
         <div className="flex gap-2 items-center justify-center pt-4">
           <RezervisiButton ukupnaCena={totalAmountWithPDV}/>
-          <NaruciButton />
+          <NaruciButton disabled={narucivanjeDisabled} />
         </div>
       </div>
     </div>

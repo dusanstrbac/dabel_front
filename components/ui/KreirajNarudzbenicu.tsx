@@ -12,16 +12,15 @@ interface KreirajNarudzbenicuProps {
   telefon: string;
   email: string;
   napomena: string;
-  valid: () => boolean;
 }
 
 
-const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mestoIsporuke, grad, telefon, email, valid, napomena }: KreirajNarudzbenicuProps) => {
+const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mestoIsporuke, grad, telefon, email, napomena }: KreirajNarudzbenicuProps) => {
     const router = useRouter();
 
     const handleClick = async () => {
-        const validno = valid();
-        if (!validno) return;
+        // const validno = valid();
+        // if (!validno) return;
 
         const now = new Date().toISOString();
 
@@ -81,12 +80,12 @@ const KreirajNarudzbenicu = ({ artikli, partner, idDokumenta, imeiPrezime, mesto
                 artikli,
                 partner,
                 DatumKreiranja: now,
-                imeiPrezime,
+                // imeiPrezime,
                 mestoIsporuke,
                 napomena,
-                grad,
-                telefon,
-                email,
+                // grad,
+                // telefon,
+                // email,
             }));
 
             console.log("Da vidim samo sta saljemo u /dokument: ", sessionStorage);
