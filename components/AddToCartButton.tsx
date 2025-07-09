@@ -9,13 +9,17 @@ interface AddToCartButtonProp {
     getKolicina: () => number,
     nazivArtikla: string,
     disabled?: boolean,
-    ukupnaKolicina: number
+    ukupnaKolicina: number,
+    onPreAdd?: () => boolean
 }
 
-const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disabled=false, ukupnaKolicina}: AddToCartButtonProp) => {
+const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disabled=false, ukupnaKolicina, onPreAdd}: AddToCartButtonProp) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (disabled) return;
+
+    if (onPreAdd && !onPreAdd()) return;
+
     // Proveri da li je id validan broj
     const brojId = Number(id);
     if (isNaN(brojId)) {
@@ -53,7 +57,7 @@ const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disa
 };
 
   return (
-    <Button onClick={(e) => handleAddToCart(e)} variant="outline" size="icon" disabled={disabled} className={className}>
+    <Button onClick={(e) => handleAddToCart(e) } variant="outline" size="icon" disabled={disabled} className={className}>
     <span>{title}</span>
       {disabled ? (
         <CircleOffIcon className="w-5 h-5 text-red-500 mr-2" />

@@ -70,6 +70,12 @@ export default function ProizvodiPage() {
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     const korisnik = dajKorisnikaIzTokena();
     const fullUrl = `${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${queryParams.toString()}&idPartnera=${korisnik?.idKorisnika}`;
+<<<<<<< HEAD
+=======
+    // const fullUrl = `${apiAddress}/api/Artikal/ArtikliKategorije?idPartnera=${korisnik?.idKorisnika}`;
+    // http://localhost:7235/api/Artikal/DajArtikleSaPaginacijom?page=1&pageSize=8&sortBy=naziv&sortOrder=asc&idPartnera=3005
+
+>>>>>>> 6af79a60fc682e51919027e0efad3c9f514d791b
 
     try {
       const res = await fetch(fullUrl);

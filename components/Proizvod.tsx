@@ -10,6 +10,8 @@ import ClientLightbox from "./ui/ClientLightbox";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { ArtikalAtribut, ArtikalType } from "@/types/artikal";
 import { CircleAlert } from "lucide-react";
+import { toast } from "sonner";
+
 
 // Dinamički uvoz Lightbox-a
 const Lightbox = dynamic(() => import("yet-another-react-lightbox"), {
@@ -265,6 +267,13 @@ export default function Proizvod() {
                 max={preostalo}
                 defaultValue={preostalo > 0 ? 1 : 0}
                 disabled={preostalo === 0}
+                onChange={(e) => {
+                  const input = e.currentTarget;
+                  const vrednost = Number(input.value);
+                  if (vrednost > preostalo) {
+                    input.value = preostalo.toString();
+                  }
+                }}
               />
             ) : (
               <input
@@ -281,12 +290,20 @@ export default function Proizvod() {
               id={proizvod.idArtikla}
               className="w-full sm:w-auto px-6 py-2"
               title="Dodaj u korpu"
-              getKolicina={() =>
-                Math.min(Number(inputRef.current?.value || 1), preostalo)
-              }
+              getKolicina={() => Number(inputRef.current?.value || 1)}
               nazivArtikla={proizvod.naziv}
               disabled={Number(proizvod.kolicina) <= 0 || preostalo === 0}
               ukupnaKolicina={preostalo}
+              onPreAdd={() => {
+                const uneta = Number(inputRef.current?.value || 1);
+                if (uneta > preostalo) {
+                  toast.error("Nema dovoljno artikala na stanju!", {
+                    description: `Maksimalno možete dodati ${preostalo} kom.`,
+                  });
+                  return false;
+                }
+                return true;
+              }}
             />
           </div>
         </div>

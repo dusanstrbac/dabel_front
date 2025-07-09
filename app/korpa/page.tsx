@@ -38,6 +38,25 @@ const Korpa = () => {
   const [rabatPartnera, setRabatPartnera] = useState<number>(0);
   const [nerealizovanIznos, setNerealizovanIznos] = useState<number>(0);
 
+  const [validnaKolicina, setValidnaKolicina] = useState(true);
+
+  useEffect(() => {
+    const postojiPrekoracenje = articleList.some((article, index) => {
+      const kolicinaNaStanju = Number(article.kolicina) || 0;
+      const trazenaKolicina = getRoundedQuantity(quantities[index], article.pakovanje || 1);
+      return trazenaKolicina > kolicinaNaStanju;
+    });
+
+    setValidnaKolicina(!postojiPrekoracenje);
+  }, [quantities, articleList]);
+
+  useEffect(() => {
+    if (!validnaKolicina) {
+      toast.error("Uneta količina je veća od dostupne na stanju.");
+    }
+  }, [validnaKolicina]);
+
+
   useEffect(() => {
     setIsClient(true);
 
@@ -49,9 +68,6 @@ const Korpa = () => {
     }
     const queryString = storedIds.map(id => `ids=${id}`).join("&");
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-
-    
-
     const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
 
 
@@ -278,7 +294,15 @@ const Korpa = () => {
                       className="w-20 border rounded px-2 py-1 text-center"
                       value={quantities[index]}
                       max={article.kolicina}
-                      onChange={(e) => updateQuantity(index, Number(e.target.value))}
+                      onChange={(e) => {
+                        let enteredValue = Number(e.target.value);
+                        const maxKolicina = Number(article.kolicina);
+
+                        if (isNaN(enteredValue) || enteredValue < 1) enteredValue = 1;
+                        if (enteredValue > maxKolicina) enteredValue = maxKolicina;
+
+                        updateQuantity(index, enteredValue);
+                      }}
                     />
                   </TableCell>
                   <TableCell className="text-center">{kolicina}</TableCell>
@@ -305,7 +329,7 @@ const Korpa = () => {
 
         <div className="flex justify-end gap-4 pt-4">
           <RezervisiButton ukupnaCena={totalAmountWithPDV} />
-          <NaruciButton disabled={narucivanjeDisabled} />
+          <NaruciButton disabled={narucivanjeDisabled || !validnaKolicina} />
         </div>
       </div>
 

@@ -165,7 +165,7 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, onFilterChange })
           </CollapsibleContent>
         </Collapsible>
       ))}
-
+      
       {/* Reset dugme */}
       <div className="flex justify-end mt-4">
         <button
