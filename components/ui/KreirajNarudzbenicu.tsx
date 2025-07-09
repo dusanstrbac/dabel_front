@@ -2,6 +2,9 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ArtikalType } from "@/types/artikal";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { toast } from "sonner";
 
 interface KreirajNarudzbenicuProps {
   artikli: ArtikalType[];
@@ -14,6 +17,19 @@ interface KreirajNarudzbenicuProps {
 
 const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabled }: KreirajNarudzbenicuProps) => {
     const router = useRouter();
+    const [korisnikUdugu, setKorisnikUdugu] = useState(false);
+
+    // useEffect(() => {
+    //     const korisnik = dajKorisnikaIzTokena();
+
+    //     if (korisnik?.finKarta) {
+    //     const { nerealizovano } = korisnik.finKarta;
+    //     if (nerealizovano > 0) {
+    //         setKorisnikUdugu(true);
+    //         toast.error("Ne možete kreirati narudžbenicu, jer imate neplaćene fakture.");
+    //     }
+    //     }
+    // }, []);
 
     const handleClick = async () => {
 
@@ -72,14 +88,16 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
             }
         };
 
-    return(
+    return (
+        <div className="space-y-2">
         <Button
             onClick={handleClick}
-            disabled={disabled}
-            className={cn("...", disabled && "opacity-50 cursor-not-allowed")}
+            disabled={disabled || korisnikUdugu}
+            className={cn("w-full", (disabled || korisnikUdugu) && "opacity-50 cursor-not-allowed")}
         >
-            Kreiraj Narudžbenicu
+            {korisnikUdugu ? "Postoje neplaćene fakture" : "Kreiraj Narudžbenicu"}
         </Button>
+        </div>
     );
 } 
 

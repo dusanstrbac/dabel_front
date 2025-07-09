@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 
 export default function RootLayout({children}: Readonly<{children: React.ReactNode;}>) {
@@ -7,6 +8,7 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
       <div className="lg:px-4">
         {children}
       </div>
+      <Footer />
     </div>
   );
 }

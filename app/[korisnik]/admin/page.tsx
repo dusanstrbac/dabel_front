@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Tabs } from "radix-ui";
-import { Paginacija, PaginacijaLink, PaginacijaPrethodna, PaginacijaSadrzaj, PaginacijaSledeca, PaginacijaStavka, PaginacijaTackice } from "@/components/ui/pagination";
+import { Paginacija, PaginacijaLink, PaginacijaPrethodna, PaginacijaSadrzaj, PaginacijaSledeca, PaginacijaStavka } from "@/components/ui/pagination";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { ComboboxDemo } from "@/components/ui/ComboboxDemo";
@@ -277,7 +277,6 @@ const admin = () => {
                   ) {
                     return (
                       <PaginacijaStavka key={`ellipsis-${broj}`}>
-                        <PaginacijaTackice />
                       </PaginacijaStavka>
                     );
                   }

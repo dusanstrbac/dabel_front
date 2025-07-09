@@ -13,7 +13,6 @@ import {
 import { useEffect, useState } from "react";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import Pagination from "./ui/pagination";
-import { Link } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation"; 
 
 

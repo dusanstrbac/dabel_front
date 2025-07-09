@@ -1,4 +1,5 @@
 'use client';
+import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import HeroImage from "@/components/HeroImage";
 import PoruciPonovo from "@/components/PoruciPonovo";
@@ -17,6 +18,7 @@ export default function Home() {
           <PoruciPonovo />
         </div>
       </main>
+      <Footer />
       </Suspense>
     </>
   );

@@ -15,7 +15,6 @@ const DokumentPage = () => {
  // get metoda sa brojDokumenta
 const PDV = 20;
 
-
   useEffect(() => {
     const dostavaSession = sessionStorage.getItem("dostava");
     if (dostavaSession) setDostava(Number(dostavaSession));
@@ -94,7 +93,7 @@ const PDV = 20;
           }
         ]
       }));
-
+    
       setStavke(artikli);
       console.log("Mapped artikli:", artikli);
       if (!artikli.length) {
@@ -120,8 +119,6 @@ const PDV = 20;
     const cenaBezPDV = cenaPosleRabata;
     const cenaSaPDV = cenaBezPDV * (1 + PDV / 100);
     const vrednost = cenaSaPDV * Number(stavka.kolicina);
-
-    console.log(rabatPartnera);
 
     return { cenaBezPDV, cenaSaPDV, vrednost, rabatPartnera };
   };
