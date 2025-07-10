@@ -7,6 +7,16 @@ module.exports = {
         port: '8443',
         pathname: '/SlikeProizvoda/**',
       },
+      {
+        protocol: 'https',
+        hostname: '**',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '**', // samo ako imaš više lokalnih IP-a (ali ovo nije zvanično podržano!)
+        pathname: '/**',
+      },
     ],
   },
   async headers() {
