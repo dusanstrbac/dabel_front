@@ -39,7 +39,6 @@ export default function AktivacijaNaloga() {
         Token: token,
         Lozinka: lozinka,
       });
-
       setSuccessMessage("Lozinka je uspešno postavljena! Možete se sada prijaviti.");
       setTimeout(() => {
         router.push("/login"); // ili gde god korisnik ide posle aktivacije
