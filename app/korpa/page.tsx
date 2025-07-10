@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import NaruciButton from "@/components/ui/NaruciButton";
 import Image from "next/image";
-import RezervisiButton from "@/components/RezervisiButton";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { toast } from "sonner";
 
@@ -328,7 +327,6 @@ const Korpa = () => {
         </Table>
 
         <div className="flex justify-end gap-4 pt-4">
-          <RezervisiButton ukupnaCena={totalAmountWithPDV} />
           <NaruciButton disabled={narucivanjeDisabled || !validnaKolicina} />
         </div>
       </div>
@@ -408,7 +406,6 @@ const Korpa = () => {
         </div>
         
         <div className="flex gap-2 items-center justify-center pt-4">
-          <RezervisiButton ukupnaCena={totalAmountWithPDV}/>
           <NaruciButton disabled={narucivanjeDisabled} />
         </div>
       </div>

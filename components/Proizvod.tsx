@@ -42,6 +42,8 @@ export default function Proizvod() {
   const [preostalo, setPreostalo] = useState<number>(1);
   const inputRef = useRef<HTMLInputElement>(null);
   const [lajkovano, setLajkovano] = useState(false);
+  const [datumPonovnogStanja, setDatumPonovnogStanja] = useState<string | null>(null);
+
 
   const korisnik = dajKorisnikaIzTokena();
 
@@ -89,6 +91,32 @@ export default function Proizvod() {
       setPrethodnaRuta(ruta);
     }
   }, []);
+
+  useEffect(() => {
+    if (!proizvod) return;
+
+    const fetchDatumPonovnogStanja = async () => {
+      try {
+        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+        const url = `${apiAddress}/api/Artikal/PristizanjeArtikla?idArtikla=${proizvod.idArtikla}`;
+
+        const response = await fetch(url);
+
+        if (response.ok) {
+          const data = await response.json();
+          setDatumPonovnogStanja(data.datumPonovnogStanja || null);
+        } else {
+          setDatumPonovnogStanja(null);
+        }
+      } catch (error) {
+        console.error("Greška prilikom dohvatanja datuma ponovnog stanja:", error);
+        setDatumPonovnogStanja(null);
+      }
+    };
+
+    fetchDatumPonovnogStanja();
+  }, [proizvod]);
+
 
   useEffect(() => {
   if (!proizvod || !korisnik?.idKorisnika) return;
@@ -199,8 +227,14 @@ export default function Proizvod() {
                 <span className="text-red-500">Nije dostupno</span>
               )}
             </span>
-            {Number(proizvod.kolicina) == 0 && (
-              <span className="text-red-500">Proizvod ponovo dostupan od: 12.06.2025</span>
+            {Number(proizvod.kolicina) === 0 && datumPonovnogStanja && (
+              <span className="text-red-500">
+                Proizvod ponovo dostupan od: {new Date(datumPonovnogStanja).toLocaleDateString('sr-RS', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </span>
             )}
             <ul className="text-sm md:text-base space-y-1">
               <li>

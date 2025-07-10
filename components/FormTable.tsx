@@ -15,24 +15,21 @@ import { dajKorisnikaIzTokena } from "@/lib/auth";
 import Pagination from "./ui/pagination";
 import { usePathname, useSearchParams } from "next/navigation"; 
 
-
 interface myProps {
   title: string;
 }
 
 const FormTable = ({ title }: myProps) => {
-  // const korisnik = dajKorisnikaIzTokena();
   const [error, setError] = useState("");
   const [dokumenta, setDokumenta] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortKey, setSortKey] = useState<'datum' | 'cena'>('datum');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortKey, setSortKey] = useState<'datum' | 'cena' | 'status'>('datum');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const pathname = usePathname();
   const prikazNarudzbenica = pathname.includes(`/narudzbenica`);
   const prikazPoslataRoba = pathname.includes(`/roba`);
-
 
   const itemsPerPage = 15;
   const searchParams = useSearchParams();
@@ -42,17 +39,29 @@ const FormTable = ({ title }: myProps) => {
     setKorisnik(dajKorisnikaIzTokena());
   }, []);
 
+  // Prioriteti statusa za sortiranje
+  const statusPriority : any = {
+    "U obradi": 1,
+    "Poslat": 2,
+    // možeš dodati još statusa ako ih ima
+  };
+
   // sortiraj dokumenta po izabranom ključu i redosledu
   const sortiranaDokumenta = [...dokumenta].sort((a, b) => {
     if (sortKey === 'datum') {
       const dateA = new Date(a.datumDokumenta).getTime();
       const dateB = new Date(b.datumDokumenta).getTime();
       return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-    } else {
+    } else if (sortKey === 'cena') {
       const sumaA = a.stavkeDokumenata?.reduce((s: number, st: any) => s + st.ukupnaCena, 0) ?? 0;
       const sumaB = b.stavkeDokumenata?.reduce((s: number, st: any) => s + st.ukupnaCena, 0) ?? 0;
       return sortOrder === 'asc' ? sumaA - sumaB : sumaB - sumaA;
+    } else if (sortKey === 'status') {
+      const priorityA = statusPriority[a.status] ?? 99;
+      const priorityB = statusPriority[b.status] ?? 99;
+      return sortOrder === 'asc' ? priorityA - priorityB : priorityB - priorityA;
     }
+    return 0;
   });
 
   // izdvajamo samo deo podataka za prikaz na trenutnoj stranici
@@ -72,8 +81,6 @@ const FormTable = ({ title }: myProps) => {
     return sum + suma;
   }, 0);
 
-
-
   // učitavanje podataka
   useEffect(() => {
     if (!korisnik) return;
@@ -89,7 +96,6 @@ const FormTable = ({ title }: myProps) => {
           throw new Error("Greška pri učitavanju podataka.");
         }
         const data = await res.json();
-
 
         const dokumentiSaStatusom = data.map((dok: any, index: number) => ({
           ...dok,
@@ -109,21 +115,11 @@ const FormTable = ({ title }: myProps) => {
       }
     };
     izvuciDokumenta();
-  }, [korisnik]);
-
-  //Kreiranje statusa za dokument
-  useEffect(() => {
-    console.log("Dokumenti (statusi):", dokumenta.map((dokument, index) =>
-      dokument.status || (index % 2 === 0 ? "U obradi" : "Poslat")
-    ));
-  }, [dokumenta]);
-
+  }, [korisnik, prikazPoslataRoba]);
 
   if (loading) return <div>Učitavanje podataka...</div>;
   if (error) return <div>Greška: {error}</div>;
   if (!dokumenta.length) return <div>Nema podataka.</div>;
-
-
 
   return (
     <div className="flex flex-col gap-2 lg:gap-4 my-[20px] lg:items-center lg:justify-center">
@@ -134,16 +130,20 @@ const FormTable = ({ title }: myProps) => {
             variant={"outline"}
             className="cursor-pointer"
             onClick={() =>
-              setSortKey((prev) => (prev === 'datum' ? 'cena' : 'datum'))
+              setSortKey((prev) => {
+                if (prev === 'datum') return 'cena';
+                if (prev === 'cena') return 'status';
+                return 'datum';
+              })
             }
           >
-            Sortiraj po: {sortKey === 'datum' ? 'Datumu' : 'Ceni'}
+            Sortiraj po: {sortKey === 'datum' ? 'Datumu' : sortKey === 'cena' ? 'Ceni' : 'Statusu'}
           </Button>
           <Button
             variant={"outline"}
             className="cursor-pointer"
             onClick={() =>
-              setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+              setSortOrder((prev) => (prev === 'desc' ? 'asc' : 'desc'))
             }
           >
             Redosled: {sortOrder === 'asc' ? 'Rastuće' : 'Opadajuće'}
@@ -171,9 +171,7 @@ const FormTable = ({ title }: myProps) => {
                   0
                 ) ?? 0;
 
-                const status = dokument.status;
-
-                // const status = dokument.status || (index % 2 === 0 ? "U obradi" : "Poslat");
+              const status = dokument.status;
 
               return (
                 <TableRow key={index} className="hover:odd:bg-gray-300">
@@ -231,7 +229,6 @@ const FormTable = ({ title }: myProps) => {
               {prikazNarudzbenica && (
                 <TableCell/>
               )}
-              
             </TableRow>
             <TableRow>
               <TableCell className="font-medium">Ukupno:</TableCell>
@@ -239,7 +236,6 @@ const FormTable = ({ title }: myProps) => {
               {prikazNarudzbenica && (
                 <TableCell/>
               )}
-              
               <TableCell className="text-right">{ukupnaSumaSvihDokumenata.toFixed(2)}</TableCell>
               {prikazNarudzbenica && (
                 <TableCell/>

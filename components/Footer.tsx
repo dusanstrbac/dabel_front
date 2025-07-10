@@ -38,14 +38,18 @@ const Footer = () => {
                 <div className="w-[280px]">
                     <h1 className="text-xl font-bold underline underline-offset-4 mb-4">Informacije</h1>
                     <div className="flex flex-col gap-2">
-                        <Link href="#" className="hover:text-gray-600 transition-colors">O nama</Link>
-                        <Link href="#" className="hover:text-gray-600 transition-colors">Uslovi korišćenja</Link>
-                        <Link href="#" className="hover:text-gray-600 transition-colors">Katalozi</Link>
-                        <Link href="#" className="hover:text-gray-600 transition-colors">Posao</Link>
-                        <Link href="#" className="hover:text-gray-600 transition-colors">Kontakt</Link>
+                        <Link href="/page/oNama" className="hover:text-gray-600 transition-colors">O nama</Link>
+                        <Link href="/page/usloviKoriscenja" className="hover:text-gray-600 transition-colors">Uslovi korišćenja</Link>
+                        <Link href="/page/Katalozi" className="hover:text-gray-600 transition-colors">Katalozi</Link>
+                        <Link href="/page/Posao" className="hover:text-gray-600 transition-colors">Posao</Link>
+                        <Link href="/page/Kontakt" className="hover:text-gray-600 transition-colors">Kontakt</Link>
                     </div>
                 </div>
+            </div>
 
+            {/* Copyright section */}
+            <div className="max-w-7xl mx-auto mt-6 pt-4 border-t text-center text-sm text-gray-500">
+                © {new Date().getFullYear()} Dabel d.o.o. Sva prava zadržana.
             </div>
         </footer>
     );

@@ -53,6 +53,8 @@ export default function ProizvodiPage() {
       queryParams.append('PodKategorija', podkategorija);
     }
 
+    console.log(kategorija);
+    console.log(podkategorija);
     // Dodajemo sortKey i sortOrder u query parametre
     queryParams.append('sortKey', sortKey);
     queryParams.append('sortOrder', sortOrder);
