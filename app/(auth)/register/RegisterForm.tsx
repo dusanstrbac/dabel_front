@@ -37,6 +37,7 @@ export default function PosaljiLinkZaAktivacijuForm() {
         Email: values.email,
         JMBG: values.jmbg,
       });
+      console.log(response);
 
       if (response.data?.poruka) {
         setSuccess(response.data.poruka);

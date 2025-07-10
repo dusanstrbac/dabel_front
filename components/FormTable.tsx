@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import Pagination from "./ui/pagination";
 import { usePathname, useSearchParams } from "next/navigation"; 
+import { toast } from "sonner";
 
 interface myProps {
   title: string;
@@ -207,6 +208,7 @@ const FormTable = ({ title }: myProps) => {
                           className="text-blue-500 font-bold hover:underline justify-end"
                           onClick={(e) => {
                             e.preventDefault();
+                            toast.info("Narudžbenica je uspešno opozvana.");
                           }}
                         >
                           Opoziv
