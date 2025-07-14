@@ -48,7 +48,7 @@ export const ComboboxAdrese: React.FC<Props> = ({
         <Button
           variant="outline"
           role="combobox"
-          className="w-full max-w-[280px] sm:max-w-[570px] truncate justify-between"
+          className="w-full max-w-[220px] sm:max-w-[570px] truncate justify-between"
         >
           {selected
             ? `${selected.adresa}, ${selected.postBroj} ${selected.grad}`

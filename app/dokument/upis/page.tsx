@@ -1,162 +1,57 @@
     'use client';
 
-    import { useMemo, useRef } from "react";
-    import { KeyboardEvent, RefObject } from "react";
     import { useEffect, useState } from "react";
-    import { dajKorisnikaIzTokena } from "@/lib/auth";
     import KreirajNarudzbenicu from "@/components/ui/KreirajNarudzbenicu";
-    import { ArtikalType } from "@/types/artikal";
+    import { AritkalKorpaType  } from "@/types/artikal";
     import { ComboboxAdrese } from "@/components/ui/ComboboxAdrese";
     import { Input } from "@/components/ui/input";
     import { LocationEdit } from "lucide-react";
 
 
     const DokumentUpis = () => {
-        const [artikli, setArtikli] = useState<ArtikalType[]>([]);
-        const [isClient, setIsClient] = useState(false);
+        const [artikli, setArtikli] = useState<AritkalKorpaType[]>([]);
         const [partner, setPartner] = useState<KorisnikPodaciType>();
+        const [minCena, setMinCena] = useState<number>(0);
 
         const imageUrl = '/images';
 
         const [mestoIsporuke, setMestoIsporuke] = useState("");
         const [napomena, setNapomena] = useState("");
-
-        const [cart, setCart] = useState<Record<string, { kolicina: number }>>({});
-
         const [ukupnaCenaSaPDV, setUkupnaCenaSaPDV] = useState<number>(0);
 
-        // const proveriPolja = () => {
-        //     const novaGreske: { [key: string]: string } = {};
+        useEffect(() => {
+            const local = localStorage.getItem("WEBParametrizacija");
+            if (local) {
+            const parsed = JSON.parse(local);
+            const parsedMinCena = parsed.find((p: any) => p.naziv === "MinCenaZaBesplatnuDostavu")?.vrednost;
+            
+            if (parsedMinCena) {
+                const minCena = parseFloat(parsedMinCena);
+                if(!isNaN(minCena)) {
+                setMinCena(minCena);
+                }        
+            }
+            }
+        }, []);
 
-        //     if (!email.trim()) novaGreske.email = "Niste uneli e-mail";
-        //     if (!telefon.trim()) novaGreske.telefon = "Niste uneli Telefon";
-        //     if (!grad.trim()) novaGreske.grad = "Niste uneli Grad";
-        //     if (!imeiPrezime.trim()) novaGreske.imeiPrezime = "Niste uneli Ime i Prezime";
-        //     if (!mestoIsporuke.trim()) novaGreske.mestoIsporuke = "Niste uneli Adresu"; //adresa
+        const dostava = 1000;
 
-        //     return Object.keys(novaGreske).length === 0;
-        // };
-
-        // const ukupnaCenaArtikala = useMemo(() => {
-        //     return artikli.reduce((suma, artikal) => {
-        //         const cena = artikal.artikalCene[0].akcija.cena && artikal.artikalCene[0].akcija.cena > 0
-        //             ? artikal.artikalCene[0].akcija.cena
-        //             : artikal.artikalCene[0].cena;
-        //         return suma + (cena * (cart[artikal.idArtikla]?.kolicina || 1));
-        //     }, 0);
-        // }, [artikli]);
-
-        const dostava = ukupnaCenaSaPDV >= 10000 ? 0 : 1000;
-        const ukupnoSaDostavom = ukupnaCenaSaPDV + dostava;
-
+        const pravaDostava = ukupnaCenaSaPDV >= minCena ? 0 : dostava;
+        const ukupnoSaDostavom = ukupnaCenaSaPDV + pravaDostava;
 
         
 
-        const loadCart = () => {
-            const storedCart = localStorage.getItem("cart");
-            const parsedCart = storedCart ? JSON.parse(storedCart) : {};
-            setCart(parsedCart);
-        };
+    useEffect(() => {
 
-        useEffect(() => {
-            setIsClient(true);
+        const korpaPodaciString = sessionStorage.getItem("korpaPodaci");
+        if (!korpaPodaciString) return;
 
-            const storedCart = localStorage.getItem("cart");
-            const parsedCart = storedCart ? JSON.parse(storedCart) : {};
-            setCart(parsedCart);
+        const korpaPodaci = JSON.parse(korpaPodaciString);
+        setPartner(korpaPodaci.partner);
+        setArtikli(korpaPodaci.artikli);
+        setUkupnaCenaSaPDV(korpaPodaci.ukupnaCenaSaPDV);
 
-            const ukupnaCenaSaPDV = sessionStorage.getItem("ukupnaCenaSaPDV");
-            if (ukupnaCenaSaPDV){
-                setUkupnaCenaSaPDV(Number(ukupnaCenaSaPDV));
-            }
-
-            const korisnik = dajKorisnikaIzTokena();
-            const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-
-            if (!korisnik) {
-                console.warn("Nema korisnika iz tokena.");
-                return;
-            }
-
-            const fetchPartner = async () => {
-                try {
-                    const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${korisnik.email}`);
-                    const data = await res.json();
-                    setPartner(data[0]);
-                } catch (err) {
-                    console.error("Greška pri fetchovanju partnera:", err);
-                }
-            };
-
-
-            fetchPartner();
-        }, []);
-
-
-        useEffect(() => {
-            if (!partner) return;
-
-            const storedCart = localStorage.getItem("cart");
-            const parsedCart = storedCart ? JSON.parse(storedCart) : {};
-            const storedIds = Object.keys(parsedCart);
-            const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-
-            const rabatVrednost = partner?.partnerRabat?.rabat ?? 0;
-            const rabatKoeficijent = 1 - rabatVrednost / 100;
-
-            const fetchArtikli = async () => {
-                if (storedIds.length === 0) return;
-
-                const queryString = storedIds.map(id => `ids=${id}`).join("&");
-                const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
-
-                try {
-                    const response = await fetch(url);
-                    const data = await response.json();
-
-                    const transformed = data.map((artikal: ArtikalType) => {
-                        const osnovnaCena = artikal.artikalCene[0].akcija.cena > 0
-                            ? artikal.artikalCene[0].akcija.cena
-                            : artikal.artikalCene[0].cena;
-
-                        const kolicina = parsedCart[artikal.idArtikla]?.kolicina || 1;
-                        const pravaCena = osnovnaCena * 1.2 * rabatKoeficijent * kolicina;
-
-                        return {
-                            ...artikal,
-                            id: artikal.idArtikla,
-                            naziv: artikal.naziv,
-                            cena: osnovnaCena,
-                            originalnaCena: artikal.artikalCene[0].cena,
-                            kolicina,
-                            osnovnaCena,
-                            pravaCena,
-                        };
-                    });
-
-                    setArtikli(transformed);
-
-                    const pravaCenaMap: Record<string, number> = {};
-                    data.forEach((artikal: ArtikalType) => {
-                        const osnovnaCena = artikal.artikalCene[0].akcija.cena > 0
-                            ? artikal.artikalCene[0].akcija.cena
-                            : artikal.artikalCene[0].cena;
-
-                        const kolicina = parsedCart[artikal.idArtikla]?.kolicina || 1;
-                        const pravaCena = osnovnaCena * 1.2 * rabatKoeficijent * kolicina;
-                        pravaCenaMap[artikal.idArtikla] = pravaCena;
-                    });
-
-                    sessionStorage.setItem("cene-sa-pdv", JSON.stringify(pravaCenaMap));
-                } catch (err) {
-                    console.error("Greška pri učitavanju artikala:", err);
-                }
-            };
-
-            fetchArtikli();
-        }, [partner]);
-
-
+    }, []);
 
     useEffect(() => {
         if (ukupnaCenaSaPDV === 0) return;
@@ -167,14 +62,6 @@
 
 
 
-
-        //ne znam gde ovo da ubacim, pomagaj
-
-
-    
-
-
-    if (!isClient) return null;
     return (
         <div className="flex flex-col gap-5 p-4 min-w-[320px]">
             <div className="flex flex-col gap-5">
@@ -187,17 +74,15 @@
                             {/* KOMERCIJALISTA */}
                         <div className="flex flex-col items-center">
                             <div className="flex justify-center items-center gap-2 w-full">
-                                <LocationEdit className=""/>
+                                <LocationEdit className="w-6 h-6 shrink-0"/>
+                                {/* ovaj LocationEdit, samo kada se dovoljno smanji ekran samo nestane, zasto je to tako?? */}
                                 <ComboboxAdrese
                                     dostavaList={partner?.partnerDostava ?? []}
                                     onSelectOption={(adresa) => {
-                                        console.log("Izabrana adresa:", adresa);
                                         setMestoIsporuke(adresa.adresa);
                                     }}
                                 />
-                                {/* {mestoIsporuke.trim() === "" && (
-                                    <p className="text-sm text-red-500 mt-1">Molimo izaberite adresu isporuke.</p>
-                                )} */}
+                                
                             </div>
 
                             <div className="flex flex-col md:col-span-2 w-full max-w-[600px] mt-5">
@@ -245,13 +130,6 @@
                         <div className="flex flex-col max-h-[550px] overflow-y-auto pr-2 gap-5 ">
                         {artikli.map((artikal) => {
                             const fotografijaProizvoda = `${imageUrl}/s${artikal.idArtikla}.jpg`;
-                            // const osnovnaCena = artikal.artikalCene[0].akcija.cena > 0
-                            //                                                     ? artikal.artikalCene[0].akcija.cena
-                            //                                                     : artikal.artikalCene[0].cena;
-                            // const kolicina = cart[artikal.idArtikla].kolicina || 1;
-                            // const pravaCena = osnovnaCena * 1.2 * rabat * kolicina;
-
-                            
                             return (
                                 <div
                                     key={artikal.idArtikla}
@@ -265,25 +143,25 @@
                                     <div className="flex flex-col lg:flex-col w-full">
                                             <p className="flex font-semibold text-lg">{artikal.naziv}</p>
                                             {/* <p className="text-red-500 text-xl whitespace-nowrap md:hidden lg:hidden block">{(artikal.pravaCena).toLocaleString("sr-RS")} RSD</p> */}
-                                            {artikal.pravaCena !== undefined && (
+                                            {artikal.IznosSaPDV !== undefined && (
                                                 <p className="text-red-500 text-xl whitespace-nowrap md:hidden lg:hidden block">
-                                                    {artikal.pravaCena.toLocaleString("sr-RS")} RSD
+                                                    {artikal.IznosSaPDV.toLocaleString("sr-RS")} RSD
                                                 </p>
                                             )}
 
                                         <div className="flex flex-col lg:flex-row gap-1 justify-between text-gray-400 max-w-[400px] text-sm">
                                             <p>Šifra: {artikal.idArtikla}</p>
                                             <p>Količina: {artikal.kolicina}</p> 
-                                            {artikal.osnovnaCena !== undefined && (
-                                                <p>Cena: {artikal.osnovnaCena.toLocaleString("sr-RS")} RSD</p>
+                                            {artikal.koriscenaCena !== undefined && (
+                                                <p>Cena: {artikal.koriscenaCena.toLocaleString("sr-RS")} RSD</p>
                                             )}
                                             
                                             <p>PDV: 20%</p>
                                             {/* <p>Pakovanje: {artikal.pakovanje}</p> */}
                                         </div>
                                     </div>
-                                    {artikal.pravaCena !== undefined && ( 
-                                        <p className="text-red-500 text-xl whitespace-nowrap hidden md:block lg:block">{(artikal.pravaCena).toLocaleString("sr-RS")} RSD</p>
+                                    {artikal.IznosSaPDV !== undefined && ( 
+                                        <p className="text-red-500 text-xl whitespace-nowrap hidden md:block lg:block">{(artikal.IznosSaPDV).toLocaleString("sr-RS")} RSD</p>
                                     )}
                                 </div>
                             );
@@ -292,14 +170,13 @@
                     )}
                     <div className="flex flex-col w-full min-h-[40px] items-end p-2">
                         <div className="max-w-[400px] w-full">
-
                             <div className="flex items-center justify-between">
-                                <p className="font-medium">{dostava > 0
+                                <p className="font-medium">{pravaDostava > 0
                                                             ? `Ukupno`
                                                             : ""}
                                 </p>
                                 <p className="text-gray-500">
-                                    {dostava > 0
+                                    {pravaDostava > 0
                                         ? `${ukupnaCenaSaPDV.toLocaleString("sr-RS")} RSD`
                                         : ""}
                                 </p>
@@ -308,8 +185,8 @@
                             <div className="flex items-center justify-between text-base">
                                 <p className="font-medium">Dostava:</p>
                                 <p className="text-right text-gray-500">
-                                    {dostava > 0
-                                                ? `${dostava.toLocaleString("sr-RS")} RSD`
+                                    {pravaDostava > 0
+                                                ? `${pravaDostava.toLocaleString("sr-RS")} RSD`
                                                 : "Besplatna dostava"}
                                 </p>
                             </div>

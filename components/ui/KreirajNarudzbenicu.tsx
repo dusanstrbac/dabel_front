@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { ArtikalType } from "@/types/artikal";
+import { AritkalKorpaType } from "@/types/artikal";
 import { cn } from "@/lib/utils";
 
 interface KreirajNarudzbenicuProps {
-  artikli: ArtikalType[];
+  artikli: AritkalKorpaType[];
   partner: KorisnikPodaciType;
   mestoIsporuke: string;
   napomena: string;
@@ -22,7 +22,7 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
         // Datum važenja +7 dana
         const datumVazenja = new Date();
         datumVazenja.setDate(datumVazenja.getDate() + 7);
-        const ceneSaPDV = JSON.parse(sessionStorage.getItem("cene-sa-pdv") || "{}");
+        const ceneSaPDV = JSON.parse(sessionStorage.getItem("cene-session-storage") || "{}");
 
         const payload = {
             tip: "narudzbenica",
@@ -35,15 +35,11 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
             stavkeDokumenata: artikli.map((value) => ({
                 idArtikla: value.idArtikla.toString() || "",
                 nazivArtikla: value.naziv || "",
-                cena: ceneSaPDV[value.idArtikla] 
-                                                ? ceneSaPDV[value.idArtikla] / Number(value.kolicina || 1)
-                                                : value.artikalCene[0].cena || 0,
-                originalnaCena: value.artikalCene[0].cena || 0,
+                cena: value.koriscenaCena,
+                originalnaCena: value.originalnaCena,
                 kolicina: value.kolicina.toString() || "0",
-                // pdv: value.pdv.toString() || "20", -- PRoveriti da li pdv je isti za sve 
-                ukupnaCena: ceneSaPDV[value.idArtikla]
-                                                    ? Number(ceneSaPDV[value.idArtikla].toFixed(2))
-                                                    : Number((Number(value.kolicina) * value.artikalCene[0].cena).toFixed(2))
+                pdv: value.pdv.toString() || "20",
+                ukupnaCena: value.IznosSaPDV,
             })),
         };
 
@@ -64,8 +60,21 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
                 return;
             }
 
+
+            const kanal = new BroadcastChannel("dokument-kanal");
+            kanal.onmessage = (event) => {
+                if (event.data === "dokument_je_ucitan") {
+                    sessionStorage.removeItem("korpaPodaci");
+                    sessionStorage.removeItem("dostava");
+                    sessionStorage.removeItem("ukupnoSaDostavom");
+                    localStorage.removeItem("cart");
+                    kanal.close();
+                    router.push("/");
+                }
+            };
+
             window.open("/dokument", "_blank"); 
-            router.push("/"); 
+            router.push("/");
 
             } catch (err) {
                 console.error("❌ Greška pri slanju POST zahteva:", err);
