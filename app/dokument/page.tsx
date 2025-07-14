@@ -30,7 +30,6 @@ const DokumentPage = () => {
     if (!isNaN(parsed)) setDostava(parsed);
   }, []);
 
-
   useEffect(() => {
     
     const local = localStorage.getItem("WEBParametrizacija");
@@ -47,61 +46,52 @@ const DokumentPage = () => {
     }
   }, []);
 
-  
+
   useEffect(() => {
-  const korisnik = dajKorisnikaIzTokena();
-
-  const izvuciCeoDokument = async () => {
     try {
-      const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-      const idKorisnika = korisnik?.idKorisnika;
-      
-      const resDoc = await fetch(
-        `${apiAddress}/api/Dokument/DajDokumentPoBroju?idPartnera=${idKorisnika}`
-      );
-      if (!resDoc.ok) throw new Error("Greška pri učitavanju podataka.");
-      
-      const data = await resDoc.json();
-      const dokument: DokumentInfo = data.dokument;
-
-      setDOCC(dokument);
-      console.log(dokument);
-
-      if (!dokument) {
-        console.error("Dokument nije pronađen u odgovoru.");
-        return;
-      }
-      
       const korpaPodaciString = sessionStorage.getItem("korpaPodaci");
-      if (!korpaPodaciString) return;
+      const docInfoString = sessionStorage.getItem("dokInfo");
+      const dostavaString = sessionStorage.getItem("dostava");
+
+      if (!korpaPodaciString || !docInfoString) return;
+
       const korpaPodaci = JSON.parse(korpaPodaciString);
+      const docInfo = JSON.parse(docInfoString);
+      const dostavaValue = dostavaString ? parseFloat(dostavaString) : 0;
 
-      setPartnerInfo(korpaPodaci.partner);
+      const partner = korpaPodaci.partner;
+      const artikli: AritkalKorpaType[] = korpaPodaci.artikli.map((stavka: AritkalKorpaType) => ({
+        ...stavka,
+        rabat: partner?.partnerRabat?.rabat ?? 0,
+      }));
 
-    } catch (err: any) {
-      console.error("Greška pri fetchovanju dokumenta:", err);
+      const dokument: DokumentInfo = {
+        brojDokumenta: docInfo.brojDokumenta,
+        datumDokumenta: docInfo.datumDokumenta,
+        lokacija: docInfo.lokacija,
+        napomena: docInfo.napomena,
+        partner: partner,
+        tip: "narudzbenica",
+        idPartnera: "",
+        idKomercijaliste: "",
+        datumVazenja: docInfo.datumDokumenta + 7, // sta da stavim ovde, da li mo
+        status: 0,
+        stavkeDokumenata: [],
+      };
+
+      setPartnerInfo(partner);
+      setStavke(artikli);
+      setDOCC(dokument);
+      setDostava(dostavaValue);
+
+      console.log("✅ Učitano sve iz sessionStorage");
+
+    } catch (error) {
+      console.error("❌ Greška pri učitavanju podataka iz sessionStorage:", error);
     }
-  };
+  }, []);
 
-  izvuciCeoDokument();
-}, []);
-
-
-useEffect(() => {
-  const korpaPodaciString = sessionStorage.getItem("korpaPodaci");
-  if (!korpaPodaciString || !partnerInfo) return;
-
-  const korpaPodaci = JSON.parse(korpaPodaciString);
-
-  const artikliSaRabatima: AritkalKorpaType[] = korpaPodaci.artikli.map((stavka: AritkalKorpaType) => ({
-    ...stavka,
-    jm: stavka.jm,
-    rabat: partnerInfo?.partnerRabat?.rabat ?? 0,
-  }));
-
-  setStavke(artikliSaRabatima);
-}, [partnerInfo]);
-
+  
 
 
   useEffect(() => {

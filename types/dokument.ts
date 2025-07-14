@@ -9,6 +9,7 @@ export type DokumentInfo = {
   datumVazenja: Date,
   lokacija: string,
   napomena: string,
+  status: number,
   stavkeDokumenata: StavkaDokumenta[];
 }
 

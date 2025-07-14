@@ -3,6 +3,8 @@ import { useRouter } from "next/navigation";
 import { AritkalKorpaType } from "@/types/artikal";
 import { cn } from "@/lib/utils";
 import { DokumentInfo } from "@/types/dokument";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { useEffect } from "react";
 
 interface KreirajNarudzbenicuProps {
   artikli: AritkalKorpaType[];
@@ -15,6 +17,20 @@ interface KreirajNarudzbenicuProps {
 
 const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabled }: KreirajNarudzbenicuProps) => {
     const router = useRouter();
+
+
+    // useEffect(() => {
+    //     const korisnik = dajKorisnikaIzTokena();
+
+    //     if (korisnik?.finKarta) {
+    //         const { nerealizovano } = korisnik.finKarta;
+    //         if (nerealizovano > 0) {
+    //             setKorisnikUdugu(true);
+    //             toast.error("Ne možete kreirati narudžbenicu, jer imate neplaćene fakture.");
+    //         }
+    //     }
+    // }, []);
+
 
     const handleClick = async () => {
 
