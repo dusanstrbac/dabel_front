@@ -2,9 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ArtikalType } from "@/types/artikal";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
-import { dajKorisnikaIzTokena } from "@/lib/auth";
-import { toast } from "sonner";
+import { useState } from "react";
 
 interface KreirajNarudzbenicuProps {
   artikli: ArtikalType[];

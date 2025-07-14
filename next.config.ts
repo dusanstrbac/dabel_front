@@ -1,4 +1,5 @@
-module.exports = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     remotePatterns: [
       {
@@ -14,11 +15,21 @@ module.exports = {
       },
       {
         protocol: 'http',
-        hostname: '**', // samo ako imaš više lokalnih IP-a (ali ovo nije zvanično podržano!)
+        hostname: '**', // samo ako imaš više lokalnih IP-a (nije zvanično podržano)
         pathname: '/**',
       },
     ],
   },
+
+  webpack(config: { module: { rules: { test: RegExp; use: { loader: string; }; }[]; }; }) {
+    // Dodaj worker-loader za pdf.worker.js
+    config.module.rules.push({
+      test: /pdf\.worker\.js$/,
+      use: { loader: 'worker-loader' },
+    });
+    return config;
+  },
+
   async headers() {
     return [
       {
@@ -37,3 +48,5 @@ module.exports = {
     ];
   },
 };
+
+module.exports = nextConfig;
