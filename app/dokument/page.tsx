@@ -77,18 +77,6 @@ const DokumentPage = () => {
       const korpaPodaci = JSON.parse(korpaPodaciString);
 
       setPartnerInfo(korpaPodaci.partner);
-      // setStavke((korpaPodaci.artikli).map((stavka: AritkalKorpaType) => ({
-      //     idArtikla: stavka.idArtikla,
-      //     naziv: stavka.naziv,
-      //     kolicina: stavka.kolicina,
-      //     originalnaCena: stavka.originalnaCena,
-      //     koriscenaCena: stavka.koriscenaCena,
-      //     IznosSaPDV: stavka.IznosSaPDV,
-      //     pdv: stavka.pdv,
-      //     jm: korpaPodaci.artikli[0].jm,
-      //     rabat: partnerInfo?.partnerRabat?.rabat,
-      //   }))
-      // );
 
     } catch (err: any) {
       console.error("Greška pri fetchovanju dokumenta:", err);
@@ -99,20 +87,20 @@ const DokumentPage = () => {
 }, []);
 
 
-  useEffect(() => {
-    const korpaPodaciString = sessionStorage.getItem("korpaPodaci");
-    if (!korpaPodaciString || !partnerInfo) return;
+useEffect(() => {
+  const korpaPodaciString = sessionStorage.getItem("korpaPodaci");
+  if (!korpaPodaciString || !partnerInfo) return;
 
-    const korpaPodaci = JSON.parse(korpaPodaciString);
+  const korpaPodaci = JSON.parse(korpaPodaciString);
 
-    const artikliSaRabatima: AritkalKorpaType[] = korpaPodaci.artikli.map((stavka: AritkalKorpaType) => ({
-      ...stavka,
-      jm: stavka.jm, // fallback
-      rabat: partnerInfo?.partnerRabat?.rabat ?? 0,
-    }));
+  const artikliSaRabatima: AritkalKorpaType[] = korpaPodaci.artikli.map((stavka: AritkalKorpaType) => ({
+    ...stavka,
+    jm: stavka.jm,
+    rabat: partnerInfo?.partnerRabat?.rabat ?? 0,
+  }));
 
-    setStavke(artikliSaRabatima);
-  }, [partnerInfo]);
+  setStavke(artikliSaRabatima);
+}, [partnerInfo]);
 
 
 

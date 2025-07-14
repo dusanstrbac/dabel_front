@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { AritkalKorpaType } from "@/types/artikal";
 import { cn } from "@/lib/utils";
+import { DokumentInfo } from "@/types/dokument";
 
 interface KreirajNarudzbenicuProps {
   artikli: AritkalKorpaType[];
@@ -17,12 +18,11 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
 
     const handleClick = async () => {
 
-        const now = new Date().toISOString();
 
+        const now = new Date().toISOString();
         // Datum važenja +7 dana
         const datumVazenja = new Date();
         datumVazenja.setDate(datumVazenja.getDate() + 7);
-        const ceneSaPDV = JSON.parse(sessionStorage.getItem("cene-session-storage") || "{}");
 
         const payload = {
             tip: "narudzbenica",
@@ -30,7 +30,7 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
             idKomercijaliste: partner.komercijalisti.id,
             datumDokumenta: now,
             datumVazenja: datumVazenja.toISOString(),
-            lokacija: mestoIsporuke,
+            lokacija: mestoIsporuke, 
             napomena: napomena,
             stavkeDokumenata: artikli.map((value) => ({
                 idArtikla: value.idArtikla.toString() || "",
@@ -43,42 +43,70 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
             })),
         };
 
-        console.log("Saljem dokument:", JSON.stringify(payload, null, 2));
-
         try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Dokument/UpisiDokument`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                
-            },
+                },
                 body: JSON.stringify(payload),
             });
+
 
             if (!res.ok) {
                 console.error("❌ Neuspešan POST:", res.status);
                 return;
             }
 
+            if (res.ok) {
+                // Nakon uspešnog upisa dokumenta, fetchuj najnoviji dokument
+                const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+                const idKorisnika = partner.idPartnera;
 
+                try {
+                    const resDoc = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?idPartnera=${idKorisnika}`);
+                    if (!resDoc.ok) throw new Error("❌ Greška pri učitavanju dokumenta posle POST-a.");
+
+                    const docData = await resDoc.json();
+                    const dokument: DokumentInfo = docData.dokument;
+
+                    console.log("📥 Dobijen dokument iz GET rute:", dokument);
+
+                    sessionStorage.setItem("dokInfo", JSON.stringify({
+                        brojDokumenta: dokument.brojDokumenta,
+                        datumDokumenta: dokument.datumDokumenta,
+                        lokacija: dokument.lokacija,
+                        napomena: dokument.napomena,
+                    }));
+
+                } catch (err) {
+                    console.error("❌ Greška pri fetchovanju dokumenta:", err);
+                }
+            }
+
+            window.open("/dokument", "_blank");
+            
+
+            // ZA BRISANJE IZ SESSION STORAGE NAKON POSTAVLJENE NARUDzBENICE
             const kanal = new BroadcastChannel("dokument-kanal");
             kanal.onmessage = (event) => {
                 if (event.data === "dokument_je_ucitan") {
                     sessionStorage.removeItem("korpaPodaci");
+                    sessionStorage.removeItem("dokInfo");
                     sessionStorage.removeItem("dostava");
                     sessionStorage.removeItem("ukupnoSaDostavom");
                     localStorage.removeItem("cart");
+
                     kanal.close();
                     router.push("/");
                 }
             };
 
-            window.open("/dokument", "_blank"); 
-            router.push("/");
-
             } catch (err) {
                 console.error("❌ Greška pri slanju POST zahteva:", err);
             }
+
+
         };
 
     return(
