@@ -1,126 +1,113 @@
 'use client';
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ArtikalType } from "@/types/artikal";
+import { AritkalKorpaType } from "@/types/artikal";
 import { DokumentInfo } from "@/types/dokument";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 
 const DokumentPage = () => {
-  const [stavke, setStavke] = useState<ArtikalType[]>([]);
-  const [partnerInfo, setPartnerInfo] = useState<DokumentInfo>();
-  const [rabatPartnera, setRabatPartnera] = useState<number>(0);
-  const [dostava, setDostava] = useState<number>(0);
+  const [stavke, setStavke] = useState<AritkalKorpaType[]>([]);
+  const [partnerInfo, setPartnerInfo] = useState<KorisnikPodaciType>();
+  const [minCena, setMinCena] = useState<number>(0);
   const [ukupnoSaDostavom, setUkupnoSaDostavom] = useState<number>(0);
- // get metoda sa brojDokumenta
-const PDV = 20;
+  const [dostava, setDostava] = useState(0);
+  const [docc, setDOCC] = useState<DokumentInfo>();
+
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     const value = sessionStorage.getItem("dostava");
+  //     const parsed = value !== null ? parseFloat(value) : NaN;
+  //     if (!isNaN(parsed)) setDostava(parsed);
+  //   }
+  // }, []);
 
   useEffect(() => {
-    const dostavaSession = sessionStorage.getItem("dostava");
-    if (dostavaSession) setDostava(Number(dostavaSession));
-    localStorage.removeItem("cart");
-
-    sessionStorage.removeItem("dostava");
-    sessionStorage.removeItem("cene-sa-pdv");
+    const value = sessionStorage.getItem("dostava");
+    const parsed = value !== null ? parseFloat(value) : NaN;
+    if (!isNaN(parsed)) setDostava(parsed);
   }, []);
 
-
-  //metoda za broj dokumenta
   useEffect(() => {
-  const korisnik = dajKorisnikaIzTokena();
-
-  const izvuciCeoDokument = async () => {
-    try {
-      const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-      const idKorisnika = korisnik?.idKorisnika;
-      
-      const resDoc = await fetch(
-        `${apiAddress}/api/Dokument/DajDokumentPoBroju?idPartnera=${idKorisnika}`
-      );
-
-      if (!resDoc.ok) throw new Error("Greška pri učitavanju podataka.");
-      
-
-      const data = await resDoc.json();
-      const dokument: DokumentInfo = data.dokument;
-
-      if (!dokument) {
-        console.error("Dokument nije pronađen u odgovoru.");
-        return;
-      }
-
-      const resPartner = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${korisnik?.email}`);
-      if (!resPartner.ok) throw new Error("Greška pri učitavanju partnera.");
-
-      const partnerNiz = await resPartner.json();
-      const partner: KorisnikPodaciType = partnerNiz[0];
-      dokument.partner = partner;
-
-
-      if (!partner || !partner.komercijalisti) {
-        console.error("Partner ili njegovi podaci nisu validni.");
-        return;
-      }
-
-      setRabatPartnera(partner?.partnerRabat?.rabat ?? 0);
-      setPartnerInfo(dokument);
-
-      const artikli: ArtikalType[] = (dokument.stavkeDokumenata ?? []).map((stavka: any) => ({
-        idArtikla: stavka.idArtikla,
-        naziv: stavka.nazivArtikla,
-        kolicina: stavka.kolicina,
-        jm: "kom",
-        kategorijaId: "",
-        barkod: "",
-        artikalAtributi: [],
-        artikalCene: [
-          {
-            id: "", // Možeš staviti fiksnu vrednost ako ne postoji u fetch-u
-            idCenovnika: "",
-            valutaISO: "RSD",
-            idArtikla: stavka.idArtikla,
-            cena: stavka.cena,
-            akcija: {
-              idArtikla: stavka.idArtikla,
-              cena: stavka.originalnaCena ?? 0,
-              datumOd: "", // ako nemaš, stavi ""
-              datumDo: "",
-              tipAkcije: "",
-              kolicina: 0,
-              naziv: "",
-              staraCena: stavka.originalnaCena?.toString() ?? "0"
-            }
-          }
-        ]
-      }));
     
-      setStavke(artikli);
-      console.log("Mapped artikli:", artikli);
-      if (!artikli.length) {
-        console.warn("Nema artikala nakon mapiranja!", dokument.stavkeDokumenata);
+    const local = localStorage.getItem("WEBParametrizacija");
+    if (local) {
+      const parsed = JSON.parse(local);
+      const parsedMinCena = parsed.find((p: any) => p.naziv === "MinCenaZaBesplatnuDostavu")?.vrednost;
+      
+      if (parsedMinCena) {
+        const minCena = parseFloat(parsedMinCena);
+        if(!isNaN(minCena)) {
+          setMinCena(minCena);
+        }        
       }
-
-    } catch (err: any) {
-      console.error("Greška pri fetchovanju dokumenta:", err);
     }
-  };
+  }, []);
 
-  izvuciCeoDokument();
-}, []);
+  useEffect(() => {
+    try {
+      const korpaPodaciString = sessionStorage.getItem("korpaPodaci");
+      const docInfoString = sessionStorage.getItem("dokInfo");
+      const dostavaString = sessionStorage.getItem("dostava");
+
+      if (!korpaPodaciString || !docInfoString) return;
+
+      const korpaPodaci = JSON.parse(korpaPodaciString);
+      const docInfo = JSON.parse(docInfoString);
+      const dostavaValue = dostavaString ? parseFloat(dostavaString) : 0;
+
+      const partner = korpaPodaci.partner;
+      const artikli: AritkalKorpaType[] = korpaPodaci.artikli.map((stavka: AritkalKorpaType) => ({
+        ...stavka,
+        rabat: partner?.partnerRabat?.rabat ?? 0,
+      }));
+
+      const dokument: DokumentInfo = {
+        brojDokumenta: docInfo.brojDokumenta,
+        datumDokumenta: docInfo.datumDokumenta,
+        lokacija: docInfo.lokacija,
+        napomena: docInfo.napomena,
+        partner: partner,
+        tip: "narudzbenica",
+        idPartnera: "",
+        idKomercijaliste: "",
+        datumVazenja: docInfo.datumDokumenta + 7, // sta da stavim ovde, da li mo
+        status: 0,
+        stavkeDokumenata: [],
+      };
+
+      setPartnerInfo(partner);
+      setStavke(artikli);
+      setDOCC(dokument);
+      setDostava(dostavaValue);
+
+      console.log("✅ Učitano sve iz sessionStorage");
+
+    } catch (error) {
+      console.error("❌ Greška pri učitavanju podataka iz sessionStorage:", error);
+    }
+  }, []);
+
+  
 
 
+  useEffect(() => {
+    const kanal = new BroadcastChannel("dokument-kanal");
+    kanal.postMessage("dokument_je_ucitan");
+    return () => kanal.close();
+  }, []);
 
 
   const handlePrint = () => window.print();
 
-  const izracunajStavku = (stavka: ArtikalType) => {
-    const artikalCena = stavka.artikalCene[0].akcija.cena > 0 ? stavka.artikalCene[0].akcija.cena : stavka.artikalCene[0].cena;
-    const cenaPosleRabata = artikalCena * (1 - rabatPartnera / 100);
+  const izracunajStavku = (stavka: AritkalKorpaType) => {
+    const artikalCena = stavka.koriscenaCena > 0 ? stavka.koriscenaCena : stavka.originalnaCena;
+    const cenaPosleRabata = artikalCena * (1 - stavka.rabat / 100);
     const cenaBezPDV = cenaPosleRabata;
-    const cenaSaPDV = cenaBezPDV * (1 + PDV / 100);
+    const cenaSaPDV = cenaBezPDV * (1 + stavka.pdv / 100);
     const vrednost = cenaSaPDV * Number(stavka.kolicina);
 
-    return { cenaBezPDV, cenaSaPDV, vrednost, rabatPartnera };
+    return { cenaBezPDV, cenaSaPDV, vrednost };
   };
 
   const ukupno = stavke.reduce(
@@ -134,12 +121,16 @@ const PDV = 20;
   );
 
   useEffect(() => {
-    const novaUkupnaCena = ukupno.ukupnoSaPDV + dostava;
-    setUkupnoSaDostavom(novaUkupnaCena);
+    if (ukupno.ukupnoSaPDV < minCena)  {
+      setUkupnoSaDostavom(ukupno.ukupnoSaPDV + dostava);
+    } else {
+      setUkupnoSaDostavom(ukupno.ukupnoSaPDV);
+    }
+    
   }, [ukupno, dostava]);
 
 
-  if (!partnerInfo || stavke.length === 0) {
+  if (!partnerInfo) {
     return <div className="p-10 text-red-600">Nema dostupnih podataka za prikaz dokumenta.</div>;
   }
 
@@ -161,34 +152,34 @@ const PDV = 20;
           {/* KONTAKT OSOBA */}
           <div className="border border-black p-4 w-[48%]">
             <h1 className="font-bold mb-2">Kontakt osoba:</h1>
-            <p>Ime i prezime: {partnerInfo.partner.komercijalisti.naziv || "Nepoznato"}</p>
-            <p>Mob. telefon: {partnerInfo.partner.komercijalisti.telefon || "Nepoznato"}</p>
-            <p>Email adresa: {partnerInfo.partner.komercijalisti.email || "Nepoznato"}</p>
+            <p>Ime i prezime: {partnerInfo.komercijalisti.naziv || "Nepoznato"}</p>
+            <p>Mob. telefon: {partnerInfo.komercijalisti.telefon || "Nepoznato"}</p>
+            <p>Email adresa: {partnerInfo.komercijalisti.email || "Nepoznato"}</p>
           </div>
 
           
           {/* PARTNER */}
           <div className="border border-black p-4 w-[48%]">
-            <p>Partner: {partnerInfo.partner.idPartnera || "?"}</p>
-            <h3 className="mb-2 font-bold">{partnerInfo.partner.ime || "Nepoznaaaato"}</h3>
-            <p>{partnerInfo.partner.adresa}, {partnerInfo.partner.grad}</p>
-            <p>Mob. telefon: {partnerInfo.partner.telefon}</p>
-            <p>Email: {partnerInfo.partner.email}</p>
+            <p>Partner: {partnerInfo.idPartnera || "?"}</p>
+            <h3 className="mb-2 font-bold">{partnerInfo.ime || "Nepoznaaaato"}</h3>
+            <p>{partnerInfo.adresa}, {partnerInfo.grad}</p>
+            <p>Mob. telefon: {partnerInfo.telefon}</p>
+            <p>Email: {partnerInfo.email}</p>
           </div>
         </div>
 
         <div className="border border-black p-4 mt-4 w-full max-w-full">
           <h3 className="font-semibold mb-1">Naručeno</h3>
-          <p>{partnerInfo.brojDokumenta}</p>
+          <p>{docc?.brojDokumenta}</p>
         </div>
 
         <div className="border border-black p-4 mt-4 w-full max-w-full">
           <h3 className="font-semibold mb-1">Adresa isporuke</h3>
-          {partnerInfo.lokacija}
+          {docc?.lokacija}
         </div>
         <p className="mt-1">
           Datum izdavanja:{" "}
-          {new Date(partnerInfo.datumDokumenta).toLocaleString("sr-RS", {
+          {docc?.datumDokumenta && new Date(docc.datumDokumenta).toLocaleString("sr-RS", {
             hour: "2-digit",
             minute: "2-digit",
             day: "2-digit",
@@ -209,9 +200,9 @@ const PDV = 20;
               <th className="border-r border-black px-2 py-1 text-left w-[200px]">Artikl</th>
               <th className="border-r border-black px-2 py-1 w-[50px]">JM</th>
               <th className="border-r border-black px-2 py-1 w-[70px]">Količina</th>
-              <th className="border-r border-black px-2 py-1 w-[90px]">Cena</th>
+              <th className="border-r border-black px-2 py-1 w-[90px]">Cena bez PDV</th>
               <th className="border-r border-black px-2 py-1 w-[80px]">Rabat (%)</th>
-              <th className="border-r border-black px-2 py-1 w-[100px]">Cena bez PDV</th>
+              <th className="border-r border-black px-2 py-1 w-[100px]">Cena sa Rabatom</th>
               <th className="border-r border-black px-2 py-1 w-[70px]">PDV (%)</th>
               <th className="border-r border-black px-2 py-1 w-[100px]">Cena sa PDV</th>
               <th className="px-2 py-1 w-[110px]">Vrednost</th>
@@ -219,19 +210,19 @@ const PDV = 20;
           </thead>
           <tbody>
             {stavke.map((stavka, index) => {
-              const { cenaBezPDV, cenaSaPDV, vrednost, rabatPartnera } = izracunajStavku(stavka);
+              // const rabatCena = stavka.originalnaCena *
               return (
                 <tr key={index} className="text-center border-t border-black">
                   <td className="border-r border-black px-2 py-1">{index + 1}</td>
                   <td className="border-r border-black px-2 py-1 text-left">{stavka.naziv || "Nepoznato"}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.jm}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.kolicina}</td>
-                  <td className="border-r border-black px-2 py-1">{(stavka.artikalCene[0].akcija.cena > 0 ? stavka.artikalCene[0].akcija.cena : stavka.artikalCene[0].cena)}</td>
-                  <td className="border-r border-black px-2 py-1">{rabatPartnera ?? 0}%</td>
-                  <td className="border-r border-black px-2 py-1">{cenaBezPDV.toFixed(2)}</td>
-                  <td className="border-r border-black px-2 py-1">{PDV} %</td>
-                  <td className="border-r border-black px-2 py-1">{cenaSaPDV.toFixed(2)}</td>
-                  <td className="px-2 py-1">{vrednost.toFixed(2)}</td>
+                  <td className="border-r border-black px-2 py-1">{stavka.koriscenaCena}</td> 
+                  <td className="border-r border-black px-2 py-1">{stavka.rabat ?? 0}%</td>
+                  <td className="border-r border-black px-2 py-1">{(stavka.koriscenaCena * (1 - stavka.rabat/100) * stavka.kolicina).toFixed(2)}</td>
+                  <td className="border-r border-black px-2 py-1">{stavka.pdv} %</td>
+                  <td className="border-r border-black px-2 py-1">{(stavka.koriscenaCena * (1 - stavka.rabat/100) * (1 + stavka.pdv/100) * stavka.kolicina).toFixed(2)}</td>
+                  <td className="px-2 py-1">{stavka.IznosSaPDV.toFixed(2)}</td>
                 </tr>
               );
             })}
@@ -240,19 +231,19 @@ const PDV = 20;
       </div>
 
       {/* Ukupno */}
-      <div className="mt-4 flex flex-col items-end text-sm">
-        <div className="flex gap-4">
-          <span className="font-semibold">Ukupno bez PDV:</span>
-          <span>{ukupno.ukupnoBezPDV.toFixed(2)} RSD</span>
+      <div className="text-[15px] mt-4 flex flex-col gap-1 items-end">
+        <div className="flex gap-4 w-full justify-end">
+          <span>Ukupno sa PDV:</span>
+          <span>{ukupno.ukupnoSaPDV.toFixed(2)} RSD</span>
         </div>
-        {dostava > 0 && (
-          <div className="flex gap-4 w-39 justify-between">
-            <span className="font-semibold">Dostava:</span>
+        {ukupno.ukupnoSaPDV < minCena && (
+          <div className="flex gap-[32px] w-full justify-end">
+            <span>Dostava:</span>
             <span>{dostava.toLocaleString("sr-RS")} RSD</span>
           </div>
         )}
-        <div className="flex gap-4">
-          <span className="font-semibold">Ukupno sa PDV:</span>
+        <div className="flex gap-4 w-full text-[16px] font-bold justify-end">
+          <span>Ukupno:</span>
           <span>{ukupnoSaDostavom.toFixed(2)} RSD</span>
         </div>
       </div>
@@ -263,13 +254,13 @@ const PDV = 20;
           Isporučene količine mogu biti manje u zavisnosti od stanja na lageru
         </p>
 
-        {partnerInfo.napomena && partnerInfo.napomena.trim().length > 0 && (
+        {docc?.napomena && docc?.napomena.trim().length > 0 && (
         <div className="border border-black w-full">
           <div className="border-b border-black px-2 py-1">
             <p className="font-semibold uppercase text-sm tracking-wide">Napomena</p>
           </div>
           <div className="px-2 py-2 text-sm space-y-1">
-            <p >{partnerInfo.napomena}</p>
+            <p >{docc?.napomena}</p>
           </div>
         </div>
         )}
@@ -279,10 +270,10 @@ const PDV = 20;
             <p className="font-semibold uppercase text-sm tracking-wide">Dokument kreirao:</p>
           </div>
           <div className="px-2 py-1 text-sm space-y-1">
-            <p><span className="">Korisničko ime:</span> {partnerInfo.partner.komercijalisti.id}</p> 
-            <p><span className="">Ime i prezime:</span> {partnerInfo.partner.komercijalisti.naziv || "Nepoznato"}</p>
-            <p><span className="">Email adresa:</span> {partnerInfo.partner.komercijalisti.email}</p>
-            <p><span className="">Mob. telefon:</span> {partnerInfo.partner.komercijalisti.telefon}</p>
+            <p><span className="">Korisničko ime:</span> {partnerInfo.komercijalisti.id}</p> 
+            <p><span className="">Ime i prezime:</span> {partnerInfo.komercijalisti.naziv || "Nepoznato"}</p>
+            <p><span className="">Email adresa:</span> {partnerInfo.komercijalisti.email}</p>
+            <p><span className="">Mob. telefon:</span> {partnerInfo.komercijalisti.telefon}</p>
           </div>
         </div>
       </div>

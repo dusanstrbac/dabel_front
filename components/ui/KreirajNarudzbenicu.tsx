@@ -1,11 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { ArtikalType } from "@/types/artikal";
+import { AritkalKorpaType } from "@/types/artikal";
 import { cn } from "@/lib/utils";
+<<<<<<< HEAD
 import { useState } from "react";
+=======
+import { DokumentInfo } from "@/types/dokument";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { useEffect } from "react";
+>>>>>>> 32fb4a84cdeba2dc3857256c5e8babf514ff5d00
 
 interface KreirajNarudzbenicuProps {
-  artikli: ArtikalType[];
+  artikli: AritkalKorpaType[];
   partner: KorisnikPodaciType;
   mestoIsporuke: string;
   napomena: string;
@@ -29,14 +35,27 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
     //     }
     // }, []);
 
+
+    // useEffect(() => {
+    //     const korisnik = dajKorisnikaIzTokena();
+
+    //     if (korisnik?.finKarta) {
+    //         const { nerealizovano } = korisnik.finKarta;
+    //         if (nerealizovano > 0) {
+    //             setKorisnikUdugu(true);
+    //             toast.error("Ne možete kreirati narudžbenicu, jer imate neplaćene fakture.");
+    //         }
+    //     }
+    // }, []);
+
+
     const handleClick = async () => {
 
-        const now = new Date().toISOString();
 
+        const now = new Date().toISOString();
         // Datum važenja +7 dana
         const datumVazenja = new Date();
         datumVazenja.setDate(datumVazenja.getDate() + 7);
-        const ceneSaPDV = JSON.parse(sessionStorage.getItem("cene-sa-pdv") || "{}");
 
         const payload = {
             tip: "narudzbenica",
@@ -44,46 +63,83 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
             idKomercijaliste: partner.komercijalisti.id,
             datumDokumenta: now,
             datumVazenja: datumVazenja.toISOString(),
-            lokacija: mestoIsporuke,
+            lokacija: mestoIsporuke, 
             napomena: napomena,
             stavkeDokumenata: artikli.map((value) => ({
                 idArtikla: value.idArtikla.toString() || "",
                 nazivArtikla: value.naziv || "",
-                cena: ceneSaPDV[value.idArtikla] 
-                                                ? ceneSaPDV[value.idArtikla] / Number(value.kolicina || 1)
-                                                : value.artikalCene[0].cena || 0,
-                originalnaCena: value.artikalCene[0].cena || 0,
+                cena: value.koriscenaCena,
+                originalnaCena: value.originalnaCena,
                 kolicina: value.kolicina.toString() || "0",
-                // pdv: value.pdv.toString() || "20", -- PRoveriti da li pdv je isti za sve 
-                ukupnaCena: ceneSaPDV[value.idArtikla]
-                                                    ? Number(ceneSaPDV[value.idArtikla].toFixed(2))
-                                                    : Number((Number(value.kolicina) * value.artikalCene[0].cena).toFixed(2))
+                pdv: value.pdv.toString() || "20",
+                ukupnaCena: value.IznosSaPDV,
             })),
         };
-
-        console.log("Saljem dokument:", JSON.stringify(payload, null, 2));
 
         try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Dokument/UpisiDokument`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                
-            },
+                },
                 body: JSON.stringify(payload),
             });
+
 
             if (!res.ok) {
                 console.error("❌ Neuspešan POST:", res.status);
                 return;
             }
 
-            window.open("/dokument", "_blank"); 
-            router.push("/"); 
+            if (res.ok) {
+                // Nakon uspešnog upisa dokumenta, fetchuj najnoviji dokument
+                const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+                const idKorisnika = partner.idPartnera;
+
+                try {
+                    const resDoc = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?idPartnera=${idKorisnika}`);
+                    if (!resDoc.ok) throw new Error("❌ Greška pri učitavanju dokumenta posle POST-a.");
+
+                    const docData = await resDoc.json();
+                    const dokument: DokumentInfo = docData.dokument;
+
+                    console.log("📥 Dobijen dokument iz GET rute:", dokument);
+
+                    sessionStorage.setItem("dokInfo", JSON.stringify({
+                        brojDokumenta: dokument.brojDokumenta,
+                        datumDokumenta: dokument.datumDokumenta,
+                        lokacija: dokument.lokacija,
+                        napomena: dokument.napomena,
+                    }));
+
+                } catch (err) {
+                    console.error("❌ Greška pri fetchovanju dokumenta:", err);
+                }
+            }
+
+            window.open("/dokument", "_blank");
+            
+
+            // ZA BRISANJE IZ SESSION STORAGE NAKON POSTAVLJENE NARUDzBENICE
+            const kanal = new BroadcastChannel("dokument-kanal");
+            kanal.onmessage = (event) => {
+                if (event.data === "dokument_je_ucitan") {
+                    sessionStorage.removeItem("korpaPodaci");
+                    sessionStorage.removeItem("dokInfo");
+                    sessionStorage.removeItem("dostava");
+                    sessionStorage.removeItem("ukupnoSaDostavom");
+                    localStorage.removeItem("cart");
+
+                    kanal.close();
+                    router.push("/");
+                }
+            };
 
             } catch (err) {
                 console.error("❌ Greška pri slanju POST zahteva:", err);
             }
+
+
         };
 
     return (

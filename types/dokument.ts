@@ -9,17 +9,19 @@ export type DokumentInfo = {
   datumVazenja: Date,
   lokacija: string,
   napomena: string,
-  stavkeDokumenata: [
-      {
-          id: number,
-          brojDokumenta: number,
-          idArtikla: string,
-          nazivArtikla: string,
-          cena: number,
-          originalnaCena: number,
-          kolicina: string,
-          pdv: string,
-          ukupnaCena: number
-      }
-  ]
+  status: number,
+  stavkeDokumenata: StavkaDokumenta[];
 }
+
+export type StavkaDokumenta = {
+  id: number;
+  brojDokumenta: number;
+  idArtikla: string;
+  nazivArtikla: string;
+  cena: number;
+  originalnaCena: number;
+  kolicina: string;
+  pdv: string;
+  ukupnaCena: number;
+};
+
