@@ -40,7 +40,6 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
       });
 
       const payload = { Ids: ids, BarKod: barKods };
-      console.log("Payload koji se šalje:", payload);
 
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
       const { data } = await axios.post(

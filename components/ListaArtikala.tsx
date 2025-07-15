@@ -45,9 +45,6 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
   // Funkcija za menjanje strane i update URL-a bez reloada
   const idiNaStranu = (broj: number, noviFilteri: any, event?: React.MouseEvent) => {
     if (event) event.preventDefault();
-
-    console.log("Idi na stranu:", broj);
-
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return;
 
     // Kreiraj objekat sa svim filterima i trenutnim parametrima

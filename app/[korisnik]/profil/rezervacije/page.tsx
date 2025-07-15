@@ -17,7 +17,6 @@ const RezervacijePage = () => {
 
   useEffect(() => {
     const idPartnera = dajKorisnikaIzTokena()?.idKorisnika;
-    console.log("idPartnera:", idPartnera);
 
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     const fetchRezervacije = async () => {

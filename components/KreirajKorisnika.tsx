@@ -63,9 +63,6 @@ const KreirajKorisnika = () => {
       body: JSON.stringify(payload)
     })
     .then(res => res.text())
-    .then(poruka => {
-      console.log(poruka);
-    });
   }
 
 

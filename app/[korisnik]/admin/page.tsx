@@ -112,7 +112,6 @@ const admin = () => {
         throw new Error('Neuspešan update parametara');
       }
       const responseText = await res.text();
-      console.log(responseText);
     } catch (err) {
       console.error('Error updating parameter:', err);
     }
@@ -128,7 +127,6 @@ const admin = () => {
 
 const handleKatalogUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0]; // Ovo uzima fajl direktno iz inputa
-  console.log("Da li je fajl odabran u onChange? ", file);
 
   if (file && file.type === "application/pdf") {
     setKatalogFile(file);
