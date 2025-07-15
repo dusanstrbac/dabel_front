@@ -387,43 +387,40 @@ const headerMainNav = [
                 <div className="pl-2 flex flex-col gap-2">
                   <Accordion type="single" collapsible className="flex flex-col gap-4">
                     {headerMainNav.map((item, index) => (
-                      <AccordionItem key={index} value={`item-${index}`}>
-                        {item.subMenuItems ? (
-                          <>
-                            <AccordionTrigger className="flex items-center gap-3 pl-2">
-                              {item.icon}
-                              <span className="text-[18px]">{item.text}</span>
-                            </AccordionTrigger>
-                            <AccordionContent className="pl-10">
-                              <ul className="flex flex-col gap-1">
-                                {item.subMenuItems.map((subItem, subIndex) => (
-                                  <li key={subIndex}>
-                                    <Link
-                                      href={subItem.href}
-                                      className="block px-2 py-1 text-[16px] text-gray-700 hover:bg-gray-100 rounded transition-colors"
-                                    >
-                                      {subItem.text}
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            </AccordionContent>
-                          </>
-                        ) : (
-                          // Ako nema subMenuItems, ne renderuj trigger/accordion uopšte već odmah Link
-                          <div className="flex items-center gap-3 pl-2 py-2">
+                      item.subMenuItems ? (
+                        <AccordionItem key={index} value={`item-${index}`}>
+                          <AccordionTrigger className="flex items-center gap-3 pl-2">
                             {item.icon}
-                            <Link
-                              href={item.href}
-                              className="text-[18px] hover:underline"
-                            >
-                              {item.text}
-                            </Link>
-                          </div>
-                        )}
-                      </AccordionItem>
+                            <span className="text-[18px]">{item.text}</span>
+                          </AccordionTrigger>
+                          <AccordionContent className="pl-10">
+                            <ul className="flex flex-col gap-1">
+                              {item.subMenuItems.map((subItem, subIndex) => (
+                                <li key={subIndex}>
+                                  <Link
+                                    href={subItem.href}
+                                    className="block px-2 py-1 text-[16px] text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                                  >
+                                    {subItem.text}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </AccordionContent>
+                        </AccordionItem>
+                      ) : (
+                        // Ako NEMA podmenija - odmah vodi na link
+                        <div key={index} className="flex items-center gap-3 pl-2">
+                          <Link
+                            href={item.href}
+                            className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors w-full"
+                          >
+                            {item.icon}
+                            <span className="text-[18px]">{item.text}</span>
+                          </Link>
+                        </div>
+                      )
                     ))}
-
                   </Accordion>
 
                   <div className="flex flex-col gap-4 mt-2">

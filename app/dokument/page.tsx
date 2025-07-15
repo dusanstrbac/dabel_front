@@ -80,9 +80,6 @@ const DokumentPage = () => {
       setStavke(artikli);
       setDOCC(dokument);
       setDostava(dostavaValue);
-
-      console.log("✅ Učitano sve iz sessionStorage");
-
     } catch (error) {
       console.error("❌ Greška pri učitavanju podataka iz sessionStorage:", error);
     }

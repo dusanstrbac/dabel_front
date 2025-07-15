@@ -47,7 +47,6 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, onFilterChange })
 
   useEffect(() => {
     if (!artikli || artikli.length === 0) return;
-    console.log("Stigli artikli u filter:", artikli);
 
     const getUniqueValues = (kljuc: string) => {
       if (kljuc.toLowerCase() === 'jm') {
@@ -69,12 +68,6 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, onFilterChange })
         return Array.from(new Set(values))
       }
     }
-
-
-
-
-  //const materijali = getUniqueValues("Materijal");
-  //console.log("Materijali iz artikala:", materijali);
 
     setFilterOptions({
       jedinicaMere: getUniqueValues("jm"),//PROVERITI

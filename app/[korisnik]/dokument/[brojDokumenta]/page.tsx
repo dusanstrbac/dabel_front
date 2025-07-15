@@ -24,7 +24,6 @@ export default function PrikazDokumenta() {
 
         const data = await res.json();
         setDokument(data);
-        console.log(data);
       } catch (err: any) {
         setError(err.message);
       } finally {

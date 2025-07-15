@@ -81,9 +81,6 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
       body: JSON.stringify(payload)
     })
     .then(res => res.text())
-    .then(poruka => {
-      console.log(poruka);
-    });
   }
 
   return (

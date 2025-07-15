@@ -56,14 +56,6 @@ const RezervisiButton = ({ ukupnaCena }: { ukupnaCena: number }) => {
         };
 
       });
-    console.log("Stavke dokumenata detaljno:");
-    stavkeDokumenata.forEach((s: any, i: number) => {
-        console.log(`Stavka ${i}:`, s);
-    });
-
-
-      console.log("Stavke dokumenata:", stavkeDokumenata);
-
       const now = new Date();
       const datumDokumenta = now.toISOString();
       const datumVazenja = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString(); // +5 dana
@@ -90,10 +82,6 @@ const RezervisiButton = ({ ukupnaCena }: { ukupnaCena: number }) => {
             }
         ]
     };
-
-
-
-      console.log("Dokument koji šaljemo:", JSON.stringify({ dokument }, null, 2));
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Dokument/UpisiDokument`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

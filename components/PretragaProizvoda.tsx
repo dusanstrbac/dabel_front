@@ -43,8 +43,6 @@ const PretragaProizvoda = () => {
         );
 
         const data = await res.json();
-        console.log('Raw data:', data);
-
         setRezultati(data.items || []);
         setShowDropdown(true);
       } catch (err) {
