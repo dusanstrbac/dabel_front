@@ -2,13 +2,8 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { AritkalKorpaType } from "@/types/artikal";
 import { cn } from "@/lib/utils";
-<<<<<<< HEAD
 import { useState } from "react";
-=======
 import { DokumentInfo } from "@/types/dokument";
-import { dajKorisnikaIzTokena } from "@/lib/auth";
-import { useEffect } from "react";
->>>>>>> 32fb4a84cdeba2dc3857256c5e8babf514ff5d00
 
 interface KreirajNarudzbenicuProps {
   artikli: AritkalKorpaType[];
