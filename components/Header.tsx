@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut, Smartphone, FileText } from "lucide-react";
+import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut, Smartphone, FileText, ShieldUser, Camera } from "lucide-react";
 import Image from "next/image";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
@@ -26,26 +26,20 @@ export default function Header() {
   const [WebKontaktEmail, setWebKontaktEmail] = useState<string>('N/A');
   const korisnik = dajKorisnikaIzTokena();
   const username = korisnik?.korisnickoIme;
+  const uloga = korisnik?.webUloga;
+  const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
+
 
  useEffect(() => {
-  const updateCartCount = () => {
+  const updateCartCount = async () => {
     const existing = localStorage.getItem("cart");
     if (existing) {
       const cart = JSON.parse(existing);
-      const brojRazlicitih = Object.keys(cart).length;
-      setBrojRazlicitihArtikala(brojRazlicitih);
+         setBrojRazlicitihArtikala(Object.keys(cart).length);
     } else {
       setBrojRazlicitihArtikala(0);
     }
-
-    // Citanje parametrizacije
-    const parametriIzLocalStorage = JSON.parse(localStorage.getItem('webparametri') || '[]');
-    const WEBKontaktTelefon = parametriIzLocalStorage.find((param: any) => param.naziv === 'WEBKontaktTelefon')?.vrednost || 'N/A';
-    const WebKontaktEmail = parametriIzLocalStorage.find((param: any) => param.naziv === 'WebKontaktEmail')?.vrednost || 'N/A';
-    setParametri(parametriIzLocalStorage);
-    setWEBKontaktTelefon(WEBKontaktTelefon);
-    setWebKontaktEmail(WebKontaktEmail);
-  };
 
   updateCartCount();
   // Event listener za slušanje promena korpe
@@ -53,7 +47,48 @@ export default function Header() {
   return () => {
     window.removeEventListener("storage", updateCartCount);
   };
-}, []);
+}
+}, [])
+
+
+
+    useEffect(() => {
+      const ucitajParametre = async () => {
+        try {
+          const local = localStorage.getItem("WEBParametrizacija");
+
+          if (local) {
+            const parsed = JSON.parse(local);
+            const telefon = parsed.find((p: any) => p.naziv === "WEBKontaktTelefon")?.vrednost;
+            const email = parsed.find((p: any) => p.naziv === "WebKontaktEmail")?.vrednost;
+
+            if (telefon) setWEBKontaktTelefon(telefon);
+            if (email) setWebKontaktEmail(email);
+            return;
+          }
+
+          const res = await fetch(`${apiAddress}/api/Auth/WEBParametrizacija`);
+          if (!res.ok) throw new Error("Greška pri fetchovanju parametara");
+
+          const data = await res.json();
+          localStorage.setItem("WEBParametrizacija", JSON.stringify(data)); 
+
+          const telefon = data.find((p: any) => p.naziv === "WEBKontaktTelefon")?.vrednost;
+          const email = data.find((p: any) => p.naziv === "WebKontaktEmail")?.vrednost;
+
+          if (telefon) setWEBKontaktTelefon(telefon);
+          if (email) setWebKontaktEmail(email);
+
+        } catch (err) {
+          console.error("Greška pri učitavanju WEB parametara:", err);
+        }
+      };
+
+      ucitajParametre();
+    }, [apiAddress]);
+
+
+
 
 const headerMainNav = [ 
   { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/proizvodi/kategorija/' + encodeURIComponent('Okov građevinski') },
@@ -80,15 +115,24 @@ const headerMainNav = [
 
 
   const menuItems = [
-    { id: 'podaci', icon: <User2 className="h-6 w-6" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
-    //{ id: 'rezervacije', icon: <User2 className="h-6 w-6" />, text: "Rezervisana roba", href: username ? `/${username}/profil/rezervacije` : '/login' },
-    { id: 'narudzbenica', icon: <FileText className="h-6 w-6" />, text: "Narudžbenica", href: username ? `/${username}/profil/narudzbenica` : '/login' },
-    { id: 'uplate', icon: <Wallet className="h-6 w-6" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
-    { id: 'roba', icon: <Package className="h-6 w-6" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
-    { id: 'korisnici', icon: <Users className="h-6 w-6" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : `/login` },
-    { id: 'cenovnik', icon: <BadgeDollarSign className="h-6 w-6" />, text: "Cenovnik", href: "/admin/cenovnik" },
-    { id: 'uputstva', icon: <Youtube className="h-6 w-6" />, text: "Video uputstva", href: "/video" },
-    { id: 'podesavanja', icon: <Key className="h-6 w-6" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
+
+    // Stavke koje se samo prikazuju administratoru
+    ...(uloga === "ADMINISTRATOR" ? [
+      { icon: <ShieldUser className="h-4 w-4" />, text: "Admin podešavanja", href: username ? `/${username}/admin` : '/login' },
+    ]: []),
+    ...(uloga === "PARTNER" ? [
+      { icon: <User2 className="h-4 w-4" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
+      { icon: <User2 className="h-4 w-4" />, text: "Rezervisana roba", href: username ? `/${username}/profil/rezervacije` : '/login' },
+      { icon: <FileText className="h-4 w-4" />, text: "Narudžbenica", href: username ? `/${username}/profil/narudzbenica` : '/login' },
+      { icon: <Wallet className="h-4 w-4" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
+      { icon: <Package className="h-4 w-4" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
+      { icon: <Users className="h-4 w-4" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : '/login' },
+      { icon: <BadgeDollarSign className="h-4 w-4" />, text: "Cenovnik", href: "/admin/cenovnik" },
+      { icon: <Youtube className="h-4 w-4" />, text: "Video uputstva", href: "/video" },
+    ]: []),    
+    ...(uloga === "PARTNER" || uloga === "ADMINISTRATOR" ? [
+      { icon: <Key className="h-4 w-4" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
+    ]: []),
   ];
 
   const dodatniLinkovi = [
@@ -289,32 +333,41 @@ const headerMainNav = [
                 <div className="pl-2 flex flex-col">
                   <ScrollArea>
                       {menuItems.map((item) => (
-                        <Link href={item.href} key={item.id} className="flex gap-3 items-center pb-4" onClick={() => setOpenKorisnikMeni(false)}>
+                        <Link href={item.href} key={item.href} className="flex gap-3 items-center pb-4" onClick={() => setOpenKorisnikMeni(false)}>
                           <span className="">{item.icon}</span>
                           <span className="text-[18px]">{item.text}</span>
                         </Link>
                       ))}
 
                       {isLoggedIn ? (
-                       
-                       <Link href='#' className="flex gap-3 items-center pb-4">
+                        <Link href="#" className="flex gap-3 items-center pb-4">
                           <LogOut className="w-6 h-6" />
                           <span className="text-[18px] text-red-500" onClick={() => {
-                              odjaviKorisnika();
-                              setOpenKorisnikMeni(false);
+                            odjaviKorisnika();
+                            setOpenKorisnikMeni(false);
                           }}>Odjava</span>
-                        </Link> ) : (
-
-                          <Link href='#' className="flex gap-3 items-center pb-4">
-                          <LogOut className="w-6 h-6" />
-                          <span className="text-[18px]" onClick={() => {
+                        </Link>
+                      ) : (
+                        <>
+                          <Link href="#" className="flex gap-3 items-center pb-4">
+                            <LogOut className="w-6 h-6" />
+                            <span className="text-[18px]" onClick={() => {
                               router.push('/login');
                               setOpenKorisnikMeni(false);
                             }}>
-                                Prijavi se</span>
-                        </Link>
-
+                              Prijavi se
+                            </span>
+                          </Link>
+                          <Link href="/register" className="flex gap-3 items-center pb-4">
+                            <User2 className="w-6 h-6" />
+                            <span className="text-[18px]" onClick={() => setOpenKorisnikMeni(false)}>
+                              Registruj se
+                            </span>
+                          </Link>
+                        </>
                       )}
+
+
                   </ScrollArea>
                 </div>
               </SheetContent>
@@ -335,36 +388,42 @@ const headerMainNav = [
                   <Accordion type="single" collapsible className="flex flex-col gap-4">
                     {headerMainNav.map((item, index) => (
                       <AccordionItem key={index} value={`item-${index}`}>
-                        <AccordionTrigger className="flex items-center gap-3 pl-2">
-                          {item.icon}
-                          <span className="text-[18px]">{item.text}</span>
-                        </AccordionTrigger>
-
-                        <AccordionContent className="pl-10">
-                          {item.text === "Elementi za pričvršćivanje" && item.subMenuItems ? (
-                            <ul className="flex flex-col gap-1">
-                              {item.subMenuItems.map((subItem, subIndex) => (
-                                <li key={subIndex}>
-                                  <Link
-                                    href={subItem.href}
-                                    className="block px-2 py-1 text-[16px] text-gray-700 hover:bg-gray-100 rounded transition-colors"
-                                  >
-                                    {subItem.text}
-                                  </Link>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
+                        {item.subMenuItems ? (
+                          <>
+                            <AccordionTrigger className="flex items-center gap-3 pl-2">
+                              {item.icon}
+                              <span className="text-[18px]">{item.text}</span>
+                            </AccordionTrigger>
+                            <AccordionContent className="pl-10">
+                              <ul className="flex flex-col gap-1">
+                                {item.subMenuItems.map((subItem, subIndex) => (
+                                  <li key={subIndex}>
+                                    <Link
+                                      href={subItem.href}
+                                      className="block px-2 py-1 text-[16px] text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                                    >
+                                      {subItem.text}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            </AccordionContent>
+                          </>
+                        ) : (
+                          // Ako nema subMenuItems, ne renderuj trigger/accordion uopšte već odmah Link
+                          <div className="flex items-center gap-3 pl-2 py-2">
+                            {item.icon}
                             <Link
                               href={item.href}
-                              className="flex flex-row items-center gap-3 p-1 hover:bg-gray-100 rounded transition-colors"
+                              className="text-[18px] hover:underline"
                             >
-                              <span className="text-[18px]">{item.text}</span>
+                              {item.text}
                             </Link>
-                          )}
-                        </AccordionContent>
+                          </div>
+                        )}
                       </AccordionItem>
                     ))}
+
                   </Accordion>
 
                   <div className="flex flex-col gap-4 mt-2">
@@ -391,13 +450,11 @@ const headerMainNav = [
           </div>
         </div>
         {/* Pretraga */}
+
         <div className="relative mt-3">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
-          <Input
-            placeholder="Pretraga"
-            className="pl-8 border border-black rounded-md"
-          />
+          <PretragaProizvoda/>
         </div>
+
       </div>
     </header>
   );
