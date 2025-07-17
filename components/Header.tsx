@@ -26,7 +26,6 @@ export default function Header() {
   const [WEBKontaktTelefon, setWEBKontaktTelefon] = useState<string>('N/A');
   const [WebKontaktEmail, setWebKontaktEmail] = useState<string>('N/A');
   const korisnik = dajKorisnikaIzTokena();
-
   const [headerMainNav, setHeaderMainNav] = useState<NavigacijaItem[]>([]);
 
   const dodatniLinkovi = [
@@ -133,9 +132,13 @@ export default function Header() {
                             </Link>
                           </NavigationMenuLink>
                           {item.subMenuItems && (
-                            <ul className="absolute top-0 left-full ml-2 w-52 bg-white border border-gray-200 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60]">
+                            <ul className="absolute top-0 left-full ml-2 w-60 max-w-xs bg-white border border-gray-200 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60]">
                               {item.subMenuItems.map((sub, sidx) => (
-                                <li key={sidx}><Link href={sub.href} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600">{sub.text}</Link></li>
+                                <li key={sidx}>
+                                  <Link href={sub.href} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600 break-words whitespace-normal">
+                                    {sub.text}
+                                  </Link>
+                                </li>
                               ))}
                             </ul>
                           )}
