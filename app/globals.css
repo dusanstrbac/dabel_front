@@ -119,6 +119,20 @@
   gap: 0.5rem !important;
 }
 
+.toast-error {
+  background-color: red !important;
+  color: white !important;
+}
+
+.toast-info {
+  color: green !important;
+}
+
+.toast-success-description {
+  color: green !important;
+  font-weight: 500;
+}
+
 
 @layer base {
   * {

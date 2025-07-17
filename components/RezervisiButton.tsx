@@ -95,8 +95,9 @@ const RezervisiButton = ({ ukupnaCena }: { ukupnaCena: number }) => {
         }
 
 
-      toast("Uspešno ste rezervisali artikle iz korpe.", {
+      toast.success("Uspešno ste rezervisali artikle iz korpe.", {
         description: "Trajanje rezervacije je 5 dana.",
+        descriptionClassName: 'toast-success-description'
       });
 
       localStorage.removeItem("cart");

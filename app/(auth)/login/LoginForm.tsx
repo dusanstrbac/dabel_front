@@ -6,12 +6,13 @@ import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { setCookie } from "cookies-next";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { DajParametre, OsveziParametre, TrebaOsvezitiParametre } from "@/contexts/DajParametre";
 
 // Validation schema
 const formSchema = z.object({
@@ -38,6 +39,7 @@ export default function LoginForm() {
   async function onSubmit(values: FormValues) {
     setLoading(true);
     setError(null);
+    
 
     try {
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
@@ -61,13 +63,6 @@ export default function LoginForm() {
           path: "/",
           encode: (value) => value,
         });
-
-        // Učitaj parametre i sačuvaj ih u localStorage
-        const paramData = await axios.get(`${apiAddress}/api/Auth/WEBParametrizacija`);
-
-        if (paramData.data) {
-          localStorage.setItem("webparametri", JSON.stringify(paramData.data));
-        }
 
         router.push(redirectTo);
         router.refresh();
