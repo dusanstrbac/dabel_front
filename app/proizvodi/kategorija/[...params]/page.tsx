@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { use, useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { ArtikalFilterProp, ArtikalType } from '@/types/artikal';
 import ListaArtikala from '@/components/ListaArtikala';
@@ -11,6 +11,7 @@ import { dajKorisnikaIzTokena } from '@/lib/auth';
 export default function ProizvodiPage() {
   const { params } = useParams();
   const [artikli, setArtikli] = useState<ArtikalType[]>([]);
+  const [atribut, setAtribut] = useState< any | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
@@ -72,7 +73,7 @@ export default function ProizvodiPage() {
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     const korisnik = dajKorisnikaIzTokena();
     const fullUrl = `${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${queryParams.toString()}&idPartnera=${korisnik?.idKorisnika}`;
-    // const fullUrl = `${apiAddress}/api/Artikal/ArtikliKategorije?idPartnera=${korisnik?.idKorisnika}`;
+    
     // http://localhost:7235/api/Artikal/DajArtikleSaPaginacijom?page=1&pageSize=8&sortBy=naziv&sortOrder=asc&idPartnera=3005
 
 
@@ -87,7 +88,7 @@ export default function ProizvodiPage() {
       console.log('Odgovor sa servera:', data);
 
       if (data.items?.length) {
-        setArtikli(data.items);
+        setArtikli(data.items); //ovde vrv stize 8 artikala
         setTotalCount(data.totalCount ?? 0);
       } else {
         setArtikli([]);
@@ -106,6 +107,29 @@ export default function ProizvodiPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    //if (!brojDokumenta) return;
+
+    const fetchAtributi = async () => {
+      try {
+        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+        const korisnik = dajKorisnikaIzTokena();
+        const res = await fetch(`${apiAddress}/api/Artikal/ArtikliKategorije?idPartnera=${korisnik?.idKorisnika}`);
+        if (!res.ok) throw new Error('Greška pri učitavanju dokumenta.');
+
+        const data = await res.json();
+        setAtribut(data);
+        console.log("Atributi",data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAtributi();
+  }, []);
 
   // Fetch artikle kad se menjaju parametri ili sortiranje ili stranica
   useEffect(() => {
@@ -170,6 +194,8 @@ export default function ProizvodiPage() {
         ) : (
           <ListaArtikala
             artikli={artikli}
+            atributi={atribut}
+            kategorija={kategorija}
             totalCount={totalCount}
             currentPage={pageFromUrl}
             onPageChange={(page) => {

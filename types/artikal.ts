@@ -51,6 +51,8 @@ export type ArtikalAtribut = {
 
 export interface ListaArtikalaProps {
   artikli: ArtikalType[];
+  atributi: ArtikalAtribut[];
+  kategorija: string;
   totalCount: number;
   currentPage: number;
   onPageChange: (page: number) => void;

@@ -8,9 +8,12 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from './ui/collapsible'
+import { StepId } from 'framer-motion'
 
 interface ProductFilterProps {
   artikli: any[];
+  atributi: any[];
+  kategorija: string;
   onFilterChange: (filters: ArtikalFilterProp) => void
 }
 
@@ -25,7 +28,7 @@ const defaultFilters: ArtikalFilterProp = {
   Boja: [],
 }
 
-const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, onFilterChange }) => {
+const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, atributi, kategorija, onFilterChange }) => {
   const [filters, setFilters] = useState<ArtikalFilterProp>(defaultFilters)
   const [filterOptions, setFilterOptions] = useState<{
     jedinicaMere: string[]
@@ -46,47 +49,79 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, onFilterChange })
   })
 
   useEffect(() => {
-    if (!artikli || artikli.length === 0) return;
-    console.log("Stigli artikli u filter:", artikli);
+    if (!artikli || artikli.length === 0 || !atributi) return;
+    console.log("Stigli artikli u filter:", atributi);
 
-    const getUniqueValues = (kljuc: string) => {
-      if (kljuc.toLowerCase() === 'jm') {
-        // Izvući jedinstvene vrednosti direktno iz polja artikal.jm
-        const values = artikli
-          .map((artikal) => artikal.jm)
-          .filter((v) => v !== undefined && v !== null && v !== '')
-        return Array.from(new Set(values))
-      } else {
-        // Ostale atribute vadi iz artikalAtributi
-        const values = artikli
-          .map((artikal) => {
-            const atribut = artikal.artikalAtributi?.find((a: any) =>
-              a.imeAtributa.toLowerCase().includes(kljuc.toLowerCase())
-            )
-            return atribut?.vrednost
-          })
-          .filter((v) => v !== undefined && v !== null && v !== '')
-        return Array.from(new Set(values))
+    const grupe = Object.entries(atributi).map(([key, value]) => [
+      key.trim() === "" ? "Nepoznata grupa" : key,
+      value,
+    ]);
+    
+    const atributiPoGrupi = grupe.map(([nazivGrupe, atributi]) => {
+      const filteri: {
+        Materijal: Set<string>;
+        Model: Set<string>;
+        Pakovanje: Set<string>;
+        RobnaMarka: Set<string>;
+        Upotreba: Set<string>;
+        Boja: Set<string>;
+      } = {
+        Materijal: new Set<string>(),
+        Model: new Set<string>(),
+        Pakovanje: new Set<string>(),
+        RobnaMarka: new Set<string>(),
+        Upotreba: new Set<string>(),
+        Boja: new Set<string>(),
+      };
+
+      for (const attr of atributi) {
+        if (attr.imeAtributa.includes("Materijal")) filteri.Materijal.add(attr.vrednost);
+        else if (attr.imeAtributa.includes("Model")) filteri.Model.add(attr.vrednost);
+        else if (attr.imeAtributa.includes("Pakovanje")) filteri.Pakovanje.add(attr.vrednost);
+        else if (attr.imeAtributa.includes("Robna marka")) filteri.RobnaMarka.add(attr.vrednost);
+        else if (attr.imeAtributa.includes("Upotreba")) filteri.Upotreba.add(attr.vrednost);
+        else if (
+          attr.imeAtributa.includes("Zavr.obr-boja") ||
+          attr.imeAtributa.includes("Boja")
+        )
+          filteri.Boja.add(attr.vrednost);
       }
+
+      return {
+        grupa: nazivGrupe,
+        filteri: {
+          Materijal: Array.from(filteri.Materijal),
+          Model: Array.from(filteri.Model),
+          Pakovanje: Array.from(filteri.Pakovanje),
+          RobnaMarka: Array.from(filteri.RobnaMarka),
+          Upotreba: Array.from(filteri.Upotreba),
+          Boja: Array.from(filteri.Boja),
+        },
+      };
+    });
+
+    const grupaZaKategoriju = atributiPoGrupi.find(
+      ({ grupa }) => grupa.toLowerCase() === kategorija.toLowerCase()
+    );
+
+    if (grupaZaKategoriju) {
+      const { filteri } = grupaZaKategoriju;
+
+      setFilterOptions({
+        jedinicaMere: Array.from(new Set(
+          artikli
+            .map((artikal) => artikal.jm)
+            .filter((v) => v !== undefined && v !== null && v !== '')
+        )),
+        Materijal: filteri.Materijal,
+        Model: filteri.Model,
+        Pakovanje: filteri.Pakovanje,
+        RobnaMarka: filteri.RobnaMarka,
+        Upotreba: filteri.Upotreba,
+        Boja: filteri.Boja,
+      });
     }
-
-
-
-
-  //const materijali = getUniqueValues("Materijal");
-  //console.log("Materijali iz artikala:", materijali);
-
-    setFilterOptions({
-      jedinicaMere: getUniqueValues("jm"),//PROVERITI
-      Materijal: getUniqueValues("Materijal"),
-      Model: getUniqueValues("Model"),
-      Pakovanje: getUniqueValues("Pakovanje"),
-      RobnaMarka: getUniqueValues("Robna marka"),
-      Upotreba: getUniqueValues("Upotreba"),
-      Boja: getUniqueValues("boja"),
-    })
-
-  }, [artikli]);
+  }, [artikli, atributi, kategorija]);
 
   const handleChange = <K extends keyof ArtikalFilterProp>(
     field: K,

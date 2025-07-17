@@ -15,7 +15,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ArtikalFilterProp, ListaArtikalaProps } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 
-const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: ListaArtikalaProps) => {
+const ListaArtikala = ({ artikli, atributi, kategorija, totalCount, currentPage, onPageChange }: ListaArtikalaProps) => {
   const artikliPoStrani = 8;
   const router = useRouter();
   const pathname = usePathname(); // Dobijanje pathname-a
@@ -77,7 +77,7 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
     <div className="flex flex-col md:flex-row w-full px-1 gap-4">
       {/* Filter sekcija */}
       <div className="w-full md:w-1/4">
-        <ArtikalFilter artikli={artikli} onFilterChange={onFilterChange} />
+        <ArtikalFilter artikli={artikli} atributi={atributi} kategorija={kategorija} onFilterChange={onFilterChange} />
       </div>
 
       {/* Lista artikala */}
