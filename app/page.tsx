@@ -4,10 +4,9 @@ import Header from "@/components/Header";
 import HeroImage from "@/components/HeroImage";
 import Najprodavanije from "@/components/Najprodavanije";
 import PoruciPonovo from "@/components/PoruciPonovo";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 
 export default function Home() {
-
 
   return (
     <>

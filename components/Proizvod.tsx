@@ -56,7 +56,7 @@ export default function Proizvod() {
       setError(null);
       try {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const res = await fetch(`${apiAddress}/api/Artikal/DajArtikalPoId?ids=${productId}`);
+        const res = await fetch(`${apiAddress}/api/Artikal/DajArtikalPoId?idPartnera=${korisnik?.idKorisnika}&ids=${productId}`);
 
         if (!res.ok) throw new Error("Greška prilikom učitavanja proizvoda");
 

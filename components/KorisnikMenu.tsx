@@ -63,6 +63,7 @@ export function KorisnikMenu() {
   const odjaviKorisnika = () => {
     const postojiKorpa = localStorage.getItem("cart");
 
+    localStorage.removeItem("webparametri");
     if(postojiKorpa) {
       localStorage.removeItem("cart");
     }

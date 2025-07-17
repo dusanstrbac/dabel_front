@@ -55,8 +55,7 @@ export default function Header() {
     useEffect(() => {
       const ucitajParametre = async () => {
         try {
-          const local = localStorage.getItem("WEBParametrizacija");
-
+          const local = localStorage.getItem("webparametri");
           if (local) {
             const parsed = JSON.parse(local);
             const telefon = parsed.find((p: any) => p.naziv === "WEBKontaktTelefon")?.vrednost;
@@ -67,17 +66,12 @@ export default function Header() {
             return;
           }
 
-          const res = await fetch(`${apiAddress}/api/Auth/WEBParametrizacija`);
-          if (!res.ok) throw new Error("Greška pri fetchovanju parametara");
 
-          const data = await res.json();
-          localStorage.setItem("WEBParametrizacija", JSON.stringify(data)); 
+          // const telefon = data?.find((p: any) => p.naziv === "WEBKontaktTelefon")?.vrednost;
+          // const email = data?.find((p: any) => p.naziv === "WebKontaktEmail")?.vrednost;
 
-          const telefon = data.find((p: any) => p.naziv === "WEBKontaktTelefon")?.vrednost;
-          const email = data.find((p: any) => p.naziv === "WebKontaktEmail")?.vrednost;
-
-          if (telefon) setWEBKontaktTelefon(telefon);
-          if (email) setWebKontaktEmail(email);
+          // if (telefon) setWEBKontaktTelefon(telefon);
+          // if (email) setWebKontaktEmail(email);
 
         } catch (err) {
           console.error("Greška pri učitavanju WEB parametara:", err);
@@ -86,7 +80,6 @@ export default function Header() {
 
       ucitajParametre();
     }, [apiAddress]);
-
 
 
 
@@ -165,6 +158,7 @@ const headerMainNav = [
     if(postojiKorpa) {
       localStorage.removeItem("cart");
     }
+    localStorage.removeItem("webparametri");
     deleteCookie("AuthToken");
     setIsLoggedIn(false);
     router.push('/');

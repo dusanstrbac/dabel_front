@@ -57,16 +57,16 @@ const admin = () => {
       }
     }
 
-    async function fetchAdminParams() {
+    const AdminParametri = localStorage.getItem("webparametri");
+    if (AdminParametri) {
       try {
-        const res = await fetch(`${apiAddress}/api/Auth/WEBParametrizacija`);
-        const data = await res.json();
-        setAdminList(data);
+        const parsed: Parametar[] = JSON.parse(AdminParametri);
+        setAdminList(parsed);
       } catch (err) {
-        console.error("Error fetching admin parameters: ", err);
+        console.error("Greška prilikom parsiranja lokalnih parametara:", err);
       }
+
     }
-    fetchAdminParams();
   }, [searchParams]);
 
   const idiNaStranu = (broj: number) => {

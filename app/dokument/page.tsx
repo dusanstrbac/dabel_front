@@ -30,7 +30,7 @@ const DokumentPage = () => {
 
   useEffect(() => {
     
-    const local = localStorage.getItem("WEBParametrizacija");
+    const local = localStorage.getItem("webparametri");
     if (local) {
       const parsed = JSON.parse(local);
       const parsedMinCena = parsed.find((p: any) => p.naziv === "MinCenaZaBesplatnuDostavu")?.vrednost;

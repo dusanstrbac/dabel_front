@@ -59,7 +59,7 @@ const Korpa = () => {
   useEffect(() => {
     setIsClient(true);
 
-
+    const korisnik = dajKorisnikaIzTokena();
     const cart = JSON.parse(localStorage.getItem("cart") || "{}");
     const storedIds = Object.keys(cart);
     if (storedIds.length === 0) {
@@ -67,7 +67,7 @@ const Korpa = () => {
     }
     const queryString = storedIds.map(id => `ids=${id}`).join("&");
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-    const url = `${apiAddress}/api/Artikal/DajArtikalPoId?${queryString}`;
+    const url = `${apiAddress}/api/Artikal/DajArtikalPoId?idPartnera=${korisnik?.idKorisnika}&${queryString}`;
 
 
 
