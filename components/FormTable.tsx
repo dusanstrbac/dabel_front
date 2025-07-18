@@ -220,6 +220,7 @@ const FormTable = ({ title }: myProps) => {
                     <a
                       href={`/${korisnik?.korisnickoIme}/dokument/${dokument.brojDokumenta}`}
                       className="text-blue-500 hover:underline"
+                      target="_blank"
                     >
                       {dokument.brojDokumenta}
                     </a>

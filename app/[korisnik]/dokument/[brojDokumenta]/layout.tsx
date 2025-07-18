@@ -5,7 +5,7 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
 {
   return (
     <div>
-      <div className="px-4">
+      <div className="">
         {children}
       </div>
     </div>

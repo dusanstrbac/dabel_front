@@ -114,6 +114,7 @@ const Korpa = () => {
             setNerealizovanIznos(parseFloat(fPartner.finKarta.nerealizovano)); 
             if (parseFloat(fPartner.finKarta.nerealizovano) > 0) {
               toast.error("Imate neplaćene fakture, pa vam je poručivanje zabranjeno");
+              return;
             }
           }
       } catch (err) {
