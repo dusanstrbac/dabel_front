@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Tabs } from "radix-ui";
 import { Paginacija, PaginacijaLink, PaginacijaPrethodna, PaginacijaSadrzaj, PaginacijaSledeca, PaginacijaStavka } from "@/components/ui/pagination";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { ComboboxDemo } from "@/components/ui/ComboboxDemo";
@@ -10,13 +11,25 @@ import { artikalProp, StavkaType } from "@/types/artikal";
 import { Parametar } from "@/types/parametri";
 import { Button } from "@/components/ui/button";
 import PdfThumbnail from "@/components/PdfThumbnail";
-import { any } from "zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import MaliCheckbox from "@/components/ui/MaliCheckBox";
+import { DozvoleInfo, KombinovanoDozvolePartnerType } from "@/types/dozvole";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 const admin = () => {
   const [adminList, setAdminList] = useState<Parametar[]>([]);
   const [menuList, setMenuList] = useState([
     { txt: "Kreiranje kataloga", index: "tab1" },
     { txt: "Parametri sistema", index: "tab2" },
+    { txt: "Otvaranje pakovanja", index: "tab3"},
   ]);
 
   const [articleList, setArticleList] = React.useState<artikalProp[]>([]);
@@ -31,7 +44,10 @@ const admin = () => {
   const [katalogImported, setKatalogImported] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [setLoading, setIsLoading] = useState(false);
+  const korisnikaPoStrani = 10;
+  const [pretraga, setPretraga] = useState("");
 
+  const [tabelaStavke, setTabelaStavke] = useState<KombinovanoDozvolePartnerType[]>([]);
 
   const paginiraneStavke = useMemo(() => {
     return adminList.slice(
@@ -117,12 +133,6 @@ const admin = () => {
     }
   };
 
-  const handlePromeniArtikal = (stariId: string, noviArtikal: artikalProp) => {
-    setFeaturedArtikli((prev) =>
-      prev.map((a) => a.idArtikla === stariId ? { ...noviArtikal } : a)
-    );
-  };
-
   // --- PDF upload i preview deo ---
 
 const handleKatalogUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,7 +167,7 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
   formData.append('thumbnailPutanja', thumbnailPutanja);  // Dodaj putanju thumbnail-a
 
   try {
-    const response = await fetch('http://localhost:7235/api/Web/UploadKatalog', {
+    const response = await fetch(`${apiAddress}/api/Web/UploadKatalog`, {
       method: 'POST',
       body: formData,
     });
@@ -191,8 +201,70 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
   }
 };
 
-
+  
   // --- Kraj PDF dela ---
+
+
+
+
+
+
+  // Dozvola za korisnike deo
+
+  async function ucitajPodatke() {
+    try {
+      const sviPartneriResponse = await fetch(`${apiAddress}/api/Partner/DajPartnere`);
+      if (!sviPartneriResponse.ok) throw new Error('Greška pri dohvatanju partnera');
+      const sviPartneri: KorisnikPodaciType[] = await sviPartneriResponse.json();
+
+      const dozvoleResponse = await fetch(`${apiAddress}/api/Web/DajDozvoleKorisnika`);
+      if (!dozvoleResponse.ok) throw new Error('Greška pri dohvatanju dozvola');
+      const dozvole: DozvoleInfo[] = await dozvoleResponse.json();
+
+      
+      return sviPartneri.map(partner => {
+        const dozvola = dozvole.find(d => d.idKorisnika === partner.idPartnera);
+        return {
+          ...partner,
+          ...(dozvola || {
+              id: 0,
+              idDozvole: 0,
+              idKorisnika: partner.idPartnera,
+              status: 0
+            })
+          // status: dozvola?.status || 0,
+          // idDozvole: dozvola?.idDozvole || null
+        };
+      });
+    } catch (error) {
+      console.error('Greška pri učitavanju podataka:', error);
+    }
+  }
+
+  // Pozivamo fetch
+
+  useEffect(() => {
+    const loadData = async () => {
+      const podaci = await ucitajPodatke();
+      setTabelaStavke(podaci || []);
+    };
+    loadData();
+  }, []);
+
+  const filtriraniKorisnici = tabelaStavke.filter((korisnik) => 
+      korisnik.ime.toLowerCase().includes(pretraga.toLowerCase()) ||
+      korisnik.email.toLowerCase().includes(pretraga.toLowerCase()),
+  )
+
+  const trenutniBrojKorisnika = filtriraniKorisnici.slice(
+        (trenutnaStrana - 1 ) * korisnikaPoStrani,
+        trenutnaStrana * korisnikaPoStrani
+  );
+
+  
+
+
+
 
   return (
     <div className="py-2">
@@ -348,6 +420,158 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
                 )}
               </PaginacijaSadrzaj>
             </Paginacija>
+          </Tabs.Content>
+
+          {/* TAB: Otvaranje pakovanja */}
+          <Tabs.Content value="tab3" className="mx-5">
+            <div className="mb-4">
+              <Input 
+                type="text"
+                placeholder="Pretraži korisnike po imenu ili emailu"
+                className="border-2 w-full max-w-md"
+                value={pretraga}
+                onChange={(e) => {
+                  setPretraga(e.target.value);
+                  setTrenutnaStrana(1); // Resetujemo na prvu stranu prilikom pretrage
+                }}
+              />
+            </div>
+
+            <div className="w-full overflow-x-auto justify-center">
+            <Table className="min-w-full">
+              <TableHeader className="bg-gray-400 hover:bg-gray-400">
+                <TableRow className="text-xl text-right">
+                  <TableHead>Korisničko ime</TableHead>
+                  <TableHead>E-mail</TableHead>
+                  <TableHead/>
+                  <TableHead/>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {trenutniBrojKorisnika.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={10} className="text-center">
+                      Nema podataka
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  trenutniBrojKorisnika.map((korisnik, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="text-left">{korisnik.ime || 'N/A'}</TableCell>
+                    <TableCell className="text-left lg:pl-2 truncate">{korisnik.email || 'N/A'}</TableCell>
+                    <TableCell/>
+                    <TableCell className="lg:pl-2 items-center">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <button
+                            className="p-2 rounded border-2 border-black cursor-pointer hover:bg-gray-100"
+                            // className="fixed bottom-6 left-6 z-50 md:hidden w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-lg hover:bg-blue-700 transition"
+                            type="button"
+                          >
+                            Sve dozvole
+                          </button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-sm">
+                          <DialogHeader>
+                            <DialogTitle>Lista svih dozvola za {korisnik.ime}</DialogTitle>
+                          </DialogHeader>
+
+                          <div className="space-y-4 mt-4">
+                            {/* Privremena lista dozvola */}
+                            {[
+                              "Dozvola za pregled artikala",
+                              "Dozvola za izmenu artikala",
+                              "Dozvola za brisanje artikala",
+                              "Dozvola za kreiranje narudžbina",
+                              "Dozvola za administraciju"
+                            ].map((dozvola, i) => (
+                              <div key={i} className="flex items-center justify-between">
+                                <span>{dozvola}</span>
+                                <MaliCheckbox
+                                  checked={false}
+                                  onChange={(checked) => console.log(`Dozvola ${dozvola}: ${checked}`)}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                          
+                          <div className="flex justify-end gap-2 mt-6">
+                            <DialogClose className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                              Zatvori
+                            </DialogClose>
+                            <Button className="bg-blue-600 hover:bg-blue-700">
+                              Sačuvaj izmene
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                        
+                    </TableCell>
+                  </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+            </div>
+
+            {/* Paginacija */}
+            {filtriraniKorisnici.length > korisnikaPoStrani && (
+              <div className="mt-4">
+                <Paginacija>
+                  <PaginacijaSadrzaj>
+                    {trenutnaStrana > 1 && (
+                      <PaginacijaStavka>
+                        <PaginacijaPrethodna
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setTrenutnaStrana(trenutnaStrana - 1);
+                          }}
+                        />
+                      </PaginacijaStavka>
+                    )}
+
+                    {Array.from({ length: Math.ceil(filtriraniKorisnici.length / korisnikaPoStrani) }).map((_, i) => {
+                      const pageNum = i + 1;
+                      if (
+                        pageNum === 1 || 
+                        pageNum === Math.ceil(filtriraniKorisnici.length / korisnikaPoStrani) ||
+                        Math.abs(pageNum - trenutnaStrana) <= 1
+                      ) {
+                        return (
+                          <PaginacijaStavka key={pageNum}>
+                            <PaginacijaLink
+                              href="#"
+                              isActive={trenutnaStrana === pageNum}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setTrenutnaStrana(pageNum);
+                              }}
+                            >
+                              {pageNum}
+                            </PaginacijaLink>
+                          </PaginacijaStavka>
+                        );
+                      }
+                      return null;
+                    })}
+
+                    {trenutnaStrana < Math.ceil(filtriraniKorisnici.length / korisnikaPoStrani) && (
+                      <PaginacijaStavka>
+                        <PaginacijaSledeca
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setTrenutnaStrana(trenutnaStrana + 1);
+                          }}
+                        />
+                      </PaginacijaStavka>
+                    )}
+                  </PaginacijaSadrzaj>
+                </Paginacija>
+              </div>
+            )}
+
           </Tabs.Content>
         </div>
       </Tabs.Root>

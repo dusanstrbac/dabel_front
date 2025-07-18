@@ -26,6 +26,7 @@ export default function Header() {
   const [WEBKontaktTelefon, setWEBKontaktTelefon] = useState<string>('N/A');
   const [WebKontaktEmail, setWebKontaktEmail] = useState<string>('N/A');
   const korisnik = dajKorisnikaIzTokena();
+
   const [headerMainNav, setHeaderMainNav] = useState<NavigacijaItem[]>([]);
 
   const dodatniLinkovi = [

@@ -2,6 +2,8 @@
 import { ParametriWatcher } from "@/components/ui/ParametriWatcher";
 import "./globals.css";
 import type { Metadata } from "next";
+import { Toaster } from "@/components/ui/sonner";
+import { Providers } from "@/providers/provides";
 
 export const metadata: Metadata = {
   title: "Dabel.rs",
@@ -12,8 +14,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-          {children}
+          <Providers>
+            {children}
+          </Providers>
           <ParametriWatcher/>
+          <Toaster />
       </body>
     </html>
   );
