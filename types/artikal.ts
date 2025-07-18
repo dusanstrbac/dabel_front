@@ -6,11 +6,22 @@ export type ArtikalType = {
   kolicina: string;
   kategorijaId: string;
   status?: string;
-  pravaCena?: number;
-  osnovnaCena?: number;
+  originalnaCena?: number;
   artikalCene: ArtikalCena[];
   artikalAtributi: ArtikalAtribut[];
 };
+
+export type AritkalKorpaType = {
+  idArtikla: string;
+  jm: string;
+  naziv: string;
+  kolicina: number;
+  originalnaCena: number;
+  IznosSaPDV: number;
+  koriscenaCena: number;
+  pdv: number;
+  rabat: number;
+}
 
 export type ArtikalCena = {
   id: string;
@@ -53,6 +64,7 @@ export interface ListaArtikalaProps {
   artikli: ArtikalType[];
   atributi: ArtikalAtribut[];
   kategorija: string;
+  podkategorija: string | null;
   totalCount: number;
   currentPage: number;
   onPageChange: (page: number) => void;

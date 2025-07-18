@@ -23,6 +23,17 @@ export default function ProizvodiPage() {
   const router = useRouter();
 
   const pageSize = 8; // Poželjno da backend vraća ovaj broj po strani
+  
+    const [aktivniFilteri, setAktivniFilteri] = useState<ArtikalFilterProp>({
+      naziv: '',
+      jedinicaMere: '',
+      Materijal: [],
+      Model: [],
+      Pakovanje: [],
+      RobnaMarka: [],
+      Upotreba: [],
+      Boja: [],
+    });
 
   const pageFromUrl = useMemo(() => {
     const pageParam = searchParams.get('page');
@@ -54,8 +65,6 @@ export default function ProizvodiPage() {
       queryParams.append('PodKategorija', podkategorija);
     }
 
-    console.log(kategorija);
-    console.log(podkategorija);
     // Dodajemo sortKey i sortOrder u query parametre
     queryParams.append('sortKey', sortKey);
     queryParams.append('sortOrder', sortOrder);
@@ -73,7 +82,8 @@ export default function ProizvodiPage() {
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     const korisnik = dajKorisnikaIzTokena();
     const fullUrl = `${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${queryParams.toString()}&idPartnera=${korisnik?.idKorisnika}`;
-    
+    //const fullUrl = `${apiAddress}/api/Artikal/DajFilterArtikle?idPartnera=${korisnik?.idKorisnika}&batchSize=10000&${queryParams.toString()}`;
+    //console.log("API URL:", fullUrl);
     // http://localhost:7235/api/Artikal/DajArtikleSaPaginacijom?page=1&pageSize=8&sortBy=naziv&sortOrder=asc&idPartnera=3005
 
 
@@ -85,7 +95,6 @@ export default function ProizvodiPage() {
       }
 
       const data = await res.json();
-      console.log('Odgovor sa servera:', data);
 
       if (data.items?.length) {
         setArtikli(data.items); //ovde vrv stize 8 artikala
@@ -146,17 +155,30 @@ export default function ProizvodiPage() {
       return;
     }
 
-    fetchArtikli(kategorija, podkategorija, {
+    // ✅ Čitanje filtera iz URL-a
+    const filteri: ArtikalFilterProp = {
       naziv: '',
-      jedinicaMere: '',
-      Materijal: [],
-      Model: [],
-      Pakovanje: [],
-      RobnaMarka: [],
-      Upotreba: [],
-      Boja: [],
-    }, pageFromUrl, sortKey, sortOrder);
-  }, [params, pageFromUrl, sortKey, sortOrder, totalCount]);
+      jedinicaMere: searchParams.get('jm') || '',
+      Materijal: searchParams.getAll('Materijal'),
+      Model: searchParams.getAll('Model'),
+      Pakovanje: searchParams.getAll('Pakovanje'),
+      RobnaMarka: searchParams.getAll('RobnaMarka'),
+      Upotreba: searchParams.getAll('Upotreba'),
+      Boja: searchParams.getAll('Boja'),
+    };
+    setAktivniFilteri(filteri); // dodaj ovu liniju
+
+
+    fetchArtikli(
+      kategorija,
+      podkategorija,
+      filteri,
+      pageFromUrl,
+      sortKey,
+      sortOrder
+    );
+  }, [params, pageFromUrl, sortKey, sortOrder, totalCount, searchParams]);
+
 
   // Handler za promenu sortiranja
   const handleSortChange = (key: 'cena' | 'naziv', order: 'asc' | 'desc') => {
@@ -175,6 +197,24 @@ export default function ProizvodiPage() {
 
   const kategorija = decodeURIComponent(params[0]);
   const podkategorija = params.length >= 2 ? decodeURIComponent(params[1]) : null;
+
+
+  const removeEmptyParams = (params: URLSearchParams): URLSearchParams => {
+    const newParams = new URLSearchParams();
+
+    const keys = Array.from(params.keys());
+
+    for (const key of keys) {
+      const values = params.getAll(key);
+      const nonEmpty = values.filter((val) => val.trim() !== '');
+
+      for (const val of nonEmpty) {
+        newParams.append(key, val);
+      }
+    }
+
+    return newParams;
+  };
 
   return (
     <div className="">
@@ -196,13 +236,23 @@ export default function ProizvodiPage() {
             artikli={artikli}
             atributi={atribut}
             kategorija={kategorija}
+            podkategorija={podkategorija}
             totalCount={totalCount}
             currentPage={pageFromUrl}
             onPageChange={(page) => {
-              const params = new URLSearchParams(searchParams.toString());
-              params.set('page', page.toString());
-              router.push(`?${params.toString()}`);
-              window.scrollTo({ top: 0, behavior: "smooth" });
+              const rawParams = new URLSearchParams(searchParams.toString());
+              const newParams = new URLSearchParams();
+
+              for (const [key, value] of rawParams.entries()) {
+                if (value.trim() !== '') {
+                  newParams.append(key, value);
+                }
+              }
+
+              newParams.set('page', page.toString());
+
+              router.push(`?${newParams.toString()}`);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           />
         )}

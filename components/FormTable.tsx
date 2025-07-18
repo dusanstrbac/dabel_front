@@ -20,6 +20,22 @@ interface myProps {
   title: string;
 }
 
+const statusMap: Record<number, string> = {
+  0: "U obradi",
+  1: "Obrađen",
+  2: "Odbijen",
+  3: "Greška",
+  4: "Opozvan",
+};
+
+const statusPriority: Record<string, number> = {
+  "U obradi": 1,
+  "Obrađen": 2,
+  "Odbijen": 3,
+  "Greška": 4,
+  "Opozvan": 5,
+};
+
 const FormTable = ({ title }: myProps) => {
   const [error, setError] = useState("");
   const [dokumenta, setDokumenta] = useState<any[]>([]);
@@ -40,14 +56,6 @@ const FormTable = ({ title }: myProps) => {
     setKorisnik(dajKorisnikaIzTokena());
   }, []);
 
-  // Prioriteti statusa za sortiranje
-  const statusPriority : any = {
-    "U obradi": 1,
-    "Poslat": 2,
-    // možeš dodati još statusa ako ih ima
-  };
-
-  // sortiraj dokumenta po izabranom ključu i redosledu
   const sortiranaDokumenta = [...dokumenta].sort((a, b) => {
     if (sortKey === 'datum') {
       const dateA = new Date(a.datumDokumenta).getTime();
@@ -58,20 +66,20 @@ const FormTable = ({ title }: myProps) => {
       const sumaB = b.stavkeDokumenata?.reduce((s: number, st: any) => s + st.ukupnaCena, 0) ?? 0;
       return sortOrder === 'asc' ? sumaA - sumaB : sumaB - sumaA;
     } else if (sortKey === 'status') {
-      const priorityA = statusPriority[a.status] ?? 99;
-      const priorityB = statusPriority[b.status] ?? 99;
+      const statusA = statusMap[a.status] ?? "Nepoznat";
+      const statusB = statusMap[b.status] ?? "Nepoznat";
+      const priorityA = statusPriority[statusA] ?? 99;
+      const priorityB = statusPriority[statusB] ?? 99;
       return sortOrder === 'asc' ? priorityA - priorityB : priorityB - priorityA;
     }
     return 0;
   });
 
-  // izdvajamo samo deo podataka za prikaz na trenutnoj stranici
   const paginatedDokumenta = sortiranaDokumenta.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  // ukupna suma iz prikazanih dokumenata
   const ukupnaSuma = paginatedDokumenta.reduce((sum, dok) => {
     const suma = dok.stavkeDokumenata?.reduce((s: number, st: any) => s + st.ukupnaCena, 0) ?? 0;
     return sum + suma;
@@ -82,7 +90,6 @@ const FormTable = ({ title }: myProps) => {
     return sum + suma;
   }, 0);
 
-  // učitavanje podataka
   useEffect(() => {
     if (!korisnik) return;
     const izvuciDokumenta = async () => {
@@ -98,14 +105,13 @@ const FormTable = ({ title }: myProps) => {
         }
         const data = await res.json();
 
-        const dokumentiSaStatusom = data.map((dok: any, index: number) => ({
+        const dokumentiSaStatusom = data.map((dok: any) => ({
           ...dok,
-          status: index % 2 === 0 ? "U obradi" : "Poslat", // dummy logika
+          statusText: statusMap[dok.status] ?? "Nepoznat"
         }));
 
-        // Ako je stranica "poslato", filtriraj samo one
         const dokumentiZaPrikaz = prikazPoslataRoba
-          ? dokumentiSaStatusom.filter((d: any) => d.status === "Poslat")
+          ? dokumentiSaStatusom.filter((d: any) => d.statusText === "Obrađen")
           : dokumentiSaStatusom;
 
         setDokumenta(dokumentiZaPrikaz);
@@ -117,6 +123,37 @@ const FormTable = ({ title }: myProps) => {
     };
     izvuciDokumenta();
   }, [korisnik, prikazPoslataRoba]);
+
+
+  const handleOpoziv = async (brojDokumenta: number) => {
+  try {
+    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
+    const res = await fetch(`${apiAddress}/api/Dokument/OpozoviDokument`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ BrojDokumenta: brojDokumenta }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Greška prilikom opoziva dokumenta.");
+    }
+
+    toast.success("Dokument je uspešno opozvan.");
+    setDokumenta((prev) =>
+      prev.map((dok) =>
+        dok.brojDokumenta === brojDokumenta
+          ? { ...dok, status: 4, statusText: statusMap[4] }
+          : dok
+      )
+    );
+  } catch (err: any) {
+    toast.error(err.message || "Došlo je do greške pri opozivu.");
+  }
+};
+
 
   if (loading) return <div>Učitavanje podataka...</div>;
   if (error) return <div>Greška: {error}</div>;
@@ -172,7 +209,7 @@ const FormTable = ({ title }: myProps) => {
                   0
                 ) ?? 0;
 
-              const status = dokument.status;
+              const statusText = dokument.statusText;
 
               return (
                 <TableRow key={index} className="hover:odd:bg-gray-300">
@@ -190,30 +227,35 @@ const FormTable = ({ title }: myProps) => {
                   {prikazNarudzbenica && (
                     <TableCell className="flex items-center gap-2">
                       <span
-                        className={`
-                          inline-block w-3 h-3 rounded-full border
-                          ${status === "U obradi" ? "border-yellow-500 border-2" : "border-green-600 border-2"}
+                        className={`inline-block w-3 h-3 rounded-full border
+                          ${
+                            statusText === "U obradi"
+                              ? "border-yellow-500"
+                              : statusText === "Obrađen"
+                              ? "border-green-600"
+                              : "border-gray-500"
+                          }
                         `}
                       />
-                      <span className="text-sm">{status}</span>
+                      <span className="text-sm">{statusText}</span>
                     </TableCell>
                   )}
 
                   <TableCell className="text-right">{ukupno.toFixed(2)}</TableCell>
                   {prikazNarudzbenica && (
                     <TableCell className="flex justify-center">
-                      {status === "U obradi" ? (
+                      {dokument.status === 0 && (
                         <a
                           href="#"
                           className="text-blue-500 font-bold hover:underline justify-end"
                           onClick={(e) => {
                             e.preventDefault();
-                            toast.info("Narudžbenica je uspešno opozvana.");
+                            handleOpoziv(dokument.brojDokumenta);
                           }}
                         >
                           Opoziv
                         </a>
-                      ) : null}
+                      )}
                     </TableCell>
                   )}
                 </TableRow>
@@ -223,25 +265,17 @@ const FormTable = ({ title }: myProps) => {
           <TableFooter>
             <TableRow className="bg-gray-400 hover:bg-gray-400">
               <TableCell className="font-medium">Ukupno po strani:</TableCell>
-              <TableCell/>
-              {prikazNarudzbenica && (
-                <TableCell/>
-              )}
+              <TableCell />
+              {prikazNarudzbenica && <TableCell />}
               <TableCell className="text-right">{ukupnaSuma.toFixed(2)}</TableCell>
-              {prikazNarudzbenica && (
-                <TableCell/>
-              )}
+              {prikazNarudzbenica && <TableCell />}
             </TableRow>
             <TableRow>
               <TableCell className="font-medium">Ukupno:</TableCell>
-              <TableCell/>
-              {prikazNarudzbenica && (
-                <TableCell/>
-              )}
+              <TableCell />
+              {prikazNarudzbenica && <TableCell />}
               <TableCell className="text-right">{ukupnaSumaSvihDokumenata.toFixed(2)}</TableCell>
-              {prikazNarudzbenica && (
-                <TableCell/>
-              )}
+              {prikazNarudzbenica && <TableCell />}
             </TableRow>
           </TableFooter>
         </Table>

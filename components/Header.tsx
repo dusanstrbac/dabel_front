@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User2, LogOut, Smartphone, FileText } from "lucide-react";
+import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, Menu as MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User as User2, LogOut, Smartphone, FileText } from "lucide-react";
 import Image from "next/image";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { deleteCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import PretragaProizvoda from "./PretragaProizvoda";
+import IconComponent from "./IconComponent";
 
 export default function Header() {
   const [korisnickoIme, setKorisnickoIme] = useState<string | null>(null);
@@ -21,106 +22,73 @@ export default function Header() {
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [brojRazlicitihArtikala, setBrojRazlicitihArtikala] = useState(0);
-  const [parametri, setParametri] = useState<any>([]);
+  const [parametri, setParametri] = useState<any[]>([]);
   const [WEBKontaktTelefon, setWEBKontaktTelefon] = useState<string>('N/A');
   const [WebKontaktEmail, setWebKontaktEmail] = useState<string>('N/A');
   const korisnik = dajKorisnikaIzTokena();
-  const username = korisnik?.korisnickoIme;
 
- useEffect(() => {
-  const updateCartCount = () => {
-    const existing = localStorage.getItem("cart");
-    if (existing) {
-      const cart = JSON.parse(existing);
-      const brojRazlicitih = Object.keys(cart).length;
-      setBrojRazlicitihArtikala(brojRazlicitih);
-    } else {
-      setBrojRazlicitihArtikala(0);
-    }
-
-    // Citanje parametrizacije
-    const parametriIzLocalStorage = JSON.parse(localStorage.getItem('webparametri') || '[]');
-    const WEBKontaktTelefon = parametriIzLocalStorage.find((param: any) => param.naziv === 'WEBKontaktTelefon')?.vrednost || 'N/A';
-    const WebKontaktEmail = parametriIzLocalStorage.find((param: any) => param.naziv === 'WebKontaktEmail')?.vrednost || 'N/A';
-    setParametri(parametriIzLocalStorage);
-    setWEBKontaktTelefon(WEBKontaktTelefon);
-    setWebKontaktEmail(WebKontaktEmail);
-  };
-
-  updateCartCount();
-  // Event listener za slušanje promena korpe
-  window.addEventListener("storage", updateCartCount);
-  return () => {
-    window.removeEventListener("storage", updateCartCount);
-  };
-}, []);
-
-const headerMainNav = [ 
-  { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/proizvodi/kategorija/' + encodeURIComponent('Okov građevinski') },
-  { icon: <Sofa className="w-4 h-4"/>, text: 'Okov nameštaj', href: '/proizvodi/kategorija/' + encodeURIComponent('Okov nameštaj') },
-  { icon: <Rows2 className="w-4 h-4"/>, text: 'Klizni okov za građevinu, nameštaj', href: '/proizvodi/kategorija/' + encodeURIComponent('Klizni okov građevina,nameštaj') },
-  { 
-    icon: <LinkIcon className="w-4 h-4"/>, 
-    text: 'Elementi za pričvršćivanje', 
-    href: '/proizvodi/kategorija/' + encodeURIComponent('Elementi za pričvršćivanje'), 
-    subMenuItems:[
-      { icon: <text className="w-4 h-4"/>, text: 'Spojnice', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Spojnice')}` },
-      { icon: <text className="w-4 h-4"/>, text: 'Ručke', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Ručke')}` },
-      { icon: <text className="w-4 h-4"/>, text: 'Delovi za sajle', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Delovi za sajle')}` },
-      { icon: <text className="w-4 h-4"/>, text: 'Tiplovi', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Tiplovi')}` },
-      { icon: <text className="w-4 h-4"/>, text: 'Drvo', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Drvo')}` },
-      { icon: <text className="w-4 h-4"/>, text: 'Podloške, navrtke', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Podloške, navrtke')}` },
-      { icon: <text className="w-4 h-4"/>, text: 'Kapice', href: `/proizvodi/kategorija/${encodeURIComponent('Elementi za pričvršćivanje')}/${encodeURIComponent('Kapice')}` },
-    ]
-  },
-  { icon: <Lightbulb className="w-4 h-4"/>, text: 'LED rasveta', href: '/proizvodi/kategorija/' + encodeURIComponent('Led Rasveta') },
-  { icon: <Vault className="w-4 h-4"/>, text: 'Kontrola pristupa', href: '/proizvodi/kategorija/' + encodeURIComponent('Kontrola Pristupa') },
-  { icon: <Hammer className="w-4 h-4"/>, text: 'Ručni alat', href: '/proizvodi/kategorija/' + encodeURIComponent('Ručni Alat') },
-];
-
-
-  const menuItems = [
-    { id: 'podaci', icon: <User2 className="h-6 w-6" />, text: "Moji podaci", href: username ? `/${username}/profil/podaci` : '/login' },
-    //{ id: 'rezervacije', icon: <User2 className="h-6 w-6" />, text: "Rezervisana roba", href: username ? `/${username}/profil/rezervacije` : '/login' },
-    { id: 'narudzbenica', icon: <FileText className="h-6 w-6" />, text: "Narudžbenica", href: username ? `/${username}/profil/narudzbenica` : '/login' },
-    { id: 'uplate', icon: <Wallet className="h-6 w-6" />, text: "Moje uplate", href: username ? `/${username}/profil/uplate` : '/login' },
-    { id: 'roba', icon: <Package className="h-6 w-6" />, text: "Poslata roba", href: username ? `/${username}/profil/roba` : '/login' },
-    { id: 'korisnici', icon: <Users className="h-6 w-6" />, text: "Korisnici", href: username ? `/${username}/profil/korisnici` : `/login` },
-    { id: 'cenovnik', icon: <BadgeDollarSign className="h-6 w-6" />, text: "Cenovnik", href: "/admin/cenovnik" },
-    { id: 'uputstva', icon: <Youtube className="h-6 w-6" />, text: "Video uputstva", href: "/video" },
-    { id: 'podesavanja', icon: <Key className="h-6 w-6" />, text: "Promena lozinke", href: username ? `/${username}/profil/podesavanja` : '/login' },
-  ];
+  const [headerMainNav, setHeaderMainNav] = useState<NavigacijaItem[]>([]);
 
   const dodatniLinkovi = [
-    { icon: <BadgePercent className="w-4 h-4" />, text: "Akcije", href: "/akcije" },
-    { icon: <LinkIcon className="w-4 h-4" />, text: "Novopristigli artikli", href: "/novo" },
-    { icon: <Smartphone className="w-4 h-4" />, text: "Brzo naručivanje", href: "/BrzoNarucivanje" },
-    { icon: <Heart className="w-4 h-4" />, text: "Omiljeni artikli", href: "/heart" },
-    { icon: <ShoppingCart className="w-4 h-4" />, text: "Korpa", href: "/korpa" },
+    { text: "Akcije", href: "/akcije", icon: <BadgePercent className="w-5 h-5" /> },
+    { text: "Novo", href: "/novo", icon: <Bolt className="w-5 h-5" /> },
+    { text: "Brzo Naručivanje", href: "/BrzoNarucivanje", icon: <Smartphone className="w-5 h-5" /> },
+    { text: "Korpa", href: "/korpa", icon: <ShoppingCart className="w-5 h-5" /> },
+    { text: "Kontakt", href: "/kontakt", icon: <Phone className="w-5 h-5" /> },
   ];
 
+  useEffect(() => {
+    const updateCartCount = () => {
+      const existing = localStorage.getItem("cart");
+      setBrojRazlicitihArtikala(existing ? Object.keys(JSON.parse(existing)).length : 0);
 
-  const [openKorisnikMeni, setOpenKorisnikMeni] = useState(false);
-
-  useEffect(() => {    
-    if(korisnik && korisnik.korisnickoIme) {
-      setKorisnickoIme(korisnik.korisnickoIme);
-      setIsLoggedIn(true);
-    } else {
-      setKorisnickoIme(null);
-      setIsLoggedIn(false);
-    }
-    setIsMounted(true);
-
+      const parami = JSON.parse(localStorage.getItem('webparametri') || '[]');
+      setParametri(parami);
+      setWEBKontaktTelefon(parami.find((p: any) => p.naziv === 'WEBKontaktTelefon')?.vrednost || 'N/A');
+      setWebKontaktEmail(parami.find((p: any) => p.naziv === 'WebKontaktEmail')?.vrednost || 'N/A');
+    };
+    updateCartCount();
+    window.addEventListener("storage", updateCartCount);
+    return () => window.removeEventListener("storage", updateCartCount);
   }, []);
 
-  const odjaviKorisnika = () => {
-    const postojiKorpa = localStorage.getItem("cart");
+  useEffect(() => {
+    const fetchNav = async () => {
+      try {
+        const api = process.env.NEXT_PUBLIC_API_ADDRESS;
+        const res = await fetch(`${api}/api/Web/KategorijeNavigacija`);
+        const data: any[] = await res.json();
 
-    // Ukoliko postoji korpa kada se korisnik odjavi
-    if(postojiKorpa) {
-      localStorage.removeItem("cart");
-    }
+        const mapped = data.map(item => ({
+          icon: <IconComponent name={item.naziv} />,
+          text: item.naziv,
+          href: `/proizvodi/kategorija/${encodeURIComponent(item.naziv)}`,
+          subMenuItems: item.deca?.length
+            ? item.deca.map((sub: any) => ({
+                icon: <IconComponent name={sub.naziv} />,
+                text: sub.naziv,
+                href: `/proizvodi/kategorija/${encodeURIComponent(item.naziv)}/${encodeURIComponent(sub.naziv)}`
+              }))
+            : null
+        }));
+        setHeaderMainNav(mapped);
+      } catch (err) {
+        console.error("Greška pri fetch navigacije:", err);
+      }
+    };
+    fetchNav();
+  }, []);
+
+  useEffect(() => {
+    if (korisnik?.korisnickoIme) {
+      setKorisnickoIme(korisnik.korisnickoIme);
+      setIsLoggedIn(true);
+    } else setIsLoggedIn(false);
+    setIsMounted(true);
+  }, [korisnik]);
+
+  const odjaviKorisnika = () => {
+    if (localStorage.getItem("cart")) localStorage.removeItem("cart");
     deleteCookie("AuthToken");
     setIsLoggedIn(false);
     router.push('/');
@@ -128,112 +96,46 @@ const headerMainNav = [
   };
 
   return (
-    <header className="w-full h-[138px] z-[20] relative">
-      {/* NAVIGACIJA ZA RACUNAR */}
-      <div className="hidden border-b border-gray-200 lg:flex lg:flex-col lg:gap-2">
+    <header className="w-full z-[20] relative border-b border-gray-200">
+      {/* Desktop navigacija */}
+      <div className="hidden border-b border-gray-200 lg:flex lg:flex-col lg:gap-2 h-[138px]">
         <div className="w-full h-[45%] flex items-center px-8">
-          {/* Logo */}
-          <div>
-            <Link href="/">
-              <Image
-                src="/Dabel-logo-2.png" 
-                alt="Dabel logo"
-                height={80}
-                width={125}
-                className="object-contain"
-                style={{ width: 'auto' }}
-                priority
-              />
-            </Link>
-          </div>
-
-          {/* Pretraga */}
+          <Link href="/"><Image src="/Dabel-logo-2.png" alt="Dabel logo" height={80} width={125} className="object-contain" priority /></Link>
           <PretragaProizvoda />
-
-          {/* Kontakt Info */}
           <div className="w-[30%] flex items-center justify-center space-x-6">
-            <div className="flex items-center space-x-2">
-              <Phone className="text-gray-500 h-7 w-7" />
-              <span className="text-sm">{WEBKontaktTelefon}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Mail className="text-gray-500 h-7 w-7" />
-              <Link href='/' as="mailto:website@dabel.rs" className="text-sm">{WebKontaktEmail}</Link>
-            </div>
+            <div className="flex items-center space-x-2"><Phone className="text-gray-500 h-7 w-7"/><span className="text-sm">{WEBKontaktTelefon}</span></div>
+            <div className="flex items-center space-x-2"><Mail className="text-gray-500 h-7 w-7"/><Link href={`mailto:${WebKontaktEmail}`} className="text-sm">{WebKontaktEmail}</Link></div>
           </div>
-
-          {/* Ikonice */}
           <div className="flex justify-center items-center space-x-6">
-            {/* OMILJENI ARTIKLI */}
-            <Link href="/heart">
-              <Heart className="h-6 w-6 text-gray-500 hover:text-gray-700" />
-            </Link>
-            {/* KORPA */}
-            <Link href="/korpa" className="relative inline-block">
-              <ShoppingCart className="h-6 w-6 text-gray-500 hover:text-gray-700" />
-              {brojRazlicitihArtikala > 0 && (
-              <span
-                  className="
-                    absolute -top-2.5 -right-2.5 
-                    inline-flex items-center justify-center
-                    px-2 py-1 text-xs font-bold
-                    leading-none text-white bg-red-600
-                    rounded-full
-                    min-w-[20px] h-5
-                  "
-                >
-                  {brojRazlicitihArtikala}
-                </span>
-              )}
-            </Link>
-
-            {/* NALOG IKONICA */}
+            <Link href="/heart"><Heart className="h-6 w-6 text-gray-500 hover:text-gray-700"/></Link>
+            <Link href="/korpa" className="relative inline-block"><ShoppingCart className="h-6 w-6 text-gray-500 hover:text-gray-700"/>{brojRazlicitihArtikala > 0 && <span className="absolute -top-2.5 -right-2.5 px-2 py-1 text-xs font-bold text-white bg-red-600 rounded-full min-w-[20px] h-5 flex justify-center items-center">{brojRazlicitihArtikala}</span>}</Link>
             <KorisnikMenu />
-          </div>  
+          </div>
         </div>
 
-        {/* Navigacija */}
         <nav className="w-full h-[55%] flex items-center px-8 border-gray-200">
           <div className="flex items-center gap-8">
-            {/* Padajuci meni za Proizvode */}
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-[20px] font-normal bg-transparent hover:bg-transparent data-[state=open]:bg-transparent">
-                    Proizvodi
-                  </NavigationMenuTrigger>
+                  <NavigationMenuTrigger className="text-[20px] font-normal bg-transparent hover:bg-transparent data-[state=open]:bg-transparent">Proizvodi</NavigationMenuTrigger>
                   <NavigationMenuContent className="min-w-[300px] p-4 relative !overflow-visible z-50">
                     <ul className="grid gap-2 relative">
-                      {headerMainNav.map((item, index) => (
-                        <li key={index} className="relative group">
+                      {headerMainNav.map((item, idx) => (
+                        <li key={idx} className="relative group">
                           <NavigationMenuLink asChild className="hover:text-red-500">
                             <Link href={item.href} className="flex flex-row items-center gap-3 p-2 hover:bg-gray-100 rounded transition-colors">
                               {item.icon}
                               <span className="text-[15px] flex items-center justify-between w-full group">
                                 {item.text}
-                                {item.subMenuItems && (
-                                  <span className="ml-auto relative flex items-center text-[16px]">
-                                    <span className="transition-all duration-200 group-hover:opacity-0 group-hover:translate-x-1">
-                                      &gt;
-                                    </span>
-                                    <span className="absolute ml-0.5 transition-all duration-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-0">
-                                      &lt;
-                                    </span>
-                                  </span>
-                                )}
+                                {item.subMenuItems && <span className="ml-auto relative flex items-center text-[16px]"><span className="transition-all duration-200 group-hover:opacity-0 group-hover:translate-x-1">&gt;</span><span className="absolute ml-0.5 transition-all duration-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-0">&lt;</span></span>}
                               </span>
                             </Link>
-                          </NavigationMenuLink> 
-
-                          {/* Ako ima podnavigaciju */}
+                          </NavigationMenuLink>
                           {item.subMenuItems && (
                             <ul className="absolute top-0 left-full ml-2 w-52 bg-white border border-gray-200 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60]">
-                              {item.subMenuItems.map((subItem, subIndex) => (
-                                <li key={subIndex}>
-                                  <Link href={subItem.href} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600">
-                                    {subItem.text}
-                                  </Link>
-                                </li>
+                              {item.subMenuItems.map((sub, sidx) => (
+                                <li key={sidx}><Link href={sub.href} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600">{sub.text}</Link></li>
                               ))}
                             </ul>
                           )}
@@ -245,140 +147,114 @@ const headerMainNav = [
               </NavigationMenuList>
             </NavigationMenu>
 
-            {/* Obicni linkovi */}
-            <Link href="/akcije" className="text-[20px] font-normal hover:text-red-600 transition-colors">
-              Akcije
-            </Link>
-            <Link href="/novo" className="text-[20px] font-normal hover:text-red-600 transition-colors">
-              Novopristigli artikli
-            </Link>
-            <Link href="/BrzoNarucivanje" className="text-[20px] font-normal hover:text-red-600 transition-colors">
-              Brzo Naručivanje
-            </Link>
+            <Link href="/akcije" className="text-[20px] font-normal hover:text-red-600 transition-colors">Akcije</Link>
+            <Link href="/novo" className="text-[20px] font-normal hover:text-red-600 transition-colors">Novopristigli artikli</Link>
+            <Link href="/BrzoNarucivanje" className="text-[20px] font-normal hover:text-red-600 transition-colors">Brzo Naručivanje</Link>
           </div>
         </nav>
       </div>
 
-      {/* TELEFONSKI MENU */}
+      {/* Mobile navigacija */}
       <div className="lg:hidden px-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between py-3">
           {/* Logo */}
-          <div>
-            <Link href="/">
-              <Image
-                src="/Dabel-logo-2.png" 
-                alt="Dabel logo"
-                height={80}
-                width={125}
-                className="object-contain"
-              />
+          <Link href="/">
+            <Image
+              src="/Dabel-logo-2.png" 
+              alt="Dabel logo"
+              height={50}
+              width={100}
+              className="object-contain"
+              priority
+            />
+          </Link>
+          
+          <div className="flex items-center gap-4">
+            {/* Korisnik menu */}
+            <div className="lg:hidden">
+              <KorisnikMenu />
+            </div>
+
+            {/* Korpa */}
+            <Link href="/korpa" className="relative p-1">
+              <ShoppingCart className="w-6 h-6" color="gray"/>
+              {brojRazlicitihArtikala > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs font-bold text-white bg-red-600 rounded-full">
+                  {brojRazlicitihArtikala}
+                </span>
+              )}
             </Link>
-          </div>
-          <div>
-          {/* KORISNIK MENU */}
-            <Sheet open={openKorisnikMeni} onOpenChange={setOpenKorisnikMeni}>
-              <SheetTrigger>
-                <User className="w-6 h-8" />
-              </SheetTrigger>
-              <SheetContent className="w-full">
-                <SheetHeader>
-                  <SheetTitle>{korisnickoIme ? korisnickoIme : 'Korisnik'}</SheetTitle>
-                  <SheetDescription></SheetDescription>
-                  <Separator />
-                </SheetHeader>
-                <div className="pl-2 flex flex-col">
-                  <ScrollArea>
-                      {menuItems.map((item) => (
-                        <Link href={item.href} key={item.id} className="flex gap-3 items-center pb-4" onClick={() => setOpenKorisnikMeni(false)}>
-                          <span className="">{item.icon}</span>
-                          <span className="text-[18px]">{item.text}</span>
-                        </Link>
-                      ))}
 
-                      {isLoggedIn ? (
-                       
-                       <Link href='#' className="flex gap-3 items-center pb-4">
-                          <LogOut className="w-6 h-6" />
-                          <span className="text-[18px] text-red-500" onClick={() => {
-                              odjaviKorisnika();
-                              setOpenKorisnikMeni(false);
-                          }}>Odjava</span>
-                        </Link> ) : (
-
-                          <Link href='#' className="flex gap-3 items-center pb-4">
-                          <LogOut className="w-6 h-6" />
-                          <span className="text-[18px]" onClick={() => {
-                              router.push('/login');
-                              setOpenKorisnikMeni(false);
-                            }}>
-                                Prijavi se</span>
-                        </Link>
-
-                      )}
-                  </ScrollArea>
-                </div>
-              </SheetContent>
-            </Sheet>
-
-            {/* HAMBURGER MENU */}
+            {/* Hamburger menu */}
             <Sheet>
-              <SheetTrigger>
-                <MenuIcon className="w-8 h-8" />
+              <SheetTrigger className="p-1">
+                <MenuIcon className="w-6 h-6" color="gray"/>
               </SheetTrigger>
-              <SheetContent className="w-full overflow-scroll">
+              <SheetContent className="w-full overflow-y-auto">
                 <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
+                  <SheetTitle>Meni</SheetTitle>
                   <Separator />
                 </SheetHeader>
 
-                <div className="pl-2 flex flex-col gap-2">
-                  <Accordion type="single" collapsible className="flex flex-col gap-4">
-                    {headerMainNav.map((item, index) => (
-                      <AccordionItem key={index} value={`item-${index}`}>
-                        <AccordionTrigger className="flex items-center gap-3 pl-2">
-                          {item.icon}
-                          <span className="text-[18px]">{item.text}</span>
-                        </AccordionTrigger>
+                <div className="pl-2 flex flex-col gap-2 mt-4">
+                  {/* Pretraga */}
+                  <div className="relative mb-4">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
+                    <Input
+                      placeholder="Pretraga"
+                      className="pl-10 border border-gray-300 rounded-md"
+                    />
+                  </div>
 
-                        <AccordionContent className="pl-10">
-                          {item.text === "Elementi za pričvršćivanje" && item.subMenuItems ? (
-                            <ul className="flex flex-col gap-1">
+                  {/* Kategorije */}
+                  <Accordion type="single" collapsible className="flex flex-col gap-2">
+                    {headerMainNav.map((item, index) => (
+                      item.subMenuItems ? (
+                        <AccordionItem key={index} value={`item-${index}`}>
+                          <AccordionTrigger className="flex items-center gap-3 px-2 py-3 hover:bg-gray-50 rounded">
+                            {item.icon}
+                            <span className="text-[16px]">{item.text}</span>
+                          </AccordionTrigger>
+                          <AccordionContent className="pl-10">
+                            <ul className="flex flex-col gap-1 py-2">
                               {item.subMenuItems.map((subItem, subIndex) => (
                                 <li key={subIndex}>
                                   <Link
                                     href={subItem.href}
-                                    className="block px-2 py-1 text-[16px] text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                                    className="block px-2 py-2 text-[15px] text-gray-700 hover:bg-gray-100 rounded transition-colors"
                                   >
                                     {subItem.text}
                                   </Link>
                                 </li>
                               ))}
                             </ul>
-                          ) : (
-                            <Link
-                              href={item.href}
-                              className="flex flex-row items-center gap-3 p-1 hover:bg-gray-100 rounded transition-colors"
-                            >
-                              <span className="text-[18px]">{item.text}</span>
-                            </Link>
-                          )}
-                        </AccordionContent>
-                      </AccordionItem>
+                          </AccordionContent>
+                        </AccordionItem>
+                      ) : (
+                        <Link
+                          key={index}
+                          href={item.href}
+                          className="flex items-center gap-3 px-2 py-3 hover:bg-gray-50 rounded"
+                        >
+                          {item.icon}
+                          <span className="text-[16px]">{item.text}</span>
+                        </Link>
+                      )
                     ))}
                   </Accordion>
 
-                  <div className="flex flex-col gap-4 mt-2">
+                  {/* Dodatni linkovi */}
+                  <div className="flex flex-col gap-1 mt-2">
                     {dodatniLinkovi.map((item, index) => (
                       <Link
                         key={`add-${index}`}
                         href={item.href}
-                        className="text-[18px] flex items-center gap-2 px-2"
+                        className="text-[16px] flex items-center gap-3 px-2 py-3 hover:bg-gray-50 rounded"
                       >
                         {item.icon}
                         <span>{item.text}</span>
-
                         {item.text === "Korpa" && brojRazlicitihArtikala > 0 && (
-                          <span className="ml-2 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                          <span className="ml-auto bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
                             {brojRazlicitihArtikala}
                           </span>
                         )}
@@ -389,14 +265,6 @@ const headerMainNav = [
               </SheetContent>
             </Sheet>
           </div>
-        </div>
-        {/* Pretraga */}
-        <div className="relative mt-3">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
-          <Input
-            placeholder="Pretraga"
-            className="pl-8 border border-black rounded-md"
-          />
         </div>
       </div>
     </header>

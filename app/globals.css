@@ -112,6 +112,14 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+.flex-row-important {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

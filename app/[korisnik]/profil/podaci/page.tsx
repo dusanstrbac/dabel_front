@@ -12,7 +12,6 @@ const ProfilPodaci = () => {
     const fetchKorisnikData = async () => {
       try {
         const korisnik = dajKorisnikaIzTokena();
-        //console.log("KORISNIK: " + korisnik?.idKorisnika);
 
         if (!korisnik) {
           setLoading(false);

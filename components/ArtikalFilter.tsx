@@ -9,11 +9,14 @@ import {
   CollapsibleContent,
 } from './ui/collapsible'
 import { StepId } from 'framer-motion'
+import { useRouter, useSearchParams } from 'next/navigation'
+
 
 interface ProductFilterProps {
   artikli: any[];
   atributi: any[];
   kategorija: string;
+  podkategorija: string | null;
   onFilterChange: (filters: ArtikalFilterProp) => void
 }
 
@@ -28,8 +31,28 @@ const defaultFilters: ArtikalFilterProp = {
   Boja: [],
 }
 
-const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, atributi, kategorija, onFilterChange }) => {
-  const [filters, setFilters] = useState<ArtikalFilterProp>(defaultFilters)
+const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, atributi, kategorija, podkategorija, onFilterChange }) => {
+
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const [filters, setFilters] = useState<ArtikalFilterProp>({
+    naziv: searchParams.get('naziv') || "",
+    jedinicaMere: searchParams.get('jedinicaMere') || "",
+    Materijal: asArray(searchParams.getAll('Materijal')),
+    Model: asArray(searchParams.getAll('Model')),
+    Pakovanje: asArray(searchParams.getAll('Pakovanje')),
+    RobnaMarka: asArray(searchParams.getAll('RobnaMarka')),
+    Upotreba: asArray(searchParams.getAll('Upotreba')),
+    Boja: asArray(searchParams.getAll('Boja')),
+  })
+
+  function asArray(value: string | string[] | undefined): string[] {
+    if (!value) return []
+    return Array.isArray(value) ? value : [value]
+  }
+
+
   const [filterOptions, setFilterOptions] = useState<{
     jedinicaMere: string[]
     Materijal: string[]
@@ -50,78 +73,95 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, atributi, kategor
 
   useEffect(() => {
     if (!artikli || artikli.length === 0 || !atributi) return;
-    console.log("Stigli artikli u filter:", atributi);
+
+    console.log("Stigli atributi:", atributi);
 
     const grupe = Object.entries(atributi).map(([key, value]) => [
       key.trim() === "" ? "Nepoznata grupa" : key,
       value,
     ]);
-    
-    const atributiPoGrupi = grupe.map(([nazivGrupe, atributi]) => {
-      const filteri: {
-        Materijal: Set<string>;
-        Model: Set<string>;
-        Pakovanje: Set<string>;
-        RobnaMarka: Set<string>;
-        Upotreba: Set<string>;
-        Boja: Set<string>;
-      } = {
-        Materijal: new Set<string>(),
-        Model: new Set<string>(),
-        Pakovanje: new Set<string>(),
-        RobnaMarka: new Set<string>(),
-        Upotreba: new Set<string>(),
-        Boja: new Set<string>(),
-      };
 
-      for (const attr of atributi) {
-        if (attr.imeAtributa.includes("Materijal")) filteri.Materijal.add(attr.vrednost);
-        else if (attr.imeAtributa.includes("Model")) filteri.Model.add(attr.vrednost);
-        else if (attr.imeAtributa.includes("Pakovanje")) filteri.Pakovanje.add(attr.vrednost);
-        else if (attr.imeAtributa.includes("Robna marka")) filteri.RobnaMarka.add(attr.vrednost);
-        else if (attr.imeAtributa.includes("Upotreba")) filteri.Upotreba.add(attr.vrednost);
-        else if (
-          attr.imeAtributa.includes("Zavr.obr-boja") ||
-          attr.imeAtributa.includes("Boja")
-        )
-          filteri.Boja.add(attr.vrednost);
-      }
-
-      return {
-        grupa: nazivGrupe,
-        filteri: {
-          Materijal: Array.from(filteri.Materijal),
-          Model: Array.from(filteri.Model),
-          Pakovanje: Array.from(filteri.Pakovanje),
-          RobnaMarka: Array.from(filteri.RobnaMarka),
-          Upotreba: Array.from(filteri.Upotreba),
-          Boja: Array.from(filteri.Boja),
-        },
-      };
-    });
-
-    const grupaZaKategoriju = atributiPoGrupi.find(
-      ({ grupa }) => grupa.toLowerCase() === kategorija.toLowerCase()
+    // Pronađi podatke za trenutnu kategoriju
+    const grupa = grupe.find(
+      ([nazivGrupe]) => nazivGrupe.toLowerCase() === kategorija.toLowerCase()
     );
 
-    if (grupaZaKategoriju) {
-      const { filteri } = grupaZaKategoriju;
+    if (!grupa) return;
 
-      setFilterOptions({
-        jedinicaMere: Array.from(new Set(
-          artikli
-            .map((artikal) => artikal.jm)
-            .filter((v) => v !== undefined && v !== null && v !== '')
-        )),
-        Materijal: filteri.Materijal,
-        Model: filteri.Model,
-        Pakovanje: filteri.Pakovanje,
-        RobnaMarka: filteri.RobnaMarka,
-        Upotreba: filteri.Upotreba,
-        Boja: filteri.Boja,
-      });
+    const atributiGrupe = grupa[1] as any[];
+
+    // Ako postoji podkategorija, filtriraj artikle koji pripadaju toj podgrupi
+    const relevantniAtributi = podkategorija
+      ? atributiGrupe.filter(attr =>
+          attr.imeAtributa === "Podgrupa(2)" && attr.vrednost === podkategorija
+            ? true
+            : attr.imeAtributa !== "Podgrupa(2)" &&
+              atributiGrupe.some(
+                a =>
+                  a.idArtikla === attr.idArtikla &&
+                  a.imeAtributa === "Podgrupa(2)" &&
+                  a.vrednost === podkategorija
+              )
+        )
+      : atributiGrupe;
+
+    // Priprema filtera
+    const filteri = {
+      Materijal: new Set<string>(),
+      Model: new Set<string>(),
+      Pakovanje: new Set<string>(),
+      RobnaMarka: new Set<string>(),
+      Upotreba: new Set<string>(),
+      Boja: new Set<string>(),
+    };
+
+    for (const attr of relevantniAtributi) {
+      if (attr.imeAtributa.includes("Materijal")) filteri.Materijal.add(attr.vrednost);
+      else if (attr.imeAtributa.includes("Model")) filteri.Model.add(attr.vrednost);
+      else if (attr.imeAtributa.includes("Pakovanje")) filteri.Pakovanje.add(attr.vrednost);
+      else if (attr.imeAtributa.includes("Robna marka")) filteri.RobnaMarka.add(attr.vrednost);
+      else if (attr.imeAtributa.includes("Upotreba")) filteri.Upotreba.add(attr.vrednost);
+      else if (
+        attr.imeAtributa.includes("Zavr.obr-boja") ||
+        attr.imeAtributa.includes("Boja")
+      )
+        filteri.Boja.add(attr.vrednost);
     }
-  }, [artikli, atributi, kategorija]);
+
+    // Jedinice mere direktno iz artikala
+    const jedinice = Array.from(
+      new Set(
+        artikli
+          .filter((artikal) =>
+            podkategorija
+              ? atributiGrupe.some(
+                  a =>
+                    a.idArtikla === artikal.idArtikla &&
+                    a.imeAtributa === "Podgrupa(2)" &&
+                    a.vrednost === podkategorija
+                )
+              : true
+          )
+          .map((a) => a.jm)
+          .filter((v) => v !== undefined && v !== null && v !== "")
+      )
+    );
+
+    // console.log("KAT:", kategorija);
+    // console.log("PODKAT:", podkategorija);
+    // console.log("JM:", jedinice);
+
+    setFilterOptions({
+      jedinicaMere: jedinice,
+      Materijal: Array.from(filteri.Materijal),
+      Model: Array.from(filteri.Model),
+      Pakovanje: Array.from(filteri.Pakovanje),
+      RobnaMarka: Array.from(filteri.RobnaMarka),
+      Upotreba: Array.from(filteri.Upotreba),
+      Boja: Array.from(filteri.Boja),
+    });
+  }, [artikli, atributi, kategorija, podkategorija]);
+
 
   const handleChange = <K extends keyof ArtikalFilterProp>(
     field: K,
@@ -130,7 +170,50 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, atributi, kategor
     const updatedFilters = { ...filters, [field]: value }
     setFilters(updatedFilters)
     onFilterChange(updatedFilters)
+
+    const params = new URLSearchParams()
+
+    if (updatedFilters.jedinicaMere && updatedFilters.jedinicaMere.trim() !== '') {
+      params.set('jm', updatedFilters.jedinicaMere)
+    }
+
+    const keys: (keyof ArtikalFilterProp)[] = [
+      'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja'
+    ]
+
+    for (const key of keys) {
+      const values = updatedFilters[key]
+      if (Array.isArray(values)) {
+        for (const val of values) {
+          if (val && val.trim() !== '') {
+            params.append(key.toString(), val)
+          }
+        }
+      }
+    }
+
+    console.log("filters pre router.push:", updatedFilters);
+
+    // Resetuj page na 1 ako menjamo filter
+    params.set('page', '1')
+
+    // Idi na novi URL bez praznih vrednosti
+    router.push(`${window.location.pathname}?${params.toString()}`)
   }
+  useEffect(() => {
+  setFilters({
+    naziv: searchParams.get('naziv') || "",
+    jedinicaMere: searchParams.get('jedinicaMere') || "",
+    Materijal: asArray(searchParams.getAll('Materijal')),
+    Model: asArray(searchParams.getAll('Model')),
+    Pakovanje: asArray(searchParams.getAll('Pakovanje')),
+    RobnaMarka: asArray(searchParams.getAll('RobnaMarka')),
+    Upotreba: asArray(searchParams.getAll('Upotreba')),
+    Boja: asArray(searchParams.getAll('Boja')),
+  })
+}, [searchParams])
+
+
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-md max-w-xl mx-auto space-y-4 relative">
@@ -207,6 +290,7 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({artikli, atributi, kategor
           onClick={() => {
             setFilters(defaultFilters)
             onFilterChange(defaultFilters)
+            router.push(window.location.pathname)
           }}
           className="px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition cursor-pointer"
           type="button"

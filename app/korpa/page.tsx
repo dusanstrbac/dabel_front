@@ -33,7 +33,7 @@ const Korpa = () => {
   const [quantities, setQuantities] = useState<number[]>([]);
   const [isClient, setIsClient] = useState(false);
 
-
+  const [partner, setPartner] = useState<KorisnikPodaciType | null>(null);
   const [rabatPartnera, setRabatPartnera] = useState<number>(0);
   const [nerealizovanIznos, setNerealizovanIznos] = useState<number>(0);
 
@@ -102,16 +102,19 @@ const Korpa = () => {
       try {
           const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${email}`);
           const data = await res.json();
+          const fPartner = data[0] as KorisnikPodaciType;
 
-          const partner = data[0];
-          if (partner.partnerRabat.rabat) {
-            setRabatPartnera(partner.partnerRabat.rabat);
+          setPartner(fPartner);
+
+
+          if (fPartner.partnerRabat.rabat) {
+            setRabatPartnera(fPartner.partnerRabat.rabat);
           }
-          if(partner.finKarta?.nerealizovano) {
-            setNerealizovanIznos(partner.finKarta.nerealizovano);
-          }
-          if(partner.finKarta?.nerealizovano > 0) {
-            toast.error("Imate neplaćene faktute, pa vam je poručivanje zabranjeno");
+          if (fPartner.finKarta?.nerealizovano) {
+            setNerealizovanIznos(parseFloat(fPartner.finKarta.nerealizovano)); 
+            if (parseFloat(fPartner.finKarta.nerealizovano) > 0) {
+              toast.error("Imate neplaćene fakture, pa vam je poručivanje zabranjeno");
+            }
           }
       } catch (err) {
           console.error("Greška pri fetchovanju partnera:", err);
@@ -166,11 +169,12 @@ const Korpa = () => {
   const getCenaZaArtikal = (artikal: Artikal) => {
     const cenaAkcija = artikal.artikalCene?.[0]?.akcija?.cena;
     const cenaRegularna = artikal.artikalCene?.[0]?.cena;
-    return (cenaAkcija && cenaAkcija > 0) ? cenaAkcija : cenaRegularna || 0;
+    const cena = (cenaAkcija && cenaAkcija > 0) ? cenaAkcija : cenaRegularna || 0;
+    return Number(cena) || 0;
   };
 
   const getOriginalnaCena = (artikal: Artikal) => {
-    return Number(artikal.artikalCene?.[0]?.cena) || 0;
+    return Number(artikal.artikalCene[0].cena) || 0;
   };
 
   const formatCena = (cena: number) => {
@@ -182,7 +186,8 @@ const Korpa = () => {
     const packSize = artikal.pakovanje || 1;
     const rounded = getRoundedQuantity(quantities[index], packSize);
     const cena = getCenaZaArtikal(artikal);
-    const cenaSaRabat = cena * (1 - rabatPartnera / 100);
+    const rabat = partner?.partnerRabat.rabat ?? 0;
+    const cenaSaRabat = cena * (1 - rabat / 100);
     return sum + rounded * cenaSaRabat;
 }, 0);
 
@@ -193,12 +198,42 @@ const Korpa = () => {
     return `${baseUrl}/s${idArtikla}.jpg`;    
   };
     
+
     useEffect(() => {
-      if (isClient) {
-        sessionStorage.setItem("ukupnaCenaSaPDV", totalAmountWithPDV.toString());
-        sessionStorage.setItem("ukupnaCenaBezPDV", totalAmount.toString());
-      }
-    }, [totalAmount, totalAmountWithPDV, isClient]);
+      if (!isClient || articleList.length === 0 || !partner) return;
+
+      const PDV = 0.2;
+
+      const artikliZaSlanje = articleList.map((article, index) => {
+        const pakovanje = article.pakovanje || 1;
+        const kolicina = getRoundedQuantity(quantities[index], pakovanje);
+        const originalnaCena = getOriginalnaCena(article);
+        const koriscenaCena = getCenaZaArtikal(article);
+        const cenaPosleRabat = koriscenaCena * (1 - rabatPartnera / 100);
+        const iznosSaPDV = cenaPosleRabat * kolicina * (1 + PDV);
+
+        return {
+          idArtikla: article.idArtikla,
+          naziv: article.naziv,
+          jm: article.jm,
+          originalnaCena: Number(originalnaCena.toFixed(2)),
+          koriscenaCena: Number(koriscenaCena.toFixed(2)),
+          kolicina,
+          IznosSaPDV: Number(iznosSaPDV.toFixed(2)),
+          pdv: 20,
+        };
+      });
+
+      const payload = {
+        partner,
+        artikli: artikliZaSlanje,
+        ukupnaCenaBezPDV: Number(totalAmount.toFixed(2)),
+        ukupnaCenaSaPDV: Number(totalAmountWithPDV.toFixed(2)),
+      };
+
+      sessionStorage.setItem("korpaPodaci", JSON.stringify(payload));
+    }, [articleList, quantities, partner, totalAmount, totalAmountWithPDV, isClient]);
+
 
   const narucivanjeDisabled = nerealizovanIznos > 0;
   const razlogZabraneNarucivanja = narucivanjeDisabled
@@ -263,8 +298,8 @@ const Korpa = () => {
                     />
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-base">{article.naziv}</span>
+                    <div className="flex flex-col max-w-[500px]">
+                      <span className="font-semibold text-base whitespace-pre-wrap mb-2">{article.naziv}</span>
                       <span>Šifra: {article.id}</span>
                       <span>BarKod: {article.barkod}</span>
                       {article.stanje && <span className="text-sm text-red-500">{article.stanje}</span>}

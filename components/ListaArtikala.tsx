@@ -15,7 +15,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ArtikalFilterProp, ListaArtikalaProps } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 
-const ListaArtikala = ({ artikli, atributi, kategorija, totalCount, currentPage, onPageChange }: ListaArtikalaProps) => {
+const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCount, currentPage, onPageChange }: ListaArtikalaProps) => {
   const artikliPoStrani = 8;
   const router = useRouter();
   const pathname = usePathname(); // Dobijanje pathname-a
@@ -45,9 +45,6 @@ const ListaArtikala = ({ artikli, atributi, kategorija, totalCount, currentPage,
   // Funkcija za menjanje strane i update URL-a bez reloada
   const idiNaStranu = (broj: number, noviFilteri: any, event?: React.MouseEvent) => {
     if (event) event.preventDefault();
-
-    console.log("Idi na stranu:", broj);
-
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return;
 
     // Kreiraj objekat sa svim filterima i trenutnim parametrima
@@ -77,7 +74,7 @@ const ListaArtikala = ({ artikli, atributi, kategorija, totalCount, currentPage,
     <div className="flex flex-col md:flex-row w-full px-1 gap-4">
       {/* Filter sekcija */}
       <div className="w-full md:w-1/4">
-        <ArtikalFilter artikli={artikli} atributi={atributi} kategorija={kategorija} onFilterChange={onFilterChange} />
+        <ArtikalFilter artikli={artikli} atributi={atributi} kategorija={kategorija} podkategorija={podkategorija} onFilterChange={onFilterChange} />
       </div>
 
       {/* Lista artikala */}
