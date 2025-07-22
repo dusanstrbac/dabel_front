@@ -63,7 +63,7 @@ export default function PrikazDokumenta() {
           </div>
           <div>
             <p className="text-gray-500">Partner</p>
-            <p className="font-semibold text-lg">{dokument.nazivPartnera}</p>
+            <p className="font-semibold text-lg">{dokument.idPartnera}</p>
           </div>
         </div>
 

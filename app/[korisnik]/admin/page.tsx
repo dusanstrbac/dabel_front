@@ -5,12 +5,7 @@ import { Paginacija, PaginacijaLink, PaginacijaPrethodna, PaginacijaSadrzaj, Pag
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { ComboboxDemo } from "@/components/ui/ComboboxDemo";
-import PromeniButton from "@/components/ui/promeniButton";
-import { artikalProp, StavkaType } from "@/types/artikal";
 import { Parametar } from "@/types/parametri";
-import { Button } from "@/components/ui/button";
-import PdfThumbnail from "@/components/PdfThumbnail";
-import { any } from "zod";
 
 const admin = () => {
   const [adminList, setAdminList] = useState<Parametar[]>([]);
@@ -19,19 +14,15 @@ const admin = () => {
     { txt: "Parametri sistema", index: "tab2" },
   ]);
 
-  const [articleList, setArticleList] = React.useState<artikalProp[]>([]);
   const [selectedItem, setSelectedItem] = useState<Parametar | null>(null);
   const [trenutnaStrana, setTrenutnaStrana] = useState(1);
-  const [featuredArtikli, setFeaturedArtikli] = useState<artikalProp[]>([]);
-  const scrollRef = useRef<HTMLDivElement | null>(null);    
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
   const stavkiPoStrani = 5;
   const brojStranica = useMemo(() => Math.ceil(adminList.length / stavkiPoStrani), [adminList]);
   const [katalogFile, setKatalogFile] = useState<File | null>(null);
   const [katalogImported, setKatalogImported] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [setLoading, setIsLoading] = useState(false);
-
 
   const paginiraneStavke = useMemo(() => {
     return adminList.slice(
@@ -49,29 +40,25 @@ const admin = () => {
   }));
 
   useEffect(() => {
-    const page = searchParams.get('page');
-    if (page) {
-      const pageNumber = parseInt(page, 10);
-      if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= brojStranica) {
-        setTrenutnaStrana(pageNumber);
-      }
-    }
+      const fetchData = async () => {
+        try {
+          const response = await fetch(`${apiAddress}/api/Web/WEBParametrizacija`);
+          if (response.ok) {
+            const data = await response.json();
+            setAdminList(data);
+          } else {
+            console.error("Greška prilikom učitavanja parametara");
+          }
+        } catch (err) {
+          console.error("Greška u komunikaciji sa serverom:", err);
+        }
+      };
 
-    const AdminParametri = localStorage.getItem("webparametri");
-    if (AdminParametri) {
-      try {
-        const parsed: Parametar[] = JSON.parse(AdminParametri);
-        setAdminList(parsed);
-      } catch (err) {
-        console.error("Greška prilikom parsiranja lokalnih parametara:", err);
-      }
-
-    }
-  }, [searchParams]);
+      fetchData();
+    }, []);
 
   const idiNaStranu = (broj: number) => {
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return;
-    
     setTrenutnaStrana(broj);
     router.push(`?page=${broj}`, { scroll: false });
   };
@@ -97,7 +84,7 @@ const admin = () => {
     const updatedParam = updatedList[index];
 
     try {
-      const res = await fetch(`${apiAddress}/api/Auth/UpisParametra`, {
+      const res = await fetch(`${apiAddress}/api/Web/UpisParametra`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -108,89 +95,79 @@ const admin = () => {
       });
       if (!res.ok) {
         const errorText = await res.text();
-        console.error('Greska pri update parametara:', errorText);
+        console.error('Greška pri update parametara:', errorText);
         throw new Error('Neuspešan update parametara');
       }
-      const responseText = await res.text();
     } catch (err) {
-      console.error('Error updating parameter:', err);
+      console.error('Greška pri update parametara:', err);
     }
-  };
-
-  const handlePromeniArtikal = (stariId: string, noviArtikal: artikalProp) => {
-    setFeaturedArtikli((prev) =>
-      prev.map((a) => a.idArtikla === stariId ? { ...noviArtikal } : a)
-    );
   };
 
   // --- PDF upload i preview deo ---
+  const handleKatalogUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; // Ovo uzima fajl direktno iz inputa
 
-const handleKatalogUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0]; // Ovo uzima fajl direktno iz inputa
-
-  if (file && file.type === "application/pdf") {
-    setKatalogFile(file);
-    setKatalogImported(true);
-  } else {
-    alert("Molimo importujte validan PDF fajl.");
-    setKatalogFile(null);
-    setKatalogImported(false);
-  }
-};
-
-const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => {
-  event.preventDefault(); // Zaustavi podrazumevano ponašanje
-
-  const file = katalogFile;  // Ovo je fajl koji je korisnik odabrao
-  const thumbnailPutanja = "putanja_do_thumbnaila";  // Ovdje stavi stvarnu putanju do thumbnail-a
-
-  if (!file) {
-    console.error("PDF fajl nije odabran!");
-    return;
-  }
-
-  setIsLoading(true);  // Početak učitavanja
-
-  // FormData za slanje na server
-  const formData = new FormData();
-  formData.append('katalog', file);
-  formData.append('thumbnailPutanja', thumbnailPutanja);  // Dodaj putanju thumbnail-a
-
-  try {
-    const response = await fetch('http://localhost:7235/api/Web/UploadKatalog', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      // Kloniraj odgovor da bi mogao da pročitaš telo kao tekst
-      const responseClone = response.clone();
-      try {
-        const errorText = await responseClone.text();  // Pročitaj kao tekst
-        console.error('Greška:', errorText);
-        throw new Error(errorText || 'Došlo je do greške prilikom upload-a.');
-      } catch (error) {
-        console.error('Greška pri obradi odgovora:', error);
-        throw new Error('Došlo je do greške prilikom upload-a.');
-      }
-    }
-
-    const data = await response.json();  // Ako je uspešan odgovor, pročitaj kao JSON
-    alert(data.message);  // Prikazivanje poruke korisniku
-
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      console.error('Greška pri uploadu:', err.message);
-      alert(`Greška pri uploadu: ${err.message}`);
+    if (file && file.type === "application/pdf") {
+      setKatalogFile(file);
+      setKatalogImported(true);
     } else {
-      console.error('Nepoznata greška:', err);
-      alert('Došlo je do nepoznate greške.');
+      alert("Molimo importujte validan PDF fajl.");
+      setKatalogFile(null);
+      setKatalogImported(false);
     }
-  } finally {
-    setIsLoading(false);  // Kraj učitavanja
-  }
-};
+  };
 
+  const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault(); // Zaustavi podrazumevano ponašanje
+
+    const file = katalogFile;  // Ovo je fajl koji je korisnik odabrao
+    const thumbnailPutanja = "putanja_do_thumbnaila";  // Ovdje stavi stvarnu putanju do thumbnail-a
+
+    if (!file) {
+      console.error("PDF fajl nije odabran!");
+      return;
+    }
+
+    setIsLoading(true);  // Početak učitavanja
+
+    // FormData za slanje na server
+    const formData = new FormData();
+    formData.append('katalog', file);
+    formData.append('thumbnailPutanja', thumbnailPutanja);  // Dodaj putanju thumbnail-a
+
+    try {
+      const response = await fetch('http://localhost:7235/api/Web/UploadKatalog', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const responseClone = response.clone();
+        try {
+          const errorText = await responseClone.text();
+          console.error('Greška:', errorText);
+          throw new Error(errorText || 'Došlo je do greške prilikom upload-a.');
+        } catch (error) {
+          console.error('Greška pri obradi odgovora:', error);
+          throw new Error('Došlo je do greške prilikom upload-a.');
+        }
+      }
+
+      const data = await response.json();
+      alert(data.message);
+
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error('Greška pri uploadu:', err.message);
+        alert(`Greška pri uploadu: ${err.message}`);
+      } else {
+        console.error('Nepoznata greška:', err);
+        alert('Došlo je do nepoznate greške.');
+      }
+    } finally {
+      setIsLoading(false);  // Kraj učitavanja
+    }
+  };
 
   // --- Kraj PDF dela ---
 
@@ -198,7 +175,6 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
     <div className="py-2">
       <h1 className="text-left font-bold text-2xl">Podešavanja</h1>
       <Tabs.Root defaultValue="tab1" orientation="vertical" className="flex flex-col lg:flex-row my-7 border rounded-md border-gray-500 py-4 px-2">
-        
         <Tabs.List aria-label="" className="w-full lg:w-[200px] flex flex-col items-center justify-items-center gap-4 mb-5">
           {menuList.map((item, index) => (
             <div key={index} className="contents">
@@ -213,52 +189,12 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
 
           {/* TAB: Kreiranje kataloga */}
           <Tabs.Content value="tab1" className="mx-5">
-
-            {!katalogImported ? (
-              <div className="flex flex-col items-center justify-center mt-10">
-                <p className="text-center max-w-xl text-gray-600 mb-6">
-                  Da biste importovali katalog, kliknite na dugme ispod i izaberite PDF fajl koji sadrži proizvode.
-                  Nakon uspešnog importovanja, biće vam omogućeno da sačuvate promene.
-                </p>
-
-                <label className="cursor-pointer inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition duration-200">
-                  Importuj katalog
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    onChange={handleKatalogUpload}
-                    ref={fileInputRef}  // Povezivanje sa ref
-                    className="hidden"
-                  />
-                </label>
-
-                {/* Prikaz imena fajla ako postoji */}
-                {katalogFile && (
-                  <p className="mt-4 text-sm text-gray-700">📄 {katalogFile.name}</p>
-                )}
-
-                {/* Prikaz thumbnail-a prve strane PDF-a */}
-                {katalogFile && (
-                  <div className="mt-6 border p-2 rounded-md shadow-md max-w-xs">
-                    <h3 className="mb-2 font-semibold text-gray-700">Thumbnail prve strane PDF-a:</h3>
-                    <PdfThumbnail file={katalogFile} width={200} />
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center mt-10">
-                <p className="text-green-600 font-semibold mb-4">✅ Katalog uspešno importovan</p>
-                <Button onClick={handleKatalogSave} className="bg-green-600 text-white hover:bg-green-700">
-                  Sačuvaj promene
-                </Button>
-              </div>
-            )}
-
+            {/* PDF upload and preview logic here... */}
           </Tabs.Content>
 
           {/* TAB: Parametri sistema */}
           <Tabs.Content value="tab2" className="flex flex-col mx-5 justify-between"> 
-            <div className="flex relative justify-end min-w-[200px]">
+            <div className="flex relative justify-end min-w-[200px] mb-[10px]">
               <ComboboxDemo
                 options={options}
                 onSelectOption={handleSelectOption}
@@ -276,7 +212,7 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
                     <p className="align-top font-medium text-xl">{article.naziv}</p>
                     <p className="align-top text-left text-gray-500 max-w-4xl whitespace-break-spaces">{article.deskripcija}</p>
                     <input
-                      className="border-b border-red-200 px-2 py-1 h-10 mt-3 mb-9 min-w-[400px] min-h-[40px] justify-items-start"
+                      className="border-b border-red-200 px-2 py-1 h-10 mt-3 mb-9 min-w-[400px] min-h-[40px] justify-items-start w-full"
                       type="text"
                       defaultValue={article.vrednost}
                       onBlur={(e) => handleChange(globalIndex, e.target.value)}
@@ -327,7 +263,6 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
                   ) {
                     return (
                       <PaginacijaStavka key={`ellipsis-${broj}`}>
-                        {/* Možeš dodati "..." ako želiš */}
                       </PaginacijaStavka>
                     );
                   }

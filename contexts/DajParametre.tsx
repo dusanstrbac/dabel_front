@@ -41,7 +41,7 @@ export function TrebaOsvezitiParametre(): boolean {
 export async function OsveziParametre(): Promise<webparametri[] | null> {
   try {
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-    const response = await axios.get(`${apiAddress}/api/Auth/WEBParametrizacija`);
+    const response = await axios.get(`${apiAddress}/api/Web/WEBParametrizacija`);
     const data = response.data;
 
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
