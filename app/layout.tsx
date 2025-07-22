@@ -14,12 +14,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
           <Providers>
-<<<<<<< HEAD
-            {children}
-          </Providers>
-          <ParametriWatcher/>
-          <Toaster />
-=======
           {children}
           </Providers>
           <ParametriWatcher/>
@@ -31,7 +25,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               }
             }}
           />
->>>>>>> d84bacd979eaa0ad90c3b535ae9c351a08f02bdd
       </body>
     </html>
   );

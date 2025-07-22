@@ -19,6 +19,7 @@ export type StavkaDokumenta = {
   idArtikla: string;
   nazivArtikla: string;
   cena: number;
+  jm: string;
   originalnaCena: number;
   kolicina: string;
   pdv: string;

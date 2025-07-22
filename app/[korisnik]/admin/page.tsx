@@ -113,7 +113,7 @@ const admin = () => {
     const updatedParam = updatedList[index];
 
     try {
-      const res = await fetch(`${apiAddress}/api/Auth/UpisParametra`, {
+      const res = await fetch(`${apiAddress}/api/Web/UpisParametra`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
