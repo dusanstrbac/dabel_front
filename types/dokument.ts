@@ -1,6 +1,5 @@
 
 export type DokumentInfo = {
-  partner: KorisnikPodaciType,
   tip: "narudzbenica",
   idPartnera: string,
   brojDokumenta: number,

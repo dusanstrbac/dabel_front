@@ -5,6 +5,7 @@ import { AritkalKorpaType } from "@/types/artikal";
 import { DokumentInfo, StavkaDokumenta } from "@/types/dokument";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import korisnici from "@/app/[korisnik]/profil/korisnici/page";
+import { useParams } from "next/navigation";
 
 
 const DokumentPage = () => {
@@ -12,11 +13,18 @@ const DokumentPage = () => {
   const [partnerInfo, setPartnerInfo] = useState<KorisnikPodaciType>();
   const [minCena, setMinCena] = useState<number>(0);
   const [ukupnoSaDostavom, setUkupnoSaDostavom] = useState<number>(0);
-  const [dostava, setDostava] = useState(0);
-  const [docc, setDOCC] = useState<DokumentInfo>();
+  // const [dostava, setDostava] = useState<number>(0);
+  const dostava = 1000;
+
+  const params = useParams();
+  const brojDokumenta = params.brojDokumenta as string;
+  const [docc, setDOCC] = useState<DokumentInfo | null>(null);
 
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
   const korisnik = dajKorisnikaIzTokena();
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   
 
@@ -28,14 +36,8 @@ const DokumentPage = () => {
   //   }
   // }, []);
 
-  useEffect(() => {
-    const value = sessionStorage.getItem("dostava");
-    const parsed = value !== null ? parseFloat(value) : NaN;
-    if (!isNaN(parsed)) setDostava(parsed);
-  }, []);
 
   useEffect(() => {
-    
     const local = localStorage.getItem("webparametri");
     if (local) {
       const parsed = JSON.parse(local);
@@ -51,60 +53,52 @@ const DokumentPage = () => {
   }, []);
 
   useEffect(() => {
-    try {
-
-    }
-    catch(error) {
-      console.error(`Greska prilikom povezivanja dokumenta`, error);
-    }
-
-  }, []);
-
-  useEffect(() => {
     const fetchData = async () => {
       try {
-        const PartnerResponse = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${korisnik?.email}`);
-        if (!PartnerResponse.ok) throw new Error('Greska pri dohvatanju partnera');
-        const partnerData : KorisnikPodaciType = await PartnerResponse.json();
+        setIsLoading(true);
         
-        const DokumentResponse = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?idPartnera=${korisnik?.idKorisnika}`);
-        if (!DokumentResponse.ok) throw new Error('Greska pri dohvatanju dokumenta');
-        const documentData: DokumentInfo = await DokumentResponse.json();
+        const PartnerResponse = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${korisnik?.email}`);
+        if (!PartnerResponse.ok) throw new Error('Greška pri dohvatanju partnera');
+        const partnerData = await PartnerResponse.json();
+        
+        const DokumentResponse = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?brojDokumenta=${brojDokumenta}&idPartnera=${korisnik?.idKorisnika}`);
+        if (!DokumentResponse.ok) throw new Error('Greška pri dohvatanju dokumenta');
+        const dokument = await DokumentResponse.json();
+        
+        if (!dokument) {
+          throw new Error('Dokument nije pronađen'); //sad je ovo problem
+        }
         
         setDOCC({
-          ...documentData,
-          partner: partnerData
+          ...dokument,
+          datumDokumenta: new Date(dokument.datumDokumenta),
+          datumVazenja: new Date(dokument.datumVazenja)
         });
-        setPartnerInfo(partnerData);
-
+        
+        setPartnerInfo(Array.isArray(partnerData) ? partnerData[0] : partnerData);
+        
       } catch (error) {
-        console.error("Greška pri učitavanju podataka sa servera:", error);
+        console.error("Greška:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [apiAddress, korisnik?.email, korisnik?.idKorisnika]);
+  }, [apiAddress, korisnik?.email, korisnik?.idKorisnika, brojDokumenta]);
 
-  
+ 
   useEffect(() => {
     if (docc && docc.stavkeDokumenata && Array.isArray(docc.stavkeDokumenata)) {
       setStavke(docc.stavkeDokumenata);
     }
   }, [docc]);
 
-
-  useEffect(() => {
-    const kanal = new BroadcastChannel("dokument-kanal");
-    kanal.postMessage("dokument_je_ucitan");
-    return () => kanal.close();
-  }, []);
-
-
   const handlePrint = () => window.print();
 
   const izracunajStavku = (stavka: StavkaDokumenta) => {
     const artikalCena = stavka.cena > 0 ? stavka.cena : stavka.originalnaCena;
-    const rabat = Number(docc?.partner.partnerRabat.rabat);
+    const rabat = Number(partnerInfo?.partnerRabat.rabat);
     const cenaPosleRabata = artikalCena * (1 - rabat/ 100);
     const cenaBezPDV = cenaPosleRabata;
     const cenaSaPDV = cenaBezPDV * (1 + Number(stavka.pdv)/ 100);
@@ -133,11 +127,9 @@ const DokumentPage = () => {
   }, [ukupno, dostava]);
 
 
-
- console.log("ceo doccccc", docc);
- console.log("ppppapertner", docc?.partner);
-
-
+  if (isLoading) {
+    return <div className="p-10">Učitavanje podataka...</div>;
+  }
 
   if (!partnerInfo || !docc) {
     return <div className="p-10 text-red-600">Nema dostupnih podataka za prikaz dokumenta.</div>;
@@ -161,19 +153,19 @@ const DokumentPage = () => {
           {/* KONTAKT OSOBA */}
           <div className="border border-black p-4 w-[48%]">
             <h1 className="font-bold mb-2">Kontakt osoba:</h1>
-            <p>Ime i prezime: {docc?.partner?.komercijalisti?.naziv || "Nepoznato"}</p>
-            <p>Mob. telefon: {docc?.partner?.komercijalisti?.telefon || "Nepoznato"}</p>
-            <p>Email adresa: {docc?.partner?.komercijalisti?.email || "Nepoznato"}</p>
+            <p>Ime i prezime: {partnerInfo?.komercijalisti?.naziv || "Nepoznato"}</p>
+            <p>Mob. telefon: {partnerInfo?.komercijalisti?.telefon || "Nepoznato"}</p>
+            <p>Email adresa: {partnerInfo?.komercijalisti?.email || "Nepoznato"}</p>
           </div>
 
           
           {/* PARTNER */}
           <div className="border border-black p-4 w-[48%]">
-            <p>Partner: {docc?.partner?.idPartnera || "?"}</p>
-            <h3 className="mb-2 font-bold">{docc?.partner.ime || "Nepoznaaaato"}</h3>
-            <p>{docc?.partner?.adresa}, {docc?.partner?.grad}</p>
-            <p>Mob. telefon: {docc?.partner?.telefon}</p>
-            <p>Email: {docc?.partner?.email}</p>
+            <p>Partner: {partnerInfo.idPartnera || "?"}</p>
+            <h3 className="mb-2 font-bold">{partnerInfo.ime || "Nepoznaaaato"}</h3>
+            <p>{partnerInfo.adresa}, {partnerInfo.grad}</p>
+            <p>Mob. telefon: {partnerInfo.telefon}</p>
+            <p>Email: {partnerInfo.email}</p>
           </div>
         </div>
 
@@ -227,10 +219,10 @@ const DokumentPage = () => {
                   <td className="border-r border-black px-2 py-1">{stavka.jm}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.kolicina}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.cena}</td> 
-                  <td className="border-r border-black px-2 py-1">{docc.partner.partnerRabat.rabat ?? 0}%</td>
-                  <td className="border-r border-black px-2 py-1">{(stavka.cena * (1 - Number(docc.partner.partnerRabat.rabat)/100) * Number(stavka.kolicina)).toFixed(2)}</td>
+                  <td className="border-r border-black px-2 py-1">{partnerInfo?.partnerRabat.rabat ?? 0}%</td>
+                  <td className="border-r border-black px-2 py-1">{(stavka.cena * (1 - Number(partnerInfo.partnerRabat.rabat)/100) * Number(stavka.kolicina)).toFixed(2)}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.pdv} %</td>
-                  <td className="border-r border-black px-2 py-1">{(stavka.cena * (1 - Number(docc.partner.partnerRabat.rabat)/100) * (1 + Number(stavka.pdv)/100) * Number(stavka.kolicina)).toFixed(2)}</td>
+                  <td className="border-r border-black px-2 py-1">{(stavka.cena * (1 - Number(partnerInfo.partnerRabat.rabat)/100) * (1 + Number(stavka.pdv)/100) * Number(stavka.kolicina)).toFixed(2)}</td>
                   <td className="px-2 py-1">{stavka.ukupnaCena.toFixed(2)}</td>
                 </tr>
               );
@@ -248,7 +240,8 @@ const DokumentPage = () => {
         {ukupno.ukupnoSaPDV < minCena && (
           <div className="flex gap-[32px] w-full justify-end">
             <span>Dostava:</span>
-            <span>{dostava.toLocaleString("sr-RS")} RSD</span>
+            
+            <span>1000 RSD</span>
           </div>
         )}
         <div className="flex gap-4 w-full text-[16px] font-bold justify-end">
@@ -279,10 +272,10 @@ const DokumentPage = () => {
             <p className="font-semibold uppercase text-sm tracking-wide">Dokument kreirao:</p>
           </div>
           <div className="px-2 py-1 text-sm space-y-1">
-            <p><span className="">Korisničko ime:</span> {docc?.partner?.komercijalisti?.id}</p> 
-            <p><span className="">Ime i prezime:</span> {docc?.partner?.komercijalisti?.naziv || "Nepoznato"}</p>
-            <p><span className="">Email adresa:</span> {docc?.partner?.komercijalisti?.email}</p>
-            <p><span className="">Mob. telefon:</span> {docc?.partner?.komercijalisti?.telefon}</p>
+            <p><span className="">Korisničko ime:</span> {partnerInfo.komercijalisti?.id}</p> 
+            <p><span className="">Ime i prezime:</span> {partnerInfo.komercijalisti?.naziv || "Nepoznato"}</p>
+            <p><span className="">Email adresa:</span> {partnerInfo.komercijalisti?.email}</p>
+            <p><span className="">Mob. telefon:</span> {partnerInfo.komercijalisti?.telefon}</p>
           </div>
         </div>
       </div>
