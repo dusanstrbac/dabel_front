@@ -41,7 +41,7 @@ const admin = () => {
   const [setLoading, setIsLoading] = useState(false);
   const korisnikaPoStrani = 10;
   const [pretraga, setPretraga] = useState("");
-
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [tabelaStavke, setTabelaStavke] = useState<KombinovanoDozvolePartnerType[]>([]);
 
   const paginiraneStavke = useMemo(() => {
@@ -184,20 +184,12 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
       setKatalogImported(false);
     }
   }
-
-  setIsLoading(false); // Dodajemo reset loadera ako želiš
-}; // << Ova zatvorena zagrada je nedostajala
-
-  
+  setIsLoading(false); 
+};
   // --- Kraj PDF dela ---
 
 
-
-
-
-
   // Dozvola za korisnike deo
-
   async function ucitajPodatke() {
     try {
       const sviPartneriResponse = await fetch(`${apiAddress}/api/Partner/DajPartnere`);
@@ -229,7 +221,6 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
   }
 
   // Pozivamo fetch
-
   useEffect(() => {
     const loadData = async () => {
       const podaci = await ucitajPodatke();
@@ -248,11 +239,6 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
         trenutnaStrana * korisnikaPoStrani
   );
 
-  
-
-
-
-
   return (
     <div className="py-2">
       <h1 className="text-left font-bold text-2xl">Podešavanja</h1>
@@ -268,10 +254,46 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
         </Tabs.List>
 
         <div className="flex flex-col w-full ml-3 lg:border-l border-gray-300">
-
-          {/* TAB: Kreiranje kataloga */}
           <Tabs.Content value="tab1" className="mx-5">
-            {/* PDF upload and preview logic here... */}
+            {!katalogImported ? (
+              <div className="flex flex-col items-center justify-center mt-10">
+                <p className="text-center max-w-xl text-gray-600 mb-6">
+                  Da biste importovali katalog, kliknite na dugme ispod i izaberite PDF fajl koji sadrži proizvode.
+                  Nakon uspešnog importovanja, biće vam omogućeno da sačuvate promene.
+                </p>
+
+                <label className="cursor-pointer inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition duration-200">
+                  Importuj katalog
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={handleKatalogUpload}
+                    ref={fileInputRef}  // Povezivanje sa ref
+                    className="hidden"
+                  />
+                </label>
+
+                {/* Prikaz imena fajla ako postoji */}
+                {katalogFile && (
+                  <p className="mt-4 text-sm text-gray-700">📄 {katalogFile.name}</p>
+                )}
+
+                {/* Prikaz thumbnail-a prve strane PDF-a */}
+                {katalogFile && (
+                  <div className="mt-6 border p-2 rounded-md shadow-md max-w-xs">
+                    <h3 className="mb-2 font-semibold text-gray-700">Thumbnail prve strane PDF-a:</h3>
+                    <PdfThumbnail file={katalogFile} width={200} />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center mt-10">
+                <p className="text-green-600 font-semibold mb-4">✅ Katalog uspešno importovan</p>
+                <Button onClick={handleKatalogSave} className="bg-green-600 text-white hover:bg-green-700">
+                  Sačuvaj promene
+                </Button>
+              </div>
+            )}
           </Tabs.Content>
 
           {/* TAB: Parametri sistema */}
