@@ -64,6 +64,7 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
                 idArtikla: value.idArtikla.toString() || "",
                 nazivArtikla: value.naziv || "",
                 cena: value.koriscenaCena,
+                jm: value.jm,
                 originalnaCena: value.originalnaCena,
                 kolicina: value.kolicina.toString() || "0",
                 pdv: value.pdv.toString() || "20",
@@ -130,8 +131,6 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
             } catch (err) {
                 console.error("❌ Greška pri slanju POST zahteva:", err);
             }
-
-
         };
 
     return (

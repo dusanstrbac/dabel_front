@@ -126,7 +126,7 @@ const DokumentPage = () => {
     
   }, [ukupno, dostava]);
 
-
+  console.log(docc?.stavkeDokumenata);
   if (isLoading) {
     return <div className="p-10">Učitavanje podataka...</div>;
   }
@@ -211,7 +211,6 @@ const DokumentPage = () => {
           </thead>
           <tbody>
             {docc?.stavkeDokumenata && stavke.map((stavka, index) => {
-              // const rabatCena = stavka.originalnaCena *
               return (
                 <tr key={index} className="text-center border-t border-black">
                   <td className="border-r border-black px-2 py-1">{index + 1}</td>
