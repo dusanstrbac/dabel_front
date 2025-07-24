@@ -6,3 +6,8 @@ export type DozvoleInfo = {
   idKorisnika: string;
   status: number,
 }
+
+export type DozvoleType = {
+  id: number;
+  dozvola: string;
+}

@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import MaliCheckbox from "@/components/ui/MaliCheckBox";
-import { DozvoleInfo } from "@/types/dozvole";
+import { DozvoleInfo, DozvoleType } from "@/types/dozvole";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { toast } from "sonner";
 
@@ -47,6 +47,8 @@ const admin = () => {
 
   const [trenutniPartner, setTrenutniPartner] = useState<KorisnikPodaciType | null>(null);
   const [partnerDozvole, setPartnerDozvole] = useState<DozvoleInfo[]>([]);
+  const [sveDostupneDozvole, setSveDostupneDozvole] = useState<DozvoleType[]>([]);
+
 
 
   const paginiraneStavke = useMemo(() => {
@@ -194,7 +196,7 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
   // --- Kraj PDF dela ---
 
 
-  // Dozvola za korisnike deo
+  // Dozvola za korisnike deo (TAB-3)
 
   async function ucitajPartnere() {
     try {
@@ -250,31 +252,62 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
     [filtriraniKorisnici, trenutnaStrana]
   );
 
+
+
+// Funkcija za dobijanje svih dostupnih dozvola
+  const ucitajSveDozvole = async () => {
+    try {
+      const response = await fetch(`${apiAddress}/api/Web/DajDozvole`);
+      if (!response.ok) {
+        throw new Error('Greška pri učitavanju dozvola');
+      }
+      const dozvole = await response.json();
+      setSveDostupneDozvole(dozvole);
+    } catch (error) {
+      console.error('Greška:', error);
+      toast.error('Došlo je do greške pri učitavanju dozvola');
+    }
+  };
+
+  useEffect(() => {
+    ucitajSveDozvole();
+  }, []);
+
   //FJ-a ZA FETCHOVANJE DOZVOLA ZA KONKRETNOG PARTNERA
   const DajDozvole = async (partner: KorisnikPodaciType) => {
-    // Ako već imamo dozvole za ovog partnera, ne učitavamo ponovo
-    if (trenutniPartner?.idPartnera === partner.idPartnera && partnerDozvole.length > 0) {
-      return;
-    }
-
     try {
       setTrenutniPartner(partner);
       
       const response = await fetch(`${apiAddress}/api/Web/DajDozvoleKorisnika?idKorisnika=${partner.idPartnera}`);
-      // if (!response.ok) throw new Error('Greška pri dohvatanju dozvola');
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText || 'Greška pri dohvatanju dozvola');
       }
 
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        throw new Error(`Expected JSON but got: ${text}`);
-      }
-        
-      const dozvole: DozvoleInfo[] = await response.json();
-      setPartnerDozvole(dozvole);
+      const korisnikoveDozvole: DozvoleInfo[] = await response.json();
+
+      const sveDozvoleSaStatusom = sveDostupneDozvole.map(dostupnaDozvola => {
+      const korisnikovaDozvola = korisnikoveDozvole.find(d => d.idDozvole === dostupnaDozvola.id);
+      
+      // Ako korisnik ima dozvolu, koristimo njene podatke, inače koristimo podrazumevane vrednosti
+      return korisnikovaDozvola 
+        ? {
+            id: korisnikovaDozvola.id,
+            idDozvole: dostupnaDozvola.id, // id iz DozvoleType
+            imeDozvole: dostupnaDozvola.dozvola, // dozvola iz DozvoleType postaje imeDozvole
+            idKorisnika: partner.idPartnera,
+            status: korisnikovaDozvola.status
+          }
+        : {
+            id: 0,
+            idDozvole: dostupnaDozvola.id,
+            imeDozvole: dostupnaDozvola.dozvola,
+            idKorisnika: partner.idPartnera,
+            status: 0 // podrazumevano unchecked
+          };
+      });
+      
+      setPartnerDozvole(sveDozvoleSaStatusom);
     } catch (error) {
       console.error('Greška:', error);
       // alert('Došlo je do greške pri učitavanju dozvola');
@@ -282,7 +315,6 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
     }
   };
 
-  //FJ-a ZA FETCHOVANJE DOZVOLA ZA KONKRETNOG PARTNERA
   // const UpdateDozvole = async (partner: KorisnikPodaciType) => {
   //   try {
   //     // Prikupimo samo ID-jeve dozvola
@@ -312,10 +344,10 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
   //   }
   // };
 
+
+  //FJ-a ZA FETCHOVANJE DOZVOLA ZA KONKRETNOG PARTNERA
   const UpdateDozvole = async (partner: KorisnikPodaciType, dozvola: DozvoleInfo) => {
     try {
-  
-
       if (!Array.isArray([dozvola.idDozvole]) || typeof dozvola.idDozvole !== 'number') {
         toast.error("Greška: Dozvola nema validan ID");
         return;
@@ -565,42 +597,37 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
                           </DialogHeader>
 
                           <div className="space-y-4 mt-4">
-                            {partnerDozvole.length > 0 ? (
-                              partnerDozvole.map((dozvola) => (
+                            {sveDostupneDozvole.map((dozvola) => {
+                              const korisnikovaDozvola = partnerDozvole.find(d => d.idDozvole === dozvola.id);
+                              const checked = korisnikovaDozvola ? korisnikovaDozvola.status === 1 : false;
+                              
+                              return (
                                 <div key={dozvola.id} className="flex items-center justify-between">
-                                  <span>{dozvola.imeDozvole}</span>
+                                  <span>{dozvola.dozvola}</span>
                                   <MaliCheckbox
-                                    checked={dozvola.status === 1}
+                                    checked={checked}
                                     onChange={async (checked) => {
-                                      // Napravi kopiju dozvole sa novim statusom
-                                      const updatedDozvola = {
-                                        ...dozvola,
-                                        status: checked ? 1 : 0
-                                      };
-                                      
-                                      // Ažuriraj lokalno stanje
-                                      const updatedDozvole = partnerDozvole.map(d => 
-                                        d.id === dozvola.id ? updatedDozvola : d
-                                      );
-                                      setPartnerDozvole(updatedDozvole);
-                                      
-                                      // Pošalji promenu na server
                                       try {
                                         if (trenutniPartner) {
-                                          await UpdateDozvole(trenutniPartner, updatedDozvola);
+                                          const dozvolaInfo: DozvoleInfo = {
+                                            id: korisnikovaDozvola?.id || 0, // Use existing ID or 0 if new
+                                            idDozvole: dozvola.id,
+                                            imeDozvole: dozvola.dozvola,
+                                            idKorisnika: trenutniPartner.idPartnera.toString(),
+                                            status: checked ? 1 : 0
+                                          };
+                                          
+                                          await UpdateDozvole(trenutniPartner, dozvolaInfo);
+                                          await DajDozvole(trenutniPartner);
                                         }
                                       } catch (error) {
-                                        // Vrati staru vrednost ako ne uspe
-                                        setPartnerDozvole(partnerDozvole);
-                                        console.error('Greška pri ažuriranju dozvoleaaaaaaaa:', error);
+                                        console.error('Greška pri ažuriranju dozvole:', error);
                                       }
                                     }}
                                   />
                                 </div>
-                              ))
-                            ) : (
-                              <p>Nema dostupnih dozvola za ovog korisnika</p>
-                            )}
+                              );
+                            })}
                           </div>
                           
                           <div className="flex justify-end gap-2 mt-6">
