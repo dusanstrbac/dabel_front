@@ -6,8 +6,6 @@ import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { ComboboxDemo } from "@/components/ui/ComboboxDemo";
-import PromeniButton from "@/components/ui/promeniButton";
-import { artikalProp, StavkaType } from "@/types/artikal";
 import { Parametar } from "@/types/parametri";
 import { Button } from "@/components/ui/button";
 import PdfThumbnail from "@/components/PdfThumbnail";
@@ -21,33 +19,35 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import MaliCheckbox from "@/components/ui/MaliCheckBox";
-import { DozvoleInfo, KombinovanoDozvolePartnerType } from "@/types/dozvole";
+import { DozvoleInfo } from "@/types/dozvole";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { toast } from "sonner";
 
 const admin = () => {
   const [adminList, setAdminList] = useState<Parametar[]>([]);
   const [menuList, setMenuList] = useState([
     { txt: "Kreiranje kataloga", index: "tab1" },
     { txt: "Parametri sistema", index: "tab2" },
-    { txt: "Otvaranje pakovanja", index: "tab3"},
+    { txt: "Dozvole korisnika", index: "tab3"},
   ]);
 
-  const [articleList, setArticleList] = React.useState<artikalProp[]>([]);
   const [selectedItem, setSelectedItem] = useState<Parametar | null>(null);
   const [trenutnaStrana, setTrenutnaStrana] = useState(1);
-  const [featuredArtikli, setFeaturedArtikli] = useState<artikalProp[]>([]);
-  const scrollRef = useRef<HTMLDivElement | null>(null);    
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
   const stavkiPoStrani = 5;
   const brojStranica = useMemo(() => Math.ceil(adminList.length / stavkiPoStrani), [adminList]);
   const [katalogFile, setKatalogFile] = useState<File | null>(null);
   const [katalogImported, setKatalogImported] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [setLoading, setIsLoading] = useState(false);
   const korisnikaPoStrani = 10;
   const [pretraga, setPretraga] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [sviPartneri, setSviPartneri] = useState<KorisnikPodaciType[]>([]);
 
-  const [tabelaStavke, setTabelaStavke] = useState<KombinovanoDozvolePartnerType[]>([]);
+  const [trenutniPartner, setTrenutniPartner] = useState<KorisnikPodaciType | null>(null);
+  const [partnerDozvole, setPartnerDozvole] = useState<DozvoleInfo[]>([]);
+
 
   const paginiraneStavke = useMemo(() => {
     return adminList.slice(
@@ -65,29 +65,25 @@ const admin = () => {
   }));
 
   useEffect(() => {
-    const page = searchParams.get('page');
-    if (page) {
-      const pageNumber = parseInt(page, 10);
-      if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= brojStranica) {
-        setTrenutnaStrana(pageNumber);
-      }
-    }
+      const fetchData = async () => {
+        try {
+          const response = await fetch(`${apiAddress}/api/Web/WEBParametrizacija`);
+          if (response.ok) {
+            const data = await response.json();
+            setAdminList(data);
+          } else {
+            console.error("Greška prilikom učitavanja parametara");
+          }
+        } catch (err) {
+          console.error("Greška u komunikaciji sa serverom:", err);
+        }
+      };
 
-    const AdminParametri = localStorage.getItem("webparametri");
-    if (AdminParametri) {
-      try {
-        const parsed: Parametar[] = JSON.parse(AdminParametri);
-        setAdminList(parsed);
-      } catch (err) {
-        console.error("Greška prilikom parsiranja lokalnih parametara:", err);
-      }
-
-    }
-  }, [searchParams]);
+      fetchData();
+    }, []);
 
   const idiNaStranu = (broj: number) => {
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return;
-    
     setTrenutnaStrana(broj);
     router.push(`?page=${broj}`, { scroll: false });
   };
@@ -124,17 +120,15 @@ const admin = () => {
       });
       if (!res.ok) {
         const errorText = await res.text();
-        console.error('Greska pri update parametara:', errorText);
+        console.error('Greška pri update parametara:', errorText);
         throw new Error('Neuspešan update parametara');
       }
-      const responseText = await res.text();
     } catch (err) {
-      console.error('Error updating parameter:', err);
+      console.error('Greška pri update parametara:', err);
     }
   };
 
   // --- PDF upload i preview deo ---
-
 const handleKatalogUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0]; // Ovo uzima fajl direktno iz inputa
 
@@ -149,128 +143,226 @@ const handleKatalogUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
 };
 
 const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => {
-  event.preventDefault(); // Zaustavi podrazumevano ponašanje
+    event.preventDefault();
 
-  const file = katalogFile;  // Ovo je fajl koji je korisnik odabrao
-  const thumbnailPutanja = "putanja_do_thumbnaila";  // Ovdje stavi stvarnu putanju do thumbnail-a
+    const file = katalogFile;
+    const thumbnailPutanja = "putanja_do_thumbnaila";
 
-  if (!file) {
-    console.error("PDF fajl nije odabran!");
-    return;
-  }
+    if (!file) {
+      console.error("PDF fajl nije odabran!");
+      return;
+    }
 
-  setIsLoading(true);  // Početak učitavanja
+    setIsLoading(true);
 
-  // FormData za slanje na server
-  const formData = new FormData();
-  formData.append('katalog', file);
-  formData.append('thumbnailPutanja', thumbnailPutanja);  // Dodaj putanju thumbnail-a
+    const formData = new FormData();
+    formData.append('katalog', file);
+    formData.append('thumbnailPutanja', thumbnailPutanja);
 
-  try {
-    const response = await fetch(`${apiAddress}/api/Web/UploadKatalog`, {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const response = await fetch(`${apiAddress}/api/Web/UploadKatalog`, {
+        method: 'POST',
+        body: formData,
+      });
 
-    if (!response.ok) {
-      // Kloniraj odgovor da bi mogao da pročitaš telo kao tekst
-      const responseClone = response.clone();
-      try {
-        const errorText = await responseClone.text();  // Pročitaj kao tekst
-        console.error('Greška:', errorText);
-        throw new Error(errorText || 'Došlo je do greške prilikom upload-a.');
-      } catch (error) {
-        console.error('Greška pri obradi odgovora:', error);
-        throw new Error('Došlo je do greške prilikom upload-a.');
+      if (!response.ok) {
+        const responseClone = response.clone();
+        try {
+          const errorText = await responseClone.text();
+          console.error('Greška:', errorText);
+          throw new Error(errorText || 'Došlo je do greške prilikom upload-a.');
+        } catch (error) {
+          console.error('Greška pri obradi odgovora:', error);
+          throw new Error('Došlo je do greške prilikom upload-a.');
+        }
+      }
+
+      const data = await response.json();
+      alert(data.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error('Greška pri uploadu:', err.message);
+        alert(`Greška pri uploadu: ${err.message}`);
+      } else {
+        alert("Molimo importujte validan PDF fajl.");
+        setKatalogFile(null);
+        setKatalogImported(false);
       }
     }
-
-    const data = await response.json();  // Ako je uspešan odgovor, pročitaj kao JSON
-    alert(data.message);  // Prikazivanje poruke korisniku
-
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      console.error('Greška pri uploadu:', err.message);
-      alert(`Greška pri uploadu: ${err.message}`);
-    } else {
-      console.error('Nepoznata greška:', err);
-      alert('Došlo je do nepoznate greške.');
-    }
-  } finally {
-    setIsLoading(false);  // Kraj učitavanja
-  }
-};
-
-  
+    setIsLoading(false); 
+  };
   // --- Kraj PDF dela ---
-
-
-
-
 
 
   // Dozvola za korisnike deo
 
-  async function ucitajPodatke() {
+  async function ucitajPartnere() {
     try {
       const sviPartneriResponse = await fetch(`${apiAddress}/api/Partner/DajPartnere`);
-      if (!sviPartneriResponse.ok) throw new Error('Greška pri dohvatanju partnera');
+      if (!sviPartneriResponse.ok) {
+        const errorText = await sviPartneriResponse.text();
+        throw new Error(errorText || 'Greška pri dohvatanju partnera');
+      }
       const sviPartneri: KorisnikPodaciType[] = await sviPartneriResponse.json();
 
-      const dozvoleResponse = await fetch(`${apiAddress}/api/Web/DajDozvoleKorisnika`);
-      if (!dozvoleResponse.ok) throw new Error('Greška pri dohvatanju dozvola');
-      const dozvole: DozvoleInfo[] = await dozvoleResponse.json();
-
-      
-      return sviPartneri.map(partner => {
-        const dozvola = dozvole.find(d => d.idKorisnika === partner.idPartnera);
-        return {
-          ...partner,
-          ...(dozvola || {
-              id: 0,
-              idDozvole: 0,
-              idKorisnika: partner.idPartnera,
-              status: 0
-            })
-          // status: dozvola?.status || 0,
-          // idDozvole: dozvola?.idDozvole || null
-        };
-      });
+      return sviPartneri.map(partner => ({
+        ...partner,
+        id: 0,
+        idDozvole: 0,
+        status: 0
+      }));
     } catch (error) {
-      console.error('Greška pri učitavanju podataka:', error);
+      console.error('Greška pri učitavanju partnera:', error);
+      throw error;
     }
   }
+
 
   // Pozivamo fetch
 
   useEffect(() => {
     const loadData = async () => {
-      const podaci = await ucitajPodatke();
-      setTabelaStavke(podaci || []);
+      try {
+        const podaci = await ucitajPartnere();
+        setSviPartneri(podaci || []);
+      } catch (error) {
+        console.error('Greška pri učitavanju podataka:', error);
+        toast.error('Došlo je do greške pri učitavanju podataka');
+      }
     };
     loadData();
   }, []);
 
-  const filtriraniKorisnici = tabelaStavke.filter((korisnik) => 
-      korisnik.ime.toLowerCase().includes(pretraga.toLowerCase()) ||
-      korisnik.email.toLowerCase().includes(pretraga.toLowerCase()),
-  )
 
-  const trenutniBrojKorisnika = filtriraniKorisnici.slice(
-        (trenutnaStrana - 1 ) * korisnikaPoStrani,
-        trenutnaStrana * korisnikaPoStrani
+  const filtriraniKorisnici = useMemo(() => 
+    sviPartneri.filter((korisnik) => 
+      korisnik.ime.toLowerCase().includes(pretraga.toLowerCase()) ||
+      korisnik.email.toLowerCase().includes(pretraga.toLowerCase())
+    ),
+    [sviPartneri, pretraga]
   );
 
+  const trenutniBrojKorisnika = useMemo(() =>   
+    filtriraniKorisnici.slice(
+      (trenutnaStrana - 1) * korisnikaPoStrani,
+      trenutnaStrana * korisnikaPoStrani
+    ),
+    [filtriraniKorisnici, trenutnaStrana]
+  );
+
+  //FJ-a ZA FETCHOVANJE DOZVOLA ZA KONKRETNOG PARTNERA
+  const DajDozvole = async (partner: KorisnikPodaciType) => {
+    // Ako već imamo dozvole za ovog partnera, ne učitavamo ponovo
+    if (trenutniPartner?.idPartnera === partner.idPartnera && partnerDozvole.length > 0) {
+      return;
+    }
+
+    try {
+      setTrenutniPartner(partner);
+      
+      const response = await fetch(`${apiAddress}/api/Web/DajDozvoleKorisnika?idKorisnika=${partner.idPartnera}`);
+      // if (!response.ok) throw new Error('Greška pri dohvatanju dozvola');
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Greška pri dohvatanju dozvola');
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`Expected JSON but got: ${text}`);
+      }
+        
+      const dozvole: DozvoleInfo[] = await response.json();
+      setPartnerDozvole(dozvole);
+    } catch (error) {
+      console.error('Greška:', error);
+      // alert('Došlo je do greške pri učitavanju dozvola');
+      toast.error(error instanceof Error ? error.message : 'Došlo je do greške pri učitavanju dozvola');
+    }
+  };
+
+  //FJ-a ZA FETCHOVANJE DOZVOLA ZA KONKRETNOG PARTNERA
+  // const UpdateDozvole = async (partner: KorisnikPodaciType) => {
+  //   try {
+  //     // Prikupimo samo ID-jeve dozvola
+  //     const idDozvola = partnerDozvole.map(d => d.idDozvole);
+      
+  //     // Šaljemo kao čisti niz brojeva [1, 2, 3...]
+  //     const response = await fetch(
+  //       `${apiAddress}/api/Web/UpdateDozvole?idKorisnika=${partner.idPartnera}`, 
+  //       {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify(idDozvola) // Ovo će poslati niz kao [1,2,3]
+  //       }
+  //     );
+      
+  //     if (!response.ok) throw new Error('Greška pri ažuriranju dozvola');
+      
+  //     toast.success("Dozvole su uspešno ažurirane");
+  //     // DajDozvole(partner); // Osveži podatke
+  //     const refreshedDozvole = await fetch(`${apiAddress}/api/Web/DajDozvoleKorisnika?idKorisnika=${partner.idPartnera}`);
+  //     const newDozvole = await refreshedDozvole.json();
+  //     setPartnerDozvole(newDozvole);
+      
+  //   } catch (error) {
+  //     toast.error("Došlo je do greške pri ažuriranju dozvola");
+  //     console.error('Greška:', error);
+  //   }
+  // };
+
+  const UpdateDozvole = async (partner: KorisnikPodaciType, dozvola: DozvoleInfo) => {
+    try {
   
 
+      if (!Array.isArray([dozvola.idDozvole]) || typeof dozvola.idDozvole !== 'number') {
+        toast.error("Greška: Dozvola nema validan ID");
+        return;
+      }
+      const response = await fetch(
+        `${apiAddress}/api/Web/UpdateDozvole?idKorisnika=${partner.idPartnera}`, 
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify([dozvola.idDozvole]),
+        }
+      );
+      
+      const responseText = await response.text();
 
+      console.log('Server response:', responseText);
 
+      if (!response.ok) {
+        throw new Error(responseText || 'Greška pri ažuriranju dozvole');
+      }
+      
+      // Proverimo da li je odgovor JSON ili plain text
+      let result;
+      try {
+        result = JSON.parse(responseText); 
+      } catch {
+        result = { message: responseText };
+      }
+      // const result = await response.json();
+      
+      toast.success(result.message || "Dozvola je uspešno ažurirana");
+      
+      // Osveži podatke nakon čuvanja
+      await DajDozvole(partner);
+      return true;
+      
+    } catch (error) {
+      console.error('Greška:', error);
+      toast.error(error instanceof Error ? error.message : "Došlo je do greške pri ažuriranju dozvole");
+      return false;
+    }
+  };
 
   return (
     <div className="py-2">
       <h1 className="text-left font-bold text-2xl">Podešavanja</h1>
       <Tabs.Root defaultValue="tab1" orientation="vertical" className="flex flex-col lg:flex-row my-7 border rounded-md border-gray-500 py-4 px-2">
-        
         <Tabs.List aria-label="" className="w-full lg:w-[200px] flex flex-col items-center justify-items-center gap-4 mb-5">
           {menuList.map((item, index) => (
             <div key={index} className="contents">
@@ -282,10 +374,7 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
         </Tabs.List>
 
         <div className="flex flex-col w-full ml-3 lg:border-l border-gray-300">
-
-          {/* TAB: Kreiranje kataloga */}
           <Tabs.Content value="tab1" className="mx-5">
-
             {!katalogImported ? (
               <div className="flex flex-col items-center justify-center mt-10">
                 <p className="text-center max-w-xl text-gray-600 mb-6">
@@ -325,12 +414,11 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
                 </Button>
               </div>
             )}
-
           </Tabs.Content>
 
           {/* TAB: Parametri sistema */}
           <Tabs.Content value="tab2" className="flex flex-col mx-5 justify-between"> 
-            <div className="flex relative justify-end min-w-[200px]">
+            <div className="flex relative justify-end min-w-[200px] mb-[10px]">
               <ComboboxDemo
                 options={options}
                 onSelectOption={handleSelectOption}
@@ -348,7 +436,7 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
                     <p className="align-top font-medium text-xl">{article.naziv}</p>
                     <p className="align-top text-left text-gray-500 max-w-4xl whitespace-break-spaces">{article.deskripcija}</p>
                     <input
-                      className="border-b border-red-200 px-2 py-1 h-10 mt-3 mb-9 min-w-[400px] min-h-[40px] justify-items-start"
+                      className="border-b border-red-200 px-2 py-1 h-10 mt-3 mb-9 min-w-[400px] min-h-[40px] justify-items-start w-full"
                       type="text"
                       defaultValue={article.vrednost}
                       onBlur={(e) => handleChange(globalIndex, e.target.value)}
@@ -399,7 +487,6 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
                   ) {
                     return (
                       <PaginacijaStavka key={`ellipsis-${broj}`}>
-                        {/* Možeš dodati "..." ako želiš */}
                       </PaginacijaStavka>
                     );
                   }
@@ -463,45 +550,77 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
                     <TableCell className="lg:pl-2 items-center">
                       <Dialog>
                         <DialogTrigger asChild>
-                          <button
-                            className="p-2 rounded border-2 border-black cursor-pointer hover:bg-gray-100"
+                          <Button
+                            className="p-2 rounded border-2 border-black cursor-pointer hover:bg-gray-700"
                             // className="fixed bottom-6 left-6 z-50 md:hidden w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-lg hover:bg-blue-700 transition"
                             type="button"
+                            onClick={() => DajDozvole(korisnik)}
                           >
                             Sve dozvole
-                          </button>
+                          </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-sm">
                           <DialogHeader>
-                            <DialogTitle>Lista svih dozvola za {korisnik.ime}</DialogTitle>
+                            <DialogTitle>Lista svih dozvola za {trenutniPartner?.ime}</DialogTitle>
                           </DialogHeader>
 
                           <div className="space-y-4 mt-4">
-                            {/* Privremena lista dozvola */}
-                            {[
-                              "Dozvola za pregled artikala",
-                              "Dozvola za izmenu artikala",
-                              "Dozvola za brisanje artikala",
-                              "Dozvola za kreiranje narudžbina",
-                              "Dozvola za administraciju"
-                            ].map((dozvola, i) => (
-                              <div key={i} className="flex items-center justify-between">
-                                <span>{dozvola}</span>
-                                <MaliCheckbox
-                                  checked={false}
-                                  onChange={(checked) => console.log(`Dozvola ${dozvola}: ${checked}`)}
-                                />
-                              </div>
-                            ))}
+                            {partnerDozvole.length > 0 ? (
+                              partnerDozvole.map((dozvola) => (
+                                <div key={dozvola.id} className="flex items-center justify-between">
+                                  <span>{dozvola.imeDozvole}</span>
+                                  <MaliCheckbox
+                                    checked={dozvola.status === 1}
+                                    onChange={async (checked) => {
+                                      // Napravi kopiju dozvole sa novim statusom
+                                      const updatedDozvola = {
+                                        ...dozvola,
+                                        status: checked ? 1 : 0
+                                      };
+                                      
+                                      // Ažuriraj lokalno stanje
+                                      const updatedDozvole = partnerDozvole.map(d => 
+                                        d.id === dozvola.id ? updatedDozvola : d
+                                      );
+                                      setPartnerDozvole(updatedDozvole);
+                                      
+                                      // Pošalji promenu na server
+                                      try {
+                                        if (trenutniPartner) {
+                                          await UpdateDozvole(trenutniPartner, updatedDozvola);
+                                        }
+                                      } catch (error) {
+                                        // Vrati staru vrednost ako ne uspe
+                                        setPartnerDozvole(partnerDozvole);
+                                        console.error('Greška pri ažuriranju dozvoleaaaaaaaa:', error);
+                                      }
+                                    }}
+                                  />
+                                </div>
+                              ))
+                            ) : (
+                              <p>Nema dostupnih dozvola za ovog korisnika</p>
+                            )}
                           </div>
                           
                           <div className="flex justify-end gap-2 mt-6">
                             <DialogClose className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
                               Zatvori
                             </DialogClose>
-                            <Button className="bg-blue-600 hover:bg-blue-700">
-                              Sačuvaj izmene
-                            </Button>
+                            {/* <Button 
+                              className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700"
+                              onClick={async (e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  const success = await UpdateDozvole(korisnik);
+                                  if (success) {
+                                    // Zatvori dialog samo ako je uspešno sačuvano
+                                    document.getElementById('dialog-close-btn')?.click();
+                                  }
+                              }}
+                            >
+                                Sačuvaj izmene
+                              </Button> */}
                           </div>
                         </DialogContent>
                       </Dialog>
@@ -545,6 +664,7 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
                               isActive={trenutnaStrana === pageNum}
                               onClick={(e) => {
                                 e.preventDefault();
+                                e.stopPropagation();
                                 setTrenutnaStrana(pageNum);
                               }}
                             >
