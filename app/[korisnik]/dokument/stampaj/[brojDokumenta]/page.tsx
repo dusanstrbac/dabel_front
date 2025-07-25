@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AritkalKorpaType } from "@/types/artikal";
 import { DokumentInfo } from "@/types/dokument";
-import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 
 const DokumentPage = () => {
@@ -42,6 +41,16 @@ const DokumentPage = () => {
         }        
       }
     }
+  }, []);
+
+  useEffect(() => {
+    try {
+
+    }
+    catch(error) {
+      console.error(`Greska prilikom povezivanja dokumenta`, error);
+    }
+
   }, []);
 
   useEffect(() => {

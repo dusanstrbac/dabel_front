@@ -26,7 +26,7 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
 
   const [filteri, setFilteri] = useState<ArtikalFilterProp>({
     naziv: '',
-    jedinicaMere: '',
+    jm: [],
     Materijal: [],
     Model: [],
     Pakovanje: [],
@@ -48,17 +48,17 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return;
 
     // Kreiraj objekat sa svim filterima i trenutnim parametrima
-    const noviUpit = {
-      ...Object.fromEntries(searchParams.entries()), // Zadrži postojeće parametre
-      ...noviFilteri, // Dodaj nove filtre
-      page: broj.toString(), // Dodaj ili promeni parametar za stranicu
-    };
+    const noviUpit = new URLSearchParams();
 
-    // Kreiraj query string
-    const queryString = new URLSearchParams(noviUpit).toString();
+    searchParams.forEach((value, key) => {
+      if (value.trim() !== '') {
+        noviUpit.append(key, value);
+      }
+    });
 
-    // Prosledi pathname i query kao string
-    router.push(`${pathname}?${queryString}`);
+    noviUpit.set('page', broj.toString());
+
+    router.push(`${pathname}?${noviUpit.toString()}`);
   };
 
   const onFilterChange = (noviFilteri: ArtikalFilterProp) => {

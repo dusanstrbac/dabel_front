@@ -36,6 +36,8 @@ export default function KorisnikMenu() {
 
   const odjaviKorisnika = () => {
     localStorage.removeItem("cart");
+    localStorage.removeItem("webparametri");
+    
     deleteCookie('AuthToken');
     router.push('/');
     window.location.reload();

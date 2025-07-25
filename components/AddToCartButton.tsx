@@ -20,12 +20,14 @@ const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disa
 
     if (onPreAdd && !onPreAdd()) return;
 
-    // Proveri da li je id validan broj
+    // Proveri da li je id validan za artikle
     const brojId = Number(id);
     if (isNaN(brojId)) {
       console.error("Nevalidan ID artikla:", id);
       return;
     }
+
+    // Dodati proveru za kolicinu koja je na stanju
     
     const novaKolicina = getKolicina();
     const existing = localStorage.getItem("cart");
@@ -51,8 +53,9 @@ const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disa
 
     const brojRazlicitih = Object.keys(cart).length;
 
-    toast("Uspešno ste dodali artikal u korpu!", {
-        description: `Artikal ${nazivArtikla} je uspešno dodat u korpu`
+    toast.success("Uspešno ste dodali artikal u korpu!", {
+        description: `Artikal ${nazivArtikla} je uspešno dodat u korpu`,
+        descriptionClassName: 'toast-success-description'
     });
 };
 

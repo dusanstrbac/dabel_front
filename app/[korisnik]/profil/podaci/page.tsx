@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { CircleUser, Map, MapPinned, Phone, PhoneCall, UserCircle } from 'lucide-react';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
+import Link from 'next/link';
 
 const ProfilPodaci = () => {
   const [userData, setUserData] = useState<KorisnikPodaciType | null>(null);
@@ -62,7 +63,7 @@ const ProfilPodaci = () => {
 
 
   return (
-    <div className="lg:px-[120px] lg:mt-[40px]">
+    <div className="lg:px-[120px] lg:mt-[40px]">     
       <div className="flex flex-wrap justify-between gap-10 lg:gap-4">
         <div>
           <h1 className="text-3xl font-bold">{userData.ime}</h1>
