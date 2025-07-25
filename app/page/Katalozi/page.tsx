@@ -53,7 +53,7 @@ const KataloziPage = () => {
             <img
               src={thumbnailPutanja}
               alt={`Thumbnail za ${naziv}`}
-              className="w-full h-64 object-cover rounded-t"
+              className="w-full h-64 object-full rounded-t"
               loading="lazy"
             />
           ) : (
