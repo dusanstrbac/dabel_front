@@ -15,7 +15,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ArtikalFilterProp, ListaArtikalaProps } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 
-const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: ListaArtikalaProps) => {
+const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCount, currentPage, onPageChange }: ListaArtikalaProps) => {
   const artikliPoStrani = 8;
   const router = useRouter();
   const pathname = usePathname(); // Dobijanje pathname-a
@@ -26,7 +26,7 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
 
   const [filteri, setFilteri] = useState<ArtikalFilterProp>({
     naziv: '',
-    jedinicaMere: '',
+    jm: [],
     Materijal: [],
     Model: [],
     Pakovanje: [],
@@ -48,17 +48,17 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return;
 
     // Kreiraj objekat sa svim filterima i trenutnim parametrima
-    const noviUpit = {
-      ...Object.fromEntries(searchParams.entries()), // Zadrži postojeće parametre
-      ...noviFilteri, // Dodaj nove filtre
-      page: broj.toString(), // Dodaj ili promeni parametar za stranicu
-    };
+    const noviUpit = new URLSearchParams();
 
-    // Kreiraj query string
-    const queryString = new URLSearchParams(noviUpit).toString();
+    searchParams.forEach((value, key) => {
+      if (value.trim() !== '') {
+        noviUpit.append(key, value);
+      }
+    });
 
-    // Prosledi pathname i query kao string
-    router.push(`${pathname}?${queryString}`);
+    noviUpit.set('page', broj.toString());
+
+    router.push(`${pathname}?${noviUpit.toString()}`);
   };
 
   const onFilterChange = (noviFilteri: ArtikalFilterProp) => {
@@ -74,7 +74,7 @@ const ListaArtikala = ({ artikli, totalCount, currentPage, onPageChange }: Lista
     <div className="flex flex-col md:flex-row w-full px-1 gap-4">
       {/* Filter sekcija */}
       <div className="w-full md:w-1/4">
-        <ArtikalFilter artikli={artikli} onFilterChange={onFilterChange} />
+        <ArtikalFilter artikli={artikli} atributi={atributi} kategorija={kategorija} podkategorija={podkategorija} onFilterChange={onFilterChange} />
       </div>
 
       {/* Lista artikala */}

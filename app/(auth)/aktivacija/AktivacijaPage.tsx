@@ -35,11 +35,10 @@ export default function AktivacijaNaloga() {
       setLoading(true);
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
-      const response = await axios.post(`http://10.0.0.38:7235/api/Partner/PostaviLozinku`, {
+      const response = await axios.post(`${apiAddress}/api/Partner/PostaviLozinku`, {
         Token: token,
         Lozinka: lozinka,
       });
-
       setSuccessMessage("Lozinka je uspešno postavljena! Možete se sada prijaviti.");
       setTimeout(() => {
         router.push("/login"); // ili gde god korisnik ide posle aktivacije

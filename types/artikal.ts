@@ -62,6 +62,9 @@ export type ArtikalAtribut = {
 
 export interface ListaArtikalaProps {
   artikli: ArtikalType[];
+  atributi: ArtikalAtribut[];
+  kategorija: string;
+  podkategorija: string | null;
   totalCount: number;
   currentPage: number;
   onPageChange: (page: number) => void;
@@ -73,8 +76,9 @@ export interface SortiranjeButtonProps {
 }
 
 export interface ArtikalFilterProp {
+  cena?: string; // tip je string u formatu "min-max"
   naziv: string;
-  jedinicaMere: string;
+  jm: string[];
   Materijal: string[];
   Model: string[];
   Pakovanje: string[];
@@ -82,12 +86,12 @@ export interface ArtikalFilterProp {
   Upotreba: string[];
   Boja: string[];
   
-  [key: string]: string | string[]; // Dodaj indeksnu potpisu
+  [key: string]: string | string[] | undefined; // Dodaj indeksnu potpisu
 }
 
 export const defaultFilters: ArtikalFilterProp = {
   naziv: '',
-  jedinicaMere: '',
+  jm: [],
   Materijal: [],
   Model: [],
   Pakovanje: [],

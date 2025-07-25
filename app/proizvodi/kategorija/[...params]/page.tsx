@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { use, useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { ArtikalFilterProp, ArtikalType } from '@/types/artikal';
 import ListaArtikala from '@/components/ListaArtikala';
@@ -11,6 +11,7 @@ import { dajKorisnikaIzTokena } from '@/lib/auth';
 export default function ProizvodiPage() {
   const { params } = useParams() as { params?: string[] };
   const [artikli, setArtikli] = useState<ArtikalType[]>([]);
+  const [atribut, setAtribut] = useState< any | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
@@ -21,7 +22,19 @@ export default function ProizvodiPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const pageSize = 8;
+  const pageSize = 8; // Poželjno da backend vraća ovaj broj po strani
+
+  
+  const [aktivniFilteri, setAktivniFilteri] = useState<ArtikalFilterProp>({
+      naziv: '',
+      jm: [],
+      Materijal: [],
+      Model: [],
+      Pakovanje: [],
+      RobnaMarka: [],
+      Upotreba: [],
+      Boja: [],
+  });
 
   const pageFromUrl = useMemo(() => {
     const pageParam = searchParams.get('page');
@@ -69,6 +82,10 @@ export default function ProizvodiPage() {
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     const korisnik = dajKorisnikaIzTokena();
     const fullUrl = `${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${queryParams.toString()}&idPartnera=${korisnik?.idKorisnika}`;
+    //const fullUrl = `${apiAddress}/api/Artikal/DajFilterArtikle?idPartnera=${korisnik?.idKorisnika}&batchSize=10000&${queryParams.toString()}`;
+    //console.log("API URL:", fullUrl);
+    // http://localhost:7235/api/Artikal/DajArtikleSaPaginacijom?page=1&pageSize=8&sortBy=naziv&sortOrder=asc&idPartnera=3005
+
 
     try {
       const res = await fetch(fullUrl);
@@ -80,7 +97,7 @@ export default function ProizvodiPage() {
       const data = await res.json();
 
       if (data.items?.length) {
-        setArtikli(data.items);
+        setArtikli(data.items); //ovde vrv stize 8 artikala
         setTotalCount(data.totalCount ?? 0);
       } else {
         setArtikli([]);
@@ -101,6 +118,30 @@ export default function ProizvodiPage() {
   };
 
   useEffect(() => {
+    //if (!brojDokumenta) return;
+
+    const fetchAtributi = async () => {
+      try {
+        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+        const korisnik = dajKorisnikaIzTokena();
+        const res = await fetch(`${apiAddress}/api/Artikal/ArtikliKategorije?idPartnera=${korisnik?.idKorisnika}`);
+        if (!res.ok) throw new Error('Greška pri učitavanju dokumenta.');
+
+        const data = await res.json();
+        setAtribut(data);
+        console.log("Atributi",data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAtributi();
+  }, []);
+
+  // Fetch artikle kad se menjaju parametri ili sortiranje ili stranica
+  useEffect(() => {
     if (!params || params.length === 0) return;
 
     const kategorija = decodeURIComponent(params[0]);
@@ -114,17 +155,30 @@ export default function ProizvodiPage() {
       return;
     }
 
-    fetchArtikli(kategorija, podkategorija, {
-      naziv: searchParams.get('naziv') || '',
-      jedinicaMere: searchParams.get('jedinicaMere') || '',
+    // ✅ Čitanje filtera iz URL-a
+    const filteri: ArtikalFilterProp = {
+      naziv: '',
+      jm: searchParams.getAll('jm') || '',
       Materijal: searchParams.getAll('Materijal'),
       Model: searchParams.getAll('Model'),
       Pakovanje: searchParams.getAll('Pakovanje'),
       RobnaMarka: searchParams.getAll('RobnaMarka'),
       Upotreba: searchParams.getAll('Upotreba'),
       Boja: searchParams.getAll('Boja'),
-    }, pageFromUrl, sortKey, sortOrder);
-  }, [params, pageFromUrl, sortKey, sortOrder, totalCount, searchParams, router]);
+    };
+    setAktivniFilteri(filteri); // dodaj ovu liniju
+
+
+    fetchArtikli(
+      kategorija,
+      podkategorija,
+      filteri,
+      pageFromUrl,
+      sortKey,
+      sortOrder
+    );
+  }, [params, pageFromUrl, sortKey, sortOrder, totalCount, searchParams]);
+
 
   const handleSortChange = (key: 'cena' | 'naziv', order: 'asc' | 'desc') => {
     setSortKey(key);
@@ -164,6 +218,24 @@ export default function ProizvodiPage() {
   const kategorija = decodeURIComponent(params[0]);
   const podkategorija = params.length >= 2 ? decodeURIComponent(params[1]) : null;
 
+
+  const removeEmptyParams = (params: URLSearchParams): URLSearchParams => {
+    const newParams = new URLSearchParams();
+
+    const keys = Array.from(params.keys());
+
+    for (const key of keys) {
+      const values = params.getAll(key);
+      const nonEmpty = values.filter((val) => val.trim() !== '');
+
+      for (const val of nonEmpty) {
+        newParams.append(key, val);
+      }
+    }
+
+    return newParams;
+  };
+
   return (
     <div className="">
       <div className="w-full mx-auto flex justify-center items-center gap-6 py-2 px-8 flex-wrap md:justify-between">
@@ -182,9 +254,20 @@ export default function ProizvodiPage() {
         ) : (
           <ListaArtikala
             artikli={artikli}
+            atributi={atribut}
+            kategorija={kategorija}
+            podkategorija={podkategorija}
             totalCount={totalCount}
             currentPage={pageFromUrl}
-            onPageChange={handlePageChange}
+            onPageChange={(page) => {
+              const cleanedParams = removeEmptyParams(new URLSearchParams(searchParams.toString()));
+              cleanedParams.set('page', page.toString());
+
+              const basePath = `/proizvodi/kategorija/${params[0]}${params.length > 1 ? `/${params[1]}` : ''}`;
+
+              router.push(`${basePath}?${cleanedParams.toString()}`);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
           />
         )}
         {error && <p className="text-center text-red-600 mt-2">{error}</p>}
