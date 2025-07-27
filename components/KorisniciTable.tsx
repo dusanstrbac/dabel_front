@@ -1,54 +1,65 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Pagination } from "./ui/pagination";
 import KreirajKorisnika from "./KreirajKorisnika";
-import PromenaPodatakaKorisnika from "./PromenaPodatakaKorisnika";
 import { Input } from "./ui/input";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
+import PromenaPodatakaKorisnika from "./PromenaPodatakaKorisnika";
 
 interface myProps {
     title: string;
 }
 
-
-const KorisniciTable = ({ title } : myProps )=> {
-
-    const [tabelaStavke, setTabelaStavke] = useState<any[]>([]);
+const KorisniciTable = ({ title }: myProps) => {
+    const [tabelaStavke, setTabelaStavke] = useState<any[]>([]); // Ovdje inicijalizujemo kao prazan niz
     const [pretraga, setPretraga] = useState("");
     const [trenutnaStrana, setTrenutnaStrana] = useState(1);
     const korisnikaPoStrani = 10;
+    const [partner, setPartner] = useState('');
 
     useEffect(() => {
+        const korisnik = dajKorisnikaIzTokena();
+        setPartner(String(korisnik?.idKorisnika));
+        if (!partner) return;
+
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const fethujPartnere = async () => {
+
+        const fetchPartneri = async () => {
             try {
-                const res = await fetch(`${apiAddress}/api/Partner/DajPartnere`);
+                const res = await fetch(`${apiAddress}/api/Partner/DajPartnerKorisnike?Partner=${partner}`);
                 const data = await res.json();
                 setTabelaStavke(data);
             } catch (err) {
-                console.error("Greska: ", err);
+                console.error("Greška pri dobijanju podataka:", err);
             }
         };
-        fethujPartnere();
-    }, []);
 
-    const filtriraniKorisnici = tabelaStavke.filter((korisnik) => 
-        korisnik.ime.toLowerCase().includes(pretraga.toLowerCase()) ||
-        korisnik.email.toLowerCase().includes(pretraga.toLowerCase()),
-    )
-    
+        fetchPartneri();
+    }, [partner]);
+
+    const filtriraniKorisnici = tabelaStavke.filter((korisnik) =>
+        korisnik.korisnickoIme.toLowerCase().includes(pretraga.toLowerCase()) ||
+        korisnik.email.toLowerCase().includes(pretraga.toLowerCase())
+    );
+
     const trenutniBrojKorisnika = filtriraniKorisnici.slice(
-        (trenutnaStrana - 1 ) * korisnikaPoStrani,
+        (trenutnaStrana - 1) * korisnikaPoStrani,
         trenutnaStrana * korisnikaPoStrani
     );
 
     return (
         <div className="mt-2 flex flex-col gap-2 lg:gap-4">
-            
             <div className="flex justify-between items-center w-full px-2 lg:px-4 flex-wrap">
                 <h1 className="font-bold text-3xl text-center">{title}</h1>
                 <div className="flex gap-2">
-                    <Input type="text" placeholder="Pretraga korisnika" className="border-2" value={pretraga} onChange={(e) => setPretraga(e.target.value)} />
+                    <Input
+                        type="text"
+                        placeholder="Pretraga korisnika"
+                        className="border-2"
+                        value={pretraga}
+                        onChange={(e) => setPretraga(e.target.value)}
+                    />
                     <KreirajKorisnika />
                 </div>
             </div>
@@ -57,50 +68,28 @@ const KorisniciTable = ({ title } : myProps )=> {
                 <Table className="min-w-full">
                     <TableHeader className="bg-gray-400 hover:bg-gray-400">
                         <TableRow>
-                        <TableHead></TableHead>
-                        <TableHead className="text-xl">Korisničko ime</TableHead>
-                        <TableHead className="text-xl">E-mail</TableHead>
-                        <TableHead className="text-xl">Telefon</TableHead>
-                        <TableHead className="text-xl">Adresa</TableHead>
-                        <TableHead className="text-xl">Aktivan</TableHead>
-                        <TableHead className="text-xl">Uloga</TableHead>
+                            <TableHead className="text-xl">Promeni korisnika</TableHead>
+                            <TableHead className="text-xl">Korisničko ime</TableHead>
+                            <TableHead className="text-xl">E-mail</TableHead>
+                            <TableHead className="text-xl">Telefon</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {trenutniBrojKorisnika.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={10} className="text-center">
-                                    Nema podataka
+                                <TableCell colSpan={4} className="text-center">
+                                    Nema registrovanih korisnika
                                 </TableCell>
                             </TableRow>
                         ) : (
                             trenutniBrojKorisnika.map((stavka) => (
-                                <TableRow key={stavka.ime}>
+                                <TableRow key={stavka.idKorisnika}>
                                     <TableCell>
-                                        <PromenaPodatakaKorisnika
-                                            korisnik={{
-                                                korisnickoIme: stavka.ime,
-                                                lozinka: stavka.lozinka,
-                                                email: stavka.email,
-                                                telefon: stavka.telefon,
-                                                status: stavka.status,
-                                                uloga: stavka.uloga,
-                                                adresa: stavka.adresa,
-                                                grad: stavka.grad,
-                                                delatnost: stavka.delatnost,
-                                                pib: stavka.pib,
-                                                maticniBroj: stavka.maticniBroj,
-                                                zip: stavka.zip,
-                                                finKarta: stavka.finKarta || { kredit: ''}
-                                            }}
-                                        /> 
+                                        <PromenaPodatakaKorisnika korisnik={stavka} />
                                     </TableCell>
-                                    <TableCell className="text-left">{stavka.ime}</TableCell>
-                                    <TableCell className="text-left lg:pl-2 truncate">{stavka.email}</TableCell>
-                                    <TableCell className="lg:pl-2">{stavka.telefon}</TableCell>
-                                    <TableCell className="lg:pl-2">{stavka.adresa}</TableCell>                            
-                                    <TableCell className="lg:pl-2">{stavka.aktivan}</TableCell>
-                                    <TableCell className="lg:pl-2">{stavka.uloga}</TableCell>
+                                    <TableCell>{stavka.korisnickoIme}</TableCell>
+                                    <TableCell>{stavka.email}</TableCell>
+                                    <TableCell>{stavka.telefon}</TableCell>
                                 </TableRow>
                             ))
                         )}
@@ -115,8 +104,7 @@ const KorisniciTable = ({ title } : myProps )=> {
                 onPageChange={setTrenutnaStrana}
             />
         </div>
-
     );
-}
+};
 
 export default KorisniciTable;

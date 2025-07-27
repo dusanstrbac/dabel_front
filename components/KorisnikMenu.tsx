@@ -39,7 +39,7 @@ export default function KorisnikMenu() {
     localStorage.removeItem("webparametri");
     
     deleteCookie('AuthToken');
-    router.push('/');
+    router.push('/login');
     window.location.reload();
   };
 

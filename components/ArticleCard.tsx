@@ -2,7 +2,7 @@ import { useRouter } from 'next/navigation';
 import '@/app/globals.css';
 import AddToCartButton from './AddToCartButton';
 import { ArtikalType } from '@/types/artikal';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 
 interface ArticleCardProps extends ArtikalType {
   idPartnera: string;
@@ -13,6 +13,7 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera }: Ar
   const router = useRouter();
   const [isMounted, setMounted] = useState(false);
   const [lastPurchaseDate, setLastPurchaseDate] = useState<string | undefined>(undefined);
+  const [artikalPristizanje, setArtikalPristizanje] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     setMounted(true);
@@ -41,6 +42,32 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera }: Ar
       fetchDatumPoslednjeKupovine();
     }
   }, [idArtikla, idPartnera]);
+
+  useEffect(() => {
+    const fetchPristiznanjeArtiklaUSkladiste = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Artikal/PristizanjeArtikla?idArtikla=${idArtikla}`
+        );
+
+        if (response.status === 404) return;
+
+        if (!response.ok) {
+          console.error("Greška u fetchovanju artikal pristizanja:", await response.text());
+          return;
+        }
+
+        const data = await response.json();
+        setArtikalPristizanje(data.datumPonovnogStanja);
+      } catch (error) {
+        console.error("Došlo je do greške prilikom dohvatanja pristizanja artikla u skladište:", error);
+      }
+    };
+
+    if (idArtikla) {
+      fetchPristiznanjeArtiklaUSkladiste();
+    }
+  }, [idArtikla]);
 
   const imageUrl = '/images';
   const fotografijaProizvoda = `${imageUrl}/s${idArtikla}.jpg`;
@@ -77,12 +104,10 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera }: Ar
 
   return (
     <div
-      className={`
-        articleSize relative w-full sm:max-w-[280px] md:max-w-[300px] lg:max-w-[320px] 
+      className={`articleSize relative w-full sm:max-w-[280px] md:max-w-[300px] lg:max-w-[320px] 
         rounded-2xl flex flex-col justify-between bg-white shadow-sm 
         hover:shadow-2xl transition-shadow duration-300
-        ${Number(kolicina) <= 0 ? 'opacity-50' : ''}
-      `}
+        ${Number(kolicina) <= 0 ? 'opacity-50' : ''}`}
       onClickCapture={handleCardClick}
     >
       {/* Sloj preko slike */}
@@ -110,6 +135,13 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera }: Ar
         >
           {lastPurchaseDate && `Poslednja kupovina: ${formatDate(lastPurchaseDate)}`}
         </p>
+
+        {/* Datum pristizanja artikla */}
+        {Number(kolicina) <= 0 && artikalPristizanje && (
+          <p className="text-xs text-center text-gray-600 italic transition-all duration-200">
+            {`Planirani datum pristizanja: ${formatDate(artikalPristizanje)}`}
+          </p>
+        )}
 
         {/* Cena i dugme */}
         <div className="flex justify-between items-end mt-auto">
@@ -149,5 +181,6 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera }: Ar
     </div>
   );
 };
+
 
 export default ArticleCard;

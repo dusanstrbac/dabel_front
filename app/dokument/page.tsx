@@ -67,7 +67,6 @@ const DokumentPage = () => {
         datumDokumenta: docInfo.datumDokumenta,
         lokacija: docInfo.lokacija,
         napomena: docInfo.napomena,
-        partner: partner,
         tip: "narudzbenica",
         idPartnera: "",
         idKomercijaliste: "",

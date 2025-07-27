@@ -8,7 +8,7 @@ const NaruciButton = ({ disabled, reason }: { disabled?: boolean; reason?: strin
       <Button
         variant="outline"
         className="px-10 py-4 cursor-pointer"
-        disabled={disabled}
+      //  disabled={disabled}
       >
         Naruči
       </Button>

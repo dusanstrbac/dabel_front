@@ -12,64 +12,89 @@ import {
 } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "./ui/select";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { toast } from "sonner";
 
 const KreirajKorisnika = () => {
   const [korisnickoIme, setKorisnickoIme] = useState('');
   const [lozinka, setLozinka] = useState('');
   const [email, setEmail] = useState('');
   const [telefon, setTelefon] = useState('');
-  const [statusAktivnosti, setStatusAktivnosti] = useState('');
-  const [uloga, setUloga] = useState('');
-  const [adresa, setAdresa] = useState('');
-  const [grad, setGrad] = useState('');
-  const [delatnost, setDelatnost] = useState('');
-  const [pib, setPib] = useState('');
-  const [maticniBroj, setMaticniBroj] = useState('');
-  const [zip, setZip] = useState('');
-  const [kredit, setKredit] = useState('');
+  const [open, setOpen] = useState(false); // State za otvaranje/zatvaranje dijaloga
+
+  const validateEmail = (email: string) => {
+    // Jednostavan regex za validaciju emaila
+    const res = /\S+@\S+\.\S+/;
+    return res.test(email);
+  };
 
   const handleSubmit = async () => {
+    const partner = dajKorisnikaIzTokena();
+
+    // Validacija unosa
+    if (!korisnickoIme || !lozinka || !email || !telefon) {
+      toast.error("Sva polja moraju biti popunjena!");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      toast.error("Email nije u validnom formatu!");
+      return;
+    }
+
+    if(lozinka.length < 6 ) {
+      toast.error("Lozinka mora imati najmanje 6 karaktera!");
+      return;
+    }
+
+    if (!/^(\+381|0)[6-9][0-9]{7,8}$/.test(telefon)) {
+      toast.error("Telefon nije u validnom formatu. (Na primer: +38160XXXXXXX)");
+      return;
+    }
 
     const payload = {
-      ime: korisnickoIme,
       korisnickoIme,
       lozinka,
       email,
       telefon,
-      statusAktivnosti,
-      uloga,
-      grad,
-      adresa,
-      zip,
-      delatnost,
-      pib,
-      maticniBroj,
-      FinKarta: {
-        Kredit: kredit,
-      }
+      partner: partner?.idKorisnika,
     };
-    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-    const res = await fetch(`${apiAddress}/api/Partner/KreirajPartnera`, {
-      method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-    .then(res => res.text())
-  }
 
+    try {
+      const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+      const res = await fetch(`${apiAddress}/api/Partner/KreirajKorisnika`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
 
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success(data.message || "Uspešno ste kreirali korisnika");
+        setOpen(false);
+        window.location.reload();
+      } else {
+        toast.error(data.message || "Greška prilikom kreiranja korisnika");
+      }
+    } catch (error) {
+      console.error("Greška prilikom slanja zahteva:", error);
+      toast.error(String(error));
+    }
+  };
+
+  const handleDialogClose = (openStatus: boolean) => {
+    if (!openStatus) {
+      window.location.reload();
+    }
+    setOpen(openStatus);
+  };
 
   return (
     <div>
-      <Dialog>
+      <Dialog open={open} onOpenChange={handleDialogClose}>
         <DialogTrigger asChild>
           <Button variant="outline">Kreiraj korisnika</Button>
         </DialogTrigger>
@@ -78,153 +103,52 @@ const KreirajKorisnika = () => {
           <DialogHeader>
             <DialogTitle className="font-bold text-xl">Kreiranje novog korisnika</DialogTitle>
             <DialogDescription>
-              Unesite sve podatke da biste registrovali novog partnera
+              Unesite sve podatke da biste registrovali novog korisnika
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-            {/* Leva kolona */}
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="korisnickoIme" className="font-bold">Korisničko ime</Label>
-                <Input
-                  id="korisnickoIme"
-                  value={korisnickoIme}
-                  onChange={(e) => setKorisnickoIme(e.target.value)}
-                  className="border-2 border-gray-300"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="lozinka" className="font-bold">Lozinka</Label>
-                <Input
-                  type="password"
-                  id="lozinka"
-                  value={lozinka}
-                  onChange={(e) => setLozinka(e.target.value)}
-                  className="border-2 border-gray-300"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email" className="font-bold">Email</Label>
-                <Input
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="border-2 border-gray-300"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="telefon" className="font-bold">Telefon</Label>
-                <Input
-                  id="telefon"
-                  value={telefon}
-                  onChange={(e) => setTelefon(e.target.value)}
-                  className="border-2 border-gray-300"
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="status" className="font-bold">Status</Label>
-                <Select onValueChange={setStatusAktivnosti}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Odaberite status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="Aktivan" className="cursor-pointer">Aktivan</SelectItem>
-                      <SelectItem value="Pasivan" className="cursor-pointer">Pasivan</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="uloga" className="font-bold">Uloga</Label>
-                <Select onValueChange={setUloga}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Odaberite ulogu" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="sveAktivnosti" className="cursor-pointer">Sve aktivnosti</SelectItem>
-                      <SelectItem value="rezervisanjeRobe" className="cursor-pointer">Rezervisanje robe</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="korisnickoIme" className="font-bold">Korisničko ime</Label>
+              <Input
+                id="korisnickoIme"
+                value={korisnickoIme}
+                onChange={(e) => setKorisnickoIme(e.target.value)}
+                className="border-2 border-gray-300"
+              />
             </div>
-
-            {/* Desna kolona */}
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="grad" className="font-bold">Grad</Label>
-                <Input
-                  id="grad"
-                  value={grad}
-                  onChange={(e) => setGrad(e.target.value)}
-                  className="border-2 border-gray-300"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="adresa" className="font-bold">Adresa</Label>
-                <Input
-                  id="adresa"
-                  value={adresa}
-                  onChange={(e) => setAdresa(e.target.value)}
-                  className="border-2 border-gray-300"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="zip" className="font-bold">ZIP</Label>
-                <Input
-                  id="zip"
-                  value={zip}
-                  onChange={(e) => setZip(e.target.value)}
-                  className="border-2 border-gray-300"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="delatnost" className="font-bold">Delatnost</Label>
-                <Input
-                  id="delatnost"
-                  value={delatnost}
-                  onChange={(e) => setDelatnost(e.target.value)}
-                  className="border-2 border-gray-300"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="pib" className="font-bold">PIB</Label>
-                <Input
-                  id="pib"
-                  value={pib}
-                  onChange={(e) => setPib(e.target.value)}
-                  className="border-2 border-gray-300"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="maticniBroj" className="font-bold">Matični broj</Label>
-                <Input
-                  id="maticniBroj"
-                  value={maticniBroj}
-                  onChange={(e) => setMaticniBroj(e.target.value)}
-                  className="border-2 border-gray-300"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="kredit" className="font-bold">Kredit</Label>
-                <Input
-                  id="kredit"
-                  value={kredit}
-                  onChange={(e) => setKredit(e.target.value)}
-                  className="border-2 border-gray-300"
-                />
-              </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="email" className="font-bold">Email</Label>
+              <Input
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="border-2 border-gray-300"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="lozinka" className="font-bold">Lozinka</Label>
+              <Input
+                type="password"
+                id="lozinka"
+                value={lozinka}
+                onChange={(e) => setLozinka(e.target.value)}
+                className="border-2 border-gray-300"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="telefon" className="font-bold">Telefon</Label>
+              <Input
+                id="telefon"
+                value={telefon}
+                onChange={(e) => setTelefon(e.target.value)}
+                className="border-2 border-gray-300"
+              />
             </div>
           </div>
 
-
           <DialogFooter className="mt-4">
-            <Button type="submit" onClick={handleSubmit} className="px-7 cursor-pointer">Sačuvaj</Button>
+            <Button type="button" onClick={handleSubmit} className="px-5 cursor-pointer">Kreiraj korisnika</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

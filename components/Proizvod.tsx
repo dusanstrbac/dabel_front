@@ -43,6 +43,7 @@ export default function Proizvod() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [lajkovano, setLajkovano] = useState(false);
   const [datumPonovnogStanja, setDatumPonovnogStanja] = useState<string | null>(null);
+  const [pristiglaKolicina, setPristiglaKolicina] = useState(0);
 
 
   const korisnik = dajKorisnikaIzTokena();
@@ -104,9 +105,12 @@ export default function Proizvod() {
 
         if (response.ok) {
           const data = await response.json();
+          console.log(data);
           setDatumPonovnogStanja(data.datumPonovnogStanja || null);
+          setPristiglaKolicina(data.kolicina || 0);
         } else {
           setDatumPonovnogStanja(null);
+          setPristiglaKolicina(0);
         }
       } catch (error) {
         console.error("Greška prilikom dohvatanja datuma ponovnog stanja:", error);
@@ -234,6 +238,7 @@ export default function Proizvod() {
                   month: 'long',
                   day: 'numeric',
                 })}
+                <p>Kolicina koja stiže u magacin: {pristiglaKolicina}</p>
               </span>
             )}
             <ul className="text-sm md:text-base space-y-1">
