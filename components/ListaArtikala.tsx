@@ -61,6 +61,8 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
     router.push(`${pathname}?${noviUpit.toString()}`);
   };
 
+  console.log("evo artikli koji ulaze u LIIIIStu artikala",artikli);
+
   const onFilterChange = (noviFilteri: ArtikalFilterProp) => {
     setFilteri(noviFilteri);
     // Ovde dodaj logiku za filtriranje artikala ako je potrebno
@@ -77,24 +79,30 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
         <ArtikalFilter artikli={artikli} atributi={atributi} kategorija={kategorija} podkategorija={podkategorija} onFilterChange={onFilterChange} />
       </div>
 
+
+      
       {/* Lista artikala */}
       <div className="w-full md:w-3/4">
         <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
-          {prikazaniArtikli.map((artikal, idx) => (
-            <ArticleCard
-              key={artikal.idArtikla ?? idx}
-              naziv={artikal.naziv}
-              idArtikla={artikal.idArtikla}
-              barkod={artikal.barkod}
-              kategorijaId={artikal.kategorijaId}
-              kolicina={artikal.kolicina}
-              jm={artikal.jm}
-              artikalAtributi={artikal.artikalAtributi}
-              artikalCene={artikal.artikalCene ?? []}
-              lastPurchaseDate="2025-06-20"
-              idPartnera={idPartnera!}
-            />
-          ))}
+          {prikazaniArtikli.map((artikal, idx) => {
+            console.log("Artikal: lalalalal", artikal);
+            return (
+              <ArticleCard
+                key={artikal.idArtikla ?? idx}
+                naziv={artikal.naziv}
+                idArtikla={artikal.idArtikla}
+                barkod={artikal.barkod}
+                kategorijaId={artikal.kategorijaId}
+                kolicina={artikal.kolicina}
+                jm={artikal.jm}
+                kolZaIzdavanje={artikal.kolZaIzdavanje} // ja mu ovde saljem, pomogni mi da u ArticleCard saljem dalje u AddToCartButton
+                artikalAtributi={artikal.artikalAtributi}
+                artikalCene={artikal.artikalCene ?? []}
+                lastPurchaseDate="2025-06-20"
+                idPartnera={idPartnera!}
+              />
+            );
+          })}
         </div>
 
         {/* Paginacija */}

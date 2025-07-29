@@ -8,6 +8,7 @@ import NaruciButton from "@/components/ui/NaruciButton";
 import Image from "next/image";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 
 type ArtikalCena = {
   cena: number;
@@ -26,6 +27,7 @@ type Artikal = {
   barkod: string;
   kolicina: string;
   stanje?: string;
+  kolZaIzdavanje?: number;
 };
 
 const Korpa = () => {
@@ -84,7 +86,11 @@ const Korpa = () => {
         }));
 
         setArticleList(transformed);
-        setQuantities(transformed.map((a: any) => cart[a.id]?.kolicina || a.pakovanje));
+        // setQuantities(transformed.map((a: any) => cart[a.id]?.kolicina || a.pakovanje));
+        setQuantities(transformed.map((a: any) => {
+          const savedQty = cart[a.id]?.kolicina;
+          return savedQty ? getRoundedQuantity(savedQty, a.pakovanje || 1) : (a.pakovanje || 1);
+        }));
       } catch (error) {
         console.error("Greška pri učitavanju artikala:", error);
       }
@@ -160,11 +166,20 @@ const Korpa = () => {
     localStorage.setItem("cart", JSON.stringify(cart));
   };
 
+  // const getRoundedQuantity = (requested: number, packSize: number) => {
+  //   if (requested <= 0 || isNaN(requested)) return 0;
+  //   return requested <= packSize
+  //     ? packSize
+  //     : Math.ceil(requested / packSize) * packSize;
+  // };
   const getRoundedQuantity = (requested: number, packSize: number) => {
-    if (requested <= 0 || isNaN(requested)) return 0;
-    return requested <= packSize
-      ? packSize
-      : Math.ceil(requested / packSize) * packSize;
+    if (requested <= 0 || isNaN(requested)) return packSize; // Vraća pakovanje umesto 0
+    return Math.ceil(requested / packSize) * packSize;
+  };
+
+  const getMaxAllowedQuantity = (kolicina: string, pakovanje: number) => {
+    const maxKolicina = Number(kolicina) || 0;
+    return Math.floor(maxKolicina / pakovanje) * pakovanje;
   };
 
   const getCenaZaArtikal = (artikal: Artikal) => {
@@ -279,7 +294,7 @@ const Korpa = () => {
             )}
             {articleList.map((article, index) => {
               const imaAkciju = (article.artikalCene?.[0]?.akcija?.cena || 0) > 0;
-              const pakovanje = article.pakovanje || 1;
+              const pakovanje = article.kolZaIzdavanje || 1;
               const kolicina = getRoundedQuantity(quantities[index], pakovanje);
               const cena = getCenaZaArtikal(article);
               const originalnaCena = getOriginalnaCena(article);
@@ -323,20 +338,23 @@ const Korpa = () => {
                   </TableCell>
                   <TableCell className="text-center">{pakovanje}</TableCell>
                   <TableCell className="text-center">
-                    <input
+                    <Input
                       type="number"
-                      min="1"
-                      className="w-20 border rounded px-2 py-1 text-center"
+                      step={pakovanje || 1}
+                      min={pakovanje || 1}
                       value={quantities[index]}
-                      max={article.kolicina}
                       onChange={(e) => {
+                        const pakovanje = article.kolZaIzdavanje || 1;
                         let enteredValue = Number(e.target.value);
-                        const maxKolicina = Number(article.kolicina);
+                        const maxAllowed = getMaxAllowedQuantity(article.kolicina, pakovanje);
 
-                        if (isNaN(enteredValue) || enteredValue < 1) enteredValue = 1;
-                        if (enteredValue > maxKolicina) enteredValue = maxKolicina;
+                        if (isNaN(enteredValue)) {
+                          enteredValue = pakovanje;
+                        }
 
-                        updateQuantity(index, enteredValue);
+                        const roundedValue = Math.ceil(enteredValue / pakovanje) * pakovanje;
+                        const finalValue = Math.min(roundedValue, maxAllowed);
+                        updateQuantity(index, finalValue);
                       }}
                     />
                   </TableCell>

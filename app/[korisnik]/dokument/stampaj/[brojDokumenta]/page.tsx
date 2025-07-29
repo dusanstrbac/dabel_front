@@ -1,10 +1,8 @@
 'use client';
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { AritkalKorpaType } from "@/types/artikal";
 import { DokumentInfo, StavkaDokumenta } from "@/types/dokument";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
-import korisnici from "@/app/[korisnik]/profil/korisnici/page";
 import { useParams } from "next/navigation";
 
 

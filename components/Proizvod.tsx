@@ -11,6 +11,7 @@ import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { ArtikalAtribut, ArtikalType } from "@/types/artikal";
 import { CircleAlert } from "lucide-react";
 import { toast } from "sonner";
+import { Input } from "./ui/input";
 
 
 // Dinamički uvoz Lightbox-a
@@ -58,7 +59,6 @@ export default function Proizvod() {
       try {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const res = await fetch(`${apiAddress}/api/Artikal/DajArtikalPoId?idPartnera=${korisnik?.idKorisnika}&ids=${productId}`);
-
         if (!res.ok) throw new Error("Greška prilikom učitavanja proizvoda");
 
         const data = await res.json();
@@ -179,6 +179,21 @@ export default function Proizvod() {
       ? Number(proizvod.artikalCene[0].akcija.cena)
       : undefined;
 
+
+  //deo za racunanje pakovanja
+
+  const getRoundedQuantity = (requested: number, packSize: number) => {
+    if (requested <= 0 || isNaN(requested)) return packSize;
+    return Math.ceil(requested / packSize) * packSize;
+  };
+
+  const getMaxAllowedQuantity = (kolicina: string, pakovanje: number) => {
+    const maxKolicina = Number(kolicina) || 0;
+    return Math.floor(maxKolicina / pakovanje) * pakovanje;
+  };
+
+
+  
   // Loader i error handling
   if (loading) return <div className="px-4 md:px-10 lg:px-[40px] py-6">Učitavanje...</div>;
   if (error) return <div className="px-4 md:px-10 lg:px-[40px] py-6 text-red-600">{error}</div>;
@@ -251,6 +266,9 @@ export default function Proizvod() {
               <li>
                 <span className="font-semibold">Jedinica mere:</span> {proizvod.jm}
               </li>
+              <li>
+                <span className="font-semibold">Količina za izdavanje:</span> {proizvod.kolZaIzdavanje}
+              </li>
             </ul>
             <ul className="text-sm md:text-base space-y-1 mt-2">
               {atributi.length > 0 ? (
@@ -297,23 +315,49 @@ export default function Proizvod() {
               )}
             </div>
             {Number(proizvod.kolicina) > 0 ? (
-              <input
-                ref={inputRef}
-                name="inputProizvod"
-                className="w-16 border rounded px-2 py-1 text-center"
-                type="number"
-                min={preostalo > 0 ? 1 : 0}
-                max={preostalo}
-                defaultValue={preostalo > 0 ? 1 : 0}
-                disabled={preostalo === 0}
-                onChange={(e) => {
-                  const input = e.currentTarget;
-                  const vrednost = Number(input.value);
-                  if (vrednost > preostalo) {
-                    input.value = preostalo.toString();
-                  }
-                }}
-              />
+              <>
+                <Input
+                  type="number"
+                  step={proizvod.kolZaIzdavanje || 1}
+                  min={proizvod.kolZaIzdavanje || 1}
+                  defaultValue={proizvod.kolZaIzdavanje || 1}
+                  onChange={(e) => {
+                    const pakovanje = proizvod.kolZaIzdavanje || 1;
+                    let enteredValue = Number(e.target.value);
+                    const maxAllowed = getMaxAllowedQuantity(proizvod.kolicina, pakovanje);
+
+                    if (isNaN(enteredValue)) {
+                      enteredValue = pakovanje;
+                    }
+
+                    const roundedValue = Math.ceil(enteredValue / pakovanje) * pakovanje;
+                    const finalValue = Math.min(roundedValue, maxAllowed);
+                    if (inputRef.current) {
+                      inputRef.current.value = finalValue.toString();
+                    }
+                  }}
+                  ref={inputRef}
+                />
+                <AddToCartButton
+                  id={proizvod.idArtikla}
+                  className="w-full sm:w-auto px-6 py-2"
+                  title="Dodaj u korpu"
+                  getKolicina={() => Number(inputRef.current?.value || proizvod.kolZaIzdavanje || 1)}
+                  nazivArtikla={proizvod.naziv}
+                  disabled={Number(proizvod.kolicina) <= 0 || preostalo === 0}
+                  ukupnaKolicina={preostalo}
+                  onPreAdd={() => {
+                    const uneta = Number(inputRef.current?.value || proizvod.kolZaIzdavanje || 1);
+                    if (uneta > preostalo) {
+                      toast.error("Nema dovoljno artikala na stanju!", {
+                        description: `Maksimalno možete dodati ${preostalo} kom.`,
+                      });
+                      return false;
+                    }
+                    return true;
+                  }}
+                />
+              </>
             ) : (
               <input
                 ref={inputRef}
@@ -323,27 +367,9 @@ export default function Proizvod() {
                 min={0}
                 max={0}
                 defaultValue={0}
+                disabled
               />
             )}
-            <AddToCartButton
-              id={proizvod.idArtikla}
-              className="w-full sm:w-auto px-6 py-2"
-              title="Dodaj u korpu"
-              getKolicina={() => Number(inputRef.current?.value || 1)}
-              nazivArtikla={proizvod.naziv}
-              disabled={Number(proizvod.kolicina) <= 0 || preostalo === 0}
-              ukupnaKolicina={preostalo}
-              onPreAdd={() => {
-                const uneta = Number(inputRef.current?.value || 1);
-                if (uneta > preostalo) {
-                  toast.error("Nema dovoljno artikala na stanju!", {
-                    description: `Maksimalno možete dodati ${preostalo} kom.`,
-                  });
-                  return false;
-                }
-                return true;
-              }}
-            />
           </div>
         </div>
       </div>

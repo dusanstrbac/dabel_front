@@ -4,6 +4,7 @@ import Image from "next/image";
 import { AritkalKorpaType } from "@/types/artikal";
 import { DokumentInfo } from "@/types/dokument";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { toast } from "sonner";
 
 
 const DokumentPage = () => {
@@ -79,6 +80,11 @@ const DokumentPage = () => {
       setStavke(artikli);
       setDOCC(dokument);
       setDostava(dostavaValue);
+      setTimeout(() => {
+        toast.success("Narudžbenica je uspešno kreirana!", {
+          duration: 8000, // 8 sekundi umesto default 4
+        });
+      }, 500); // Mali delay od 500ms
     } catch (error) {
       console.error("❌ Greška pri učitavanju podataka iz sessionStorage:", error);
     }

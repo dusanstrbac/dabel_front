@@ -10,15 +10,17 @@ interface AddToCartButtonProp {
     nazivArtikla: string,
     disabled?: boolean,
     ukupnaKolicina: number,
-    onPreAdd?: () => boolean
-}
+    onPreAdd?: () => boolean,
+    kolZaIzdavanje?: number,
+  }
 
-const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disabled=false, ukupnaKolicina, onPreAdd}: AddToCartButtonProp) => {
+const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disabled=false, ukupnaKolicina, onPreAdd, kolZaIzdavanje}: AddToCartButtonProp) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (disabled) return;
 
     if (onPreAdd && !onPreAdd()) return;
+
 
     // Proveri da li je id validan za artikle
     const brojId = Number(id);
@@ -29,8 +31,10 @@ const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disa
 
     // Dodati proveru za kolicinu koja je na stanju
     
-    const novaKolicina = getKolicina();
+    // const novaKolicina = getKolicina();
     const existing = localStorage.getItem("cart");
+    const novaKolicina = getKolicina ? getKolicina() : ( kolZaIzdavanje || 1);
+
     let cart: Record<number, { kolicina: number }> = existing ? JSON.parse(existing) : {};
 
     const trenutnoUKorpi = cart[id]?.kolicina ?? 0;

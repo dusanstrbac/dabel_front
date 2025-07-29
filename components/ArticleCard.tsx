@@ -2,14 +2,14 @@ import { useRouter } from 'next/navigation';
 import '@/app/globals.css';
 import AddToCartButton from './AddToCartButton';
 import { ArtikalType } from '@/types/artikal';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ArticleCardProps extends ArtikalType {
   idPartnera: string;
   lastPurchaseDate?: string;
 }
 
-const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera }: ArticleCardProps) => {
+const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZaIzdavanje }: ArticleCardProps) => {
   const router = useRouter();
   const [isMounted, setMounted] = useState(false);
   const [lastPurchaseDate, setLastPurchaseDate] = useState<string | undefined>(undefined);
@@ -128,6 +128,14 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera }: Ar
           {naziv}
         </h2>
 
+        {kolZaIzdavanje && kolZaIzdavanje > 1 ? (
+          <p className="text-xs text-gray-500">
+            Pakovanje: {kolZaIzdavanje} kom
+          </p>
+        ):(
+          <p>NEMA KOLICINE</p>
+        )}
+
         <p
           className={`text-xs text-center text-gray-600 italic transition-all duration-200 ${
             lastPurchaseDate ? 'min-h-[1.25rem] opacity-100' : 'min-h-[0.25rem] opacity-0'
@@ -170,7 +178,8 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera }: Ar
           <div className="pointer-events-auto">
             <AddToCartButton
               id={idArtikla}
-              getKolicina={() => 1}
+              getKolicina={() => kolZaIzdavanje || 1} //ovaj se buni
+              kolZaIzdavanje={kolZaIzdavanje}
               nazivArtikla={naziv}
               disabled={Number(kolicina) <= 0}
               ukupnaKolicina={Number(kolicina)}
