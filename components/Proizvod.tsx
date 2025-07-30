@@ -318,6 +318,7 @@ export default function Proizvod() {
               <>
                 <Input
                   type="number"
+                  className="min-w-10 w-full max-w-21"
                   step={proizvod.kolZaIzdavanje || 1}
                   min={proizvod.kolZaIzdavanje || 1}
                   defaultValue={proizvod.kolZaIzdavanje || 1}
