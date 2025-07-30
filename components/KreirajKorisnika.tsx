@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -21,6 +21,7 @@ const KreirajKorisnika = () => {
   const [email, setEmail] = useState('');
   const [telefon, setTelefon] = useState('');
   const [open, setOpen] = useState(false); // State za otvaranje/zatvaranje dijaloga
+  const idCounter = useRef(100);
 
   const validateEmail = (email: string) => {
     // Jednostavan regex za validaciju emaila
@@ -59,6 +60,8 @@ const KreirajKorisnika = () => {
       telefon,
       partner: partner?.idKorisnika,
     };
+
+    console.log(payload);
 
     try {
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;

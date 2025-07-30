@@ -4,6 +4,7 @@ import Image from "next/image";
 import { AritkalKorpaType } from "@/types/artikal";
 import { DokumentInfo } from "@/types/dokument";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { toast } from "sonner";
 
 
 const DokumentPage = () => {
@@ -70,7 +71,7 @@ const DokumentPage = () => {
         tip: "narudzbenica",
         idPartnera: "",
         idKomercijaliste: "",
-        datumVazenja: docInfo.datumDokumenta + 7, // sta da stavim ovde, da li mo
+        datumVazenja: docInfo.datumDokumenta + 7,
         status: 0,
         stavkeDokumenata: [],
       };
@@ -79,8 +80,10 @@ const DokumentPage = () => {
       setStavke(artikli);
       setDOCC(dokument);
       setDostava(dostavaValue);
+      toast.success("Vaša porudžbina je uspešno evidentirana");
     } catch (error) {
       console.error("❌ Greška pri učitavanju podataka iz sessionStorage:", error);
+      toast.error(String(`Greška: ${error}`));
     }
   }, []);
 

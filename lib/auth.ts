@@ -13,6 +13,8 @@ type DekodiranToken = {
   raspolozivoStanje?: string;
   kredit?: string;
   nijeDospelo?: string;
+  drzava?: string;
+  partner?: string;
 };
 
 export function dajKorisnikaIzTokena(): {
@@ -20,6 +22,8 @@ export function dajKorisnikaIzTokena(): {
   korisnickoIme: string;
   idKorisnika: string;
   webUloga: string;
+  drzava: string;
+  partner: string;
   finKarta?: {
     idPartnera: string;
     nerealizovano: number;
@@ -40,6 +44,8 @@ export function dajKorisnikaIzTokena(): {
       korisnickoIme: decoded.sub,
       idKorisnika: decoded.id,
       webUloga: decoded.webUloga,
+      drzava: decoded.drzava || "",
+      partner: decoded.partner || "",
       finKarta: decoded.idPartnera
         ? {
             idPartnera: decoded.idPartnera,
@@ -49,6 +55,7 @@ export function dajKorisnikaIzTokena(): {
             nijeDospelo: parseFloat(decoded.nijeDospelo || "0"),
           }
         : undefined,
+        
     };
   } catch (error) {
     console.error("Greška pri dekodiranju tokena:", error);

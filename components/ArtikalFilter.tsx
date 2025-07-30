@@ -1,7 +1,7 @@
 'use client'
 
-import { ArtikalFilterProp, ArtikalType } from '@/types/artikal'
-import React, { useEffect, useState } from 'react'
+import { ArtikalFilterProp } from '@/types/artikal'
+import React, { useEffect, useMemo, useState } from 'react'
 import MultiRangeSlider from './ui/MultiRangeSlider'
 import {
   Collapsible,
@@ -9,14 +9,14 @@ import {
   CollapsibleContent,
 } from './ui/collapsible'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { dajKorisnikaIzTokena } from '@/lib/auth';
+import { dajKorisnikaIzTokena } from '@/lib/auth'
 
 interface ProductFilterProps {
-  artikli: any[];
-  atributi: any[];
-  kategorija: string;
-  podkategorija: string | null;
-  onFilterChange: (filters: ArtikalFilterProp) => void;
+  artikli: any[]
+  atributi: any[]
+  kategorija: string
+  podkategorija: string | null
+  onFilterChange: (filters: ArtikalFilterProp) => void
 }
 
 const defaultFilters: ArtikalFilterProp = {
@@ -28,6 +28,7 @@ const defaultFilters: ArtikalFilterProp = {
   RobnaMarka: [],
   Upotreba: [],
   Boja: [],
+  cena: '0-100000',
 }
 
 const ArtikalFilter: React.FC<ProductFilterProps> = ({
@@ -40,198 +41,122 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-  const korisnik = dajKorisnikaIzTokena();
-  const fullUrl = `${apiAddress}/api/Artikal/DajArtikalCene?grupa=${encodeURIComponent(kategorija)}&podgrupa=${podkategorija ? encodeURIComponent(podkategorija) : ""}`;
-  //const fullUrl = `${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${queryParams.toString()}&idPartnera=${korisnik?.idKorisnika}`;
-  console.log("FULL URL:", fullUrl);
+  const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS
+  const korisnik = dajKorisnikaIzTokena()
+  const fullUrl = `${apiAddress}/api/Artikal/DajArtikalCene?grupa=${encodeURIComponent(
+    kategorija
+  )}&podgrupa=${podkategorija ? encodeURIComponent(podkategorija) : ''}`
 
+  // Cena
+  const [mapaCena, setMapaCena] = useState<Map<string, number>>(new Map())
+  const [minCena, setMinCena] = useState(0)
+  const [maxCena, setMaxCena] = useState(100000)
+  const [sliderValues, setSliderValues] = useState<[number, number]>([
+    minCena,
+    maxCena,
+  ])
 
+  // Aktuelni filteri
+  const [filters, setFilters] = useState<ArtikalFilterProp>(defaultFilters)
+
+  // Opcije filtera - uvek se uzimaju iz svih artikala i atributa
+  const [filterOptions, setFilterOptions] = useState({
+    jm: [] as string[],
+    Materijal: [] as string[],
+    Model: [] as string[],
+    Pakovanje: [] as string[],
+    RobnaMarka: [] as string[],
+    Upotreba: [] as string[],
+    Boja: [] as string[],
+  })
+
+  // Fetch cena za artikle iz API-ja
   const fetchCene = async () => {
     try {
-      const res = await fetch(fullUrl);
-
-      if (!res.ok) {
-        throw new Error(`HTTP greška: ${res.status} - ${res.statusText}`);
-      }
-
-      const data = await res.json();
+      const res = await fetch(fullUrl)
+      if (!res.ok) throw new Error(`HTTP greška: ${res.status}`)
+      const data = await res.json()
 
       if (data.length) {
-        console.log("CENE IZ FETCHA: ", data);
-
-        const mapaCena = new Map<string, number>();
+        const novaMapaCena = new Map<string, number>()
         data.forEach((artikal: any) => {
-          mapaCena.set(artikal.idArtikla, artikal.cena);
-        });
-
-        console.log("MAPA CENA:", mapaCena);
-        return mapaCena;
-
-      } else {
-        console.log("PRAZAN FETCH CENE");
-        return new Map(); // vraćamo praznu mapu
+          if (artikal.idArtikla && artikal.cena) {
+            novaMapaCena.set(artikal.idArtikla, artikal.cena)
+          }
+        })
+        return novaMapaCena
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error('Greška:', error);
-      } else {
-        console.error('Nepoznata greška:', error);
-      }
-      return new Map(); // fallback
+      return new Map()
+    } catch (error) {
+      console.error('Greška pri dobijanju cena:', error)
+      return new Map()
     }
-  };
+  }
 
-  //-----------------------------------------------------------------------
-  const [mapaCena, setMapaCena] = useState<Map<string, number>>(new Map());
-  const [minCena, setMinCena] = useState(0);
-  const [maxCena, setMaxCena] = useState(100000);
-  const [sliderValues, setSliderValues] = useState<[number, number]>([minCena, maxCena]);
-
-  /*const getCenaRange = (cenaStr: string | undefined): [number, number] => {
-    if (!cenaStr) return [0, 100000];
-    const [min, max] = cenaStr.split('-').map(Number);
-    return [min || 0, max || 100000];
-  };
-
-  // Primer:
-  const [minCena, maxCena] = getCenaRange(filters.cena);*/
-
-
-  const updateURLWithCena = (min: number, max: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-
-    // Postavi novu vrednost za cenu
-    params.set('cena', `${min}-${max}`);
-    params.set('page', '1'); // Resetuj paginaciju
-
-    router.push(`?${params.toString()}`);
-  };
-
+  // Postavi opseg cena na osnovu fetchovanih cena
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setFilters((prev) => ({
-        ...prev,
-        cena: `${sliderValues[0]}-${sliderValues[1]}`,
-      }));
+    const postaviOpsegCena = async () => {
+      const ceneMapa = await fetchCene()
+      setMapaCena(ceneMapa)
 
-
-      updateURLWithCena(sliderValues[0], sliderValues[1]);
-    }, 500);
-
-    return () => clearTimeout(timeout);
-  }, [sliderValues]);
-
-  useEffect(() => {
-    const cenaParam = searchParams.get('cena');
-    if (cenaParam) {
-      const [min, max] = cenaParam.split('-').map(Number);
-      setFilters((prev) => ({
-        ...prev,
-        cena: `${min}-${max}`,
-      }));
-      setSliderValues([min, max]);
-    }
-  }, []);
-
-
-
-
-  useEffect(() => {
-    const fetchAndSetCene = async () => {
-      const ceneMapa = await fetchCene(); // vraca Map<string, number>
-      setMapaCena(ceneMapa);
-
-      const cene = Array.from(ceneMapa.values());
+      const cene = Array.from(ceneMapa.values())
       if (cene.length > 0) {
-        setMinCena(Math.min(...cene));
-        setMaxCena(Math.max(...cene));
+        const noviMin = Math.min(...cene)
+        const noviMax = Math.max(...cene)
+        setMinCena(noviMin)
+        setMaxCena(noviMax)
+        setSliderValues([noviMin, noviMax])
       }
-    };
+    }
+    postaviOpsegCena()
+  }, [artikli, kategorija, podkategorija])
 
-    fetchAndSetCene();
-  }, []);
-  //------------------------------------------------------------------------
-
+  // Pomoćna da konvertuje vrednost u niz stringova
   function asArray(value: string | string[] | undefined): string[] {
     if (!value) return []
     return Array.isArray(value) ? value : [value]
   }
 
-  const [filters, setFilters] = useState<ArtikalFilterProp>({
-    naziv: searchParams.get('naziv') || '',
-    jm: asArray(searchParams.getAll('jm')),
-    Materijal: asArray(searchParams.getAll('Materijal')),
-    Model: asArray(searchParams.getAll('Model')),
-    Pakovanje: asArray(searchParams.getAll('Pakovanje')),
-    RobnaMarka: asArray(searchParams.getAll('RobnaMarka')),
-    Upotreba: asArray(searchParams.getAll('Upotreba')),
-    Boja: asArray(searchParams.getAll('Boja')),
-  })
-
-  const [filterOptions, setFilterOptions] = useState<{
-    jm: string[]
-    Materijal: string[]
-    Model: string[]
-    Pakovanje: string[]
-    RobnaMarka: string[]
-    Upotreba: string[]
-    Boja: string[]
-  }>({
-    jm: [],
-    Materijal: [],
-    Model: [],
-    Pakovanje: [],
-    RobnaMarka: [],
-    Upotreba: [],
-    Boja: [],
-  })
-
-  /*artikli.forEach((artikal, index) => {
-    const cena = artikal.artikalCene?.[0]?.cena;
-
-    console.log(`Artikal ${index + 1} - Cena: ${cena}`);
-  });
-
-  const cene = artikli.map(artikal => artikal.artikalCene?.[0]?.cena);
-  console.log("Sve cene:", cene);*/
-
-
-
+  // Inicijalizacija filtera iz URL parametara
   useEffect(() => {
-    if (!artikli || artikli.length === 0 || !atributi) return
+    const cenaParam = searchParams.get('cena')
+    const filtersFromUrl = { ...defaultFilters }
 
-    console.log("Stigli atributi:", artikli);
-    console.log("Stigli atributi:", atributi);
-    fetchCene();
+    if (cenaParam) {
+      const [min, max] = cenaParam.split('-').map(Number)
+      if (!isNaN(min) && !isNaN(max)) {
+        filtersFromUrl.cena = `${min}-${max}`
+        setSliderValues([min, max])
+      }
+    }
 
-    const grupe = Object.entries(atributi).map(([key, value]) => [
-      key.trim() === '' ? 'Nepoznata grupa' : key,
-      value,
-    ])
+    filtersFromUrl.naziv = searchParams.get('naziv') || ''
+    filtersFromUrl.jm = asArray(searchParams.getAll('jm'))
+    filtersFromUrl.Materijal = asArray(searchParams.getAll('Materijal'))
+    filtersFromUrl.Model = asArray(searchParams.getAll('Model'))
+    filtersFromUrl.Pakovanje = asArray(searchParams.getAll('Pakovanje'))
+    filtersFromUrl.RobnaMarka = asArray(searchParams.getAll('RobnaMarka'))
+    filtersFromUrl.Upotreba = asArray(searchParams.getAll('Upotreba'))
+    filtersFromUrl.Boja = asArray(searchParams.getAll('Boja'))
 
-    const grupa = grupe.find(
-      ([nazivGrupe]) => nazivGrupe.toLowerCase() === kategorija.toLowerCase()
-    )
-    if (!grupa) return
+    setFilters(filtersFromUrl)
+    onFilterChange(filtersFromUrl)
+  }, [searchParams])
 
-    const atributiGrupe = grupa[1] as any[]
+  // Priprema opcija filtera iz celokupnih atributa i artikala
+  useEffect(() => {
+    // Ekstrakcija atributa iz props atributi
+    const atributiNiz = Array.isArray(atributi)
+      ? atributi
+      : Array.isArray(atributi[''])
+      ? atributi['']
+      : []
 
-    const relevantniAtributi = podkategorija
-      ? atributiGrupe.filter((attr) =>
-          attr.imeAtributa === 'Podgrupa(2)' && attr.vrednost === podkategorija
-            ? true
-            : attr.imeAtributa !== 'Podgrupa(2)' &&
-              atributiGrupe.some(
-                (a) =>
-                  a.idArtikla === attr.idArtikla &&
-                  a.imeAtributa === 'Podgrupa(2)' &&
-                  a.vrednost === podkategorija
-              )
-        )
-      : atributiGrupe
+    if (!artikli || !Array.isArray(atributiNiz)) {
+      return
+    }
 
-    const filteri = {
+    const atributiFiltera = {
       Materijal: new Set<string>(),
       Model: new Set<string>(),
       Pakovanje: new Set<string>(),
@@ -240,178 +165,164 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
       Boja: new Set<string>(),
     }
 
-    for (const attr of relevantniAtributi) {
-      if (attr.imeAtributa.includes('Materijal')) filteri.Materijal.add(attr.vrednost)
-      else if (attr.imeAtributa.includes('Model')) filteri.Model.add(attr.vrednost)
-      else if (attr.imeAtributa.includes('Pakovanje')) filteri.Pakovanje.add(attr.vrednost)
-      else if (attr.imeAtributa.includes('Robna marka')) filteri.RobnaMarka.add(attr.vrednost)
-      else if (attr.imeAtributa.includes('Upotreba')) filteri.Upotreba.add(attr.vrednost)
-      else if (
-        attr.imeAtributa.includes('Zavr.obr-boja') ||
-        attr.imeAtributa.includes('Boja')
-      )
-        filteri.Boja.add(attr.vrednost)
-    }
+    atributiNiz.forEach((attr) => {
+      if (!attr?.imeAtributa || !attr.vrednost) return
 
-    const jedinice = Array.from(
-      new Set(
-        artikli
-          .filter((artikal) =>
-            podkategorija
-              ? atributiGrupe.some(
-                  (a) =>
-                    a.idArtikla === artikal.idArtikla &&
-                    a.imeAtributa === 'Podgrupa(2)' &&
-                    a.vrednost === podkategorija
-                )
-              : true
-          )
-          .map((a) => a.jm)
-          .filter((v) => v !== undefined && v !== null && v !== '')
-      )
-    )
+      const vrednost = attr.vrednost.trim()
+      if (!vrednost) return
 
-    setFilterOptions({
-      jm: jedinice,
-      Materijal: Array.from(filteri.Materijal),
-      Model: Array.from(filteri.Model),
-      Pakovanje: Array.from(filteri.Pakovanje),
-      RobnaMarka: Array.from(filteri.RobnaMarka),
-      Upotreba: Array.from(filteri.Upotreba),
-      Boja: Array.from(filteri.Boja),
-    })
-  }, [artikli, atributi, kategorija, podkategorija])
+      const ime = ocistiImeAtributa(attr.imeAtributa)
 
-  const handleChange = (name: string, value: string | string[]) => {
-    const updatedFilters = {
-      ...filters,
-      [name]: value,
-    }
-
-    setFilters(updatedFilters)
-
-    const params = new URLSearchParams()
-
-    Object.entries(updatedFilters).forEach(([key, val]) => {
-      if (Array.isArray(val)) {
-        val.forEach((v) => {
-          if (v && v.trim() !== '') params.append(key, v)
-        })
-      } else if (typeof val === 'string' && val.trim() !== '') {
-        params.set(key, val)
+      if (atributiFiltera[ime as keyof typeof atributiFiltera]) {
+        atributiFiltera[ime as keyof typeof atributiFiltera].add(vrednost)
       }
     })
 
-    params.set('page', '1') // resetuj paginaciju
-    router.push(`${window.location.pathname}?${params.toString()}`)
+    setFilterOptions({
+      jm: Array.from(new Set(artikli.map((a) => a.jm).filter(Boolean))),
+      Materijal: Array.from(atributiFiltera.Materijal),
+      Model: Array.from(atributiFiltera.Model),
+      Pakovanje: Array.from(atributiFiltera.Pakovanje),
+      RobnaMarka: Array.from(atributiFiltera.RobnaMarka),
+      Upotreba: Array.from(atributiFiltera.Upotreba),
+      Boja: Array.from(atributiFiltera.Boja),
+    })
+  }, [artikli, atributi, kategorija, podkategorija])
 
-    // Takođe pozovi callback za promenu filtera
-    onFilterChange(updatedFilters)
+  // Funkcija za update filtera i push u URL
+const handleChange = (name: string, value: string | string[]) => {
+  const updatedFilters = { ...filters, [name]: value };
+  setFilters(updatedFilters);
+  onFilterChange(updatedFilters);
+
+  const params = new URLSearchParams();
+
+  Object.entries(updatedFilters).forEach(([key, val]) => {
+    if (Array.isArray(val)) {
+      val.forEach(v => v && params.append(key, v));
+    } else if (typeof val === 'string' && val.trim()) {
+      params.set(key, val);
+    }
+  });
+
+  params.set('page', '1');
+  const newUrl = `${window.location.pathname}?${params.toString()}`;
+  const currentPathWithQuery = window.location.pathname + window.location.search;
+
+  if (newUrl !== currentPathWithQuery) {
+    router.push(newUrl);
+  }
+};
+
+
+  const handleCenaChange = (min: number, max: number) => {
+    setSliderValues([min, max])
+    handleChange('cena', `${min}-${max}`)
   }
 
-  useEffect(() => {
-    setFilters({
-      naziv: searchParams.get('naziv') || '',
-      jm: asArray(searchParams.getAll('jm')),
-      Materijal: asArray(searchParams.getAll('Materijal')),
-      Model: asArray(searchParams.getAll('Model')),
-      Pakovanje: asArray(searchParams.getAll('Pakovanje')),
-      RobnaMarka: asArray(searchParams.getAll('RobnaMarka')),
-      Upotreba: asArray(searchParams.getAll('Upotreba')),
-      Boja: asArray(searchParams.getAll('Boja')),
-    })
-  }, [searchParams])
+  function ocistiImeAtributa(ime: string): string {
+    let cistoIme = ime.split('(')[0].trim()
+
+    if (cistoIme === 'Zavr.obr-boja') return 'Boja'
+    if (cistoIme === 'Robna marka') return 'RobnaMarka'
+
+    return cistoIme
+  }
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md max-w-xl mx-auto space-y-4 relative">
-      {/* Cena (NE collapsible) */}
+    <div className="p-6 bg-white rounded-lg shadow-md max-w-xl mx-auto space-y-4">
+      {/* Filter za cenu */}
       <div className="mb-4">
-        <label className="block font-semibold text-gray-700 mb-2">Cena (RSD)</label>
+        <label className="block font-semibold text-gray-700 mb-2">
+          Cena (RSD)
+        </label>
         <MultiRangeSlider
           min={minCena}
           max={maxCena}
           step={100}
-          minValue={filters.cena ? filters.cena[0] : minCena}
-          maxValue={filters.cena ? filters.cena[1] : maxCena}
+          minValue={sliderValues[0]}
+          maxValue={sliderValues[1]}
           barInnerColor="#10b981"
           thumbLeftColor="#3b82f6"
           thumbRightColor="#3b82f6"
-          barLeftColor="#e5e7eb"
-          barRightColor="#e5e7eb"
-          onInput={(e: any) => {
-            setSliderValues([e.minValue, e.maxValue]);
-          }}
+          onInput={(e: { minValue: number; maxValue: number }) =>
+            handleCenaChange(e.minValue, e.maxValue)
+          }
         />
       </div>
 
-      {/* Jedinica mere */}
+      {/* Filter za jedinice mere */}
       <Collapsible>
         <CollapsibleTrigger className="w-full py-2 text-left font-semibold text-gray-700 border-b border-gray-200">
           Jedinica mere
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-4 pb-2 flex flex-col space-y-2">
-          {filterOptions.jm.map((option) => (
-            <label key={option} className="inline-flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={filters.jm.includes(option)}
-                onChange={(e) => {
-                  let newValues: string[] = []
-                  if (e.target.checked) {
-                    newValues = [...filters.jm, option]
-                  } else {
-                    newValues = filters.jm.filter((v) => v !== option)
-                  }
-                  handleChange('jm', newValues)
-                }}
-                className="form-checkbox text-blue-600"
-              />
-              <span className="text-gray-700">{option}</span>
-            </label>
-          ))}
+          {filterOptions.jm.length > 0 ? (
+            filterOptions.jm.map((option) => (
+              <label key={option} className="inline-flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={filters.jm.includes(option)}
+                  onChange={(e) => {
+                    const newValues = e.target.checked
+                      ? [...filters.jm, option]
+                      : filters.jm.filter((v) => v !== option)
+                    handleChange('jm', newValues)
+                  }}
+                  className="form-checkbox text-blue-600"
+                />
+                <span>{option}</span>
+              </label>
+            ))
+          ) : (
+            <p className="text-gray-500">Nema dostupnih jedinica mere</p>
+          )}
         </CollapsibleContent>
       </Collapsible>
 
       {/* Ostali filteri */}
-      {(['Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja'] as const).map(
-        (key) => (
-          <Collapsible key={key} defaultOpen={false}>
-            <CollapsibleTrigger className="w-full py-2 text-left font-semibold text-gray-700 border-b border-gray-200">
-              {key}
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pt-4 pb-2 flex flex-col space-y-2">
-              {Array.isArray(filterOptions[key]) &&
-                filterOptions[key].map((option) => (
-                  <label key={option} className="inline-flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={filters[key]?.includes(option) ?? false}
-                      onChange={(e) => {
-                        const newValues = e.target.checked
-                          ? [...(filters[key] ?? []), option]
-                          : (filters[key] ?? []).filter((v) => v !== option)
-                        handleChange(key, newValues)
-                      }}
-                      className="form-checkbox text-blue-600"
-                    />
-                    <span className="text-gray-700">{option}</span>
-                  </label>
-                ))}
-            </CollapsibleContent>
-          </Collapsible>
-        )
-      )}
+      {(
+        ['Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja'] as const
+      ).map((key) => (
+        <Collapsible key={key} defaultOpen={false}>
+          <CollapsibleTrigger className="w-full py-2 text-left font-semibold text-gray-700 border-b border-gray-200">
+            {key.replace(/([A-Z])/g, ' $1').trim()}
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 pb-2 flex flex-col space-y-2">
+            {filterOptions[key] && filterOptions[key].length > 0 ? (
+              filterOptions[key].map((option) => (
+                <label key={option} className="inline-flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={filters[key]?.includes(option) ?? false}
+                    onChange={(e) => {
+                      const newValues = e.target.checked
+                        ? [...(filters[key] || []), option]
+                        : (filters[key] || []).filter((v) => v !== option)
+                      handleChange(key, newValues)
+                    }}
+                    className="form-checkbox text-blue-600"
+                  />
+                  <span>{option}</span>
+                </label>
+              ))
+            ) : (
+              <p className="text-gray-500">Nema dostupnih opcija</p>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
+      ))}
 
       {/* Reset dugme */}
       <div className="flex justify-end mt-4">
         <button
           onClick={() => {
             setFilters(defaultFilters)
+            setSliderValues([minCena, maxCena])
             onFilterChange(defaultFilters)
             router.push(window.location.pathname)
           }}
-          className="px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition cursor-pointer"
-          type="button"
+          className="px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
         >
           Resetuj filtere
         </button>

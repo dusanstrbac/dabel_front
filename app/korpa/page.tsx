@@ -32,12 +32,11 @@ const Korpa = () => {
   const [articleList, setArticleList] = useState<Artikal[]>([]);
   const [quantities, setQuantities] = useState<number[]>([]);
   const [isClient, setIsClient] = useState(false);
-
   const [partner, setPartner] = useState<KorisnikPodaciType | null>(null);
   const [rabatPartnera, setRabatPartnera] = useState<number>(0);
   const [nerealizovanIznos, setNerealizovanIznos] = useState<number>(0);
-
   const [validnaKolicina, setValidnaKolicina] = useState(true);
+  
 
   useEffect(() => {
     const postojiPrekoracenje = articleList.some((article, index) => {
@@ -103,16 +102,14 @@ const Korpa = () => {
           const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${email}`);
           const data = await res.json();
           const fPartner = data[0] as KorisnikPodaciType;
-
           setPartner(fPartner);
-
 
           if (fPartner.partnerRabat.rabat) {
             setRabatPartnera(fPartner.partnerRabat.rabat);
           }
-          if (fPartner.finKarta?.nerealizovano) {
-            setNerealizovanIznos(parseFloat(fPartner.finKarta.nerealizovano)); 
-            if (parseFloat(fPartner.finKarta.nerealizovano) > 0) {
+          if (fPartner.finKarta?.nijeDospelo) {
+            setNerealizovanIznos(parseFloat(fPartner.finKarta.nijeDospelo)); 
+            if (parseFloat(fPartner.finKarta.nijeDospelo) > 0) {
               toast.error("Imate neplaćene fakture, pa vam je poručivanje zabranjeno");
               return;
             }
@@ -199,7 +196,6 @@ const Korpa = () => {
     return `${baseUrl}/s${idArtikla}.jpg`;    
   };
     
-
     useEffect(() => {
       if (!isClient || articleList.length === 0 || !partner) return;
 
@@ -236,7 +232,9 @@ const Korpa = () => {
     }, [articleList, quantities, partner, totalAmount, totalAmountWithPDV, isClient]);
 
 
-  const narucivanjeDisabled = nerealizovanIznos > 0;
+  const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina;
+
+  
   const razlogZabraneNarucivanja = narucivanjeDisabled
     ? "Imate  neizmirene dugove."
     : undefined;

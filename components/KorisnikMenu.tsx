@@ -93,7 +93,7 @@ export default function KorisnikMenu() {
     ...(uloga === 'ADMINISTRATOR' ? [
       { icon: <ShieldUser className="h-4 w-4" />, text: 'Admin podešavanja', href: `/${username}/admin` },
     ] : []),
-   ...(uloga === 'PARTNER' ? [
+   ...(uloga === 'PARTNER' || uloga === 'PODKORISNIK' ? [
       { icon: <User2 className="h-4 w-4" />, text: 'Moji podaci', href: `/${username}/profil/podaci` },
       { icon: <FileText className="h-4 w-4" />, text: 'Narudžbenica', href: `/${username}/profil/narudzbenica` },
       { icon: <Wallet className="h-4 w-4" />, text: 'Moje uplate', href: `/${username}/profil/uplate` },
@@ -102,7 +102,7 @@ export default function KorisnikMenu() {
       { icon: <BadgeDollarSign className="h-4 w-4" />, text: 'Cenovnik', onClick: preuzmiCenovnik }, // 👈 OVDE
       { icon: <Youtube className="h-4 w-4" />, text: 'Video uputstva', href: '/video' },
     ] : []),
-    ...(uloga === 'PARTNER' || uloga === 'ADMINISTRATOR' ? [
+    ...(uloga === 'PARTNER' || uloga === 'ADMINISTRATOR' || uloga === 'PODKORISNIK' ? [
       { icon: <Key className="h-4 w-4" />, text: 'Promena lozinke', href: `/${username}/profil/podesavanja` },
     ] : []),
   ];

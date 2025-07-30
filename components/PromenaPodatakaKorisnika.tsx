@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 interface Korisnik {
   korisnickoIme: string;
+  idKorisnika: string;
   lozinka?: string;
   email: string;
   telefon: string;
@@ -24,7 +25,7 @@ interface Korisnik {
 const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
   const [korisnickoIme, setKorisnickoIme] = useState(korisnik.korisnickoIme);
   const [lozinka, setLozinka] = useState(korisnik.lozinka || '');
-  const [email] = useState(korisnik.email);
+  const [email, setEmail] = useState(korisnik.email);
   const [telefon, setTelefon] = useState(korisnik.telefon);
   const [open, setOpen] = useState(false);
 
@@ -35,7 +36,7 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
       telefon,
     };
 
-    // Ukoliko dodje do promene lozinke, pisemo je u payload. Ako lozinka ostane prazan string ne salje se i ne menja u bazi
+    // Ako je lozinka promenjena, dodajemo je u payload
     if (lozinka !== korisnik.lozinka) {
       payload.lozinka = lozinka;
     }
@@ -76,7 +77,7 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
   const handleDeleteUser = async () => {
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     try {
-      const res = await fetch(`${apiAddress}/api/Partner/ObrisiKorisnika?KorisnickoIme=${korisnickoIme}`, {
+      const res = await fetch(`${apiAddress}/api/Partner/ObrisiKorisnika?KorisnickoIme=${korisnickoIme}&idKorisnika=${korisnik.idKorisnika}`, {
         method: "DELETE",
       });
 
@@ -117,7 +118,7 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="korisnickoIme">Korisničko ime</Label>
-            <Input value={korisnickoIme} onChange={(e) => setKorisnickoIme(e.target.value)} />
+            <Input value={korisnickoIme} disabled /> {/* Onemogućeno za unos */}
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="lozinka">Lozinka</Label>
@@ -130,10 +131,7 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="email">Email</Label>
-            <Input 
-              value={email} 
-              disabled 
-            />
+            <Input value={email} onChange={(e) => setEmail(e.target.value)} /> {/* Email je sada menjan */}
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="telefon">Telefon</Label>

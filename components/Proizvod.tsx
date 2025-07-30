@@ -63,7 +63,7 @@ export default function Proizvod() {
 
         const data = await res.json();
         if (!data || data.length === 0) throw new Error("Proizvod nije pronađen");
-
+        console.log(data);
         const osnovni: ArtikalType = data[0];
         setProizvod(osnovni);
 
@@ -250,6 +250,9 @@ export default function Proizvod() {
               </li>
               <li>
                 <span className="font-semibold">Jedinica mere:</span> {proizvod.jm}
+              </li>
+              <li>
+                <span className="font-semibold">Količina za izdavanje:</span> {proizvod.kolZaIzdavanje}
               </li>
             </ul>
             <ul className="text-sm md:text-base space-y-1 mt-2">
