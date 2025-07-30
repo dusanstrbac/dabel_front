@@ -262,7 +262,7 @@ const Korpa = () => {
 
 
 
-  //fetch za dozvole za porucivanje
+  //LOGIKA ZA FETCH ZA DOZVOLE
   useEffect(() => {
     const fetchDozvole = async () => {
       if (!korisnik) {
@@ -276,7 +276,6 @@ const Korpa = () => {
         );
         const data: DozvoleInfo[] = await res.json();
         
-        // Proveravamo da li postoji dozvola sa statusom 1
         const imaDozvolu = data.some(dozvola => dozvola.status === 1);
         setImaDozvoluZaPakovanje(imaDozvolu);
       } catch (error) {

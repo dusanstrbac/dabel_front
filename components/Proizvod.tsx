@@ -12,6 +12,7 @@ import { ArtikalAtribut, ArtikalType } from "@/types/artikal";
 import { CircleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "./ui/input";
+import { DokumentInfo } from "@/types/dokument";
 
 
 // Dinamički uvoz Lightbox-a
@@ -45,6 +46,8 @@ export default function Proizvod() {
   const [lajkovano, setLajkovano] = useState(false);
   const [datumPonovnogStanja, setDatumPonovnogStanja] = useState<string | null>(null);
   const [pristiglaKolicina, setPristiglaKolicina] = useState(0);
+
+  const [imaDozvoluZaPakovanje, setImaDozvoluZaPakovanje] = useState(false);
 
 
   const korisnik = dajKorisnikaIzTokena();
@@ -92,6 +95,31 @@ export default function Proizvod() {
       setPrethodnaRuta(ruta);
     }
   }, []);
+
+
+  useEffect(() => {
+    const fetchDozvole = async () => {
+      if (!korisnik) {
+        console.warn("Nema korisnika iz tokena.");
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Web/DajDozvoleKorisnika?idKorisnika=${korisnik.idKorisnika}&idDozvole=1`);
+        const data: DokumentInfo[] = await res.json();
+        
+        const imaDozvolu = data.some(dozvola => dozvola.status === 1);
+        setImaDozvoluZaPakovanje(imaDozvolu);
+      } catch (error) {
+        console.error("Greška pri dobavljanju dozvola:", error);
+        setImaDozvoluZaPakovanje(false);
+      }
+    };
+
+    if (korisnik?.idKorisnika) {
+      fetchDozvole();
+    }
+  }, [korisnik]);
 
   useEffect(() => {
     if (!proizvod) return;
@@ -183,8 +211,13 @@ export default function Proizvod() {
   //deo za racunanje pakovanja
 
   const getRoundedQuantity = (requested: number, packSize: number) => {
-    if (requested <= 0 || isNaN(requested)) return packSize;
-    return Math.ceil(requested / packSize) * packSize;
+    if (requested <= 0 || isNaN(requested)) {
+      return imaDozvoluZaPakovanje ? 1 : packSize;
+    }
+    
+    return imaDozvoluZaPakovanje 
+      ? requested 
+      : Math.ceil(requested / packSize) * packSize;
   };
 
   const getMaxAllowedQuantity = (kolicina: string, pakovanje: number) => {
@@ -319,19 +352,22 @@ export default function Proizvod() {
                 <Input
                   type="number"
                   className="min-w-10 w-full max-w-21"
-                  step={proizvod.kolZaIzdavanje || 1}
-                  min={proizvod.kolZaIzdavanje || 1}
-                  defaultValue={proizvod.kolZaIzdavanje || 1}
+                  step={imaDozvoluZaPakovanje ? 1 : (proizvod.kolZaIzdavanje || 1)}
+                  min={imaDozvoluZaPakovanje ? 1 : (proizvod.kolZaIzdavanje || 1)}
+                  defaultValue={imaDozvoluZaPakovanje ? 1 : (proizvod.kolZaIzdavanje || 1)}
                   onChange={(e) => {
                     const pakovanje = proizvod.kolZaIzdavanje || 1;
                     let enteredValue = Number(e.target.value);
                     const maxAllowed = getMaxAllowedQuantity(proizvod.kolicina, pakovanje);
 
                     if (isNaN(enteredValue)) {
-                      enteredValue = pakovanje;
+                      enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanje;
                     }
 
-                    const roundedValue = Math.ceil(enteredValue / pakovanje) * pakovanje;
+                    const roundedValue = imaDozvoluZaPakovanje 
+                      ? enteredValue 
+                      : Math.ceil(enteredValue / pakovanje) * pakovanje;
+                    
                     const finalValue = Math.min(roundedValue, maxAllowed);
                     if (inputRef.current) {
                       inputRef.current.value = finalValue.toString();
@@ -343,12 +379,19 @@ export default function Proizvod() {
                   id={proizvod.idArtikla}
                   className="w-full sm:w-auto px-6 py-2"
                   title="Dodaj u korpu"
-                  getKolicina={() => Number(inputRef.current?.value || proizvod.kolZaIzdavanje || 1)}
+                  getKolicina={() => {
+                    const pakovanje = proizvod.kolZaIzdavanje || 1;
+                    const rawValue = Number(inputRef.current?.value || (imaDozvoluZaPakovanje ? 1 : pakovanje));
+                    return getRoundedQuantity(rawValue, pakovanje);
+                  }}
                   nazivArtikla={proizvod.naziv}
                   disabled={Number(proizvod.kolicina) <= 0 || preostalo === 0}
                   ukupnaKolicina={preostalo}
                   onPreAdd={() => {
-                    const uneta = Number(inputRef.current?.value || proizvod.kolZaIzdavanje || 1);
+                    const pakovanje = proizvod.kolZaIzdavanje || 1;
+                    const rawValue = Number(inputRef.current?.value || (imaDozvoluZaPakovanje ? 1 : pakovanje));
+                    const uneta = getRoundedQuantity(rawValue, pakovanje);
+                    
                     if (uneta > preostalo) {
                       toast.error("Nema dovoljno artikala na stanju!", {
                         description: `Maksimalno možete dodati ${preostalo} kom.`,
