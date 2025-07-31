@@ -15,7 +15,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ArtikalFilterProp, ListaArtikalaProps } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 
-const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCount, currentPage, onPageChange }: ListaArtikalaProps) => {
+const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCount, currentPage, onPageChange, loading = false }: ListaArtikalaProps) => {
   const artikliPoStrani = 8;
   const router = useRouter();
   const pathname = usePathname(); // Dobijanje pathname-a
@@ -41,6 +41,7 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
   }, [totalCount]);
 
   const prikazaniArtikli = artikli;
+
 
   // Funkcija za menjanje strane i update URL-a bez reloada
   const idiNaStranu = (broj: number, noviFilteri: any, event?: React.MouseEvent) => {
@@ -71,15 +72,29 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
   }
 
   return (
-    <div className="flex flex-col md:flex-row w-full px-1 gap-4">
-      {/* Filter sekcija */}
-      <div className="w-full md:w-1/4">
-        <ArtikalFilter artikli={artikli} atributi={atributi} kategorija={kategorija} podkategorija={podkategorija} onFilterChange={onFilterChange} />
-      </div>
+  <div className="flex flex-col md:flex-row w-full px-1 gap-4">
+    {/* Filter sekcija */}
+    <div className="w-full md:w-1/4">
+      {/* Možeš ovde dodati <ArtikalFilter /> ili slično ako budeš koristio filtere */}
+      <ArtikalFilter 
+        artikli={artikli} 
+        atributi={atributi} 
+        kategorija={kategorija} 
+        podkategorija={podkategorija} 
+        onFilterChange={onFilterChange} 
+      />
+    </div>
 
-      {/* Lista artikala */}
-      <div className="w-full md:w-3/4">
-        <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
+    {/* Lista artikala */}
+    <div className="w-full md:w-3/4">
+      <div className="relative">
+        <div
+          className={`
+            grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle
+            transition-opacity duration-300
+            ${loading ? 'opacity-50 pointer-events-none' : ''}
+          `}
+        >
           {prikazaniArtikli.map((artikal, idx) => (
             <ArticleCard
               key={artikal.idArtikla ?? idx}
@@ -96,60 +111,65 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
             />
           ))}
         </div>
-
-        {/* Paginacija */}
-        {brojStranica > 1 && (
-          <Paginacija className="my-[20px]">
-            <PaginacijaSadrzaj>
-              <PaginacijaStavka>
-                <PaginacijaPrethodna
-                  onClick={(e) => idiNaStranu(trenutnaStrana - 1, filteri, e)}
-                  disabled={trenutnaStrana === 1}
-                />
-              </PaginacijaStavka>
-
-              {[...Array(brojStranica)].map((_, i) => {
-                const broj = i + 1;
-                if (
-                  broj === 1 ||
-                  broj === brojStranica ||
-                  Math.abs(trenutnaStrana - broj) <= 1
-                ) {
-                  return (
-                    <PaginacijaStavka key={broj}>
-                      <PaginacijaLink
-                        isActive={trenutnaStrana === broj}
-                        onClick={(e) => idiNaStranu(broj, filteri, e)}
-                      >
-                        {broj}
-                      </PaginacijaLink>
-                    </PaginacijaStavka>
-                  );
-                }
-                if (
-                  (broj === 2 && trenutnaStrana > 3) ||
-                  (broj === brojStranica - 1 && trenutnaStrana < brojStranica - 2)
-                ) {
-                  return (
-                    <PaginacijaStavka key={`ellipsis-${broj}`}>
-                    </PaginacijaStavka>
-                  );
-                }
-                return null;
-              })}
-
-              <PaginacijaStavka>
-                <PaginacijaSledeca
-                  onClick={(e) => idiNaStranu(trenutnaStrana + 1, filteri, e)}
-                  disabled={trenutnaStrana === brojStranica}
-                />
-              </PaginacijaStavka>
-            </PaginacijaSadrzaj>
-          </Paginacija>
-        )}
       </div>
+
+      {/* Paginacija */}
+      {brojStranica > 1 && (
+        <Paginacija className="my-[20px]">
+          <PaginacijaSadrzaj>
+            <PaginacijaStavka>
+              <PaginacijaPrethodna
+                onClick={(e) => idiNaStranu(trenutnaStrana - 1, filteri, e)}
+                disabled={trenutnaStrana === 1}
+              />
+            </PaginacijaStavka>
+
+            {[...Array(brojStranica)].map((_, i) => {
+              const broj = i + 1;
+              if (
+                broj === 1 ||
+                broj === brojStranica ||
+                Math.abs(trenutnaStrana - broj) <= 1
+              ) {
+                return (
+                  <PaginacijaStavka key={broj}>
+                    <PaginacijaLink
+                      isActive={trenutnaStrana === broj}
+                      onClick={(e) => idiNaStranu(broj, filteri, e)}
+                    >
+                      {broj}
+                    </PaginacijaLink>
+                  </PaginacijaStavka>
+                );
+              }
+
+              if (
+                (broj === 2 && trenutnaStrana > 3) ||
+                (broj === brojStranica - 1 && trenutnaStrana < brojStranica - 2)
+              ) {
+                return (
+                  <PaginacijaStavka key={`ellipsis-${broj}`}>
+                    <span className="px-2 text-gray-500">...</span>
+                  </PaginacijaStavka>
+                );
+              }
+
+              return null;
+            })}
+
+            <PaginacijaStavka>
+              <PaginacijaSledeca
+                onClick={(e) => idiNaStranu(trenutnaStrana + 1, filteri, e)}
+                disabled={trenutnaStrana === brojStranica}
+              />
+            </PaginacijaStavka>
+          </PaginacijaSadrzaj>
+        </Paginacija>
+      )}
     </div>
-  );
+  </div>
+);
+
 };
 
 export default ListaArtikala;

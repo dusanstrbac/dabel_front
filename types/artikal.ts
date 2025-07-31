@@ -62,13 +62,19 @@ export type ArtikalAtribut = {
 };
 
 export interface ListaArtikalaProps {
-  artikli: ArtikalType[];
-  atributi: ArtikalAtribut[];
+  artikli: any[];
+  atributi: AtributiResponse; // Promenjeno iz ArtikalAtribut[] u AtributiResponse
   kategorija: string;
   podkategorija: string | null;
   totalCount: number;
   currentPage: number;
+  pageSize?: number;
   onPageChange: (page: number) => void;
+  loading?: boolean;
+}
+
+interface AtributiResponse {
+  [artikalId: string]: ArtikalAtribut[];
 }
 
 export interface SortiranjeButtonProps {
