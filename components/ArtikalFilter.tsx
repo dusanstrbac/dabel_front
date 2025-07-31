@@ -270,7 +270,7 @@ function ocistiImeAtributa(ime: string): string {
       <div className="space-y-4">
         {Object.entries(filterOptions).map(([key, options]) => (
           <div key={key} className="border-b border-gray-200 pb-4 last:border-0">
-            <Collapsible defaultOpen>
+            <Collapsible>
               <CollapsibleTrigger className="flex justify-between items-center w-full text-left">
                 <h3 className="font-medium text-gray-700">{prikaziLepoIme(ocistiImeAtributa(key))}</h3>
                 <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
