@@ -160,49 +160,48 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
   }, [searchParams])
 
   // **Mapiranje atributa dobijenih iz API-ja u filtere**
-useEffect(() => {
-  const atributiFiltera: AtributiFiltera = {
-    jm: [],
-    Materijal: [],
-    Model: [],
-    Pakovanje: [],
-    RobnaMarka: [],
-    Upotreba: [],
-    Boja: [],
-  };
+  useEffect(() => {
+    const atributiFiltera: AtributiFiltera = {
+      jm: [],
+      Materijal: [],
+      Model: [],
+      Pakovanje: [],
+      RobnaMarka: [],
+      Upotreba: [],
+      Boja: [],
+    };
 
-  // 1. Dodaj jedinice mere iz artikala
-  artikli?.forEach((artikal) => {
-    if (artikal.jm && !atributiFiltera.jm.includes(artikal.jm)) {
-      atributiFiltera.jm.push(artikal.jm);
-    }
-  });
-
-  // 2. Obradi atribute iz novog formata podataka
-  if (atributi && typeof atributi === 'object' && !Array.isArray(atributi)) {
-    // Eksplicitno tipiziranje za Object.values
-    const atributiArray: ArtikalAtribut[][] = Object.values(atributi);
-    
-    atributiArray.forEach((artikalAtributi: ArtikalAtribut[]) => {
-      if (!Array.isArray(artikalAtributi)) return;
-
-      artikalAtributi.forEach((attr: ArtikalAtribut) => {
-        if (!attr || !attr.imeAtributa) return;
-
-        const cistoIme = ocistiImeAtributa(attr.imeAtributa);
-        if (cistoIme in atributiFiltera && attr.vrednost) {
-          const kategorija = atributiFiltera[cistoIme as keyof AtributiFiltera];
-          if (!kategorija.includes(attr.vrednost)) {
-            kategorija.push(attr.vrednost);
-          }
-        }
-      });
+    // 1. Dodaj jedinice mere iz artikala
+    artikli?.forEach((artikal) => {
+      if (artikal.jm && !atributiFiltera.jm.includes(artikal.jm)) {
+        atributiFiltera.jm.push(artikal.jm);
+      }
     });
-  }
-  console.log(atributi);
-  setFilterOptions(atributiFiltera);
-}, [atributi, artikli]);
 
+    // 2. Obradi atribute iz novog formata podataka
+    if (atributi && typeof atributi === 'object' && !Array.isArray(atributi)) {
+      // Eksplicitno tipiziranje za Object.values
+      const atributiArray: ArtikalAtribut[][] = Object.values(atributi);
+      
+      atributiArray.forEach((artikalAtributi: ArtikalAtribut[]) => {
+        if (!Array.isArray(artikalAtributi)) return;
+
+        artikalAtributi.forEach((attr: ArtikalAtribut) => {
+          if (!attr || !attr.imeAtributa) return;
+
+          const cistoIme = ocistiImeAtributa(attr.imeAtributa);
+          if (cistoIme in atributiFiltera && attr.vrednost) {
+            const kategorija = atributiFiltera[cistoIme as keyof AtributiFiltera];
+            if (!kategorija.includes(attr.vrednost)) {
+              kategorija.push(attr.vrednost);
+            }
+          }
+        });
+      });
+    }
+    console.log(atributi);
+    setFilterOptions(atributiFiltera);
+  }, [atributi, artikli]);
 
   const handleChange = useCallback((name: string, value: string | string[]) => {
     setFilters((prev) => ({
@@ -211,38 +210,43 @@ useEffect(() => {
     }));
   }, []);
 
-const handleCenaChange = useCallback((e: ChangeResult) => {
-  setSliderValues([e.min, e.max]);
-  handleChange('cena', `${e.min}-${e.max}`);
-}, [handleChange]);
+  const handleCenaChange = useCallback((e: ChangeResult) => {
+    setSliderValues([e.min, e.max]);
+    handleChange('cena', `${e.min}-${e.max}`);
+  }, [handleChange]);
 
-function ocistiImeAtributa(ime: string): string {
-  if (!ime) return '';
-  
-  let cistoIme = ime.replace(/\(\d+\)$/, '').trim();
-  
-  const mapaZamena: Record<string, string> = {
-    'Zavr.obr-boja': 'Boja',
-    'Robna marka': 'RobnaMarka',
-    'Robnamarka': 'RobnaMarka',
-  };
-  
-  return mapaZamena[cistoIme] || cistoIme;
-}
+  function ocistiImeAtributa(ime: string): string {
+    if (!ime) return '';
+    
+    let cistoIme = ime.replace(/\(\d+\)$/, '').trim();
+    
+    const mapaZamena: Record<string, string> = {
+      'Zavr.obr-boja': 'Boja',
+      'Robna marka': 'RobnaMarka',
+      'Robnamarka': 'RobnaMarka',
+    };
+    
+    return mapaZamena[cistoIme] || cistoIme;
+  }
 
   function prikaziLepoIme(ime: string): string {
-  const mapaZamena: Record<string, string> = {
-    'jm': 'Jedinica mere',
-    'Materijal': 'Materijal',
-    'Model': 'Model',
-    'Pakovanje': 'Pakovanje',
-    'RobnaMarka': 'Robna marka',
-    'Upotreba': 'Upotreba',
-    'Boja': 'Boja'
-  };
-  
-  return mapaZamena[ime] || ime;
-}
+    const mapaZamena: Record<string, string> = {
+      'jm': 'Jedinica mere',
+      'Materijal': 'Materijal',
+      'Model': 'Model',
+      'Pakovanje': 'Pakovanje',
+      'RobnaMarka': 'Robna marka',
+      'Upotreba': 'Upotreba',
+      'Boja': 'Boja'
+    };
+    
+    return mapaZamena[ime] || ime;
+  }
+
+  const resetFilters = () => {
+    setFilters(defaultFilters);
+    setSliderValues([minCena, maxCena]);
+  }
 
   useEffect(() => {
     if (prevFiltersRef.current && JSON.stringify(prevFiltersRef.current) !== JSON.stringify(filters)) {
@@ -250,7 +254,6 @@ function ocistiImeAtributa(ime: string): string {
     }
     prevFiltersRef.current = filters
   }, [filters, onFilterChange])
-
 
   return (
     <div className="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
@@ -312,8 +315,18 @@ function ocistiImeAtributa(ime: string): string {
           </div>
         ))}
       </div>
+
+      {/* Dugme za resetovanje filtera */}
+      <div className="mt-6">
+        <button
+          onClick={resetFilters}
+          className="w-full py-2 px-4 text-center text-sm font-semibold text-white bg-gray-600 hover:bg-gray-700 rounded-lg"
+        >
+          Resetuj filtere
+        </button>
+      </div>
     </div>
   )
 }
 
-export default React.memo(ArtikalFilter);
+export default React.memo(ArtikalFilter)
