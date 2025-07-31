@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { CircleUser, Map, MapPinned, Phone, PhoneCall, UserCircle } from 'lucide-react';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
-import Link from 'next/link';
 
 const ProfilPodaci = () => {
   const [userData, setUserData] = useState<KorisnikPodaciType | null>(null);
@@ -13,6 +12,7 @@ const ProfilPodaci = () => {
     const fetchKorisnikData = async () => {
       try {
         const korisnik = dajKorisnikaIzTokena();
+        const idPartnera = korisnik?.partner;
 
         if (!korisnik) {
           setLoading(false);
@@ -25,7 +25,7 @@ const ProfilPodaci = () => {
         setError(null);
         
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${emailEncoded}`);
+        const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}`);
         const data = await response.json();
 
         if(!response) {

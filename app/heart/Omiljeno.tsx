@@ -123,14 +123,13 @@ const OmiljeniArtikli = () => {
         <p className="text-center text-red-600 mt-4">{error}</p>
       ) : (
         <ListaArtikala
-          artikli={artikli}
-          atributi={[]}
-          kategorija=""
-          podkategorija=""
-          totalCount={totalCount}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-        />
+              artikli={artikli}
+              totalCount={totalCount}
+              currentPage={currentPage}
+              onPageChange={handlePageChange} 
+              atributi={[]} 
+              kategorija={""} 
+              podkategorija={null}        />
       )}
     </div>
   );
