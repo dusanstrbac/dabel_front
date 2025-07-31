@@ -203,14 +203,13 @@ useEffect(() => {
   setFilterOptions(atributiFiltera);
 }, [atributi, artikli]);
 
-  // Funkcija za update filtera iz UI
+
   const handleChange = useCallback((name: string, value: string | string[]) => {
     setFilters((prev) => ({
       ...prev,
       [name]: value,
     }));
   }, []);
-
 
 const handleCenaChange = useCallback((e: ChangeResult) => {
   setSliderValues([e.min, e.max]);
@@ -244,6 +243,14 @@ function ocistiImeAtributa(ime: string): string {
   
   return mapaZamena[ime] || ime;
 }
+
+  useEffect(() => {
+    if (prevFiltersRef.current && JSON.stringify(prevFiltersRef.current) !== JSON.stringify(filters)) {
+      onFilterChange(filters)
+    }
+    prevFiltersRef.current = filters
+  }, [filters, onFilterChange])
+
 
   return (
     <div className="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-200">

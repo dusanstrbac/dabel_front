@@ -15,7 +15,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ArtikalFilterProp, ListaArtikalaProps } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 
-const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCount, currentPage, onPageChange, loading = false }: ListaArtikalaProps) => {
+const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCount, currentPage, onPageChange, loading = false, onFilterChange }: ListaArtikalaProps) => {
   const artikliPoStrani = 8;
   const router = useRouter();
   const pathname = usePathname(); // Dobijanje pathname-a
@@ -62,14 +62,29 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
     router.push(`${pathname}?${noviUpit.toString()}`);
   };
 
-  const onFilterChange = (noviFilteri: ArtikalFilterProp) => {
-    setFilteri(noviFilteri);
-    // Ovde dodaj logiku za filtriranje artikala ako je potrebno
-  };
-
   if (!artikli || artikli.length === 0) {
     return <p className="text-center py-5 text-gray-500">Nema artikala za prikaz.</p>;
   }
+
+  async function fetchArtikliSaFilterima(filters: ArtikalFilterProp) {
+  const query = new URLSearchParams();
+
+  if (filters.naziv) query.append('naziv', filters.naziv);
+  if (filters.cena) query.append('cena', filters.cena);
+
+  for (const key of ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja']) {
+    const vrednosti = filters[key as keyof ArtikalFilterProp];
+    if (Array.isArray(vrednosti)) {
+      vrednosti.forEach((val) => query.append(key, val));
+    }
+  }
+
+
+  const res = await fetch(`/api/Artikal/DajArtikleSaPaginacijom?${query.toString()}`);
+  const data = await res.json();
+  // onda setArtikli(data.artikli)
+}
+
 
   return (
   <div className="flex flex-col md:flex-row w-full px-1 gap-4">
@@ -81,8 +96,8 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
         atributi={atributi} 
         kategorija={kategorija} 
         podkategorija={podkategorija} 
-        onFilterChange={onFilterChange} 
-      />
+        onFilterChange={onFilterChange} />
+
     </div>
 
     {/* Lista artikala */}

@@ -7,6 +7,7 @@ import SortiranjeButton from '@/components/SortiranjeButton';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
+import { ArtikalFilterProp } from '@/types/artikal';
 
 type SortKey = "cena" | "naziv";
 type SortOrder = 'asc' | 'desc';
@@ -124,6 +125,43 @@ export default function ProizvodiPage() {
     router.push(`${window.location.pathname}?${searchParams.toString()}`);
   };
 
+  const handleFilterChange = async (filters: ArtikalFilterProp) => {
+  setLoading(true);
+  setError(null);
+
+  try {
+    const query = new URLSearchParams();
+
+    // Dodaj sve filtere
+    if (filters.naziv) query.append('naziv', filters.naziv);
+    if (filters.cena) query.append('cena', filters.cena);
+
+    for (const key of ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja']) {
+      const vrednosti = filters[key as keyof ArtikalFilterProp];
+      if (Array.isArray(vrednosti)) {
+        vrednosti.forEach((val) => query.append(key, val));
+      }
+    }
+
+    if (idPartnera) {
+      query.append('idPartnera', idPartnera);
+    }
+
+    const res = await fetch(`${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${query.toString()}`);
+    const data = await res.json();
+
+    setArtikli(data.artikli);
+    setTotalCount(data.totalCount);
+  } catch (err) {
+    console.error('Greška pri filter fetchu', err);
+    setError('Došlo je do greške pri filtriranju.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
   return (
     <div className="w-full mx-auto">
       <div className="flex justify-center items-center gap-6 py-2 px-8 flex-wrap md:justify-between">
@@ -147,7 +185,6 @@ export default function ProizvodiPage() {
       {error && <p className="text-center text-red-500">{error}</p>}
 
       <div>
-        {/* Prosleđivanje podataka u Listu artikala */}
         <ListaArtikala
           artikli={artikli}
           atributi={atributi}
@@ -158,6 +195,8 @@ export default function ProizvodiPage() {
           pageSize={pageSize}
           loading={loading}
           onPageChange={handlePageChange} // Promena stranice
+          onFilterChange={handleFilterChange} 
+
         />
       </div>
     </div>
