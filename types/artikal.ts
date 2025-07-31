@@ -71,6 +71,8 @@ export interface ListaArtikalaProps {
   pageSize?: number;
   onPageChange: (page: number) => void;
   loading?: boolean;
+  onFilterChange: (filters: ArtikalFilterProp) => void;
+
 }
 
 interface AtributiResponse {

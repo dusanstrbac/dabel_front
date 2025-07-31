@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -43,6 +43,9 @@ const Korpa = () => {
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
   const [imaDozvoluZaPakovanje, setImaDozvoluZaPakovanje] = useState(false);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const debounceVreme = 700;
+  
 
   
 
@@ -376,25 +379,36 @@ const Korpa = () => {
                       className="flex justify-center min-w-10 w-full max-w-21"
                       type="number"
                       step={imaDozvoluZaPakovanje ? 1 : (pakovanje || 1)}
-                      min={imaDozvoluZaPakovanje ? 1 : (pakovanje || 1)}
+                      min={0}
                       value={quantities[index]}
                       onChange={(e) => {
-                        const pakovanjeValue = article.kolZaIzdavanje || 1;
-                        let enteredValue = Number(e.target.value);
-                        const maxAllowed = getMaxAllowedQuantity(article.kolicina, pakovanjeValue);
-
-                        if (isNaN(enteredValue)) {
-                          enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanjeValue;
+                        if (debounceTimeout.current) {
+                          clearTimeout(debounceTimeout.current);
                         }
-
-                        // Ako korisnik nema dozvolu, zaokružujemo na pakovanje
-                        const roundedValue = imaDozvoluZaPakovanje 
-                          ? enteredValue 
-                          : Math.ceil(enteredValue / pakovanjeValue) * pakovanjeValue;
                         
-                        const finalValue = Math.min(roundedValue, maxAllowed);
-                        updateQuantity(index, finalValue);
-                      }}
+                        const newValue = Number(e.target.value);
+                        const newQuantities = [...quantities];
+                        newQuantities[index] = isNaN(newValue) ? (imaDozvoluZaPakovanje ? 1 : pakovanje) : newValue;
+                        setQuantities(newQuantities);
+
+                        debounceTimeout.current = setTimeout(() => {
+                          const pakovanjeValue = article.kolZaIzdavanje || 1;
+                          let enteredValue = Number(e.target.value);
+                          const maxAllowed = getMaxAllowedQuantity(article.kolicina, pakovanjeValue);
+
+                          if (isNaN(enteredValue)) {
+                            enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanjeValue;
+                          }
+
+                          // Ako korisnik nema dozvolu, zaokružujemo na pakovanje
+                          const roundedValue = imaDozvoluZaPakovanje 
+                            ? enteredValue 
+                            : Math.ceil(enteredValue / pakovanjeValue) * pakovanjeValue;
+                          
+                          const finalValue = Math.min(roundedValue, maxAllowed);
+                          updateQuantity(index, finalValue);
+                        }, debounceVreme)
+                      }} 
                     />
                   </TableCell>
                   <TableCell className="text-center">{kolicina}</TableCell>
@@ -473,24 +487,35 @@ const Korpa = () => {
                         inputMode="numeric"
                         pattern="[0-9]*"
                         step={imaDozvoluZaPakovanje ? 1 : (pakovanje || 1)}
-                        min={imaDozvoluZaPakovanje ? 1 : (pakovanje || 1)}
+                        min={0}
                         value={quantities[index]}
                         onChange={(e) => {
-                          const pakovanjeValue = article.kolZaIzdavanje || 1;
-                          let enteredValue = Number(e.target.value);
-                          const maxAllowed = getMaxAllowedQuantity(article.kolicina, pakovanjeValue);
-
-                          if (isNaN(enteredValue)) {
-                            enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanjeValue;
+                          if (debounceTimeout.current) {
+                            clearTimeout(debounceTimeout.current);
                           }
+                        
+                          const newValue = Number(e.target.value);
+                          const newQuantities = [...quantities];
+                          newQuantities[index] = isNaN(newValue) ? (imaDozvoluZaPakovanje ? 1 : pakovanje) : newValue;
+                          setQuantities(newQuantities);
 
-                          // Ako korisnik nema dozvolu, zaokružujemo na pakovanje
-                          const roundedValue = imaDozvoluZaPakovanje 
-                            ? enteredValue 
-                            : Math.ceil(enteredValue / pakovanjeValue) * pakovanjeValue;
-                          
-                          const finalValue = Math.min(roundedValue, maxAllowed);
-                          updateQuantity(index, finalValue);
+                          debounceTimeout.current = setTimeout(() => {
+                            const pakovanjeValue = article.kolZaIzdavanje || 1;
+                            let enteredValue = Number(e.target.value);
+                            const maxAllowed = getMaxAllowedQuantity(article.kolicina, pakovanjeValue);
+
+                            if (isNaN(enteredValue)) {
+                              enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanjeValue;
+                            }
+
+                            // Ako korisnik nema dozvolu, zaokružujemo na pakovanje
+                            const roundedValue = imaDozvoluZaPakovanje 
+                              ? enteredValue 
+                              : Math.ceil(enteredValue / pakovanjeValue) * pakovanjeValue;
+                            
+                            const finalValue = Math.min(roundedValue, maxAllowed);
+                            updateQuantity(index, finalValue);
+                          }, debounceVreme);
                         }}
                         onBlur={(e) => {
                           const pakovanjeValue = article.kolZaIzdavanje || 1;

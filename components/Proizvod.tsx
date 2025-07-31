@@ -35,6 +35,7 @@ export default function Proizvod() {
   const [proizvod, setProizvod] = useState<ArtikalType | null>(null);
   const [atributi, setAtributi] = useState<ArtikalAtribut[]>([]);
   const [lastPurchaseDate, setLastPurchaseDate] = useState<string | null>(null);
+  const debounceVreme = 700;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +49,8 @@ export default function Proizvod() {
   const [pristiglaKolicina, setPristiglaKolicina] = useState(0);
 
   const [imaDozvoluZaPakovanje, setImaDozvoluZaPakovanje] = useState(false);
-  
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+
 
 
   const korisnik = dajKorisnikaIzTokena();
@@ -221,53 +223,11 @@ export default function Proizvod() {
       : Math.ceil(requested / packSize) * packSize;
   };
 
-  const getMaxAllowedQuantity = (kolicina: string | undefined, pakovanje: number) => {
+  const getMaxAllowedQuantity = (kolicina: string, pakovanje: number) => {
     const maxKolicina = Number(kolicina) || 0;
     return Math.floor(maxKolicina / pakovanje) * pakovanje;
   };
 
-
-  //ZA POBOLJSANI INPUT
-  const [rawInputValue, setRawInputValue] = useState<string>(
-    imaDozvoluZaPakovanje ? '1' : String(proizvod?.kolZaIzdavanje || 1)
-  );
-
-  useEffect(() => {
-  if (proizvod) {
-    setRawInputValue(
-      imaDozvoluZaPakovanje ? '1' : String(proizvod.kolZaIzdavanje || 1)
-    );
-  }
-}, [proizvod, imaDozvoluZaPakovanje]);
-
-  const handleInputBlur = () => {
-    const pakovanje = proizvod?.kolZaIzdavanje || 1;
-    let enteredValue = Number(rawInputValue);
-    
-    if (isNaN(enteredValue) || enteredValue <= 0) {
-      enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanje;
-      setRawInputValue(enteredValue.toString());
-      return;
-    }
-
-    const maxAllowed = getMaxAllowedQuantity(proizvod?.kolicina, pakovanje);
-    
-    if (imaDozvoluZaPakovanje) {
-      // Ako ima dozvolu, ograniči samo na max količinu
-      const finalValue = Math.min(enteredValue, maxAllowed);
-      setRawInputValue(finalValue.toString());
-    } else {
-      // Ako nema dozvolu, zaokruži na najbliži veći umnožak i ograniči na max
-      const roundedUp = Math.ceil(enteredValue / pakovanje) * pakovanje;
-      const finalValue = Math.min(roundedUp, maxAllowed);
-      
-      if (finalValue !== enteredValue) {
-        toast.info(`Količina je podešena na ${finalValue} (umnožak od ${pakovanje})`);
-      }
-      
-      setRawInputValue(finalValue.toString());
-    }
-  };
 
   
   // Loader i error handling
@@ -396,10 +356,32 @@ export default function Proizvod() {
                   type="number"
                   className="min-w-10 w-full max-w-21"
                   step={imaDozvoluZaPakovanje ? 1 : (proizvod.kolZaIzdavanje || 1)}
-                  min={imaDozvoluZaPakovanje ? 1 : (proizvod.kolZaIzdavanje || 1)}
-                  value={rawInputValue}
-                  onChange={(e) => setRawInputValue(e.target.value)}
-                  onBlur={handleInputBlur}
+                  min={0}
+                  defaultValue={imaDozvoluZaPakovanje ? 1 : (proizvod.kolZaIzdavanje || 1)}
+                  onChange={(e) => {
+                    if (debounceTimeout.current) {
+                      clearTimeout(debounceTimeout.current);
+                    }
+
+                    debounceTimeout.current = setTimeout(() => {
+                      const pakovanje = proizvod.kolZaIzdavanje || 1;
+                      let enteredValue = Number(e.target.value);
+                      const maxAllowed = getMaxAllowedQuantity(proizvod.kolicina, pakovanje);
+
+                      if (isNaN(enteredValue)) {
+                        enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanje;
+                      }
+
+                      const roundedValue = imaDozvoluZaPakovanje 
+                        ? enteredValue 
+                        : Math.ceil(enteredValue / pakovanje) * pakovanje;
+                      
+                      const finalValue = Math.min(roundedValue, maxAllowed);
+                      if (inputRef.current) {
+                        inputRef.current.value = finalValue.toString();
+                      }
+                    }, debounceVreme)
+                  }}
                   ref={inputRef}
                 />
                 <AddToCartButton
@@ -408,16 +390,7 @@ export default function Proizvod() {
                   title="Dodaj u korpu"
                   getKolicina={() => {
                     const pakovanje = proizvod.kolZaIzdavanje || 1;
-                    const rawValue = Number(rawInputValue || (imaDozvoluZaPakovanje ? 1 : pakovanje));
-                    
-                    // Dodatna provera za ceo broj pakovanja
-                    if (!imaDozvoluZaPakovanje && rawValue % pakovanje !== 0) {
-                      toast.error("Količina mora biti umnožak pakovanja!", {
-                        description: `Pakovanje je ${pakovanje} kom. Unesite količinu deljivu sa ${pakovanje}.`,
-                      });
-                      return 0; // Vraćamo 0 ako nije validna količina
-                    }
-                    
+                    const rawValue = Number(inputRef.current?.value || (imaDozvoluZaPakovanje ? 1 : pakovanje));
                     return getRoundedQuantity(rawValue, pakovanje);
                   }}
                   nazivArtikla={proizvod.naziv}
