@@ -102,7 +102,7 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
       {/* Možeš ovde dodati <ArtikalFilter /> ili slično ako budeš koristio filtere */}
       <ArtikalFilter 
         artikli={artikli} 
-        atributi={atributi} 
+        atributi={atributi || {}} 
         kategorija={kategorija} 
         podkategorija={podkategorija} 
         onFilterChange={onFilterChange} 
@@ -132,6 +132,7 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
               artikalCene={artikal.artikalCene ?? []}
               lastPurchaseDate="2025-06-20"
               idPartnera={idPartnera!}
+              kolZaIzdavanje={artikal.kolZaIzdavanje}
             />
           ))}
         </div>
