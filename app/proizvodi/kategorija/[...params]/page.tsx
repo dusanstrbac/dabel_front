@@ -54,55 +54,76 @@ export default function ProizvodiPage() {
     setArtikli([]);
     setError(null);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('page', page.toString());
-    queryParams.append('pageSize', pageSize.toString());
-
-    if (kategorija) {
-      queryParams.append('Kategorija', kategorija);
-    }
-
-    if (podkategorija) {
-      queryParams.append('PodKategorija', podkategorija);
-    }
-
-    queryParams.append('sortKey', sortKey);
-    queryParams.append('sortOrder', sortOrder);
-
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) {
-        if (Array.isArray(value) && value.length > 0) {
-          value.forEach(v => v && queryParams.append(key, v));
-        } else if (typeof value === 'string' && value.trim() !== '') {
-          queryParams.append(key, value);
-        }
-      }
-    });
-
-    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-    const korisnik = dajKorisnikaIzTokena();
-    const fullUrl = `${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${queryParams.toString()}&idPartnera=${korisnik?.idKorisnika}`;
-    //const fullUrl = `${apiAddress}/api/Artikal/DajFilterArtikle?idPartnera=${korisnik?.idKorisnika}&batchSize=10000&${queryParams.toString()}`;
-    //console.log("API URL:", fullUrl);
-    // http://localhost:7235/api/Artikal/DajArtikleSaPaginacijom?page=1&pageSize=8&sortBy=naziv&sortOrder=asc&idPartnera=3005
-
-
     try {
-      const res = await fetch(fullUrl);
+      const queryParams = new URLSearchParams();
+      queryParams.append('page', page.toString());
+      queryParams.append('pageSize', pageSize.toString());
+      queryParams.append('sortKey', sortKey);
+      queryParams.append('sortOrder', sortOrder);
 
+      if (kategorija) {
+        queryParams.append('Kategorija', kategorija);
+      }
+
+      if (podkategorija) {
+        queryParams.append('PodKategorija', podkategorija);
+      }
+
+      // Add filters if they exist
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) {
+            if (Array.isArray(value)) {
+              value.forEach(v => {
+                if (v !== null && v !== undefined) {
+                  queryParams.append(key, String(v)); // Use String() instead of toString()
+                }
+              });
+            } else if (typeof value === 'string' && value.trim() !== '') {
+              queryParams.append(key, value);
+            } else if (typeof value === 'number' || typeof value === 'boolean') {
+              queryParams.append(key, String(value));
+            }
+          }
+        });
+      }
+
+      const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+      const korisnik = dajKorisnikaIzTokena();
+      const fullUrl = `${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${queryParams.toString()}&idPartnera=${korisnik?.idKorisnika}`;
+
+      const res = await fetch(fullUrl);
       if (!res.ok) {
-        throw new Error(`HTTP greška: ${res.status} - ${res.statusText}`);
+        const errorData = await res.json().catch(() => null);
+        throw new Error(
+          errorData?.message || 
+          `HTTP greška: ${res.status} - ${res.statusText}`
+        );
       }
 
       const data = await res.json();
+      console.log("API odgovor za artikle:", data);
 
-      if (data.items?.length) {
-        setArtikli(data.items); //ovde vrv stize 8 artikala
-        setTotalCount(data.totalCount ?? 0);
+      if (!data) {
+        throw new Error("Prazan odgovor od servera");
+      }
+
+      if (Array.isArray(data)) {
+        // Ako API direktno vraća niz artikala
+        setArtikli(data);
+        setTotalCount(data.length);
+      } else if (data.items !== undefined) {
+        // Ako API vraća paginirane rezultate
+        setArtikli(data.items || []);
+        setTotalCount(data.totalCount || 0);
+        
+        if (data.items.length === 0) {
+          setError('Nema rezultata za ove parametre.');
+        }
       } else {
-        setArtikli([]);
-        setTotalCount(0);
-        setError('Nema rezultata za ove parametre.');
+        // Ako struktura nije prepoznata
+        console.error("Nepoznata struktura odgovora:", data);
+        throw new Error("Neočekivana struktura odgovora");
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -117,16 +138,26 @@ export default function ProizvodiPage() {
     }
   };
 
+
+  //const fullUrl = `${apiAddress}/api/Artikal/DajFilterArtikle?idPartnera=${korisnik?.idKorisnika}&batchSize=10000&${queryParams.toString()}`;
+  //console.log("API URL:", fullUrl);
+  // http://localhost:7235/api/Artikal/DajArtikleSaPaginacijom?page=1&pageSize=8&sortBy=naziv&sortOrder=asc&idPartnera=3005
+
   useEffect(() => {
-    //if (!brojDokumenta) return;
+    if (!params || params.length === 0) return;
 
     const fetchAtributi = async () => {
+      setLoading(true);
       try {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const korisnik = dajKorisnikaIzTokena();
-        const res = await fetch(`${apiAddress}/api/Artikal/ArtikliKategorije?idPartnera=${korisnik?.idKorisnika}`);
-        if (!res.ok) throw new Error('Greška pri učitavanju dokumenta.');
-
+        const kategorija = decodeURIComponent(params[0]);
+        
+        const res = await fetch(
+          `${apiAddress}/api/Artikal/ArtikalAtributi?idPartnera=${korisnik?.idKorisnika}&kategorija=${encodeURIComponent(kategorija)}`
+        );
+        
+        if (!res.ok) throw new Error('Greška pri učitavanju atributa.');
         const data = await res.json();
         setAtribut(data);
       } catch (err: any) {
@@ -137,7 +168,7 @@ export default function ProizvodiPage() {
     };
 
     fetchAtributi();
-  }, []);
+  }, [params]);
 
   // Fetch artikle kad se menjaju parametri ili sortiranje ili stranica
   useEffect(() => {
@@ -146,13 +177,6 @@ export default function ProizvodiPage() {
     const kategorija = decodeURIComponent(params[0]);
     const podkategorija = params.length > 1 ? decodeURIComponent(params[1]) : null;
     const totalPages = Math.ceil(totalCount / pageSize);
-
-    if (pageFromUrl > totalPages && totalPages > 0) {
-      const newParams = new URLSearchParams(searchParams.toString());
-      newParams.set('page', '1');
-      router.replace(`?${newParams.toString()}`);
-      return;
-    }
 
     // ✅ Čitanje filtera iz URL-a
     const filteri: ArtikalFilterProp = {
@@ -167,7 +191,6 @@ export default function ProizvodiPage() {
     };
     setAktivniFilteri(filteri); // dodaj ovu liniju
 
-
     fetchArtikli(
       kategorija,
       podkategorija,
@@ -176,7 +199,14 @@ export default function ProizvodiPage() {
       sortKey,
       sortOrder
     );
-  }, [params, pageFromUrl, sortKey, sortOrder, totalCount, searchParams]);
+
+    if (pageFromUrl > totalPages && totalPages > 0) {
+      const newParams = new URLSearchParams(searchParams.toString());
+      newParams.set('page', '1');
+      router.replace(`?${newParams.toString()}`);
+      return;
+    }
+  }, [params, pageFromUrl, sortKey, sortOrder, searchParams]); //uklonjen totalCount
 
 
   const handleSortChange = (key: 'cena' | 'naziv', order: 'asc' | 'desc') => {
@@ -258,6 +288,7 @@ export default function ProizvodiPage() {
             podkategorija={podkategorija}
             totalCount={totalCount}
             currentPage={pageFromUrl}
+            loading={loading}
             onPageChange={(page) => {
               const cleanedParams = removeEmptyParams(new URLSearchParams(searchParams.toString()));
               cleanedParams.set('page', page.toString());

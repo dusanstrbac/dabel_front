@@ -69,6 +69,7 @@ export interface ListaArtikalaProps {
   totalCount: number;
   currentPage: number;
   onPageChange: (page: number) => void;
+  loading?: boolean;
 }
 
 export interface SortiranjeButtonProps {

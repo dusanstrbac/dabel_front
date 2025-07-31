@@ -15,7 +15,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ArtikalFilterProp, ListaArtikalaProps } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 
-const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCount, currentPage, onPageChange }: ListaArtikalaProps) => {
+const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCount, currentPage, onPageChange, loading = false }: ListaArtikalaProps) => {
   const artikliPoStrani = 8;
   const router = useRouter();
   const pathname = usePathname(); // Dobijanje pathname-a
@@ -62,14 +62,36 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
   };
 
   console.log("evo artikli koji ulaze u LIIIIStu artikala",artikli);
+  //ovaj console.log je uvek prazan
 
   const onFilterChange = (noviFilteri: ArtikalFilterProp) => {
     setFilteri(noviFilteri);
     // Ovde dodaj logiku za filtriranje artikala ako je potrebno
   };
 
+  // if (!artikli || artikli.length === 0) {
+  //   return <p className="text-center py-5 text-gray-500">Nema artikala za prikaz.</p>;
+  // }
+
   if (!artikli || artikli.length === 0) {
-    return <p className="text-center py-5 text-gray-500">Nema artikala za prikaz.</p>;
+    return (
+      <div className="flex flex-col md:flex-row w-full px-1 gap-4">
+        <div className="w-full md:w-1/4">
+          <ArtikalFilter 
+            artikli={artikli} 
+            atributi={atributi || {}} 
+            kategorija={kategorija} 
+            podkategorija={podkategorija} 
+            onFilterChange={onFilterChange} 
+          />
+        </div>
+        <div className="w-full md:w-3/4 flex items-center justify-center">
+          <p className="text-center py-5 text-gray-500">
+            {loading ? 'Učitavanje...' : 'Nema artikala za prikaz.'}
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

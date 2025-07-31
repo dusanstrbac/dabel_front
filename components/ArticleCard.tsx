@@ -134,6 +134,7 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZ
           </p>
         ):(
           <p>NEMA KOLICINE</p>
+          //ovo ovde ne stize
         )}
 
         <p
