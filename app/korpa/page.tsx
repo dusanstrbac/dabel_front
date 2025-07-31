@@ -108,10 +108,10 @@ const Korpa = () => {
           return;
       }
 
-      const email = korisnik.email;
-
+      const idKorisnika = korisnik.partner;
+      console.log(idKorisnika);
       try {
-          const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${email}`);
+          const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idKorisnika}`);
           const data = await res.json();
           const fPartner = data[0] as KorisnikPodaciType;
           setPartner(fPartner);

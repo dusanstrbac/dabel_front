@@ -90,6 +90,7 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
     // setArtikli(data.artikli)
   }
 
+  console.log("evo jebo sam ti majku",artikli);
   return (
     <div className="flex flex-col md:flex-row w-full px-1 gap-4">
       {/* Filter sekcija */}
@@ -124,6 +125,7 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
                 artikalCene={artikal.artikalCene ?? []}
                 lastPurchaseDate="2025-06-20"
                 idPartnera={idPartnera!}
+                kolZaIzdavanje={artikal.kolZaIzdavanje}
               />
             ))}
           </div>
