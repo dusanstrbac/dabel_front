@@ -129,7 +129,6 @@ export default function ProizvodiPage() {
 
         const data = await res.json();
         setAtribut(data);
-        console.log("Atributi",data);
       } catch (err: any) {
         setError(err.message);
       } finally {

@@ -71,7 +71,7 @@ const DokumentPage = () => {
         tip: "narudzbenica",
         idPartnera: "",
         idKomercijaliste: "",
-        datumVazenja: docInfo.datumDokumenta + 7, // sta da stavim ovde, da li mo
+        datumVazenja: docInfo.datumDokumenta + 7,
         status: 0,
         stavkeDokumenata: [],
       };
@@ -82,11 +82,12 @@ const DokumentPage = () => {
       setDostava(dostavaValue);
       setTimeout(() => {
         toast.success("Narudžbenica je uspešno kreirana!", {
-          duration: 8000, // 8 sekundi umesto default 4
+          duration: 6000, // 8 sekundi umesto default 4
         });
       }, 500); // Mali delay od 500ms
     } catch (error) {
       console.error("❌ Greška pri učitavanju podataka iz sessionStorage:", error);
+      toast.error(String(`Greška: ${error}`));
     }
   }, []);
 

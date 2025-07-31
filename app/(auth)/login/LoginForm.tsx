@@ -12,7 +12,6 @@ import axios from "axios";
 import { setCookie } from "cookies-next";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { DajParametre, OsveziParametre, TrebaOsvezitiParametre } from "@/contexts/DajParametre";
 
 // Validation schema
 const formSchema = z.object({

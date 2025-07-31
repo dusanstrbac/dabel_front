@@ -66,7 +66,7 @@ export default function Proizvod() {
 
         const data = await res.json();
         if (!data || data.length === 0) throw new Error("Proizvod nije pronađen");
-
+        console.log(data);
         const osnovni: ArtikalType = data[0];
         setProizvod(osnovni);
 

@@ -124,6 +124,9 @@ const OmiljeniArtikli = () => {
       ) : (
         <ListaArtikala
           artikli={artikli}
+          atributi={[]}
+          kategorija=""
+          podkategorija=""
           totalCount={totalCount}
           currentPage={currentPage}
           onPageChange={handlePageChange}
