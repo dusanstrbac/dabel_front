@@ -4,6 +4,7 @@ import { AritkalKorpaType } from "@/types/artikal";
 import { cn } from "@/lib/utils";
 import { DokumentInfo } from "@/types/dokument";
 import { useState } from "react";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 interface KreirajNarudzbenicuProps {
   artikli: AritkalKorpaType[];
@@ -92,10 +93,10 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
             if (res.ok) {
                 // Nakon uspešnog upisa dokumenta, fetchuj najnoviji dokument
                 const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-                const idKorisnika = partner.idPartnera;
+                const korisnik = dajKorisnikaIzTokena();
 
                 try {
-                    const resDoc = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?idPartnera=${idKorisnika}`);
+                    const resDoc = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?idPartnera=${korisnik?.partner}&idKorisnika=${korisnik?.idKorisnika}`);
                     if (!resDoc.ok) throw new Error("❌ Greška pri učitavanju dokumenta posle POST-a.");
 
                     const docData = await resDoc.json();

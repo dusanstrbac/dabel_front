@@ -41,8 +41,6 @@
         const pravaDostava = ukupnaCenaSaPDV >= minCena ? 0 : dostava;
         const ukupnoSaDostavom = ukupnaCenaSaPDV + pravaDostava;
 
-        
-
     useEffect(() => {
 
         const korpaPodaciString = sessionStorage.getItem("korpaPodaci");
