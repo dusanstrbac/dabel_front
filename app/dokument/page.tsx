@@ -73,6 +73,7 @@ const DokumentPage = () => {
         idKomercijaliste: "",
         datumVazenja: docInfo.datumDokumenta + 7,
         status: 0,
+        dostava: docInfo.dostava,
         stavkeDokumenata: [],
       };
 

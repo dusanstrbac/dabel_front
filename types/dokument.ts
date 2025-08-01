@@ -8,6 +8,7 @@ export type DokumentInfo = {
   datumVazenja: Date,
   lokacija: string,
   napomena: string,
+  dostava: string,
   status: number,
   stavkeDokumenata: StavkaDokumenta[];
 }

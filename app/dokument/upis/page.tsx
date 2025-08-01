@@ -12,6 +12,7 @@
         const [artikli, setArtikli] = useState<AritkalKorpaType[]>([]);
         const [partner, setPartner] = useState<KorisnikPodaciType>();
         const [minCena, setMinCena] = useState<number>(0);
+        const [dostava] = useState<number>(1000);
 
         const imageUrl = '/images';
 
@@ -19,22 +20,23 @@
         const [napomena, setNapomena] = useState("");
         const [ukupnaCenaSaPDV, setUkupnaCenaSaPDV] = useState<number>(0);
 
+
         useEffect(() => {
             const local = localStorage.getItem("webparametri");
-            if (local) {
-            const parsed = JSON.parse(local);
-            const parsedMinCena = parsed.find((p: any) => p.naziv === "MinCenaZaBesplatnuDostavu")?.vrednost;
-            
-            if (parsedMinCena) {
-                const minCena = parseFloat(parsedMinCena);
-                if(!isNaN(minCena)) {
-                setMinCena(minCena);
-                }        
-            }
+            if (!local) return;
+
+            try {
+                const parsed = JSON.parse(local);
+                const minCenaRaw = parsed.find((p: any) => p.naziv === "MinCenaZaBesplatnuDostavu")?.vrednost;
+                const parsedMinCena = parseFloat(minCenaRaw);
+
+                if (!isNaN(parsedMinCena)) {
+                setMinCena(parsedMinCena);
+                }
+            } catch (err) {
+                console.error("Greška prilikom parsiranja webparametara:", err);
             }
         }, []);
-
-        const dostava = 1000;
 
         const pravaDostava = ukupnaCenaSaPDV >= minCena ? 0 : dostava;
         const ukupnoSaDostavom = ukupnaCenaSaPDV + pravaDostava;
@@ -209,6 +211,7 @@
                         partner={partner}
                         mestoIsporuke={mestoIsporuke}
                         napomena={napomena}
+                        dostava={pravaDostava}
                         disabled={mestoIsporuke.trim() === ""}
                     />
                 )}

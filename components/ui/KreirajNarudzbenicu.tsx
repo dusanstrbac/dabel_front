@@ -10,11 +10,12 @@ interface KreirajNarudzbenicuProps {
   partner: KorisnikPodaciType;
   mestoIsporuke: string;
   napomena: string;
+  dostava: number;
   disabled: boolean;
 }
 
 
-const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabled }: KreirajNarudzbenicuProps) => {
+const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabled, dostava }: KreirajNarudzbenicuProps) => {
     const router = useRouter();
     const [korisnikUdugu, setKorisnikUdugu] = useState(false);
 
@@ -60,6 +61,7 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
             datumVazenja: datumVazenja.toISOString(),
             lokacija: mestoIsporuke, 
             napomena: napomena,
+            dostava: dostava,
             stavkeDokumenata: artikli.map((value) => ({
                 idArtikla: value.idArtikla.toString() || "",
                 nazivArtikla: value.naziv || "",
@@ -103,6 +105,7 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
                         datumDokumenta: dokument.datumDokumenta,
                         lokacija: dokument.lokacija,
                         napomena: dokument.napomena,
+                        dostava: dokument.dostava
                     }));
 
                 } catch (err) {
@@ -122,7 +125,6 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
                     sessionStorage.removeItem("dostava");
                     sessionStorage.removeItem("ukupnoSaDostavom");
                     localStorage.removeItem("cart");
-
                     kanal.close();
                     router.push("/");
                 }
