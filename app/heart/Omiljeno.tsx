@@ -1,7 +1,7 @@
 'use client';
 import ListaArtikala from "@/components/ListaArtikala";
 import SortiranjeButton from "@/components/SortiranjeButton";
-import { ArtikalType } from "@/types/artikal";
+import { ArtikalAtribut, ArtikalFilterProp, ArtikalType } from "@/types/artikal";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
@@ -11,6 +11,7 @@ type SortOrder = 'asc' | 'desc';
 
 const OmiljeniArtikli = () => {
   const [artikli, setArtikli] = useState<ArtikalType[]>([]);
+  const [atributi, setAtributi] = useState<{ [artikalId: string]: ArtikalAtribut[] }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
@@ -23,7 +24,10 @@ const OmiljeniArtikli = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Sinhronizacija trenutne strane, sortiranja sa URL parametrima
+  // Funkcija za čišćenje imena atributa
+  const ocistiImeAtributa = (ime: string) => ime.replace(/\(\d+\)/, '').trim();
+
+  // Sinhronizacija URL parametara sa stanjem komponente
   useEffect(() => {
     const pageParam = searchParams.get("page");
     const sortKeyParam = searchParams.get("sortKey") as SortKey | null;
@@ -38,22 +42,21 @@ const OmiljeniArtikli = () => {
     if (sortOrderParam && sortOrderParam !== sortOrder) setSortOrder(sortOrderParam);
   }, [searchParams]);
 
-  // Fetch omiljenih artikala
+  // Funkcija za preuzimanje podataka o omiljenim artiklima
   const fetchOmiljeniArtikli = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
+    try {
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
       const korisnik = dajKorisnikaIzTokena();
 
       if (!korisnik?.idKorisnika) {
         setError("Niste ulogovani!");
-        setLoading(false);
         return;
       }
 
-      const url = new URL(`${apiAddress}/api/Partner/DajOmiljeneArtikle`);
+      const url = new URL(`${apiAddress}/api/Partner/POA`);
       url.searchParams.append("idPartnera", korisnik.idKorisnika);
       url.searchParams.append("page", currentPage.toString());
       url.searchParams.append("pageSize", pageSize.toString());
@@ -61,14 +64,36 @@ const OmiljeniArtikli = () => {
       url.searchParams.append("sortOrder", sortOrder);
 
       const res = await fetch(url.toString());
-
       if (!res.ok) throw new Error("Greška pri preuzimanju omiljenih artikala");
 
       const data = await res.json();
 
-      setArtikli(data.artikli ?? []);
+      // Setovanje cena artikala. Prvo se gleda akcijska cena da se posalje u filter, ali ukoliko nema akcije gleda obicnu cenu
+      const artikliSaCenama = data.artikli?.map((artikal: any) => {
+        const akcijaCena = artikal.artikalCene?.[0]?.akcija?.cena ? parseFloat(artikal.artikalCene[0].akcija.cena) : null;        
+        const cena = akcijaCena !== null ? akcijaCena : (artikal.artikalCene?.[0]?.cena ? parseFloat(artikal.artikalCene[0].cena) : 0);
+        return {
+          ...artikal,
+          cena,
+        };
+      }) ?? [];
+
+
+      // Setovanje podataka o artiklima
+      setArtikli(artikliSaCenama);
       setTotalCount(data.totalCount ?? 0);
       setTotalPages(Math.ceil((data.totalCount ?? 0) / pageSize));
+
+      // Postavljanje atributa sa očišćenim imenima
+      const noviAtributi: { [artikalId: string]: ArtikalAtribut[] } = {};
+      artikliSaCenama.forEach((artikal: any) => {
+        noviAtributi[artikal.idArtikla] = artikal.artikalAtributi.map((atribut: any) => ({
+          ...atribut,
+          imeAtributa: ocistiImeAtributa(atribut.imeAtributa),
+        }));
+      });
+
+      setAtributi(noviAtributi);
     } catch (err) {
       setError("Došlo je do greške");
     } finally {
@@ -76,34 +101,65 @@ const OmiljeniArtikli = () => {
     }
   };
 
+  // Učitaj artikle kada se stranica, sortiranje ili parametri promene
   useEffect(() => {
     fetchOmiljeniArtikli();
   }, [currentPage, sortKey, sortOrder]);
 
-  // Menjanje strane sa paginacijom
+  // Funkcija za promenu filtera
+ const handleFilterChange = async (filters: ArtikalFilterProp) => {
+  setLoading(true);
+  setError(null);
+
+  try {
+    const query = new URLSearchParams();
+    if (filters.naziv) query.append('naziv', filters.naziv);
+    if (filters.cena) query.append('cena', filters.cena);
+
+    for (const key of ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja']) {
+      const vrednosti = filters[key as keyof ArtikalFilterProp];
+      if (Array.isArray(vrednosti)) {
+        vrednosti.forEach((val) => query.append(key, val));
+      }
+    }
+
+    query.set('page', '1');  // Resetovanje stranice
+    query.set('sortKey', sortKey);
+    query.set('sortOrder', sortOrder);
+
+    router.push(`${window.location.pathname}?${query.toString()}`);
+  } catch (err) {
+    setError('Došlo je do greške pri filtriranju.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  // Promena stranice
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return;
 
+    setCurrentPage(newPage); // Postavljanje nove strane
     const url = new URL(window.location.href);
     url.searchParams.set("page", newPage.toString());
     url.searchParams.set("sortKey", sortKey);
     url.searchParams.set("sortOrder", sortOrder);
 
-    router.push(`${url.pathname}${url.search}`, { scroll: false });
-    setCurrentPage(newPage);
+    router.push(`${url.pathname}?${url.search}`, { scroll: false });
   };
 
-  // Menjanje sortiranja
+  // Promena sortiranja
   const handleSortChange = (key: SortKey, order: SortOrder) => {
     const url = new URL(window.location.href);
     url.searchParams.set("sortKey", key);
     url.searchParams.set("sortOrder", order);
-    url.searchParams.set("page", "1"); // vrati na prvu stranu kad menjaš sortiranje
+    url.searchParams.set("page", "1");  // Vraćanje na prvu stranu pri promeni sortiranja
 
-    router.push(`${url.pathname}${url.search}`, { scroll: false });
+    router.push(`${url.pathname}?${url.search}`, { scroll: false });
     setSortKey(key);
     setSortOrder(order);
-    setCurrentPage(1);
+    setCurrentPage(1);  // Postavljanje trenutne stranice na 1
   };
 
   return (
@@ -123,13 +179,15 @@ const OmiljeniArtikli = () => {
         <p className="text-center text-red-600 mt-4">{error}</p>
       ) : (
         <ListaArtikala
-              artikli={artikli}
-              totalCount={totalCount}
-              currentPage={currentPage}
-              onPageChange={handlePageChange} 
-              atributi={[]} 
-              kategorija={""} 
-              podkategorija={null}        />
+          artikli={artikli}
+          atributi={atributi}  // Prosleđivanje atributa
+          totalCount={totalCount}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          loading={loading}
+          onPageChange={handlePageChange}
+          onFilterChange={handleFilterChange} // Filtriranje (ako bude potrebno)
+        />
       )}
     </div>
   );

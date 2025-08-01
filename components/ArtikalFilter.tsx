@@ -107,23 +107,35 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
     }
   }
 
-  // Postavi opseg cena na osnovu fetchovanih cena
-  useEffect(() => {
-    const postaviOpsegCena = async () => {
-      const ceneMapa = await fetchCene()
-      setMapaCena(ceneMapa)
+useEffect(() => {
+  const postaviOpsegCena = () => {
+    const cene = artikli
+      .filter((artikal) => artikal.artikalCene && artikal.artikalCene.length > 0)
+      .map((artikal) => {
+        // Ako cena u akciji nije 0, koristimo nju, inače koristimo običnu cenu
+        const cena = artikal.artikalCene[0].akcija && parseFloat(artikal.artikalCene[0].akcija.cena) !== 0
+          ? parseFloat(artikal.artikalCene[0].akcija.cena)
+          : parseFloat(artikal.artikalCene[0].cena);
 
-      const cene = Array.from(ceneMapa.values())
-      if (cene.length > 0) {
-        const noviMin = Math.min(...cene)
-        const noviMax = Math.max(...cene)
-        setMinCena(noviMin)
-        setMaxCena(noviMax)
-        setSliderValues([noviMin, noviMax])
-      }
+        return cena;
+      });
+
+    if (cene.length > 0) {
+      const noviMin = Math.min(...cene);
+      const noviMax = Math.max(...cene);
+
+      setMinCena(noviMin);
+      setMaxCena(noviMax);
+      setSliderValues([noviMin, noviMax]);
+    } else {
+      console.log('Nema cena u artiklima');
     }
-    postaviOpsegCena()
-  }, [artikli, kategorija, podkategorija])
+  };
+
+  postaviOpsegCena();
+}, [artikli]);
+
+
 
   // Helper za konvertovanje u niz
   function asArray(value: string | string[] | undefined): string[] {
@@ -199,7 +211,6 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
         });
       });
     }
-    console.log(atributi);
     setFilterOptions(atributiFiltera);
   }, [atributi, artikli]);
 
@@ -210,10 +221,29 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
     }));
   }, []);
 
-  const handleCenaChange = useCallback((e: ChangeResult) => {
-    setSliderValues([e.min, e.max]);
-    handleChange('cena', `${e.min}-${e.max}`);
-  }, [handleChange]);
+const handleCenaChange = useCallback((e: ChangeResult) => {
+  setSliderValues([e.min, e.max]);
+  handleChange('cena', `${e.min}-${e.max}`);
+
+  // Ažuriraj URL sa novim parametrima
+  const newSearchParams = new URLSearchParams(window.location.search);
+  newSearchParams.set('minCena', e.min.toString());
+  newSearchParams.set('maxCena', e.max.toString());
+
+  // Resetovanje stranice na prvu (stranicu 1) kada se menja cena
+  newSearchParams.set('page', '1');
+  
+  // Navigiraj ka novom URL-u sa ažuriranim parametrima
+  router.push(`${window.location.pathname}?${newSearchParams.toString()}`);
+
+  // Pozivamo funkciju onFilterChange koja prosleđuje nove filtere
+  onFilterChange({
+    ...filters,
+    cena: `${e.min}-${e.max}`,
+  });
+}, [handleChange, filters, onFilterChange, router]);
+
+
 
   function ocistiImeAtributa(ime: string): string {
     if (!ime) return '';

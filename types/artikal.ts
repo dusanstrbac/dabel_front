@@ -64,8 +64,8 @@ export type ArtikalAtribut = {
 export interface ListaArtikalaProps {
   artikli: any[];
   atributi: AtributiResponse; // Promenjeno iz ArtikalAtribut[] u AtributiResponse
-  kategorija: string;
-  podkategorija: string | null;
+  kategorija?: string;
+  podkategorija?: string | null;
   totalCount: number;
   currentPage: number;
   pageSize?: number;
@@ -94,7 +94,7 @@ export interface ArtikalFilterProp {
   RobnaMarka: string[];
   Upotreba: string[];
   Boja: string[];
-  
+
   [key: string]: string | string[] | undefined; // Dodaj indeksnu potpisu
 }
 

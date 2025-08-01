@@ -1,10 +1,8 @@
 'use client';
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { AritkalKorpaType } from "@/types/artikal";
 import { DokumentInfo, StavkaDokumenta } from "@/types/dokument";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
-import korisnici from "@/app/[korisnik]/profil/korisnici/page";
 import { useParams } from "next/navigation";
 
 
@@ -57,10 +55,11 @@ const DokumentPage = () => {
       try {
         setIsLoading(true);
         
-        const PartnerResponse = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${korisnik?.email}`);
+        const PartnerResponse = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${korisnik?.korisnickoIme}`);
         if (!PartnerResponse.ok) throw new Error('Greška pri dohvatanju partnera');
         const partnerData = await PartnerResponse.json();
-        
+        console.log(partnerData);
+
         const DokumentResponse = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?brojDokumenta=${brojDokumenta}&idPartnera=${korisnik?.idKorisnika}`);
         if (!DokumentResponse.ok) throw new Error('Greška pri dohvatanju dokumenta');
         const dokument = await DokumentResponse.json();
@@ -153,9 +152,9 @@ const DokumentPage = () => {
           {/* KONTAKT OSOBA */}
           <div className="border border-black p-4 w-[48%]">
             <h1 className="font-bold mb-2">Kontakt osoba:</h1>
-            <p>Ime i prezime: {partnerInfo?.komercijalisti?.naziv || "Nepoznato"}</p>
-            <p>Mob. telefon: {partnerInfo?.komercijalisti?.telefon || "Nepoznato"}</p>
-            <p>Email adresa: {partnerInfo?.komercijalisti?.email || "Nepoznato"}</p>
+            <p>Ime i prezime: {partnerInfo?.partnerDostava[0]?.kontaktOsoba || "Nepoznato"}</p>
+            <p>Mob. telefon: {partnerInfo?.partnerDostava[0]?.telefon || "Nepoznato"}</p>
+            <p>Email adresa: {partnerInfo?.partnerDostava[0]?.email || "Nepoznato"}</p>
           </div>
 
           
@@ -163,7 +162,7 @@ const DokumentPage = () => {
           <div className="border border-black p-4 w-[48%]">
             <p>Partner: {partnerInfo.idPartnera || "?"}</p>
             <h3 className="mb-2 font-bold">{partnerInfo.ime || "Nepoznaaaato"}</h3>
-            <p>{partnerInfo.adresa}, {partnerInfo.grad}</p>
+            <p>Adresa: {partnerInfo.adresa}, {partnerInfo.grad}</p>
             <p>Mob. telefon: {partnerInfo.telefon}</p>
             <p>Email: {partnerInfo.email}</p>
           </div>
@@ -239,7 +238,7 @@ const DokumentPage = () => {
         {ukupno.ukupnoSaPDV < minCena && (
           <div className="flex gap-[32px] w-full justify-end">
             <span>Dostava:</span>
-            
+              IZVUCI DOSTAVU IZ BAZE
             <span>1000 RSD</span>
           </div>
         )}

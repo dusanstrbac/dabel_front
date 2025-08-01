@@ -6,13 +6,13 @@ import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { getCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
   lozinka: z.string().min(4, 'Lozinka mora imati najmanje 4 karaktera'),
-  novalozinka: z.string().min(4, 'Lozinka mora imati najmanje 4 karaktera'),
-  plozinka: z.string().min(4, 'Lozinka mora imati najmanje 4 karaktera'),
+  novalozinka: z.string().min(6, 'Lozinka mora imati najmanje 6 karaktera'),
+  plozinka: z.string().min(6, 'Lozinka mora imati najmanje 6 karaktera'),
 });
 
 export default function Podesavanja() {
@@ -61,16 +61,15 @@ export default function Podesavanja() {
       return res.text();
     })
     .then((msg) => {
-      alert(msg);
+      toast.success(msg);
       form.reset();
     })
     .catch((err) => {
-      alert(`Greska ${err}`);
+      toast.error(`${err}`);
     })
 
   }
 
-  // Ne renderuj sadržaj dok se stranica ne "hidratira" na klijentu
   if (!isMounted) {
     return null;
   }

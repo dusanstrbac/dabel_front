@@ -4,7 +4,7 @@ import ListaArtikala from "@/components/ListaArtikala";
 import SortiranjeButton from "@/components/SortiranjeButton";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { fetcher } from "@/lib/fetcher";
-import { ArtikalType } from "@/types/artikal";
+import { ArtikalAtribut, ArtikalFilterProp, ArtikalType } from "@/types/artikal";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
@@ -14,12 +14,18 @@ const Novo = () => {
   type SortOrder = 'asc' | 'desc';
 
   const [artikli, setArtikli] = useState<ArtikalType[]>([]);
+  const [atributi, setAtributi] = useState<{ [artikalId: string]: ArtikalAtribut[] }>({});
+  
   const [sortKey, setSortKey] = useState<SortKey>('naziv');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize] = useState(8);
+  const [loading, setLoading] = useState(true);
+  const [err, setError] = useState<string | null>(null);
+
+
 
   const router = useRouter();
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
@@ -40,6 +46,34 @@ const Novo = () => {
       shouldRetryOnError: false,
     }
   );
+
+  const handleFilterChange = async (filters: ArtikalFilterProp) => {
+      setLoading(true);
+      setError(null);
+    
+      try {
+        const query = new URLSearchParams();
+        if (filters.naziv) query.append('naziv', filters.naziv);
+        if (filters.cena) query.append('cena', filters.cena);
+    
+        for (const key of ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja']) {
+          const vrednosti = filters[key as keyof ArtikalFilterProp];
+          if (Array.isArray(vrednosti)) {
+            vrednosti.forEach((val) => query.append(key, val));
+          }
+        }
+    
+        query.set('page', '1');  // Resetovanje stranice
+        query.set('sortKey', sortKey);
+        query.set('sortOrder', sortOrder);
+    
+        router.push(`${window.location.pathname}?${query.toString()}`);
+      } catch (err) {
+        setError('Došlo je do greške pri filtriranju.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
   // Load from SWR response or localStorage only once
   useEffect(() => {
@@ -83,15 +117,19 @@ const Novo = () => {
         />
       </div>
       <div>
-        {error && <p>Greška prilikom učitavanja artikala.</p>}
+        {err && <p>Greška prilikom učitavanja artikala.</p>}
         {!data && artikli.length === 0 && <p>Učitavanje...</p>}
         {artikli.length > 0 && (
-          <ListaArtikala
-            artikli={artikli}
-            totalCount={totalCount}
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-          />
+        <ListaArtikala
+          artikli={artikli}
+          atributi={atributi || {}}  // Prosleđivanje atributa
+          totalCount={totalCount}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          loading={loading}
+          onPageChange={handlePageChange}
+          onFilterChange={handleFilterChange} // Filtriranje (ako bude potrebno)
+        />
         )}
       </div>
     </div>

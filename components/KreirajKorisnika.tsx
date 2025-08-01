@@ -61,8 +61,6 @@ const KreirajKorisnika = () => {
       partner: partner?.idKorisnika,
     };
 
-    console.log(payload);
-
     try {
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
       const res = await fetch(`${apiAddress}/api/Partner/KreirajKorisnika`, {
@@ -78,7 +76,9 @@ const KreirajKorisnika = () => {
       if (res.ok) {
         toast.success(data.message || "Uspešno ste kreirali korisnika");
         setOpen(false);
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 500); // 500ms delay
       } else {
         toast.error(data.message || "Greška prilikom kreiranja korisnika");
       }

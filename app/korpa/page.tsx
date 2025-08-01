@@ -68,8 +68,6 @@ const Korpa = () => {
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     const url = `${apiAddress}/api/Artikal/DajArtikalPoId?idPartnera=${korisnik?.idKorisnika}&${queryString}`;
 
-
-
     const fetchArticles = async () => {
       try {
         const response = await fetch(url);
@@ -96,13 +94,13 @@ const Korpa = () => {
           return;
       }
 
-      const email = korisnik.email;
-
+      const idPartnera = korisnik?.korisnickoIme;
       try {
-          const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${email}`);
+          const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}`);
           const data = await res.json();
           const fPartner = data[0] as KorisnikPodaciType;
           setPartner(fPartner);
+          console.log(data);
 
           if (fPartner.partnerRabat.rabat) {
             setRabatPartnera(fPartner.partnerRabat.rabat);

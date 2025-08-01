@@ -15,10 +15,20 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ArtikalFilterProp, ListaArtikalaProps } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 
-const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCount, currentPage, onPageChange, loading = false, onFilterChange }: ListaArtikalaProps) => {
+const ListaArtikala = ({
+  artikli,
+  atributi,
+  kategorija,
+  podkategorija,
+  totalCount,
+  currentPage,
+  onPageChange,
+  loading = false,
+  onFilterChange,
+}: ListaArtikalaProps) => {
   const artikliPoStrani = 8;
   const router = useRouter();
-  const pathname = usePathname(); // Dobijanje pathname-a
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const trenutnaStrana = currentPage;
   const korisnik = dajKorisnikaIzTokena();
@@ -35,81 +45,60 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
     Boja: [],
   });
 
-  const [noResults, setNoResults] = useState(false); // State za prikazivanje poruke "Nema artikala"
+  const [noResults, setNoResults] = useState(false);
 
   const brojStranica = useMemo(() => {
     const br = Math.ceil(totalCount / artikliPoStrani);
     return br < 1 ? 1 : br;
   }, [totalCount]);
 
-  const prikazaniArtikli = artikli;
+  // Prikazivanje artikala prema trenutnoj stranici
+  const prikazaniArtikli = useMemo(() => {
+    const startIndex = (trenutnaStrana - 1) * artikliPoStrani;
+    return artikli.slice(startIndex, startIndex + artikliPoStrani);
+  }, [artikli, trenutnaStrana]);
 
-  // Funkcija za menjanje strane i update URL-a bez reloada
+  // Funkcija za menjanje strane i update URL-a
   const idiNaStranu = (broj: number, noviFilteri: any, event?: React.MouseEvent) => {
     if (event) event.preventDefault();
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return;
 
-    // Kreiraj objekat sa svim filterima i trenutnim parametrima
     const noviUpit = new URLSearchParams();
-
     searchParams.forEach((value, key) => {
       if (value.trim() !== '') {
         noviUpit.append(key, value);
       }
     });
-
     noviUpit.set('page', broj.toString());
-
     router.push(`${pathname}?${noviUpit.toString()}`);
   };
 
-  // Funkcija koja se poziva nakon što se filteri promene
   useEffect(() => {
     if (artikli.length === 0) {
-      setNoResults(true); // Ako nema artikala, setuj status za poruku
+      setNoResults(true);
     } else {
-      setNoResults(false); // Ako ima artikala, nema potrebe za prikazivanjem poruke
+      setNoResults(false);
     }
   }, [artikli]);
 
-  async function fetchArtikliSaFilterima(filters: ArtikalFilterProp) {
-    const query = new URLSearchParams();
-
-    if (filters.naziv) query.append('naziv', filters.naziv);
-    if (filters.cena) query.append('cena', filters.cena);
-
-    for (const key of ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja']) {
-      const vrednosti = filters[key as keyof ArtikalFilterProp];
-      if (Array.isArray(vrednosti)) {
-        vrednosti.forEach((val) => query.append(key, val));
-      }
-    }
-
-    const res = await fetch(`/api/Artikal/DajArtikleSaPaginacijom?${query.toString()}`);
-    const data = await res.json();
-    // setArtikli(data.artikli)
-  }
-
   return (
     <div className="flex flex-col md:flex-row w-full px-1 gap-4">
-      {/* Filter sekcija */}
       <div className="w-full md:w-1/4">
-        {/* Možeš ovde dodati <ArtikalFilter /> ili slično ako budeš koristio filtere */}
         <ArtikalFilter
           artikli={artikli}
           atributi={atributi}
-          kategorija={kategorija}
-          podkategorija={podkategorija}
-          onFilterChange={onFilterChange} />
+          kategorija={kategorija || ''}
+          podkategorija={podkategorija || ''}
+          onFilterChange={onFilterChange}
+        />
       </div>
 
-      {/* Lista artikala */}
       <div className="w-full md:w-3/4">
         <div className="relative">
           <div
-            className={`grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle
-            transition-opacity duration-300
-            ${loading ? 'opacity-50 pointer-events-none' : ''}`}
+            className={`grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle transition-opacity duration-300 ${
+              loading ? 'opacity-50 pointer-events-none' : ''
+            }`}
           >
             {prikazaniArtikli.map((artikal, idx) => (
               <ArticleCard
@@ -129,7 +118,6 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
           </div>
         </div>
 
-        {/* Prikazivanje poruke kada nema artikala */}
         {noResults && (
           <p className="text-center py-5 text-red-500">Nema artikala koji odgovaraju izabranim filterima.</p>
         )}
