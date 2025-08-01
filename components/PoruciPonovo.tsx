@@ -23,7 +23,7 @@ const PoruciPonovo = () => {
   const [cart, setCart] = useState<Record<string, { kolicina: number }> | null>(null);
   const router = useRouter();
   const korisnik = dajKorisnikaIzTokena();
-  const idKorisnika = korisnik?.idKorisnika;
+  const idKorisnika = korisnik?.partner;
 
   useEffect(() => {
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;

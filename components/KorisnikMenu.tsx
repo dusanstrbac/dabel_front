@@ -98,13 +98,16 @@ export default function KorisnikMenu() {
       { icon: <FileText className="h-4 w-4" />, text: 'Narudžbenica', href: `/${username}/profil/narudzbenica` },
       { icon: <Wallet className="h-4 w-4" />, text: 'Moje uplate', href: `/${username}/profil/uplate` },
       { icon: <Package className="h-4 w-4" />, text: 'Poslata roba', href: `/${username}/profil/roba` },
+      { icon: <BadgeDollarSign className="h-4 w-4" />, text: 'Cenovnik', onClick: preuzmiCenovnik },
+      //{ icon: <Youtube className="h-4 w-4" />, text: 'Video uputstva', href: '/video' },
+    ] : []),
+    ...(uloga === "PARTNER" ? [
       { icon: <Users className="h-4 w-4" />, text: 'Korisnici', href: `/${username}/profil/korisnici` },
-      { icon: <BadgeDollarSign className="h-4 w-4" />, text: 'Cenovnik', onClick: preuzmiCenovnik }, // 👈 OVDE
-      { icon: <Youtube className="h-4 w-4" />, text: 'Video uputstva', href: '/video' },
     ] : []),
     ...(uloga === 'PARTNER' || uloga === 'ADMINISTRATOR' || uloga === 'PODKORISNIK' ? [
       { icon: <Key className="h-4 w-4" />, text: 'Promena lozinke', href: `/${username}/profil/podesavanja` },
     ] : []),
+
   ];
 
   return (

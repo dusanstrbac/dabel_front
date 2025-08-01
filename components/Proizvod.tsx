@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import PreporuceniProizvodi from "@/components/PreporuceniProizvodi";
 import DodajUOmiljeno from "@/components/DodajUOmiljeno";
 import AddToCartButton from "./AddToCartButton";
 import ClientLightbox from "./ui/ClientLightbox";
@@ -13,6 +12,7 @@ import { CircleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "./ui/input";
 import { DokumentInfo } from "@/types/dokument";
+import PoruciPonovo from "./PoruciPonovo";
 
 
 // Dinamički uvoz Lightbox-a
@@ -69,7 +69,6 @@ export default function Proizvod() {
 
         const data = await res.json();
         if (!data || data.length === 0) throw new Error("Proizvod nije pronađen");
-        console.log(data);
         const osnovni: ArtikalType = data[0];
         setProizvod(osnovni);
 
@@ -136,7 +135,6 @@ export default function Proizvod() {
 
         if (response.ok) {
           const data = await response.json();
-          console.log(data);
           setDatumPonovnogStanja(data.datumPonovnogStanja || null);
           setPristiglaKolicina(data.kolicina || 0);
         } else {
@@ -429,7 +427,7 @@ export default function Proizvod() {
 
       {/* Preporučeni proizvodi */}
       <div className="mt-[50px]">
-        <PreporuceniProizvodi />
+        <PoruciPonovo />
       </div>
 
       {/* Lightbox za slike */}

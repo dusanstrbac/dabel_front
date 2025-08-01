@@ -27,6 +27,10 @@ interface KorisnikDostavaType {
     grad: string,
     drzava: string,
     postBroj: string,
+    opstina: string,
+    kontaktOsoba: string,
+    telefon: string,
+    email: string
 }
 
 interface KorisnikRabatType {

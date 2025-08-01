@@ -1,13 +1,14 @@
 'use client';
 import ListaArtikala from "@/components/ListaArtikala";
 import SortiranjeButton from "@/components/SortiranjeButton";
-import { ArtikalType } from "@/types/artikal";
+import { ArtikalAtribut, ArtikalFilterProp, ArtikalType } from "@/types/artikal";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 const Akcije = () => {
   const [artikli, setArtikli] = useState<ArtikalType[]>([]);
+  const [atributi, setAtributi] = useState<{ [artikalId: string]: ArtikalAtribut[] }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
@@ -35,6 +36,33 @@ const Akcije = () => {
     }
   }, [searchParams]);
 
+  const handleFilterChange = async (filters: ArtikalFilterProp) => {
+    setLoading(true);
+    setError(null);
+  
+    try {
+      const query = new URLSearchParams();
+      if (filters.naziv) query.append('naziv', filters.naziv);
+      if (filters.cena) query.append('cena', filters.cena);
+  
+      for (const key of ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja']) {
+        const vrednosti = filters[key as keyof ArtikalFilterProp];
+        if (Array.isArray(vrednosti)) {
+          vrednosti.forEach((val) => query.append(key, val));
+        }
+      }
+  
+      query.set('page', '1');  // Resetovanje stranice
+      query.set('sortKey', sortKey);
+      query.set('sortOrder', sortOrder);
+  
+      router.push(`${window.location.pathname}?${query.toString()}`);
+    } catch (err) {
+      setError('Došlo je do greške pri filtriranju.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchAkcijeArtikli = async () => {
   try {
@@ -91,12 +119,16 @@ const Akcije = () => {
         <p className="text-center text-red-600 mt-4">{error}</p>
       ) : (
         <>
-          <ListaArtikala
-            artikli={artikli}
-            totalCount={totalCount}
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-          />
+        <ListaArtikala
+          artikli={artikli}
+          atributi={atributi || {}}  // Prosleđivanje atributa
+          totalCount={totalCount}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          loading={loading}
+          onPageChange={handlePageChange}
+          onFilterChange={handleFilterChange} // Filtriranje (ako bude potrebno)
+        />
         </>
       )}
     </div>

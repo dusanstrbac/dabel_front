@@ -12,14 +12,12 @@ const ProfilPodaci = () => {
     const fetchKorisnikData = async () => {
       try {
         const korisnik = dajKorisnikaIzTokena();
-        const idPartnera = korisnik?.partner;
+        const idPartnera = korisnik?.korisnickoIme;
 
         if (!korisnik) {
           setLoading(false);
           return;
         }
-
-        const emailEncoded = korisnik.email.replace('@', '%40');
 
         setLoading(true);
         setError(null);

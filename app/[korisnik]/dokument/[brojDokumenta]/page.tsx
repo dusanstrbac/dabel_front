@@ -21,7 +21,7 @@ export default function PrikazDokumenta() {
     const fetchDokument = async () => {
       try {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const res = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?brojDokumenta=${brojDokumenta}&idPartnera=${korisnik?.idKorisnika}`);
+        const res = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?brojDokumenta=${brojDokumenta}&idPartnera=${korisnik?.partner}&idKorisnika=${korisnik?.idKorisnika}`);
         if (!res.ok) throw new Error('Greška pri učitavanju dokumenta.');
 
         const data = await res.json();
@@ -91,13 +91,27 @@ export default function PrikazDokumenta() {
             </tbody>
           </table>
         </div>
+        {/* Ukupna cena i dostava */}
+        <div className="mt-6 text-right space-y-1">
+          <div>
+            <span className="text-lg text-gray-600 mr-2">Dostava:</span>
+            <span className="text-lg font-semibold text-blue-700">
+              {dokument.dostava == null || dokument.dostava === 0
+                ? "Besplatna dostava"
+                : `${dokument.dostava.toLocaleString('sr-RS')} RSD`}
+            </span>
+          </div>
 
-        {/* Ukupna cena */}
-        <div className="mt-6 text-right">
-          <span className="text-lg text-gray-600 mr-2">Ukupno:</span>
-          <span className="text-2xl font-bold text-blue-700">
-            {dokument.stavkeDokumenata?.reduce((sum: number, s: any) => sum + s.ukupnaCena, 0).toFixed(2)} RSD
-          </span>
+          <div>
+            <span className="text-lg text-gray-600 mr-2">Ukupno:</span>
+            <span className="text-2xl font-bold text-blue-700">
+              {(
+                dokument.stavkeDokumenata?.reduce((sum: number, s: any) => sum + s.ukupnaCena, 0) +
+                (dokument.dostava ?? 0)
+              ).toLocaleString('sr-RS')}{" "}
+              RSD
+            </span>
+          </div>
         </div>
       </div>
     </div>

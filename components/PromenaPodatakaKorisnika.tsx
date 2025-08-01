@@ -13,6 +13,7 @@ import {
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
+import { delay } from "framer-motion";
 
 interface Korisnik {
   korisnickoIme: string;
@@ -59,7 +60,10 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
         try {
           const data = await res.json();
           toast.success(data.message || "Dozvola je uspešno ažurirana");
-
+          setOpen(false);
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
         } catch (jsonError) {
           const errorText = await res.text();
           toast.error(errorText);
@@ -118,7 +122,7 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="korisnickoIme">Korisničko ime</Label>
-            <Input value={korisnickoIme} disabled /> {/* Onemogućeno za unos */}
+            <Input value={korisnickoIme} disabled />
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="lozinka">Lozinka</Label>
@@ -131,7 +135,7 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="email">Email</Label>
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} /> {/* Email je sada menjan */}
+            <Input value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="telefon">Telefon</Label>
