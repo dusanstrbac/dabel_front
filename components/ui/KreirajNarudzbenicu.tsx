@@ -44,7 +44,7 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
     //         }
     //     }
     // }, []);
-
+    console.log("kuracdostava", dostava);
 
     const handleClick = async () => {
 
@@ -66,12 +66,9 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
             stavkeDokumenata: artikli.map((value) => ({
                 idArtikla: value.idArtikla.toString() || "",
                 nazivArtikla: value.naziv || "",
-                cena: value.koriscenaCena,
                 jm: value.jm,
-                originalnaCena: value.originalnaCena,
                 kolicina: value.kolicina.toString() || "0",
                 pdv: value.pdv.toString() || "20",
-                ukupnaCena: value.IznosSaPDV,
             })),
         };
 

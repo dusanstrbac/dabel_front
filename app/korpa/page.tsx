@@ -284,7 +284,12 @@ const Korpa = () => {
     fetchDozvole();
   }, [korisnik, apiAddress]);
 
-  const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina;
+  const raspolozivoStanje = korisnik?.finKarta?.raspolozivoStanje;
+  const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina || Number(raspolozivoStanje) < totalAmountWithPDV;
+  
+
+    if ( Number( raspolozivoStanje ) < totalAmountWithPDV ) { toast.error("Prekoračili ste dozvoljeno zaduženje!"); }
+
 
   
   const razlogZabraneNarucivanja = narucivanjeDisabled

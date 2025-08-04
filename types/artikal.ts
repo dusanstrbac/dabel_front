@@ -12,14 +12,25 @@ export type ArtikalType = {
   artikalAtributi: ArtikalAtribut[];
 };
 
+
+export interface ArtikalAtribut = {
+  idArtikla: string;
+  imeAtributa: string;
+  vrednost: string;
+}
+
+export type AtributiResponse = Record<string, ArtikalAtribut[]>;
+
+
+
 export type AritkalKorpaType = {
   idArtikla: string;
   jm: string;
   naziv: string;
   kolicina: number;
-  originalnaCena: number;
-  IznosSaPDV: number;
-  koriscenaCena: number;
+  originalnaCena?: number;
+  IznosSaPDV?: number;
+  koriscenaCena?: number;
   pdv: number;
   rabat: number;
 }

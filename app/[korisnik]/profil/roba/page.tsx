@@ -1,4 +1,4 @@
-import FormTable from "@/components/FormTable";
+import FormTable from "@/components/UplateTable";
 
 const Roba = () => {
     return (
