@@ -7,20 +7,10 @@ export type ArtikalType = {
   kategorijaId: string;
   status?: string;
   kolZaIzdavanje?: number;
-  originalnaCena?: number;
+  // originalnaCena?: number;
   artikalCene: ArtikalCena[];
   artikalAtributi: ArtikalAtribut[];
 };
-
-
-export interface ArtikalAtribut = {
-  idArtikla: string;
-  imeAtributa: string;
-  vrednost: string;
-}
-
-export type AtributiResponse = Record<string, ArtikalAtribut[]>;
-
 
 
 export type AritkalKorpaType = {
@@ -86,7 +76,7 @@ export interface ListaArtikalaProps {
 
 }
 
-interface AtributiResponse {
+export type AtributiResponse = {
   [artikalId: string]: ArtikalAtribut[];
 }
 
