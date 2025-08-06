@@ -93,6 +93,7 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZ
 
   const cenaArtikla = artikalCene?.[0]?.cena ?? 0;
   const novaCena = artikalCene?.[0]?.akcija?.cena ?? null;
+  console.log("koja cena je nova cena", novaCena);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -128,15 +129,6 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZ
         <h2 className="text-md lg:text-lg font-semibold text-center break-words leading-tight line-clamp-3">
           {naziv}
         </h2>
-
-        {/* {kolZaIzdavanje && kolZaIzdavanje > 1 ? (
-          <p className="text-xs text-gray-500">
-            Pakovanje: {kolZaIzdavanje} kom
-          </p>
-        ):(
-          <p>NEMA KOLICINE</p>
-          //ovo ovde ne stize
-        )} */}
 
         <p
           className={`text-xs text-center text-gray-600 italic transition-all duration-200 ${

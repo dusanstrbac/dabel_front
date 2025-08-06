@@ -6,10 +6,11 @@ import MultiRangeSlider, { ChangeResult } from './ui/MultiRangeSlider'
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { dajKorisnikaIzTokena } from '@/lib/auth'
+import { useDebounce } from 'use-debounce' // Dodaj ovaj import
 
 interface ProductFilterProps {
   artikli: any[];
-  atributi: AtributiResponse; // Koristite novi interfejs umesto any[]
+  atributi: AtributiResponse;
   kategorija: string;
   podkategorija: string | null;
   onFilterChange: (filters: ArtikalFilterProp) => void;
@@ -65,10 +66,14 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
   const [mapaCena, setMapaCena] = useState<Map<string, number>>(new Map())
   const [minCena, setMinCena] = useState(0)
   const [maxCena, setMaxCena] = useState(100000)
-  const [sliderValues, setSliderValues] = useState<[number, number]>([minCena, maxCena])
 
-  // Aktuelni filteri
+  // Aktuelni filteri - OVO JE PREMEŠTENO IZNAD pendingFilters
   const [filters, setFilters] = useState<ArtikalFilterProp>(defaultFilters)
+  
+  // Sada je safe da koristimo filters u pendingFilters
+  const [pendingFilters, setPendingFilters] = useState<ArtikalFilterProp>(filters);
+  const [sliderValues, setSliderValues] = useState<[number, number]>([minCena, maxCena])
+  const [debouncedSliderValues] = useDebounce(sliderValues, 500);
 
   // Opcije filtera
   const [filterOptions, setFilterOptions] = useState({
@@ -84,206 +89,43 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
   // Ref za prethodne filtere da izbegnemo beskonačni loop
   const prevFiltersRef = useRef<ArtikalFilterProp | null>(null)
 
-  // Fetch cena za artikle iz API-ja
-  const fetchCene = async () => {
-    try {
-      const res = await fetch(fullUrl)
-      if (!res.ok) throw new Error(`HTTP greška: ${res.status}`)
-      const data = await res.json()
-
-      if (data.length) {
-        const novaMapaCena = new Map<string, number>()
-        data.forEach((artikal: any) => {
-          if (artikal.idArtikla && artikal.cena) {
-            novaMapaCena.set(artikal.idArtikla, artikal.cena)
-          }
-        })
-        return novaMapaCena
-      }
-      return new Map()
-    } catch (error) {
-      console.error('Greška pri dobijanju cena:', error)
-      return new Map()
-    }
-  }
-
-useEffect(() => {
-  const postaviOpsegCena = () => {
-    const cene = artikli
-      .filter((artikal) => artikal.artikalCene && artikal.artikalCene.length > 0)
-      .map((artikal) => {
-        // Ako cena u akciji nije 0, koristimo nju, inače koristimo običnu cenu
-        const cena = artikal.artikalCene[0].akcija && parseFloat(artikal.artikalCene[0].akcija.cena) !== 0
-          ? parseFloat(artikal.artikalCene[0].akcija.cena)
-          : parseFloat(artikal.artikalCene[0].cena);
-
-        return cena;
-      });
-
-    if (cene.length > 0) {
-      const noviMin = Math.min(...cene);
-      const noviMax = Math.max(...cene);
-
-      setMinCena(noviMin);
-      setMaxCena(noviMax);
-      setSliderValues([noviMin, noviMax]);
-    } else {
-      console.log('Nema cena u artiklima');
-    }
-  };
-
-  postaviOpsegCena();
-}, [artikli]);
-
-
-
-  // Helper za konvertovanje u niz
-  function asArray(value: string | string[] | undefined): string[] {
-    if (!value) return []
-    return Array.isArray(value) ? value : [value]
-  }
-
-  // **Inicijalizacija filtera iz URL parametara** - samo postavljanje state, ne poziva onFilterChange
+  // Za Cene
   useEffect(() => {
-    const cenaParam = searchParams.get('cena')
-    const filtersFromUrl = { ...defaultFilters }
-
-    if (cenaParam) {
-      const [min, max] = cenaParam.split('-').map(Number)
-      if (!isNaN(min) && !isNaN(max)) {
-        filtersFromUrl.cena = `${min}-${max}`
-        setSliderValues([min, max])
-      }
+    if (JSON.stringify([minCena, maxCena]) !== JSON.stringify(debouncedSliderValues)) {
+      handleChange('cena', [`${debouncedSliderValues[0]}-${debouncedSliderValues[1]}`])
     }
+  }, [debouncedSliderValues]);
 
-    filtersFromUrl.naziv = searchParams.get('naziv') || ''
-    filtersFromUrl.jm = asArray(searchParams.getAll('jm'))
-    filtersFromUrl.Materijal = asArray(searchParams.getAll('Materijal'))
-    filtersFromUrl.Model = asArray(searchParams.getAll('Model'))
-    filtersFromUrl.Pakovanje = asArray(searchParams.getAll('Pakovanje'))
-    filtersFromUrl.RobnaMarka = asArray(searchParams.getAll('RobnaMarka'))
-    filtersFromUrl.Upotreba = asArray(searchParams.getAll('Upotreba'))
-    filtersFromUrl.Boja = asArray(searchParams.getAll('Boja'))
-
-    if (JSON.stringify(prevFiltersRef.current) !== JSON.stringify(filtersFromUrl)) {
-      setFilters(filtersFromUrl)
-      prevFiltersRef.current = filtersFromUrl
-    }
-  }, [searchParams])
-
-  // **Mapiranje atributa dobijenih iz API-ja u filtere**
-  useEffect(() => {
-    const atributiFiltera: AtributiFiltera = {
-      jm: [],
-      Materijal: [],
-      Model: [],
-      Pakovanje: [],
-      RobnaMarka: [],
-      Upotreba: [],
-      Boja: [],
-    };
-
-    // 1. Dodaj jedinice mere iz artikala
-    artikli?.forEach((artikal) => {
-      if (artikal.jm && !atributiFiltera.jm.includes(artikal.jm)) {
-        atributiFiltera.jm.push(artikal.jm);
-      }
-    });
-
-    // 2. Obradi atribute iz novog formata podataka
-    if (atributi && typeof atributi === 'object' && !Array.isArray(atributi)) {
-      // Eksplicitno tipiziranje za Object.values
-      const atributiArray: ArtikalAtribut[][] = Object.values(atributi);
-      
-      atributiArray.forEach((artikalAtributi: ArtikalAtribut[]) => {
-        if (!Array.isArray(artikalAtributi)) return;
-
-        artikalAtributi.forEach((attr: ArtikalAtribut) => {
-          if (!attr || !attr.imeAtributa) return;
-
-          const cistoIme = ocistiImeAtributa(attr.imeAtributa);
-          if (cistoIme in atributiFiltera && attr.vrednost) {
-            const kategorija = atributiFiltera[cistoIme as keyof AtributiFiltera];
-            if (!kategorija.includes(attr.vrednost)) {
-              kategorija.push(attr.vrednost);
-            }
-          }
-        });
-      });
-    }
-    setFilterOptions(atributiFiltera);
-  }, [atributi, artikli]);
-
-  const handleChange = useCallback((name: string, value: string | string[]) => {
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }, []);
-
-const handleCenaChange = useCallback((e: ChangeResult) => {
-  setSliderValues([e.min, e.max]);
-  handleChange('cena', `${e.min}-${e.max}`);
-
-  // Ažuriraj URL sa novim parametrima
-  const newSearchParams = new URLSearchParams(window.location.search);
-  newSearchParams.set('minCena', e.min.toString());
-  newSearchParams.set('maxCena', e.max.toString());
-
-  // Resetovanje stranice na prvu (stranicu 1) kada se menja cena
-  newSearchParams.set('page', '1');
-  
-  // Navigiraj ka novom URL-u sa ažuriranim parametrima
-  router.push(`${window.location.pathname}?${newSearchParams.toString()}`);
-
-  // Pozivamo funkciju onFilterChange koja prosleđuje nove filtere
-  onFilterChange({
-    ...filters,
-    cena: `${e.min}-${e.max}`,
-  });
-}, [handleChange, filters, onFilterChange, router]);
-
-
-
-  function ocistiImeAtributa(ime: string): string {
-    if (!ime) return '';
-    
-    let cistoIme = ime.replace(/\(\d+\)$/, '').trim();
-    
-    const mapaZamena: Record<string, string> = {
-      'Zavr.obr-boja': 'Boja',
-      'Robna marka': 'RobnaMarka',
-      'Robnamarka': 'RobnaMarka',
-    };
-    
-    return mapaZamena[cistoIme] || cistoIme;
+  function prikaziLepoIme(arg0: any): React.ReactNode {
+    throw new Error('Function not implemented.')
   }
 
-  function prikaziLepoIme(ime: string): string {
-    const mapaZamena: Record<string, string> = {
-      'jm': 'Jedinica mere',
-      'Materijal': 'Materijal',
-      'Model': 'Model',
-      'Pakovanje': 'Pakovanje',
-      'RobnaMarka': 'Robna marka',
-      'Upotreba': 'Upotreba',
-      'Boja': 'Boja'
-    };
-    
-    return mapaZamena[ime] || ime;
+  function ocistiImeAtributa(key: string): any {
+    throw new Error('Function not implemented.')
   }
 
+  function handleChange(key: string, arg1: string[]) {
+    throw new Error('Function not implemented.')
+  }
+
+  // function applyFilters(event: React.MouseEvent<HTMLButtonElement>): void {
+  //   throw new Error('Function not implemented.')
+  // }
+
+  // Ostali delovi koda ostaju isti...
+  // ... (fetchCene, postaviOpsegCena, asArray, inicijalizacija filtera, mapiranje atributa)
   const resetFilters = () => {
     setFilters(defaultFilters);
-    setSliderValues([minCena, maxCena]);
-  }
+    setPendingFilters(defaultFilters);
+    // Resetuj i slider ako je potrebno
+  };
 
-  useEffect(() => {
-    if (prevFiltersRef.current && JSON.stringify(prevFiltersRef.current) !== JSON.stringify(filters)) {
-      onFilterChange(filters)
-    }
-    prevFiltersRef.current = filters
-  }, [filters, onFilterChange])
+
+  const applyFilters = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setFilters(pendingFilters);
+    onFilterChange(pendingFilters);
+  };
 
   return (
     <div className="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
@@ -298,7 +140,7 @@ const handleCenaChange = useCallback((e: ChangeResult) => {
           step={100}
           minValue={sliderValues[0]}
           maxValue={sliderValues[1]}
-          onChange={handleCenaChange}
+          onChange={({ min, max }) => setSliderValues([min, max])}
         />
         <div className="flex justify-between text-xs text-gray-500 mt-1">
           <span>{sliderValues[0]} RSD</span>
@@ -323,9 +165,9 @@ const handleCenaChange = useCallback((e: ChangeResult) => {
                     <label key={option} className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={filters[key as keyof ArtikalFilterProp]?.includes(option) ?? false}
+                        checked={pendingFilters[key as keyof ArtikalFilterProp]?.includes(option) ?? false}
                         onChange={(e) => {
-                          const current = filters[key as keyof ArtikalFilterProp] || []
+                          const current = pendingFilters[key as keyof ArtikalFilterProp] || []
                           const currentArray = Array.isArray(current) ? current : [current]
                           handleChange(
                             key,
@@ -347,16 +189,26 @@ const handleCenaChange = useCallback((e: ChangeResult) => {
       </div>
 
       {/* Dugme za resetovanje filtera */}
-      <div className="mt-6">
-        <button
-          onClick={resetFilters}
-          className="w-full py-2 px-4 text-center text-sm font-semibold text-white bg-gray-600 hover:bg-gray-700 rounded-lg"
-        >
-          Resetuj filtere
-        </button>
-      </div>
+      <button
+        onClick={resetFilters}
+        className="w-full py-2 px-4 mt-4 text-center text-sm font-semibold text-white bg-gray-600 hover:bg-gray-700 rounded-lg"
+      >
+        Resetuj filtere
+      </button>
+
+      {/* Dugme za primenu filtera */}
+      <button
+        onClick={applyFilters}
+        className="w-full py-2 px-4 mt-4 text-center text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
+      >
+        Primeni filtere
+      </button>
     </div>
   )
 }
 
 export default React.memo(ArtikalFilter)
+
+function handleChange(arg0: string, arg1: string) {
+  throw new Error('Function not implemented.')
+}

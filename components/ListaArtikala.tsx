@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import ArticleCard from "./ArticleCard";
 import ArtikalFilter from "./ArtikalFilter";
 import {
@@ -26,6 +26,17 @@ const ListaArtikala = ({
   loading = false,
   onFilterChange,
 }: ListaArtikalaProps) => {
+
+  console.log('Primljeni podaci u ListaArtikala:', {
+    artikli,
+    atributi,
+    kategorija,
+    podkategorija,
+    totalCount,
+    currentPage,
+    loading
+  });
+
   const artikliPoStrani = 8;
   const router = useRouter();
   const pathname = usePathname();
@@ -33,6 +44,7 @@ const ListaArtikala = ({
   const trenutnaStrana = currentPage;
   const korisnik = dajKorisnikaIzTokena();
   const idPartnera = korisnik?.idKorisnika;
+  const MemoizedArticleCard = React.memo(ArticleCard);
 
   const [filteri, setFilteri] = useState<ArtikalFilterProp>({
     naziv: '',
@@ -120,19 +132,23 @@ const ListaArtikala = ({
             }`}
           >
             {prikazaniArtikli.map((artikal, idx) => (
-              <ArticleCard
+              // <ArticleCard
+              //   key={artikal.idArtikla ?? idx}
+              //   naziv={artikal.naziv}
+              //   idArtikla={artikal.idArtikla}
+              //   barkod={artikal.barkod}
+              //   kategorijaId={artikal.kategorijaId}
+              //   kolicina={artikal.kolicina}
+              //   jm={artikal.jm}
+              //   artikalAtributi={artikal.artikalAtributi}
+              //   artikalCene={artikal.artikalCene ?? []}
+              //   lastPurchaseDate="2025-06-20"
+              //   idPartnera={idPartnera!}
+              //   kolZaIzdavanje={artikal.kolZaIzdavanje}
+              // />
+              <MemoizedArticleCard
                 key={artikal.idArtikla ?? idx}
-                naziv={artikal.naziv}
-                idArtikla={artikal.idArtikla}
-                barkod={artikal.barkod}
-                kategorijaId={artikal.kategorijaId}
-                kolicina={artikal.kolicina}
-                jm={artikal.jm}
-                artikalAtributi={artikal.artikalAtributi}
-                artikalCene={artikal.artikalCene ?? []}
-                lastPurchaseDate="2025-06-20"
-                idPartnera={idPartnera!}
-                kolZaIzdavanje={artikal.kolZaIzdavanje}
+                {...artikal}
               />
             ))}
           </div>
