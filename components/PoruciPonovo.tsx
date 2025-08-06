@@ -108,13 +108,14 @@ const PoruciPonovo = () => {
                             </div>
 
                             <AddToCartButton
-                            id={artikal.idArtikla}
-                            className="w-full sm:w-auto px-6 py-2"
-                            title="Dodaj u korpu"
-                            getKolicina={() => artikal.kolicina}
-                            nazivArtikla={artikal.naziv}
-                            disabled={disabled}
-                            ukupnaKolicina={mozeJos}
+                              id={artikal.idArtikla}
+                              className="w-full sm:w-auto px-6 py-2"
+                              title="Dodaj u korpu"
+                              getKolicina={() => artikal.kolicina}
+                              nazivArtikla={artikal.naziv}
+                              disabled={disabled}
+                              ukupnaKolicina={mozeJos}
+                              kolZaIzdavanje={artikal.kolicina}
                             />
                         </div>
                         </CarouselItem>

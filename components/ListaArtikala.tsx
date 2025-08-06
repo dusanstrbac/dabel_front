@@ -81,6 +81,25 @@ const ListaArtikala = ({
     }
   }, [artikli]);
 
+  async function fetchArtikliSaFilterima(filters: ArtikalFilterProp) {
+    const query = new URLSearchParams();
+
+    if (filters.naziv) query.append('naziv', filters.naziv);
+    if (filters.cena) query.append('cena', filters.cena);
+
+    for (const key of ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja']) {
+      const vrednosti = filters[key as keyof ArtikalFilterProp];
+      if (Array.isArray(vrednosti)) {
+        vrednosti.forEach((val) => query.append(key, val));
+      }
+    }
+
+    const res = await fetch(`/api/Artikal/DajArtikleSaPaginacijom?${query.toString()}`);
+    const data = await res.json();
+    // setArtikli(data.artikli)
+  }
+
+  console.log("evo jebo sam ti majku",artikli);
   return (
     <div className="flex flex-col md:flex-row w-full px-1 gap-4">
       <div className="w-full md:w-1/4">
@@ -113,6 +132,7 @@ const ListaArtikala = ({
                 artikalCene={artikal.artikalCene ?? []}
                 lastPurchaseDate="2025-06-20"
                 idPartnera={idPartnera!}
+                kolZaIzdavanje={artikal.kolZaIzdavanje}
               />
             ))}
           </div>

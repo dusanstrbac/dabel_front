@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -8,6 +8,8 @@ import NaruciButton from "@/components/ui/NaruciButton";
 import Image from "next/image";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { DozvoleInfo } from "@/types/dozvole";
 
 type ArtikalCena = {
   cena: number;
@@ -26,6 +28,7 @@ type Artikal = {
   barkod: string;
   kolicina: string;
   stanje?: string;
+  kolZaIzdavanje?: number;
 };
 
 const Korpa = () => {
@@ -36,6 +39,14 @@ const Korpa = () => {
   const [rabatPartnera, setRabatPartnera] = useState<number>(0);
   const [nerealizovanIznos, setNerealizovanIznos] = useState<number>(0);
   const [validnaKolicina, setValidnaKolicina] = useState(true);
+  const korisnik = dajKorisnikaIzTokena();
+  const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
+  const [imaDozvoluZaPakovanje, setImaDozvoluZaPakovanje] = useState(false);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const debounceVreme = 700;
+  
+
   
 
   useEffect(() => {
@@ -58,14 +69,12 @@ const Korpa = () => {
   useEffect(() => {
     setIsClient(true);
 
-    const korisnik = dajKorisnikaIzTokena();
     const cart = JSON.parse(localStorage.getItem("cart") || "{}");
     const storedIds = Object.keys(cart);
     if (storedIds.length === 0) {
       return;
     }
     const queryString = storedIds.map(id => `ids=${id}`).join("&");
-    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     const url = `${apiAddress}/api/Artikal/DajArtikalPoId?idPartnera=${korisnik?.idKorisnika}&${queryString}`;
 
     const fetchArticles = async () => {
@@ -81,20 +90,23 @@ const Korpa = () => {
         }));
 
         setArticleList(transformed);
-        setQuantities(transformed.map((a: any) => cart[a.id]?.kolicina || a.pakovanje));
+        // setQuantities(transformed.map((a: any) => cart[a.id]?.kolicina || a.pakovanje));
+        setQuantities(transformed.map((a: any) => {
+          const savedQty = cart[a.id]?.kolicina;
+          return savedQty ? getRoundedQuantity(savedQty, a.pakovanje || 1) : (a.pakovanje || 1);
+        }));
       } catch (error) {
         console.error("Greška pri učitavanju artikala:", error);
       }
     };
 
     const fetchPartner = async () => {
-      const korisnik = dajKorisnikaIzTokena();
       if (!korisnik) {
           console.warn("Nema korisnika iz tokena.");
           return;
       }
 
-      const idPartnera = korisnik?.korisnickoIme;
+      const idPartnera = korisnik?.partner;
       try {
           const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}`);
           const data = await res.json();
@@ -155,11 +167,26 @@ const Korpa = () => {
     localStorage.setItem("cart", JSON.stringify(cart));
   };
 
+  // const getRoundedQuantity = (requested: number, packSize: number) => {
+  //   if (requested <= 0 || isNaN(requested)) return 0;
+  //   return requested <= packSize
+  //     ? packSize
+  //     : Math.ceil(requested / packSize) * packSize;
+  // };
+
   const getRoundedQuantity = (requested: number, packSize: number) => {
-    if (requested <= 0 || isNaN(requested)) return 0;
-    return requested <= packSize
-      ? packSize
+    if (requested <= 0 || isNaN(requested)) {
+      return imaDozvoluZaPakovanje ? 1 : packSize;
+    }
+    
+    return imaDozvoluZaPakovanje 
+      ? requested 
       : Math.ceil(requested / packSize) * packSize;
+  };
+
+  const getMaxAllowedQuantity = (kolicina: string, pakovanje: number) => {
+    const maxKolicina = Number(kolicina) || 0;
+    return Math.floor(maxKolicina / pakovanje) * pakovanje;
   };
 
   const getCenaZaArtikal = (artikal: Artikal) => {
@@ -194,41 +221,68 @@ const Korpa = () => {
     return `${baseUrl}/s${idArtikla}.jpg`;    
   };
     
-    useEffect(() => {
-      if (!isClient || articleList.length === 0 || !partner) return;
 
-      const PDV = 0.2;
+  useEffect(() => {
+    if (!isClient || articleList.length === 0 || !partner) return;
 
-      const artikliZaSlanje = articleList.map((article, index) => {
-        const pakovanje = article.pakovanje || 1;
-        const kolicina = getRoundedQuantity(quantities[index], pakovanje);
-        const originalnaCena = getOriginalnaCena(article);
-        const koriscenaCena = getCenaZaArtikal(article);
-        const cenaPosleRabat = koriscenaCena * (1 - rabatPartnera / 100);
-        const iznosSaPDV = cenaPosleRabat * kolicina * (1 + PDV);
+    const PDV = 0.2;
 
-        return {
-          idArtikla: article.idArtikla,
-          naziv: article.naziv,
-          jm: article.jm,
-          originalnaCena: Number(originalnaCena.toFixed(2)),
-          koriscenaCena: Number(koriscenaCena.toFixed(2)),
-          kolicina,
-          IznosSaPDV: Number(iznosSaPDV.toFixed(2)),
-          pdv: 20,
-        };
-      });
+    const artikliZaSlanje = articleList.map((article, index) => {
+      const pakovanje = article.pakovanje || 1;
+      const kolicina = getRoundedQuantity(quantities[index], pakovanje);
+      const originalnaCena = getOriginalnaCena(article);
+      const koriscenaCena = getCenaZaArtikal(article);
+      const cenaPosleRabat = koriscenaCena * (1 - rabatPartnera / 100);
+      const iznosSaPDV = cenaPosleRabat * kolicina * (1 + PDV);
 
-      const payload = {
-        partner,
-        artikli: artikliZaSlanje,
-        ukupnaCenaBezPDV: Number(totalAmount.toFixed(2)),
-        ukupnaCenaSaPDV: Number(totalAmountWithPDV.toFixed(2)),
+      return {
+        idArtikla: article.idArtikla,
+        naziv: article.naziv,
+        jm: article.jm,
+        originalnaCena: Number(originalnaCena.toFixed(2)),
+        koriscenaCena: Number(koriscenaCena.toFixed(2)),
+        kolicina,
+        IznosSaPDV: Number(iznosSaPDV.toFixed(2)),
+        pdv: 20,
       };
+    });
 
-      sessionStorage.setItem("korpaPodaci", JSON.stringify(payload));
-    }, [articleList, quantities, partner, totalAmount, totalAmountWithPDV, isClient]);
+    const payload = {
+      partner,
+      artikli: artikliZaSlanje,
+      ukupnaCenaBezPDV: Number(totalAmount.toFixed(2)),
+      ukupnaCenaSaPDV: Number(totalAmountWithPDV.toFixed(2)),
+    };
 
+    sessionStorage.setItem("korpaPodaci", JSON.stringify(payload));
+  }, [articleList, quantities, partner, totalAmount, totalAmountWithPDV, isClient]);
+
+
+
+  //LOGIKA ZA FETCH ZA DOZVOLE
+  useEffect(() => {
+    const fetchDozvole = async () => {
+      if (!korisnik) {
+        console.warn("Nema korisnika iz tokena.");
+        return;
+      }
+      
+      try {
+        const res = await fetch(
+          `${apiAddress}/api/Web/DajDozvoleKorisnika?idKorisnika=${korisnik.idKorisnika}&idDozvole=1`
+        );
+        const data: DozvoleInfo[] = await res.json();
+        
+        const imaDozvolu = data.some(dozvola => dozvola.status === 1);
+        setImaDozvoluZaPakovanje(imaDozvolu);
+      } catch (error) {
+        console.error("Greška pri dobavljanju dozvola:", error);
+        setImaDozvoluZaPakovanje(false);
+      }
+    };
+
+    fetchDozvole();
+  }, [korisnik, apiAddress]);
 
   const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina;
 
@@ -275,7 +329,7 @@ const Korpa = () => {
             )}
             {articleList.map((article, index) => {
               const imaAkciju = (article.artikalCene?.[0]?.akcija?.cena || 0) > 0;
-              const pakovanje = article.pakovanje || 1;
+              const pakovanje = article.kolZaIzdavanje || 1;
               const kolicina = getRoundedQuantity(quantities[index], pakovanje);
               const cena = getCenaZaArtikal(article);
               const originalnaCena = getOriginalnaCena(article);
@@ -319,21 +373,40 @@ const Korpa = () => {
                   </TableCell>
                   <TableCell className="text-center">{pakovanje}</TableCell>
                   <TableCell className="text-center">
-                    <input
+                    <Input
+                      className="flex justify-center min-w-10 w-full max-w-21"
                       type="number"
-                      min="1"
-                      className="w-20 border rounded px-2 py-1 text-center"
+                      step={imaDozvoluZaPakovanje ? 1 : (pakovanje || 1)}
+                      min={0}
                       value={quantities[index]}
-                      max={article.kolicina}
                       onChange={(e) => {
-                        let enteredValue = Number(e.target.value);
-                        const maxKolicina = Number(article.kolicina);
+                        if (debounceTimeout.current) {
+                          clearTimeout(debounceTimeout.current);
+                        }
+                        
+                        const newValue = Number(e.target.value);
+                        const newQuantities = [...quantities];
+                        newQuantities[index] = isNaN(newValue) ? (imaDozvoluZaPakovanje ? 1 : pakovanje) : newValue;
+                        setQuantities(newQuantities);
 
-                        if (isNaN(enteredValue) || enteredValue < 1) enteredValue = 1;
-                        if (enteredValue > maxKolicina) enteredValue = maxKolicina;
+                        debounceTimeout.current = setTimeout(() => {
+                          const pakovanjeValue = article.kolZaIzdavanje || 1;
+                          let enteredValue = Number(e.target.value);
+                          const maxAllowed = getMaxAllowedQuantity(article.kolicina, pakovanjeValue);
 
-                        updateQuantity(index, enteredValue);
-                      }}
+                          if (isNaN(enteredValue)) {
+                            enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanjeValue;
+                          }
+
+                          // Ako korisnik nema dozvolu, zaokružujemo na pakovanje
+                          const roundedValue = imaDozvoluZaPakovanje 
+                            ? enteredValue 
+                            : Math.ceil(enteredValue / pakovanjeValue) * pakovanjeValue;
+                          
+                          const finalValue = Math.min(roundedValue, maxAllowed);
+                          updateQuantity(index, finalValue);
+                        }, debounceVreme)
+                      }} 
                     />
                   </TableCell>
                   <TableCell className="text-center">{kolicina}</TableCell>
@@ -367,7 +440,7 @@ const Korpa = () => {
       <div className="py-2 block lg:hidden">
         {articleList.map((article, index) => {
           const imaAkciju = (article.artikalCene?.[0]?.akcija?.cena || 0) > 0;
-          const pakovanje = article.pakovanje || 1;
+          const pakovanje = article.kolZaIzdavanje || 1;
           const kolicina = getRoundedQuantity(quantities[index], pakovanje);
           const cena = getCenaZaArtikal(article);
           const originalnaCena = getOriginalnaCena(article);
@@ -404,15 +477,51 @@ const Korpa = () => {
                   </p>
                 </div>
                 <div className="pt-2">
-                  <div className="mb-2">
-                    <span className="mr-2">Trebovana količina:</span>
-                    <input
-                      type="number"
-                      min="1"
-                      className="w-20 border rounded px-2 py-1 text-center"
-                      value={quantities[index]}
-                      onChange={(e) => updateQuantity(index, Number(e.target.value))}
-                    />
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="mr-2 whitespace-nowrap">Trebovana količina:</span>
+                      <input
+                        className="flex h-10 w-24 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-center"
+                        type="number"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        step={imaDozvoluZaPakovanje ? 1 : (pakovanje || 1)}
+                        min={0}
+                        value={quantities[index]}
+                        onChange={(e) => {
+                          if (debounceTimeout.current) {
+                            clearTimeout(debounceTimeout.current);
+                          }
+                        
+                          const newValue = Number(e.target.value);
+                          const newQuantities = [...quantities];
+                          newQuantities[index] = isNaN(newValue) ? (imaDozvoluZaPakovanje ? 1 : pakovanje) : newValue;
+                          setQuantities(newQuantities);
+
+                          debounceTimeout.current = setTimeout(() => {
+                            const pakovanjeValue = article.kolZaIzdavanje || 1;
+                            let enteredValue = Number(e.target.value);
+                            const maxAllowed = getMaxAllowedQuantity(article.kolicina, pakovanjeValue);
+
+                            if (isNaN(enteredValue)) {
+                              enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanjeValue;
+                            }
+
+                            // Ako korisnik nema dozvolu, zaokružujemo na pakovanje
+                            const roundedValue = imaDozvoluZaPakovanje 
+                              ? enteredValue 
+                              : Math.ceil(enteredValue / pakovanjeValue) * pakovanjeValue;
+                            
+                            const finalValue = Math.min(roundedValue, maxAllowed);
+                            updateQuantity(index, finalValue);
+                          }, debounceVreme);
+                        }}
+                        onBlur={(e) => {
+                          const pakovanjeValue = article.kolZaIzdavanje || 1;
+                          if (quantities[index] < (imaDozvoluZaPakovanje ? 1 : pakovanjeValue)) {
+                            updateQuantity(index, imaDozvoluZaPakovanje ? 1 : pakovanjeValue);
+                          }
+                        }}
+                      />
                   </div>
                   <p>Pakovanje: {pakovanje}</p>
                   <p>Količina: {kolicina}</p>

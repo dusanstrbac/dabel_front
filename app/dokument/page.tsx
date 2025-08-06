@@ -3,9 +3,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AritkalKorpaType } from "@/types/artikal";
 import { DokumentInfo } from "@/types/dokument";
-import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { toast } from "sonner";
-import axios from "axios";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 
 const DokumentPage = () => {
@@ -83,11 +82,15 @@ const DokumentPage = () => {
       const docInfo = JSON.parse(docInfoString);
       const dostavaValue = dostavaString ? parseFloat(dostavaString) : 0;
 
+
       const partner = korpaPodaci.partner;
       const artikli: AritkalKorpaType[] = korpaPodaci.artikli.map((stavka: AritkalKorpaType) => ({
         ...stavka,
         rabat: partner?.partnerRabat?.rabat ?? 0,
       }));
+
+      console.log(`Partner ${partner}`);
+
 
       const dokument: DokumentInfo = {
         brojDokumenta: docInfo.brojDokumenta,
