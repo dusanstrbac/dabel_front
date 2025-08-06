@@ -106,7 +106,7 @@ const Korpa = () => {
           return;
       }
 
-      const idPartnera = korisnik?.korisnickoIme;
+      const idPartnera = korisnik?.partner;
       try {
           const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}`);
           const data = await res.json();

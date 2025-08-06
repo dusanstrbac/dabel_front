@@ -4,6 +4,7 @@ import Image from "next/image";
 import { AritkalKorpaType } from "@/types/artikal";
 import { DokumentInfo } from "@/types/dokument";
 import { toast } from "sonner";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 
 const DokumentPage = () => {
@@ -13,6 +14,7 @@ const DokumentPage = () => {
   const [ukupnoSaDostavom, setUkupnoSaDostavom] = useState<number>(0);
   const [dostava, setDostava] = useState(0);
   const [docc, setDOCC] = useState<DokumentInfo>();
+  const korisnik = dajKorisnikaIzTokena();
 
   // useEffect(() => {
   //   if (typeof window !== "undefined") {
@@ -27,6 +29,28 @@ const DokumentPage = () => {
     const parsed = value !== null ? parseFloat(value) : NaN;
     if (!isNaN(parsed)) setDostava(parsed);
   }, []);
+
+
+  useEffect(() => {
+
+    const fetchDokument = async () => {
+      try {
+        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+        const res = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?&idPartnera=${korisnik?.partner}&idKorisnika=${korisnik?.idKorisnika}`);
+        if (!res.ok) throw new Error('Greška pri učitavanju dokumenta.');
+
+        const data = await res.json();
+        console.log(data);
+      } catch (err: any) {
+        console.log(err.message);
+      } finally {
+
+      }
+    };
+
+    fetchDokument();
+  }, []);
+
 
   useEffect(() => {
     
@@ -50,7 +74,9 @@ const DokumentPage = () => {
       const docInfoString = sessionStorage.getItem("dokInfo");
       const dostavaString = sessionStorage.getItem("dostava");
 
-      if (!korpaPodaciString || !docInfoString) return;
+      if (!korpaPodaciString || !docInfoString) return; 
+
+      console.log(korpaPodaciString);
 
       const korpaPodaci = JSON.parse(korpaPodaciString);
       const docInfo = JSON.parse(docInfoString);
@@ -80,30 +106,26 @@ const DokumentPage = () => {
         stavkeDokumenata: [],
       };
 
+
       setPartnerInfo(partner);
       setStavke(artikli);
       setDOCC(dokument);
       setDostava(dostavaValue);
-      setTimeout(() => {
-        toast.success("Narudžbenica je uspešno kreirana!", {
-          duration: 6000, // 8 sekundi umesto default 4
-        });
-      }, 500); // Mali delay od 500ms
+
+      toast.success("Vaša porudžbina je uspešno evidentirana");
     } catch (error) {
       console.error("❌ Greška pri učitavanju podataka iz sessionStorage:", error);
       toast.error(String(`Greška: ${error}`));
     }
   }, []);
 
+
   
-
-
   useEffect(() => {
     const kanal = new BroadcastChannel("dokument-kanal");
     kanal.postMessage("dokument_je_ucitan");
     return () => kanal.close();
   }, []);
-
 
   const handlePrint = () => window.print();
 
@@ -137,9 +159,6 @@ const DokumentPage = () => {
   }, [ukupno, dostava]);
 
 
-  if (!partnerInfo) {
-    return <div className="p-10 text-red-600">Nema dostupnih podataka za prikaz dokumenta.</div>;
-  }
 
   return (
     <div className="mx-auto bg-white text-black p-10 print:p-0">
@@ -159,19 +178,19 @@ const DokumentPage = () => {
           {/* KONTAKT OSOBA */}
           <div className="border border-black p-4 w-[48%]">
             <h1 className="font-bold mb-2">Kontakt osoba:</h1>
-            <p>Ime i prezime: {partnerInfo.komercijalisti.naziv || "Nepoznato"}</p>
-            <p>Mob. telefon: {partnerInfo.komercijalisti.telefon || "Nepoznato"}</p>
-            <p>Email adresa: {partnerInfo.komercijalisti.email || "Nepoznato"}</p>
+            <p>Ime i prezime: {partnerInfo?.komercijalisti.naziv || "Nepoznato"}</p>
+            <p>Mob. telefon: {partnerInfo?.komercijalisti.telefon || "Nepoznato"}</p>
+            <p>Email adresa: {partnerInfo?.komercijalisti.email || "Nepoznato"}</p>
           </div>
 
           
           {/* PARTNER */}
           <div className="border border-black p-4 w-[48%]">
-            <p>Partner: {partnerInfo.idPartnera || "?"}</p>
-            <h3 className="mb-2 font-bold">{partnerInfo.ime || "Nepoznaaaato"}</h3>
-            <p>{partnerInfo.adresa}, {partnerInfo.grad}</p>
-            <p>Mob. telefon: {partnerInfo.telefon}</p>
-            <p>Email: {partnerInfo.email}</p>
+            <p>Partner: {partnerInfo?.idPartnera || "?"}</p>
+            <h3 className="mb-2 font-bold">{partnerInfo?.ime || "Nepoznaaaato"}</h3>
+            <p>{partnerInfo?.adresa}, {partnerInfo?.grad}</p>
+            <p>Mob. telefon: {partnerInfo?.telefon}</p>
+            <p>Email: {partnerInfo?.email}</p>
           </div>
         </div>
 
@@ -277,10 +296,10 @@ const DokumentPage = () => {
             <p className="font-semibold uppercase text-sm tracking-wide">Dokument kreirao:</p>
           </div>
           <div className="px-2 py-1 text-sm space-y-1">
-            <p><span className="">Korisničko ime:</span> {partnerInfo.komercijalisti.id}</p> 
-            <p><span className="">Ime i prezime:</span> {partnerInfo.komercijalisti.naziv || "Nepoznato"}</p>
-            <p><span className="">Email adresa:</span> {partnerInfo.komercijalisti.email}</p>
-            <p><span className="">Mob. telefon:</span> {partnerInfo.komercijalisti.telefon}</p>
+            <p><span className="">Korisničko ime:</span> {partnerInfo?.komercijalisti.id}</p> 
+            <p><span className="">Ime i prezime:</span> {partnerInfo?.komercijalisti.naziv || "Nepoznato"}</p>
+            <p><span className="">Email adresa:</span> {partnerInfo?.komercijalisti.email}</p>
+            <p><span className="">Mob. telefon:</span> {partnerInfo?.komercijalisti.telefon}</p>
           </div>
         </div>
       </div>

@@ -44,7 +44,7 @@ const DokumentPage = () => {
         setError(null);
 
         // Dohvati partnera
-        const PartnerResponse = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${korisnik?.korisnickoIme}`);
+        const PartnerResponse = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${korisnik?.partner}`);
         if (!PartnerResponse.ok) throw new Error("Greška pri dohvatanju partnera");
         const partnerData = await PartnerResponse.json();
 
