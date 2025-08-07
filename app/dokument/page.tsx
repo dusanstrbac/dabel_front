@@ -130,7 +130,7 @@ const DokumentPage = () => {
   const handlePrint = () => window.print();
 
   const izracunajStavku = (stavka: AritkalKorpaType) => {
-    const artikalCena = stavka.koriscenaCena > 0 ? stavka.koriscenaCena : stavka.originalnaCena;
+    const artikalCena = stavka.koriscenaCena > 0 ? stavka.koriscenaCena : stavka.originalnaCena ?? 0;
     const cenaPosleRabata = artikalCena * (1 - stavka.rabat / 100);
     const cenaBezPDV = cenaPosleRabata;
     const cenaSaPDV = cenaBezPDV * (1 + stavka.pdv / 100);
@@ -247,7 +247,7 @@ const DokumentPage = () => {
                   <td className="border-r border-black px-2 py-1">{stavka.rabat ?? 0}%</td>
                   <td className="border-r border-black px-2 py-1">{(stavka.koriscenaCena * (1 - stavka.rabat/100) * stavka.kolicina).toFixed(2)}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.pdv} %</td>
-                  <td className="border-r border-black px-2 py-1">{(stavka?.koriscenaCena * (1 - stavka.rabat/100) * (1 + stavka.pdv/100) * stavka.kolicina).toFixed(2)}</td>
+                  <td className="border-r border-black px-2 py-1">{(stavka.koriscenaCena * (1 - stavka.rabat/100) * (1 + stavka.pdv/100) * stavka.kolicina).toFixed(2)}</td>
                   <td className="px-2 py-1">{stavka.IznosSaPDV.toFixed(2)}</td>
                 </tr>
               );

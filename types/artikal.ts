@@ -18,9 +18,9 @@ export type AritkalKorpaType = {
   jm: string;
   naziv: string;
   kolicina: number;
-  originalnaCena?: number;
-  IznosSaPDV?: number;
-  koriscenaCena?: number;
+  originalnaCena: number;
+  IznosSaPDV: number;
+  koriscenaCena: number;
   pdv: number;
   rabat: number;
 }

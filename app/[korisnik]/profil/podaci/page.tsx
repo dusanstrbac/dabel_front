@@ -12,8 +12,7 @@ const ProfilPodaci = () => {
     const fetchKorisnikData = async () => {
       try {
         const korisnik = dajKorisnikaIzTokena();
-        const idPartnera = korisnik?.korisnickoIme;
-
+        
         if (!korisnik) {
           setLoading(false);
           return;
@@ -23,7 +22,7 @@ const ProfilPodaci = () => {
         setError(null);
         
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}`);
+        const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`);
         const data = await response.json();
 
         if(!response) {
