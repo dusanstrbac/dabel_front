@@ -277,7 +277,6 @@ const BrzoNarucivanje = () => {
                 </div>
 
                 <div className="flex flex-col items-center">
-                  {/* ovaj menjamo */}
                   <p className={isDummy ? "opacity-40" : ""}>Količina</p>
                   <Input
                     ref={(el) => { quantityRefs.current[index] = el; }}
