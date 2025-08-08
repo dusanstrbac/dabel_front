@@ -7,7 +7,7 @@ import SortiranjeButton from '@/components/SortiranjeButton';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
-import { ArtikalFilterProp, ArtikalType, ArtikalAtribut, AtributiResponse } from '@/types/artikal';
+import { ArtikalFilterProp, ArtikalType, AtributiResponse } from '@/types/artikal';
 
 type SortKey = "cena" | "naziv";
 type SortOrder = 'asc' | 'desc';
@@ -35,17 +35,60 @@ export default function ProizvodiPage() {
 
   // Memoizovana transformacija atributa u AtributiResponse format
   const atributiResponse = useMemo<AtributiResponse>(() => {
-    const transformed = artikli.reduce((acc, artikal) => {
+    const transformed: AtributiResponse = {};
+    
+    artikli.forEach(artikal => {
       if (artikal.artikalAtributi && artikal.artikalAtributi.length > 0) {
-        console.log(`Atributi za artikal ${artikal.idArtikla}:`, artikal.artikalAtributi);
-        acc[artikal.idArtikla] = artikal.artikalAtributi;
+        transformed[artikal.idArtikla] = artikal.artikalAtributi.map(atribut => ({
+          ...atribut,
+          imeAtributa: atribut.imeAtributa === "Robna marka" ? "RobnaMarka" : 
+                      atribut.imeAtributa === "Zavr.obr-boja" ? "Boja" :
+                      atribut.imeAtributa
+        }));
       }
-      return acc;
-    }, {} as AtributiResponse);
+    });
 
-    console.log('Transformisani atributi (AtributiResponse):', transformed);
+    console.log('Transformisani atributi:', transformed);
     return transformed;
   }, [artikli]);
+
+  // useEffect(() => {
+  //   if (artikli.length > 0) {
+  //     const newFilterOptions = {
+  //       jm: [] as string[],
+  //       Materijal: [] as string[],
+  //       Model: [] as string[],
+  //       Pakovanje: [] as string[],
+  //       RobnaMarka: [] as string[],
+  //       Upotreba: [] as string[],
+  //       Boja: [] as string[],
+  //     };
+
+  //     artikli.forEach(artikal => {
+  //       if (artikal.artikalAtributi) {
+  //         artikal.artikalAtributi.forEach(atribut => {
+  //           const key = atribut.imeAtributa === "Robna marka" ? "RobnaMarka" : 
+  //                       atribut.imeAtributa === "Zavr.obr-boja" ? "Boja" :
+  //                       atribut.imeAtributa;
+            
+  //           if (newFilterOptions.hasOwnProperty(key)) {
+  //             const vrednost = atribut.vrednost.trim();
+  //             if (vrednost && !newFilterOptions[key as keyof typeof newFilterOptions].includes(vrednost)) {
+  //               newFilterOptions[key as keyof typeof newFilterOptions].push(vrednost);
+  //             }
+  //           }
+  //         });
+  //       }
+
+  //       if (artikal.jm && !newFilterOptions.jm.includes(artikal.jm)) {
+  //         newFilterOptions.jm.push(artikal.jm);
+  //       }
+  //     });
+
+  //     console.log('Generisane filter opcije:', newFilterOptions);
+  //     setFilterOptions(newFilterOptions);
+  //   }
+  // }, [artikli]);
 
   const DajArtikleSaPaginacijom = async (
     kategorija: string,
@@ -65,6 +108,8 @@ export default function ProizvodiPage() {
       query.append('sortOrder', sortOrder);
       query.append('Kategorija', kategorija);
 
+      const { data } = await axios.get(`${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${query.toString()}`);
+
       if (podkategorija) {
         query.append('PodKategorija', podkategorija);
       }
@@ -82,7 +127,6 @@ export default function ProizvodiPage() {
         }
       }
 
-      const { data } = await axios.get(`${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${query.toString()}`);
       
       return {
         artikli: data.artikli || [],
@@ -184,6 +228,7 @@ export default function ProizvodiPage() {
     }
   };
 
+  
 
 
   console.log('Podaci koji se šalju u ListaArtikala:', {

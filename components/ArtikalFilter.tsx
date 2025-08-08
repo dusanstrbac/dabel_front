@@ -96,16 +96,24 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
     }
   }, [debouncedSliderValues]);
 
-  function prikaziLepoIme(arg0: any): React.ReactNode {
-    throw new Error('Function not implemented.')
+  function ocistiImeAtributa(key: string): string {
+    // Clean up attribute names - implement according to your needs
+    return key.trim();
   }
 
-  function ocistiImeAtributa(key: string): any {
-    throw new Error('Function not implemented.')
+  function prikaziLepoIme(name: string): string {
+    // Format attribute names for display
+    if (!name) return '';
+    return name
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase());
   }
 
-  function handleChange(key: string, arg1: string[]) {
-    throw new Error('Function not implemented.')
+  function handleChange(key: string, value: string[]) {
+    setPendingFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
   }
 
   // function applyFilters(event: React.MouseEvent<HTMLButtonElement>): void {
@@ -208,7 +216,3 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
 }
 
 export default React.memo(ArtikalFilter)
-
-function handleChange(arg0: string, arg1: string) {
-  throw new Error('Function not implemented.')
-}

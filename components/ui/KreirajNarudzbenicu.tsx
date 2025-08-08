@@ -156,7 +156,6 @@
                 ) : (
                     "Kreiraj Narudžbenicu"
                 )}
-                {/* {korisnikUdugu ? "Postoje neplaćene fakture" : "Kreiraj Narudžbenicu"} */}
             </Button>
             </div>
         );
