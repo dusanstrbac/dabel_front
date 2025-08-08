@@ -265,7 +265,6 @@ export default function ProizvodiPage() {
       <div>
         <ListaArtikala
           artikli={artikli}
-          atributi={atributiResponse} // Koristimo memoizovanu transformaciju
           kategorija={kategorija}
           podkategorija={podkategorija}
           totalCount={totalCount}

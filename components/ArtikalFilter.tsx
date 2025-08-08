@@ -1,6 +1,6 @@
 'use client'
 
-import { ArtikalFilterProp } from '@/types/artikal'
+import { ArtikalFilterProp, ArtikalType } from '@/types/artikal'
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import MultiRangeSlider, { ChangeResult } from './ui/MultiRangeSlider'
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible'
@@ -9,22 +9,12 @@ import { dajKorisnikaIzTokena } from '@/lib/auth'
 import { useDebounce } from 'use-debounce' // Dodaj ovaj import
 
 interface ProductFilterProps {
-  artikli: any[];
-  atributi: AtributiResponse;
+  artikli: ArtikalType[];
   kategorija: string;
   podkategorija: string | null;
   onFilterChange: (filters: ArtikalFilterProp) => void;
 }
 
-interface ArtikalAtribut {
-  idArtikla: string;
-  imeAtributa: string;
-  vrednost: string;
-}
-
-interface AtributiResponse {
-  [artikalId: string]: ArtikalAtribut[];
-}
 
 interface AtributiFiltera {
   jm: string[];
@@ -50,11 +40,20 @@ const defaultFilters: ArtikalFilterProp = {
 
 const ArtikalFilter: React.FC<ProductFilterProps> = ({
   artikli,
-  atributi,
   kategorija,
   podkategorija,
   onFilterChange,
 }) => {
+
+  const [filterOptions, setFilterOptions] = useState<AtributiFiltera>({
+    jm: [],
+    Materijal: [],
+    Model: [],
+    Pakovanje: [],
+    RobnaMarka: [],
+    Upotreba: [],
+    Boja: [],
+  });
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -76,15 +75,46 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
   const [debouncedSliderValues] = useDebounce(sliderValues, 500);
 
   // Opcije filtera
-  const [filterOptions, setFilterOptions] = useState({
-    jm: [] as string[],
-    Materijal: [] as string[],
-    Model: [] as string[],
-    Pakovanje: [] as string[],
-    RobnaMarka: [] as string[],
-    Upotreba: [] as string[],
-    Boja: [] as string[],
-  })
+  useEffect(() => {
+    if (artikli.length > 0) {
+      const newFilterOptions = {
+        jm: [] as string[],
+        Materijal: [] as string[],
+        Model: [] as string[],
+        Pakovanje: [] as string[],
+        RobnaMarka: [] as string[],
+        Upotreba: [] as string[],
+        Boja: [] as string[],
+      };
+
+      artikli.forEach(artikal => {
+        // Dodaj jedinicu mere (jm) ako postoji
+        if (artikal.jm && !newFilterOptions.jm.includes(artikal.jm)) {
+          newFilterOptions.jm.push(artikal.jm);
+        }
+
+        // Procesuiraj atribute artikla
+        if (artikal.artikalAtributi) {
+          artikal.artikalAtributi.forEach(atribut => {
+            // Mapiranje imena atributa na filter ključeve
+            const key = atribut.imeAtributa === "Robna marka" ? "RobnaMarka" : 
+                        atribut.imeAtributa === "Zavr.obr-boja" ? "Boja" :
+                        atribut.imeAtributa;
+            
+            // Proveri da li atribut pripada filter opcijama
+            if (newFilterOptions.hasOwnProperty(key)) {
+              const vrednost = atribut.vrednost.trim();
+              if (vrednost && !newFilterOptions[key as keyof typeof newFilterOptions].includes(vrednost)) {
+                newFilterOptions[key as keyof typeof newFilterOptions].push(vrednost);
+              }
+            }
+          });
+        }
+      });
+
+      setFilterOptions(newFilterOptions);
+    }
+  }, [artikli]);
 
   // Ref za prethodne filtere da izbegnemo beskonačni loop
   const prevFiltersRef = useRef<ArtikalFilterProp | null>(null)
@@ -116,12 +146,6 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
     }));
   }
 
-  // function applyFilters(event: React.MouseEvent<HTMLButtonElement>): void {
-  //   throw new Error('Function not implemented.')
-  // }
-
-  // Ostali delovi koda ostaju isti...
-  // ... (fetchCene, postaviOpsegCena, asArray, inicijalizacija filtera, mapiranje atributa)
   const resetFilters = () => {
     setFilters(defaultFilters);
     setPendingFilters(defaultFilters);

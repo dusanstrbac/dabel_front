@@ -17,7 +17,6 @@ import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 const ListaArtikala = ({
   artikli,
-  atributi,
   kategorija,
   podkategorija,
   totalCount,
@@ -29,7 +28,6 @@ const ListaArtikala = ({
 
   console.log('Primljeni podaci u ListaArtikala:', {
     artikli,
-    atributi,
     kategorija,
     podkategorija,
     totalCount,
@@ -117,7 +115,6 @@ const ListaArtikala = ({
       <div className="w-full md:w-1/4">
         <ArtikalFilter
           artikli={artikli}
-          atributi={atributi}
           kategorija={kategorija || ''}
           podkategorija={podkategorija || ''}
           onFilterChange={onFilterChange}
