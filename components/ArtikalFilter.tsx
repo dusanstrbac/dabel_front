@@ -56,10 +56,31 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
   });
   const router = useRouter()
   const searchParams = useSearchParams()
+  const isInitialMount = useRef(true)
+
+
+
+  
+  useEffect(() => {
+    // Proveri da li su se zaista promenili parametri filtera (ne samo page)
+    const filterKeys = ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja', 'cena'];
+    const hasFilterChanges = filterKeys.some(key => 
+      searchParams.get(key) !== prevFiltersRef.current?.[key as keyof ArtikalFilterProp]?.toString()
+    );
+
+    if (hasFilterChanges) {
+      const initialFilters = { ...defaultFilters };
+      // ...ostatak inicijalizacije
+      onFilterChange(initialFilters);
+    }
+
+    prevFiltersRef.current = filters;
+  }, [searchParams]);
+  
 
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS
   const korisnik = dajKorisnikaIzTokena()
-  const fullUrl = `${apiAddress}/api/Artikal/DajArtikalCene?grupa=${encodeURIComponent(kategorija)}&podgrupa=${podkategorija ? encodeURIComponent(podkategorija) : ''}`
+  // const fullUrl = `${apiAddress}/api/Artikal/DajArtikalCene?grupa=${encodeURIComponent(kategorija)}&podgrupa=${podkategorija ? encodeURIComponent(podkategorija) : ''}`
 
   // Cena
   const [mapaCena, setMapaCena] = useState<Map<string, number>>(new Map())
@@ -73,6 +94,77 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
   const [pendingFilters, setPendingFilters] = useState<ArtikalFilterProp>(filters);
   const [sliderValues, setSliderValues] = useState<[number, number]>([minCena, maxCena])
   const [debouncedSliderValues] = useDebounce(sliderValues, 500);
+
+  // State za odloženo ažuriranje URL-a
+  const [urlUpdateQueue, setUrlUpdateQueue] = useState<ArtikalFilterProp | null>(null)
+
+
+  // Efekt za debounce-ovano ažuriranje URL-a
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
+
+    const timeoutId = setTimeout(() => {
+      const params = new URLSearchParams()
+      
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value && 
+            ((Array.isArray(value) && value.length > 0) || 
+            (!Array.isArray(value) && value !== ''))) {
+          params.set(key, Array.isArray(value) ? value.join(',') : value)
+        } else {
+          params.delete(key)
+        }
+      })
+
+      router.replace(`?${params.toString()}`, { scroll: false })
+    }, 100)
+
+    return () => clearTimeout(timeoutId)
+  }, [filters, router])
+
+  
+
+  // Efekt za ažuriranje URL-a
+  useEffect(() => {
+    if (urlUpdateQueue) {
+      const params = new URLSearchParams()
+      
+      Object.entries(urlUpdateQueue).forEach(([key, value]) => {
+        if (value && 
+            ((Array.isArray(value) && value.length > 0) || 
+            (!Array.isArray(value) && value !== ''))) {
+          params.set(key, Array.isArray(value) ? value.join(',') : value)
+        } else {
+          params.delete(key)
+        }
+      })
+
+      router.replace(`?${params.toString()}`, { scroll: false })
+      setUrlUpdateQueue(null)
+    }
+  }, [urlUpdateQueue, router])
+
+  const handleChange = useCallback((key: string, value: string[]) => {
+    const newFilters = {
+      ...filters,
+      [key]: value
+    }
+    
+    setFilters(newFilters)
+    setPendingFilters(newFilters)
+    onFilterChange(newFilters)
+  }, [filters, onFilterChange])
+
+  //RESET FILTERA
+  const resetFilters = useCallback(() => {
+    setFilters(defaultFilters)
+    setPendingFilters(defaultFilters)
+    setSliderValues([0, 100000])
+    onFilterChange(defaultFilters)
+  }, [onFilterChange])
 
   // Opcije filtera
   useEffect(() => {
@@ -139,25 +231,95 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
       .replace(/^./, str => str.toUpperCase());
   }
 
-  function handleChange(key: string, value: string[]) {
-    setPendingFilters(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  }
+  // function handleChange(key: string, value: string[]) {
+  //   setPendingFilters(prev => ({
+  //     ...prev,
+  //     [key]: value
+  //   }));
 
-  const resetFilters = () => {
-    setFilters(defaultFilters);
-    setPendingFilters(defaultFilters);
-    // Resetuj i slider ako je potrebno
-  };
+  //     // Ažuriraj filtere odmah bez potrebe za klikom na "Primeni filtere"
+  //   const newFilters = {
+  //     ...pendingFilters,
+  //     [key]: value
+  //   };
+  //   onFilterChange(newFilters);
+  // }
+////////////////////////////////////////////////////////////////////////////////////////
+  // const handleChange = useCallback((key: string, value: string[]) => {
+  //   // Prvo ažurirajte lokalno stanje
+  //   const newFilters = {
+  //     ...pendingFilters,
+  //     [key]: value
+  //   };
+    
+  //   setPendingFilters(newFilters);
+  //   onFilterChange(newFilters);
 
+  //   // Ažuriranje URL-a preko useEffect-a
+  //   // Ovo moramo izdvojiti u poseban useEffect izvan ove funkcije
+  //   // Kreirajmo state za URL promene
+  //   const [urlUpdate, setUrlUpdate] = useState<{key: string, value: string[]} | null>(null);
 
-  const applyFilters = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setFilters(pendingFilters);
-    onFilterChange(pendingFilters);
-  };
+  //   const handleChange = useCallback((key: string, value: string[]) => {
+  //     // Ažurirajte lokalno stanje
+  //     const newFilters = {
+  //       ...pendingFilters,
+  //       [key]: value
+  //     };
+      
+  //     setPendingFilters(newFilters);
+  //     onFilterChange(newFilters);
+  //     setUrlUpdate({key, value});
+  //   }, [pendingFilters, onFilterChange]);
+
+  //   // Ovo ide van tela handleChange funkcije, u telo komponente
+  //   useEffect(() => {
+  //     if (urlUpdate) {
+  //       const params = new URLSearchParams(window.location.search);
+        
+  //       if (urlUpdate.value.length > 0) {
+  //         params.set(urlUpdate.key, urlUpdate.value.join(','));
+  //       } else {
+  //         params.delete(urlUpdate.key);
+  //       }
+
+  //       router.replace(`?${params.toString()}`, { scroll: false });
+  //     }
+  //   }, [urlUpdate, router]);
+  // }, [pendingFilters, onFilterChange]);
+////////////////////////////////////////////////////////////////////////////////////////
+
+  useEffect(() => {
+    // Ovo će osigurati sinhronizaciju kada URL promeni sa spolja
+    const params = new URLSearchParams(searchParams.toString());
+    const newFilters = { ...filters };
+    
+    let hasChanges = false;
+    Object.keys(filters).forEach(key => {
+      const value = params.get(key);
+      if (value) {
+        const newValue = Array.isArray(filters[key as keyof ArtikalFilterProp]) 
+          ? value.split(',') 
+          : value;
+        
+        if (JSON.stringify(newFilters[key as keyof ArtikalFilterProp]) !== JSON.stringify(newValue)) {
+          newFilters[key as keyof ArtikalFilterProp] = newValue;
+          hasChanges = true;
+        }
+      } else if (filters[key as keyof ArtikalFilterProp]) {
+        newFilters[key as keyof ArtikalFilterProp] = 
+          Array.isArray(filters[key as keyof ArtikalFilterProp]) ? [] : '';
+        hasChanges = true;
+      }
+    });
+
+    if (hasChanges) {
+      setPendingFilters(newFilters);
+      setFilters(newFilters);
+      onFilterChange(newFilters);
+    }
+  }, [searchParams]);
+
 
   return (
     <div className="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
@@ -226,14 +388,6 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
         className="w-full py-2 px-4 mt-4 text-center text-sm font-semibold text-white bg-gray-600 hover:bg-gray-700 rounded-lg"
       >
         Resetuj filtere
-      </button>
-
-      {/* Dugme za primenu filtera */}
-      <button
-        onClick={applyFilters}
-        className="w-full py-2 px-4 mt-4 text-center text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
-      >
-        Primeni filtere
       </button>
     </div>
   )

@@ -63,7 +63,8 @@ export type ArtikalAtribut = {
 };
 
 export interface ListaArtikalaProps {
-  artikli: any[];
+  artikli: ArtikalType[];
+  sviArtikli: ArtikalType[];
   kategorija?: string;
   podkategorija?: string | null;
   totalCount: number;

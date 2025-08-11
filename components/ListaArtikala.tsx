@@ -17,6 +17,7 @@ import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 const ListaArtikala = ({
   artikli,
+  sviArtikli,
   kategorija,
   podkategorija,
   totalCount,
@@ -25,15 +26,6 @@ const ListaArtikala = ({
   loading = false,
   onFilterChange,
 }: ListaArtikalaProps) => {
-
-  console.log('Primljeni podaci u ListaArtikala:', {
-    artikli,
-    kategorija,
-    podkategorija,
-    totalCount,
-    currentPage,
-    loading
-  });
 
   const artikliPoStrani = 8;
   const router = useRouter();
@@ -57,6 +49,7 @@ const ListaArtikala = ({
 
   const [noResults, setNoResults] = useState(false);
 
+  
   const brojStranica = useMemo(() => {
     const br = Math.ceil(totalCount / artikliPoStrani);
     return br < 1 ? 1 : br;
@@ -73,12 +66,13 @@ const ListaArtikala = ({
     if (event) event.preventDefault();
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return;
 
-    const noviUpit = new URLSearchParams();
+    const noviUpit = new URLSearchParams(window.location.search);
     searchParams.forEach((value, key) => {
       if (value.trim() !== '') {
         noviUpit.append(key, value);
       }
     });
+    
     noviUpit.set('page', broj.toString());
     router.push(`${pathname}?${noviUpit.toString()}`);
   };
@@ -91,30 +85,13 @@ const ListaArtikala = ({
     }
   }, [artikli]);
 
-  async function fetchArtikliSaFilterima(filters: ArtikalFilterProp) {
-    const query = new URLSearchParams();
+  
 
-    if (filters.naziv) query.append('naziv', filters.naziv);
-    if (filters.cena) query.append('cena', filters.cena);
-
-    for (const key of ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja']) {
-      const vrednosti = filters[key as keyof ArtikalFilterProp];
-      if (Array.isArray(vrednosti)) {
-        vrednosti.forEach((val) => query.append(key, val));
-      }
-    }
-
-    const res = await fetch(`/api/Artikal/DajArtikleSaPaginacijom?${query.toString()}`);
-    const data = await res.json();
-    // setArtikli(data.artikli)
-  }
-
-  console.log("evo jebo sam ti majku",artikli);
   return (
     <div className="flex flex-col md:flex-row w-full px-1 gap-4">
       <div className="w-full md:w-1/4">
         <ArtikalFilter
-          artikli={artikli}
+          artikli={sviArtikli}
           kategorija={kategorija || ''}
           podkategorija={podkategorija || ''}
           onFilterChange={onFilterChange}
@@ -144,9 +121,8 @@ const ListaArtikala = ({
               //   kolZaIzdavanje={artikal.kolZaIzdavanje}
               // />
               <MemoizedArticleCard
-                key={artikal.idArtikla ?? idx}
-                {...artikal}
-              />
+                idPartnera={korisnik?.partner ?? ""} key={artikal.idArtikla ?? idx}
+                {...artikal}              />
             ))}
           </div>
         </div>
