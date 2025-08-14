@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import ArticleCard from "./ArticleCard";
 import ArtikalFilter from "./ArtikalFilter";
 import {
@@ -11,7 +11,6 @@ import {
   PaginacijaPrethodna,
   PaginacijaSledeca,
 } from "@/components/ui/pagination";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ArtikalFilterProp, ListaArtikalaProps } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 
@@ -22,70 +21,25 @@ const ListaArtikala = ({
   podkategorija,
   totalCount,
   currentPage,
+  pageSize = 8,
   onPageChange,
   loading = false,
   onFilterChange,
 }: ListaArtikalaProps) => {
-
-  const artikliPoStrani = 8;
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const trenutnaStrana = currentPage;
   const korisnik = dajKorisnikaIzTokena();
-  const idPartnera = korisnik?.idKorisnika;
   const MemoizedArticleCard = React.memo(ArticleCard);
-
-  const [filteri, setFilteri] = useState<ArtikalFilterProp>({
-    naziv: '',
-    jm: [],
-    Materijal: [],
-    Model: [],
-    Pakovanje: [],
-    RobnaMarka: [],
-    Upotreba: [],
-    Boja: [],
-  });
-
   const [noResults, setNoResults] = useState(false);
+  const brojStranica = Math.ceil(totalCount / pageSize);
 
-  
-  const brojStranica = useMemo(() => {
-    const br = Math.ceil(totalCount / artikliPoStrani);
-    return br < 1 ? 1 : br;
-  }, [totalCount]);
-
-  // Prikazivanje artikala prema trenutnoj stranici
-  const prikazaniArtikli = useMemo(() => {
-    const startIndex = (trenutnaStrana - 1) * artikliPoStrani;
-    return artikli.slice(startIndex, startIndex + artikliPoStrani);
-  }, [artikli, trenutnaStrana]);
-
-  // Funkcija za menjanje strane i update URL-a
-  const idiNaStranu = (broj: number, noviFilteri: any, event?: React.MouseEvent) => {
+  const idiNaStranu = (broj: number, event?: React.MouseEvent) => {
     if (event) event.preventDefault();
-    if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return;
-
-    const noviUpit = new URLSearchParams(window.location.search);
-    searchParams.forEach((value, key) => {
-      if (value.trim() !== '') {
-        noviUpit.append(key, value);
-      }
-    });
-    
-    noviUpit.set('page', broj.toString());
-    router.push(`${pathname}?${noviUpit.toString()}`);
+    if (broj < 1 || broj > brojStranica) return;
+    onPageChange(broj);
   };
 
   useEffect(() => {
-    if (artikli.length === 0) {
-      setNoResults(true);
-    } else {
-      setNoResults(false);
-    }
+    setNoResults(artikli.length === 0);
   }, [artikli]);
-
-  
 
   return (
     <div className="flex flex-col md:flex-row w-full px-1 gap-4">
@@ -100,29 +54,15 @@ const ListaArtikala = ({
 
       <div className="w-full md:w-3/4">
         <div className="relative">
-          <div
-            className={`grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle transition-opacity duration-300 ${
-              loading ? 'opacity-50 pointer-events-none' : ''
-            }`}
-          >
-            {prikazaniArtikli.map((artikal, idx) => (
-              // <ArticleCard
-              //   key={artikal.idArtikla ?? idx}
-              //   naziv={artikal.naziv}
-              //   idArtikla={artikal.idArtikla}
-              //   barkod={artikal.barkod}
-              //   kategorijaId={artikal.kategorijaId}
-              //   kolicina={artikal.kolicina}
-              //   jm={artikal.jm}
-              //   artikalAtributi={artikal.artikalAtributi}
-              //   artikalCene={artikal.artikalCene ?? []}
-              //   lastPurchaseDate="2025-06-20"
-              //   idPartnera={idPartnera!}
-              //   kolZaIzdavanje={artikal.kolZaIzdavanje}
-              // />
+          <div className={`grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle transition-opacity duration-300 ${
+            loading ? 'opacity-50 pointer-events-none' : ''
+          }`}>
+            {artikli.map((artikal, idx) => (
               <MemoizedArticleCard
-                idPartnera={korisnik?.partner ?? ""} key={artikal.idArtikla ?? idx}
-                {...artikal}              />
+                idPartnera={korisnik?.partner ?? ""} 
+                key={artikal.idArtikla ?? idx}
+                {...artikal}
+              />
             ))}
           </div>
         </div>
@@ -131,14 +71,13 @@ const ListaArtikala = ({
           <p className="text-center py-5 text-red-500">Nema artikala koji odgovaraju izabranim filterima.</p>
         )}
 
-        {/* Paginacija */}
         {brojStranica > 1 && (
           <Paginacija className="my-[20px]">
             <PaginacijaSadrzaj>
               <PaginacijaStavka>
                 <PaginacijaPrethodna
-                  onClick={(e) => idiNaStranu(trenutnaStrana - 1, filteri, e)}
-                  disabled={trenutnaStrana === 1}
+                  onClick={(e) => idiNaStranu(currentPage - 1, e)}
+                  disabled={currentPage === 1}
                 />
               </PaginacijaStavka>
 
@@ -147,13 +86,13 @@ const ListaArtikala = ({
                 if (
                   broj === 1 ||
                   broj === brojStranica ||
-                  Math.abs(trenutnaStrana - broj) <= 1
+                  Math.abs(currentPage - broj) <= 1
                 ) {
                   return (
                     <PaginacijaStavka key={broj}>
                       <PaginacijaLink
-                        isActive={trenutnaStrana === broj}
-                        onClick={(e) => idiNaStranu(broj, filteri, e)}
+                        isActive={currentPage === broj}
+                        onClick={(e) => idiNaStranu(broj, e)}
                       >
                         {broj}
                       </PaginacijaLink>
@@ -162,8 +101,8 @@ const ListaArtikala = ({
                 }
 
                 if (
-                  (broj === 2 && trenutnaStrana > 3) ||
-                  (broj === brojStranica - 1 && trenutnaStrana < brojStranica - 2)
+                  (broj === 2 && currentPage > 3) ||
+                  (broj === brojStranica - 1 && currentPage < brojStranica - 2)
                 ) {
                   return (
                     <PaginacijaStavka key={`ellipsis-${broj}`}>
@@ -177,8 +116,8 @@ const ListaArtikala = ({
 
               <PaginacijaStavka>
                 <PaginacijaSledeca
-                  onClick={(e) => idiNaStranu(trenutnaStrana + 1, filteri, e)}
-                  disabled={trenutnaStrana === brojStranica}
+                  onClick={(e) => idiNaStranu(currentPage + 1, e)}
+                  disabled={currentPage === brojStranica}
                 />
               </PaginacijaStavka>
             </PaginacijaSadrzaj>

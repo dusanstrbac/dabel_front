@@ -69,7 +69,7 @@ export interface ListaArtikalaProps {
   podkategorija?: string | null;
   totalCount: number;
   currentPage: number;
-  pageSize?: number;
+  pageSize: number;
   onPageChange: (page: number) => void;
   loading?: boolean;
   onFilterChange: (filters: ArtikalFilterProp) => void;

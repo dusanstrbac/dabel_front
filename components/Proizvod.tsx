@@ -348,79 +348,64 @@ export default function Proizvod() {
                 </div>
               )}
             </div>
-            {Number(proizvod.kolicina) > 0 ? (
-              <>
-                <Input
-                  type="number"
-                  className="min-w-10 w-full max-w-21"
-                  step={imaDozvoluZaPakovanje ? 1 : (proizvod.kolZaIzdavanje || 1)}
-                  min={0}
-                  defaultValue={imaDozvoluZaPakovanje ? 1 : (proizvod.kolZaIzdavanje || 1)}
-                  onChange={(e) => {
-                    if (debounceTimeout.current) {
-                      clearTimeout(debounceTimeout.current);
-                    }
-
-                    debounceTimeout.current = setTimeout(() => {
-                      const pakovanje = proizvod.kolZaIzdavanje || 1;
-                      let enteredValue = Number(e.target.value);
-                      const maxAllowed = getMaxAllowedQuantity(proizvod.kolicina, pakovanje);
-
-                      if (isNaN(enteredValue)) {
-                        enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanje;
-                      }
-
-                      const roundedValue = imaDozvoluZaPakovanje 
-                        ? enteredValue 
-                        : Math.ceil(enteredValue / pakovanje) * pakovanje;
-                      
-                      const finalValue = Math.min(roundedValue, maxAllowed);
-                      if (inputRef.current) {
-                        inputRef.current.value = finalValue.toString();
-                      }
-                    }, debounceVreme)
-                  }}
-                  ref={inputRef}
-                />
-                <AddToCartButton
-                  id={proizvod.idArtikla}
-                  className="w-full sm:w-auto px-6 py-2"
-                  title="Dodaj u korpu"
-                  getKolicina={() => {
-                    const pakovanje = proizvod.kolZaIzdavanje || 1;
-                    const rawValue = Number(inputRef.current?.value || (imaDozvoluZaPakovanje ? 1 : pakovanje));
-                    return getRoundedQuantity(rawValue, pakovanje);
-                  }}
-                  nazivArtikla={proizvod.naziv}
-                  disabled={Number(proizvod.kolicina) <= 0 || preostalo === 0}
-                  ukupnaKolicina={preostalo}
-                  onPreAdd={() => {
-                    const pakovanje = proizvod.kolZaIzdavanje || 1;
-                    const rawValue = Number(inputRef.current?.value || (imaDozvoluZaPakovanje ? 1 : pakovanje));
-                    const uneta = getRoundedQuantity(rawValue, pakovanje);
-                    
-                    if (uneta > preostalo) {
-                      toast.error("Nema dovoljno artikala na stanju!", {
-                        description: `Maksimalno možete dodati ${preostalo} kom.`,
-                      });
-                      return false;
-                    }
-                    return true;
-                  }}
-                />
-              </>
-            ) : (
-              <input
-                ref={inputRef}
-                name="inputProizvod"
-                className="w-16 border rounded px-2 py-1 text-center"
+              <Input
                 type="number"
+                className="min-w-10 w-full max-w-21"
+                step={imaDozvoluZaPakovanje ? 1 : (proizvod.kolZaIzdavanje || 1)}
                 min={0}
-                max={0}
-                defaultValue={0}
-                disabled
+                defaultValue={imaDozvoluZaPakovanje ? 1 : (proizvod.kolZaIzdavanje || 1)}
+                onChange={(e) => {
+                  if (debounceTimeout.current) {
+                    clearTimeout(debounceTimeout.current);
+                  }
+
+                  debounceTimeout.current = setTimeout(() => {
+                    const pakovanje = proizvod.kolZaIzdavanje || 1;
+                    let enteredValue = Number(e.target.value);
+                    const maxAllowed = getMaxAllowedQuantity(proizvod.kolicina, pakovanje);
+
+                    if (isNaN(enteredValue)) {
+                      enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanje;
+                    }
+
+                    const roundedValue = imaDozvoluZaPakovanje 
+                      ? enteredValue 
+                      : Math.ceil(enteredValue / pakovanje) * pakovanje;
+                    
+                    const finalValue = Math.min(roundedValue, maxAllowed);
+                    if (inputRef.current) {
+                      inputRef.current.value = finalValue.toString();
+                    }
+                  }, debounceVreme)
+                }}
+                ref={inputRef}
               />
-            )}
+              <AddToCartButton
+                id={proizvod.idArtikla}
+                className="w-full sm:w-auto px-6 py-2"
+                title="Dodaj u korpu"
+                getKolicina={() => {
+                  const pakovanje = proizvod.kolZaIzdavanje || 1;
+                  const rawValue = Number(inputRef.current?.value || (imaDozvoluZaPakovanje ? 1 : pakovanje));
+                  return getRoundedQuantity(rawValue, pakovanje);
+                }}
+                nazivArtikla={proizvod.naziv}
+                disabled={Number(proizvod.kolicina) <= 0 || preostalo === 0}
+                ukupnaKolicina={preostalo}
+                onPreAdd={() => {
+                  const pakovanje = proizvod.kolZaIzdavanje || 1;
+                  const rawValue = Number(inputRef.current?.value || (imaDozvoluZaPakovanje ? 1 : pakovanje));
+                  const uneta = getRoundedQuantity(rawValue, pakovanje);
+                  
+                  if (uneta > preostalo) {
+                    toast.error("Nema dovoljno artikala na stanju!", {
+                      description: `Maksimalno možete dodati ${preostalo} kom.`,
+                    });
+                    return false;
+                  }
+                  return true;
+                }}
+              />
           </div>
         </div>
       </div>

@@ -170,7 +170,7 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZ
           <div className="pointer-events-auto">
             <AddToCartButton
               id={idArtikla}
-              getKolicina={() => kolZaIzdavanje || 1} //ovaj se buni
+              getKolicina={() => kolZaIzdavanje || 1} 
               kolZaIzdavanje={kolZaIzdavanje}
               nazivArtikla={naziv}
               disabled={Number(kolicina) <= 0}
