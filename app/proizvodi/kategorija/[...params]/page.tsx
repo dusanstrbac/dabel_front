@@ -69,90 +69,71 @@ export default function ProizvodiPage() {
   }, [kategorija, podkategorija]);
 
   // Filtriranje artikala
-const filtriraniArtikli = useMemo(() => {
-  console.log("--- POČETAK FILTRIRANJA ---");
-  
-  // 1. Prikazi sve URL parametre
-  console.log("URL parametri:", Array.from(searchParams.entries()));
+  const filtriraniArtikli = useMemo(() => {
+    console.log("--- POČETAK FILTRIRANJA ---");
+    
+    // 1. Prikazi sve URL parametre
+    console.log("URL parametri:", Array.from(searchParams.entries()));
 
-  let result = [...sviArtikli];
-  console.log(`Ukupno artikala pre filtera: ${result.length}`);
+    let result = [...sviArtikli];
+    console.log(`Ukupno artikala pre filtera: ${result.length}`);
 
-  // 2. Filter po ceni (AND - mora biti u opsegu)
-  const minCena = searchParams.get('minCena');
-  const maxCena = searchParams.get('maxCena');
-  if (minCena && maxCena) {
-    const min = parseFloat(minCena);
-    const max = parseFloat(maxCena);
-    result = result.filter(artikal => {
-      const cena = artikal.artikalCene?.[0]?.cena || 0;
-      return cena >= min && cena <= max;
-    });
-    console.log(`Artikala posle cene (${min}-${max}): ${result.length}`);
-  }
-
-  // 3. Napravimo listu svih filtera, razdvajajući kombinovane vrednosti
-  const sviFilteri: {key: string; value: string}[] = [];
-  const filterKeys = ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja'];
-  
-  filterKeys.forEach(key => {
-    searchParams.getAll(key).forEach(combinedValue => {
-      // Razdvoji kombinovane vrednosti (npr. "Inox,Niklovano" => ["Inox", "Niklovano"])
-      const values = combinedValue.split(',');
-      values.forEach(value => {
-        sviFilteri.push({key, value: value.trim()});
+    // 2. Filter po ceni (AND - mora biti u opsegu)
+    const minCena = searchParams.get('minCena');
+    const maxCena = searchParams.get('maxCena');
+    if (minCena && maxCena) {
+      const min = parseFloat(minCena);
+      const max = parseFloat(maxCena);
+      result = result.filter(artikal => {
+        const cena = artikal.artikalCene?.[0]?.cena || 0;
+        return cena >= min && cena <= max;
       });
+      console.log(`Artikala posle cene (${min}-${max}): ${result.length}`);
+    }
+
+    // 3. Grupiši filtere po kategorijama (AND između grupa, OR unutar grupe)
+    const filterGroups: Record<string, string[]> = {};
+    const filterKeys = ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja'];
+    
+    filterKeys.forEach(key => {
+      const values = searchParams.getAll(key).flatMap(v => v.split(','));
+      if (values.length > 0) {
+        filterGroups[key] = values;
+      }
     });
-  });
 
-  console.log("Svi pojedinačni filteri:", sviFilteri);
+    console.log("Grupe filtera:", filterGroups);
 
-  // 4. Ako ima filtera, primeni OR za sve
-  if (sviFilteri.length > 0) {
-    result = result.filter(artikal => {
-      // Proveri da li artikal zadovoljava BAR JEDAN filter
-      const zadovoljava = sviFilteri.some(filter => {
-        // Provera za JM
-        if (filter.key === 'jm') {
-          const match = artikal.jm === filter.value;
-          if (match) console.log(`Artikal ${artikal.naziv} zadovoljava JM: ${filter.value}`);
-          return match;
-        }
-        
-        // Provera za atribute
-        if (artikal.artikalAtributi) {
-          const atributKey = filter.key === 'RobnaMarka' ? 'Robna marka' : 
-                           filter.key === 'Boja' ? 'Zavr.obr-boja' : filter.key;
-          
-          const match = artikal.artikalAtributi.some(atribut => {
-            const atributMatch = atribut.imeAtributa === atributKey && 
-                               atribut.vrednost === filter.value;
-            if (atributMatch) {
-              console.log(`Artikal ${artikal.naziv} zadovoljava ${atributKey}: ${filter.value}`);
-            }
-            return atributMatch;
-          });
-          
-          if (!match) {
-            console.log(`Artikal ${artikal.naziv} nema ${atributKey}: ${filter.value}`);
-            console.log("Dostupni atributi:", artikal.artikalAtributi.map(a => `${a.imeAtributa}=${a.vrednost}`));
+    // 4. Ako ima filtera, primeni kombinovanu AND/OR logiku
+    if (Object.keys(filterGroups).length > 0) {
+      result = result.filter(artikal => {
+        // Proveri da li artikal zadovoljava SVE grupe filtera (AND)
+        return Object.entries(filterGroups).every(([key, values]) => {
+          // Unutar svake grupe, proveri da li zadovoljava BAR JEDNU vrednost (OR)
+          if (key === 'jm') {
+            return values.includes(artikal.jm);
           }
           
-          return match;
-        }
-        return false;
+          if (artikal.artikalAtributi) {
+            const atributKey = key === 'RobnaMarka' ? 'Robna marka' : 
+                            key === 'Boja' ? 'Zavr.obr-boja' : key;
+            
+            return artikal.artikalAtributi.some(atribut => 
+              atribut.imeAtributa === atributKey && 
+              values.includes(atribut.vrednost)
+            );
+          }
+          return false;
+        });
       });
-      
-      return zadovoljava;
-    });
-  }
+    }
 
-  console.log(`--- KRAJ FILTRIRANJA ---`);
-  console.log(`Filtriranih artikala: ${result.length}`);
-  console.log("Primeri:", result.slice(0, 3).map(a => a.naziv));
-  
-  return result;
-}, [sviArtikli, searchParams]);
+    console.log(`--- KRAJ FILTRIRANJA ---`);
+    console.log(`Filtriranih artikala: ${result.length}`);
+    console.log("Primeri:", result.slice(0, 3).map(a => a.naziv));
+    
+    return result;
+  }, [sviArtikli, searchParams]);
 
 
   // Sortiranje

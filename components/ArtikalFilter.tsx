@@ -7,6 +7,7 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collap
 import { useRouter, useSearchParams } from 'next/navigation'
 import { dajKorisnikaIzTokena } from '@/lib/auth'
 import { useDebounce } from 'use-debounce' // Dodaj ovaj import
+import { useArtikalFilter } from '@/contexts/useArtikalFilter'
 
 interface ProductFilterProps {
   artikli: ArtikalType[];
@@ -45,6 +46,8 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
   onFilterChange,
 }) => {
 
+
+
   const [filterOptions, setFilterOptions] = useState<AtributiFiltera>({
     jm: [],
     Materijal: [],
@@ -56,6 +59,7 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
   });
   const router = useRouter()
   const searchParams = useSearchParams()
+  const filtriraniArtikli = useArtikalFilter(artikli, searchParams);
   const isInitialMount = useRef(true)
 
 
@@ -125,7 +129,7 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
     return () => clearTimeout(timeoutId)
   }, [filters, router])
 
-  
+
 
   // Efekt za ažuriranje URL-a
   useEffect(() => {
