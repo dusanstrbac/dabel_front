@@ -1,16 +1,8 @@
 'use client'
-
 import React, { useState, useEffect, useMemo } from "react";
 import ArticleCard from "./ArticleCard";
 import ArtikalFilter from "./ArtikalFilter";
-import {
-  Paginacija,
-  PaginacijaSadrzaj,
-  PaginacijaStavka,
-  PaginacijaLink,
-  PaginacijaPrethodna,
-  PaginacijaSledeca,
-} from "@/components/ui/pagination";
+import { Paginacija, PaginacijaSadrzaj, PaginacijaStavka, PaginacijaLink, PaginacijaPrethodna, PaginacijaSledeca } from "@/components/ui/pagination";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ArtikalFilterProp, ListaArtikalaProps } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
@@ -32,10 +24,7 @@ const ListaArtikala = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const trenutnaStrana = currentPage;
-  const korisnik = dajKorisnikaIzTokena();
-  const idPartnera = korisnik?.idKorisnika;
   const MemoizedArticleCard = React.memo(ArticleCard);
-
   const [filteri, setFilteri] = useState<ArtikalFilterProp>({
     naziv: '',
     jm: [],
@@ -46,7 +35,6 @@ const ListaArtikala = ({
     Upotreba: [],
     Boja: [],
   });
-
   const [noResults, setNoResults] = useState(false);
 
   const brojStranica = useMemo(() => {
@@ -101,20 +89,6 @@ const ListaArtikala = ({
             }`}
           >
             {prikazaniArtikli.map((artikal, idx) => (
-              // <ArticleCard
-              //   key={artikal.idArtikla ?? idx}
-              //   naziv={artikal.naziv}
-              //   idArtikla={artikal.idArtikla}
-              //   barkod={artikal.barkod}
-              //   kategorijaId={artikal.kategorijaId}
-              //   kolicina={artikal.kolicina}
-              //   jm={artikal.jm}
-              //   artikalAtributi={artikal.artikalAtributi}
-              //   artikalCene={artikal.artikalCene ?? []}
-              //   lastPurchaseDate="2025-06-20"
-              //   idPartnera={idPartnera!}
-              //   kolZaIzdavanje={artikal.kolZaIzdavanje}
-              // />
               <MemoizedArticleCard
                 key={artikal.idArtikla ?? idx}
                 {...artikal}

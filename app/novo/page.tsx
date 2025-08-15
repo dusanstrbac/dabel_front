@@ -78,7 +78,6 @@ const Akcije = () => {
     if (!res.ok) throw new Error("Greška pri preuzimanju artikala");
 
     const data = await res.json();
-    console.log('Data za novopristigle', data);
 
     setArtikli(data.artikli);
     setTotalCount(data.totalCount ?? 0);

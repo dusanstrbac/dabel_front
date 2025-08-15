@@ -263,19 +263,26 @@ export default function ProizvodiPage() {
       {error && <p className="text-center text-red-500">{error}</p>}
 
       <div>
-        <ListaArtikala
-          artikli={artikli}
-          atributi={atributiResponse} // Koristimo memoizovanu transformaciju
-          kategorija={kategorija}
-          podkategorija={podkategorija}
-          totalCount={totalCount}
-          currentPage={pageFromUrl}
-          pageSize={pageSize}
-          loading={loading}
-          onPageChange={handlePageChange}
-          onFilterChange={handleFilterChange}
-        />
-        
+        {loading ? (
+          <p className="text-center mt-4">Učitavanje...</p>
+        ): error ? (
+          <p className="text-center text-red-600 mt-4">{error}</p>
+        ) : (
+          <>
+            <ListaArtikala
+              artikli={artikli}
+              atributi={atributiResponse} // Koristimo memoizovanu transformaciju
+              kategorija={kategorija}
+              podkategorija={podkategorija}
+              totalCount={totalCount}
+              currentPage={pageFromUrl}
+              pageSize={pageSize}
+              loading={loading}
+              onPageChange={handlePageChange}
+              onFilterChange={handleFilterChange}
+            />          
+          </>
+        )}        
       </div>
     </div>
   );
