@@ -130,9 +130,12 @@ export default function ProizvodiPage() {
         />
       </div>
 
-      {error && <p className="text-center text-red-500">{error}</p>}
-
-      <div>
+        {loading ? (
+          <p className="text-center mt-4">Učitavanje...</p>
+        ): error ? (
+          <p className="text-center text-red-600 mt-4">{error}</p>
+        ) : (
+          <>
         <ListaArtikala
           artikli={sortiraniArtikli} // Šaljemo SVE sortirane artikle
           kategorija={kategorija}
@@ -143,8 +146,9 @@ export default function ProizvodiPage() {
           loading={loading}
           onPageChange={handlePageChange}
           onFilterChange={handleFilterChange}
-        />
-      </div>
+        />       
+          </>
+        )} 
     </div>
   );
 }
