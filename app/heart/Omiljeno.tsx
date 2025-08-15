@@ -5,6 +5,7 @@ import { ArtikalAtribut, ArtikalFilterProp, ArtikalType } from "@/types/artikal"
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { ocistiImeAtributa } from "@/contexts/OcistiImeAtributa";
 
 type SortKey = 'cena' | 'naziv';
 type SortOrder = 'asc' | 'desc';
@@ -23,9 +24,6 @@ const OmiljeniArtikli = () => {
 
   const searchParams = useSearchParams();
   const router = useRouter();
-
-  // Funkcija za čišćenje imena atributa
-  const ocistiImeAtributa = (ime: string) => ime.replace(/\(\d+\)/, '').trim();
 
   // Sinhronizacija URL parametara sa stanjem komponente
   useEffect(() => {
@@ -56,12 +54,7 @@ const OmiljeniArtikli = () => {
         return;
       }
 
-      const url = new URL(`${apiAddress}/api/Partner/POA`);
-      url.searchParams.append("idPartnera", korisnik.partner);
-      url.searchParams.append("idKorisnika", korisnik.idKorisnika);
-
-
-      const res = await fetch(url.toString());
+      const res = await fetch(`${apiAddress}/api/Partner/POA?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`);
       if (!res.ok) throw new Error("Greška pri preuzimanju omiljenih artikala");
 
       const data = await res.json();
@@ -98,8 +91,6 @@ const OmiljeniArtikli = () => {
       setLoading(false);
     }
   };
-
-    console.log(artikli);
 
   // Učitaj artikle kada se stranica, sortiranje ili parametri promene
   useEffect(() => {
