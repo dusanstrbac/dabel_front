@@ -1,42 +1,15 @@
 'use client'
 
 import { ArtikalFilterProp, ArtikalType } from '@/types/artikal'
-import React, { useEffect, useState, useRef, useCallback } from 'react'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import MultiRangeSlider, { ChangeResult } from './ui/MultiRangeSlider'
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { dajKorisnikaIzTokena } from '@/lib/auth'
-import { useDebounce } from 'use-debounce' // Dodaj ovaj import
-import { useArtikalFilter } from '@/contexts/useArtikalFilter'
 
 interface ProductFilterProps {
   artikli: ArtikalType[];
   kategorija: string;
   podkategorija: string | null;
-  onFilterChange: (filters: ArtikalFilterProp) => void;
-}
-
-
-interface AtributiFiltera {
-  jm: string[];
-  Materijal: string[];
-  Model: string[];
-  Pakovanje: string[];
-  RobnaMarka: string[];
-  Upotreba: string[];
-  Boja: string[];
-}
-
-const defaultFilters: ArtikalFilterProp = {
-  naziv: '',
-  jm: [],
-  Materijal: [],
-  Model: [],
-  Pakovanje: [],
-  RobnaMarka: [],
-  Upotreba: [],
-  Boja: [],
-  cena: '0-100000',
+  onFilterChange: (filteredArtikli: ArtikalType[]) => void;
 }
 
 const ArtikalFilter: React.FC<ProductFilterProps> = ({
@@ -45,10 +18,9 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
   podkategorija,
   onFilterChange,
 }) => {
-
-
-
-  const [filterOptions, setFilterOptions] = useState<AtributiFiltera>({
+  // Stanje za filtere sa inicijalnim vrednostima
+  const [filters, setFilters] = useState<ArtikalFilterProp>({
+    cena: '0-100000',
     jm: [],
     Materijal: [],
     Model: [],
@@ -57,273 +29,121 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
     Upotreba: [],
     Boja: [],
   });
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const filtriraniArtikli = useArtikalFilter(artikli, searchParams);
-  const isInitialMount = useRef(true)
 
+  // Filtriranje artikala sa AND/OR logikom
+  const filtriraniArtikli = useMemo(() => {
+    let result = [...artikli];
 
-
-  
-  useEffect(() => {
-    // Proveri da li su se zaista promenili parametri filtera (ne samo page)
-    const filterKeys = ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja', 'cena'];
-    const hasFilterChanges = filterKeys.some(key => 
-      searchParams.get(key) !== prevFiltersRef.current?.[key as keyof ArtikalFilterProp]?.toString()
-    );
-
-    if (hasFilterChanges) {
-      const initialFilters = { ...defaultFilters };
-      // ...ostatak inicijalizacije
-      onFilterChange(initialFilters);
-    }
-
-    prevFiltersRef.current = filters;
-  }, [searchParams]);
-  
-
-  const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS
-  const korisnik = dajKorisnikaIzTokena()
-  // const fullUrl = `${apiAddress}/api/Artikal/DajArtikalCene?grupa=${encodeURIComponent(kategorija)}&podgrupa=${podkategorija ? encodeURIComponent(podkategorija) : ''}`
-
-  // Cena
-  const [mapaCena, setMapaCena] = useState<Map<string, number>>(new Map())
-  const [minCena, setMinCena] = useState(0)
-  const [maxCena, setMaxCena] = useState(100000)
-
-  // Aktuelni filteri - OVO JE PREMEŠTENO IZNAD pendingFilters
-  const [filters, setFilters] = useState<ArtikalFilterProp>(defaultFilters)
-  
-  // Sada je safe da koristimo filters u pendingFilters
-  const [pendingFilters, setPendingFilters] = useState<ArtikalFilterProp>(filters);
-  const [sliderValues, setSliderValues] = useState<[number, number]>([minCena, maxCena])
-  const [debouncedSliderValues] = useDebounce(sliderValues, 500);
-
-  // State za odloženo ažuriranje URL-a
-  const [urlUpdateQueue, setUrlUpdateQueue] = useState<ArtikalFilterProp | null>(null)
-
-
-  // Efekt za debounce-ovano ažuriranje URL-a
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false
-      return
-    }
-
-    const timeoutId = setTimeout(() => {
-      const params = new URLSearchParams()
-      
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value && 
-            ((Array.isArray(value) && value.length > 0) || 
-            (!Array.isArray(value) && value !== ''))) {
-          params.set(key, Array.isArray(value) ? value.join(',') : value)
-        } else {
-          params.delete(key)
-        }
-      })
-
-      router.replace(`?${params.toString()}`, { scroll: false })
-    }, 100)
-
-    return () => clearTimeout(timeoutId)
-  }, [filters, router])
-
-
-
-  // Efekt za ažuriranje URL-a
-  useEffect(() => {
-    if (urlUpdateQueue) {
-      const params = new URLSearchParams()
-      
-      Object.entries(urlUpdateQueue).forEach(([key, value]) => {
-        if (value && 
-            ((Array.isArray(value) && value.length > 0) || 
-            (!Array.isArray(value) && value !== ''))) {
-          params.set(key, Array.isArray(value) ? value.join(',') : value)
-        } else {
-          params.delete(key)
-        }
-      })
-
-      router.replace(`?${params.toString()}`, { scroll: false })
-      setUrlUpdateQueue(null)
-    }
-  }, [urlUpdateQueue, router])
-
-  const handleChange = useCallback((key: string, value: string[]) => {
-    const newFilters = {
-      ...filters,
-      [key]: value
-    }
+    // 1. Filter po ceni (AND)
+    const cenaParts = filters.cena?.split('-') || ['0', '100000'];
+    const minCena = parseFloat(cenaParts[0]);
+    const maxCena = parseFloat(cenaParts[1]);
     
-    setFilters(newFilters)
-    setPendingFilters(newFilters)
-    onFilterChange(newFilters)
-  }, [filters, onFilterChange])
+    result = result.filter(artikal => {
+      const cena = artikal.artikalCene?.[0]?.cena || 0;
+      return cena >= minCena && cena <= maxCena;
+    });
 
-  //RESET FILTERA
-  const resetFilters = useCallback(() => {
-    setFilters(defaultFilters)
-    setPendingFilters(defaultFilters)
-    setSliderValues([0, 100000])
-    onFilterChange(defaultFilters)
-  }, [onFilterChange])
-
-  // Opcije filtera
-  useEffect(() => {
-    if (artikli.length > 0) {
-      const newFilterOptions = {
-        jm: [] as string[],
-        Materijal: [] as string[],
-        Model: [] as string[],
-        Pakovanje: [] as string[],
-        RobnaMarka: [] as string[],
-        Upotreba: [] as string[],
-        Boja: [] as string[],
-      };
-
-      artikli.forEach(artikal => {
-        // Dodaj jedinicu mere (jm) ako postoji
-        if (artikal.jm && !newFilterOptions.jm.includes(artikal.jm)) {
-          newFilterOptions.jm.push(artikal.jm);
-        }
-
-        // Procesuiraj atribute artikla
-        if (artikal.artikalAtributi) {
-          artikal.artikalAtributi.forEach(atribut => {
-            // Mapiranje imena atributa na filter ključeve
-            const key = atribut.imeAtributa === "Robna marka" ? "RobnaMarka" : 
-                        atribut.imeAtributa === "Zavr.obr-boja" ? "Boja" :
-                        atribut.imeAtributa;
+    // 2. Filteri po atributima (AND između grupa, OR unutar grupe)
+    const filterKeys: (keyof ArtikalFilterProp)[] = [
+      'jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja'
+    ];
+    
+    filterKeys.forEach(key => {
+      const values = filters[key];
+      if (Array.isArray(values) && values.length > 0) {
+        result = result.filter(artikal => {
+          if (key === 'jm') {
+            return values.includes(artikal.jm);
+          }
+          
+          if (artikal.artikalAtributi) {
+            const atributKey = key === 'RobnaMarka' ? 'Robna marka' : 
+                             key === 'Boja' ? 'Zavr.obr-boja' : key;
             
-            // Proveri da li atribut pripada filter opcijama
-            if (newFilterOptions.hasOwnProperty(key)) {
-              const vrednost = atribut.vrednost.trim();
-              if (vrednost && !newFilterOptions[key as keyof typeof newFilterOptions].includes(vrednost)) {
-                newFilterOptions[key as keyof typeof newFilterOptions].push(vrednost);
-              }
-            }
-          });
-        }
-      });
-
-      setFilterOptions(newFilterOptions);
-    }
-  }, [artikli]);
-
-  // Ref za prethodne filtere da izbegnemo beskonačni loop
-  const prevFiltersRef = useRef<ArtikalFilterProp | null>(null)
-
-  // Za Cene
-  useEffect(() => {
-    if (JSON.stringify([minCena, maxCena]) !== JSON.stringify(debouncedSliderValues)) {
-      handleChange('cena', [`${debouncedSliderValues[0]}-${debouncedSliderValues[1]}`])
-    }
-  }, [debouncedSliderValues]);
-
-  function ocistiImeAtributa(key: string): string {
-    // Clean up attribute names - implement according to your needs
-    return key.trim();
-  }
-
-  function prikaziLepoIme(name: string): string {
-    // Format attribute names for display
-    if (!name) return '';
-    return name
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase());
-  }
-
-  // function handleChange(key: string, value: string[]) {
-  //   setPendingFilters(prev => ({
-  //     ...prev,
-  //     [key]: value
-  //   }));
-
-  //     // Ažuriraj filtere odmah bez potrebe za klikom na "Primeni filtere"
-  //   const newFilters = {
-  //     ...pendingFilters,
-  //     [key]: value
-  //   };
-  //   onFilterChange(newFilters);
-  // }
-////////////////////////////////////////////////////////////////////////////////////////
-  // const handleChange = useCallback((key: string, value: string[]) => {
-  //   // Prvo ažurirajte lokalno stanje
-  //   const newFilters = {
-  //     ...pendingFilters,
-  //     [key]: value
-  //   };
-    
-  //   setPendingFilters(newFilters);
-  //   onFilterChange(newFilters);
-
-  //   // Ažuriranje URL-a preko useEffect-a
-  //   // Ovo moramo izdvojiti u poseban useEffect izvan ove funkcije
-  //   // Kreirajmo state za URL promene
-  //   const [urlUpdate, setUrlUpdate] = useState<{key: string, value: string[]} | null>(null);
-
-  //   const handleChange = useCallback((key: string, value: string[]) => {
-  //     // Ažurirajte lokalno stanje
-  //     const newFilters = {
-  //       ...pendingFilters,
-  //       [key]: value
-  //     };
-      
-  //     setPendingFilters(newFilters);
-  //     onFilterChange(newFilters);
-  //     setUrlUpdate({key, value});
-  //   }, [pendingFilters, onFilterChange]);
-
-  //   // Ovo ide van tela handleChange funkcije, u telo komponente
-  //   useEffect(() => {
-  //     if (urlUpdate) {
-  //       const params = new URLSearchParams(window.location.search);
-        
-  //       if (urlUpdate.value.length > 0) {
-  //         params.set(urlUpdate.key, urlUpdate.value.join(','));
-  //       } else {
-  //         params.delete(urlUpdate.key);
-  //       }
-
-  //       router.replace(`?${params.toString()}`, { scroll: false });
-  //     }
-  //   }, [urlUpdate, router]);
-  // }, [pendingFilters, onFilterChange]);
-////////////////////////////////////////////////////////////////////////////////////////
-
-  useEffect(() => {
-    // Ovo će osigurati sinhronizaciju kada URL promeni sa spolja
-    const params = new URLSearchParams(searchParams.toString());
-    const newFilters = { ...filters };
-    
-    let hasChanges = false;
-    Object.keys(filters).forEach(key => {
-      const value = params.get(key);
-      if (value) {
-        const newValue = Array.isArray(filters[key as keyof ArtikalFilterProp]) 
-          ? value.split(',') 
-          : value;
-        
-        if (JSON.stringify(newFilters[key as keyof ArtikalFilterProp]) !== JSON.stringify(newValue)) {
-          newFilters[key as keyof ArtikalFilterProp] = newValue;
-          hasChanges = true;
-        }
-      } else if (filters[key as keyof ArtikalFilterProp]) {
-        newFilters[key as keyof ArtikalFilterProp] = 
-          Array.isArray(filters[key as keyof ArtikalFilterProp]) ? [] : '';
-        hasChanges = true;
+            return artikal.artikalAtributi.some(atribut => 
+              atribut.imeAtributa === atributKey && 
+              values.includes(atribut.vrednost)
+        )}
+          return false;
+        });
       }
     });
 
-    if (hasChanges) {
-      setPendingFilters(newFilters);
-      setFilters(newFilters);
-      onFilterChange(newFilters);
-    }
-  }, [searchParams]);
+    return JSON.stringify(result) === JSON.stringify(artikli) 
+    ? artikli 
+    : result;
+  }, [artikli, filters]);
 
+  // Obavesti parent komponentu o promenama
+  const stableOnFilterChange = useCallback(onFilterChange, []);
+
+  useEffect(() => {
+    if (JSON.stringify(filtriraniArtikli) !== JSON.stringify(artikli)) {
+      stableOnFilterChange(filtriraniArtikli);
+    }
+  }, [filtriraniArtikli, artikli, stableOnFilterChange]);
+
+  // Generisanje opcija za filtere
+  const filterOptions = useMemo(() => {
+    const options: Record<keyof Omit<ArtikalFilterProp, 'cena' | 'naziv'>, Set<string>> = {
+      jm: new Set(),
+      Materijal: new Set(),
+      Model: new Set(),
+      Pakovanje: new Set(),
+      RobnaMarka: new Set(),
+      Upotreba: new Set(),
+      Boja: new Set(),
+    };
+
+    artikli.forEach(artikal => {
+      if (artikal.jm) options.jm.add(artikal.jm);
+      
+      if (artikal.artikalAtributi) {
+        artikal.artikalAtributi.forEach(atribut => {
+          const key = atribut.imeAtributa === "Robna marka" ? "RobnaMarka" : 
+                      atribut.imeAtributa === "Zavr.obr-boja" ? "Boja" :
+                      atribut.imeAtributa as keyof typeof options;
+          
+          if (options[key]) {
+            options[key].add(atribut.vrednost);
+          }
+        });
+      }
+    });
+
+    return Object.fromEntries(
+      Object.entries(options).map(([key, values]) => [key, Array.from(values)])
+    ) as Record<keyof Omit<ArtikalFilterProp, 'cena' | 'naziv'>, string[]>;
+  }, [artikli]);
+
+  // Funkcije za upravljanje filterima
+  const handleFilterChange = (key: keyof ArtikalFilterProp, value: string[]) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  const handleCenaChange = (min: number, max: number) => {
+    setFilters(prev => ({
+      ...prev,
+      cena: `${min}-${max}`
+    }));
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      cena: '0-100000',
+      jm: [],
+      Materijal: [],
+      Model: [],
+      Pakovanje: [],
+      RobnaMarka: [],
+      Upotreba: [],
+      Boja: [],
+    });
+  };
 
   return (
     <div className="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
@@ -333,16 +153,16 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">Cena (RSD)</label>
         <MultiRangeSlider
-          min={minCena}
-          max={maxCena}
+          min={0}
+          max={100000}
           step={100}
-          minValue={sliderValues[0]}
-          maxValue={sliderValues[1]}
-          onChange={({ min, max }) => setSliderValues([min, max])}
+          minValue={parseInt(filters.cena?.split('-')[0] || '0')}
+          maxValue={parseInt(filters.cena?.split('-')[1] || '100000')}
+          onChange={({ min, max }) => handleCenaChange(min, max)}
         />
         <div className="flex justify-between text-xs text-gray-500 mt-1">
-          <span>{sliderValues[0]} RSD</span>
-          <span>{sliderValues[1]} RSD</span>
+          <span>{filters.cena?.split('-')[0] || '0'} RSD</span>
+          <span>{filters.cena?.split('-')[1] || '100000'} RSD</span>
         </div>
       </div>
 
@@ -352,7 +172,11 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
           <div key={key} className="border-b border-gray-200 pb-4 last:border-0">
             <Collapsible>
               <CollapsibleTrigger className="flex justify-between items-center w-full text-left">
-                <h3 className="font-medium text-gray-700">{prikaziLepoIme(ocistiImeAtributa(key))}</h3>
+                <h3 className="font-medium text-gray-700">
+                  {key === 'RobnaMarka' ? 'Robna marka' : 
+                   key === 'Boja' ? 'Boja' : 
+                   key.replace(/([A-Z])/g, ' $1').trim()}
+                </h3>
                 <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -363,16 +187,13 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
                     <label key={option} className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={pendingFilters[key as keyof ArtikalFilterProp]?.includes(option) ?? false}
+                        checked={filters[key as keyof ArtikalFilterProp]?.includes(option) ?? false}
                         onChange={(e) => {
-                          const current = pendingFilters[key as keyof ArtikalFilterProp] || []
-                          const currentArray = Array.isArray(current) ? current : [current]
-                          handleChange(
-                            key,
-                            e.target.checked
-                              ? [...currentArray, option]
-                              : currentArray.filter((item: string) => item !== option)
-                          )
+                          const current = filters[key as keyof ArtikalFilterProp] as string[] || [];
+                          const newValue = e.target.checked
+                            ? [...current, option]
+                            : current.filter((item: string) => item !== option);
+                          handleFilterChange(key as keyof ArtikalFilterProp, newValue);
                         }}
                         className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
@@ -386,7 +207,6 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
         ))}
       </div>
 
-      {/* Dugme za resetovanje filtera */}
       <button
         onClick={resetFilters}
         className="w-full py-2 px-4 mt-4 text-center text-sm font-semibold text-white bg-gray-600 hover:bg-gray-700 rounded-lg"

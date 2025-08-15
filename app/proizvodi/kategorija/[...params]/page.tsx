@@ -69,76 +69,76 @@ export default function ProizvodiPage() {
   }, [kategorija, podkategorija]);
 
   // Filtriranje artikala
-  const filtriraniArtikli = useMemo(() => {
-    console.log("--- POČETAK FILTRIRANJA ---");
+  // const filtriraniArtikli = useMemo(() => {
+  //   console.log("--- POČETAK FILTRIRANJA ---");
     
-    // 1. Prikazi sve URL parametre
-    console.log("URL parametri:", Array.from(searchParams.entries()));
+  //   // 1. Prikazi sve URL parametre
+  //   console.log("URL parametri:", Array.from(searchParams.entries()));
 
-    let result = [...sviArtikli];
-    console.log(`Ukupno artikala pre filtera: ${result.length}`);
+  //   let result = [...sviArtikli];
+  //   console.log(`Ukupno artikala pre filtera: ${result.length}`);
 
-    // 2. Filter po ceni (AND - mora biti u opsegu)
-    const minCena = searchParams.get('minCena');
-    const maxCena = searchParams.get('maxCena');
-    if (minCena && maxCena) {
-      const min = parseFloat(minCena);
-      const max = parseFloat(maxCena);
-      result = result.filter(artikal => {
-        const cena = artikal.artikalCene?.[0]?.cena || 0;
-        return cena >= min && cena <= max;
-      });
-      console.log(`Artikala posle cene (${min}-${max}): ${result.length}`);
-    }
+  //   // 2. Filter po ceni (AND - mora biti u opsegu)
+  //   const minCena = searchParams.get('minCena');
+  //   const maxCena = searchParams.get('maxCena');
+  //   if (minCena && maxCena) {
+  //     const min = parseFloat(minCena);
+  //     const max = parseFloat(maxCena);
+  //     result = result.filter(artikal => {
+  //       const cena = artikal.artikalCene?.[0]?.cena || 0;
+  //       return cena >= min && cena <= max;
+  //     });
+  //     console.log(`Artikala posle cene (${min}-${max}): ${result.length}`);
+  //   }
 
-    // 3. Grupiši filtere po kategorijama (AND između grupa, OR unutar grupe)
-    const filterGroups: Record<string, string[]> = {};
-    const filterKeys = ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja'];
+  //   // 3. Grupiši filtere po kategorijama (AND između grupa, OR unutar grupe)
+  //   const filterGroups: Record<string, string[]> = {};
+  //   const filterKeys = ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja'];
     
-    filterKeys.forEach(key => {
-      const values = searchParams.getAll(key).flatMap(v => v.split(','));
-      if (values.length > 0) {
-        filterGroups[key] = values;
-      }
-    });
+  //   filterKeys.forEach(key => {
+  //     const values = searchParams.getAll(key).flatMap(v => v.split(','));
+  //     if (values.length > 0) {
+  //       filterGroups[key] = values;
+  //     }
+  //   });
 
-    console.log("Grupe filtera:", filterGroups);
+  //   console.log("Grupe filtera:", filterGroups);
 
-    // 4. Ako ima filtera, primeni kombinovanu AND/OR logiku
-    if (Object.keys(filterGroups).length > 0) {
-      result = result.filter(artikal => {
-        // Proveri da li artikal zadovoljava SVE grupe filtera (AND)
-        return Object.entries(filterGroups).every(([key, values]) => {
-          // Unutar svake grupe, proveri da li zadovoljava BAR JEDNU vrednost (OR)
-          if (key === 'jm') {
-            return values.includes(artikal.jm);
-          }
+  //   // 4. Ako ima filtera, primeni kombinovanu AND/OR logiku
+  //   if (Object.keys(filterGroups).length > 0) {
+  //     result = result.filter(artikal => {
+  //       // Proveri da li artikal zadovoljava SVE grupe filtera (AND)
+  //       return Object.entries(filterGroups).every(([key, values]) => {
+  //         // Unutar svake grupe, proveri da li zadovoljava BAR JEDNU vrednost (OR)
+  //         if (key === 'jm') {
+  //           return values.includes(artikal.jm);
+  //         }
           
-          if (artikal.artikalAtributi) {
-            const atributKey = key === 'RobnaMarka' ? 'Robna marka' : 
-                            key === 'Boja' ? 'Zavr.obr-boja' : key;
+  //         if (artikal.artikalAtributi) {
+  //           const atributKey = key === 'RobnaMarka' ? 'Robna marka' : 
+  //                           key === 'Boja' ? 'Zavr.obr-boja' : key;
             
-            return artikal.artikalAtributi.some(atribut => 
-              atribut.imeAtributa === atributKey && 
-              values.includes(atribut.vrednost)
-            );
-          }
-          return false;
-        });
-      });
-    }
+  //           return artikal.artikalAtributi.some(atribut => 
+  //             atribut.imeAtributa === atributKey && 
+  //             values.includes(atribut.vrednost)
+  //           );
+  //         }
+  //         return false;
+  //       });
+  //     });
+  //   }
 
-    console.log(`--- KRAJ FILTRIRANJA ---`);
-    console.log(`Filtriranih artikala: ${result.length}`);
-    console.log("Primeri:", result.slice(0, 3).map(a => a.naziv));
+  //   console.log(`--- KRAJ FILTRIRANJA ---`);
+  //   console.log(`Filtriranih artikala: ${result.length}`);
+  //   console.log("Primeri:", result.slice(0, 3).map(a => a.naziv));
     
-    return result;
-  }, [sviArtikli, searchParams]);
+  //   return result;
+  // }, [sviArtikli, searchParams]);
 
 
-  // Sortiranje
+  // Sortirani artikli (bez paginacije)
   const sortiraniArtikli = useMemo(() => {
-    const result = [...filtriraniArtikli];
+    const result = [...sviArtikli];
     
     result.sort((a, b) => {
       const aValue = sortKey === 'cena' ? (a.artikalCene?.[0]?.cena || 0) : a.naziv;
@@ -150,14 +150,9 @@ export default function ProizvodiPage() {
     });
 
     return result;
-  }, [filtriraniArtikli, sortKey, sortOrder]);
+  }, [sviArtikli, sortKey, sortOrder]);
 
-  // Paginacija
-  const prikazaniArtikli = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return sortiraniArtikli.slice(startIndex, startIndex + pageSize);
-  }, [sortiraniArtikli, currentPage]);
-
+  // Handler za promenu stranice
   const handlePageChange = (newPage: number) => {
     const newSearchParams = new URLSearchParams(window.location.search);
     newSearchParams.set('page', newPage.toString());
@@ -206,11 +201,10 @@ export default function ProizvodiPage() {
 
       <div>
         <ListaArtikala
-          artikli={prikazaniArtikli}
-          sviArtikli={sviArtikli}
+          artikli={sortiraniArtikli} // Šaljemo SVE sortirane artikle
           kategorija={kategorija}
           podkategorija={podkategorija}
-          totalCount={filtriraniArtikli.length}
+          totalCount={sortiraniArtikli.length} // Ukupan broj artikala za paginaciju
           currentPage={currentPage}
           pageSize={pageSize}
           loading={loading}

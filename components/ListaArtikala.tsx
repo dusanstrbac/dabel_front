@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import ArticleCard from "./ArticleCard";
 import ArtikalFilter from "./ArtikalFilter";
 import {
@@ -11,44 +11,64 @@ import {
   PaginacijaPrethodna,
   PaginacijaSledeca,
 } from "@/components/ui/pagination";
-import { ArtikalFilterProp, ListaArtikalaProps } from "@/types/artikal";
+import { ArtikalType, ListaArtikalaProps } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 const ListaArtikala = ({
-  artikli,
-  sviArtikli,
+  artikli, // Ovo su svi artikli (nefiltrirani)
   kategorija,
   podkategorija,
-  totalCount,
   currentPage,
   pageSize = 8,
   onPageChange,
   loading = false,
-  onFilterChange,
 }: ListaArtikalaProps) => {
   const korisnik = dajKorisnikaIzTokena();
   const MemoizedArticleCard = React.memo(ArticleCard);
   const [noResults, setNoResults] = useState(false);
-  const brojStranica = Math.ceil(totalCount / pageSize);
+  const [filtriraniArtikli, setFiltriraniArtikli] = useState<ArtikalType[]>(artikli);
+  
+  // Osveži filtrirane artikle kada se promene originalni artikli
+  useEffect(() => {
+    setFiltriraniArtikli(artikli);
+  }, [artikli]);
 
+  // Računamo broj stranica na osnovu filtriranih artikala
+  const brojStranica = Math.ceil(filtriraniArtikli.length / pageSize);
+
+  // Funkcija za promenu stranice
   const idiNaStranu = (broj: number, event?: React.MouseEvent) => {
     if (event) event.preventDefault();
     if (broj < 1 || broj > brojStranica) return;
     onPageChange(broj);
   };
 
+  // Prikazani artikli za trenutnu stranicu
+  const prikazaniArtikli = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filtriraniArtikli.slice(startIndex, startIndex + pageSize);
+  }, [filtriraniArtikli, currentPage, pageSize]);
+
   useEffect(() => {
-    setNoResults(artikli.length === 0);
-  }, [artikli]);
+    setNoResults(filtriraniArtikli.length === 0);
+  }, [filtriraniArtikli]);
+
+
+
+  // Dodaj memoizaciju callback funkcija
+  const stableOnFilterChange = useCallback((filtered: ArtikalType[]) => {
+    setFiltriraniArtikli(filtered);
+    onPageChange(1);
+  }, [onPageChange]);
 
   return (
     <div className="flex flex-col md:flex-row w-full px-1 gap-4">
       <div className="w-full md:w-1/4">
         <ArtikalFilter
-          artikli={sviArtikli}
+          artikli={artikli}
           kategorija={kategorija || ''}
           podkategorija={podkategorija || ''}
-          onFilterChange={onFilterChange}
+          onFilterChange={stableOnFilterChange}
         />
       </div>
 
@@ -57,7 +77,7 @@ const ListaArtikala = ({
           <div className={`grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle transition-opacity duration-300 ${
             loading ? 'opacity-50 pointer-events-none' : ''
           }`}>
-            {artikli.map((artikal, idx) => (
+            {prikazaniArtikli.map((artikal, idx) => (
               <MemoizedArticleCard
                 idPartnera={korisnik?.partner ?? ""} 
                 key={artikal.idArtikla ?? idx}

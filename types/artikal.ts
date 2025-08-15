@@ -64,7 +64,6 @@ export type ArtikalAtribut = {
 
 export interface ListaArtikalaProps {
   artikli: ArtikalType[];
-  sviArtikli: ArtikalType[];
   kategorija?: string;
   podkategorija?: string | null;
   totalCount: number;
@@ -87,7 +86,7 @@ export interface SortiranjeButtonProps {
 
 export interface ArtikalFilterProp {
   cena?: string; // tip je string u formatu "min-max"
-  naziv: string;
+  naziv?: string;
   jm: string[];
   Materijal: string[];
   Model: string[];
