@@ -49,12 +49,7 @@ const OmiljeniArtikli = () => {
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
       const korisnik = dajKorisnikaIzTokena();
 
-      if (!korisnik?.idKorisnika) {
-        setError("Niste ulogovani!");
-        return;
-      }
-
-      const res = await fetch(`${apiAddress}/api/Partner/POA?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`);
+      const res = await fetch(`${apiAddress}/api/Partner/POA?idPartnera=${korisnik?.partner}&idKorisnika=${korisnik?.idKorisnika}`);
       if (!res.ok) throw new Error("Greška pri preuzimanju omiljenih artikala");
 
       const data = await res.json();
@@ -73,7 +68,6 @@ const OmiljeniArtikli = () => {
       // Setovanje podataka o artiklima
       setArtikli(artikliSaCenama);
       setTotalCount(data.totalCount ?? 0);
-      setTotalPages(Math.ceil((data.totalCount ?? 0) / pageSize));
 
       // Postavljanje atributa sa očišćenim imenima
       const noviAtributi: { [artikalId: string]: ArtikalAtribut[] } = {};
@@ -86,7 +80,7 @@ const OmiljeniArtikli = () => {
 
       setAtributi(noviAtributi);
     } catch (err) {
-      setError("Došlo je do greške");
+      setError("Došlo je do greške prilikom učitavanja omiljenih artikala");
     } finally {
       setLoading(false);
     }
@@ -125,6 +119,8 @@ const OmiljeniArtikli = () => {
     setLoading(false);
   }
 };
+
+  console.log('Omiljeno Props: ',artikli);
 
 
   // Promena stranice
@@ -165,13 +161,13 @@ const OmiljeniArtikli = () => {
       </div>
 
       {loading ? (
-        <p className="text-center mt-4">Učitavanje omiljenih artikala...</p>
+        <p className="text-center mt-4">Učitavanje...</p>
       ) : error ? (
         <p className="text-center text-red-600 mt-4">{error}</p>
       ) : (
         <ListaArtikala
           artikli={artikli}
-          atributi={atributi}  // Prosleđivanje atributa
+          atributi={atributi}
           totalCount={totalCount}
           currentPage={currentPage}
           pageSize={pageSize}

@@ -14,7 +14,6 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZ
   const [isMounted, setMounted] = useState(false);
   const [lastPurchaseDate, setLastPurchaseDate] = useState<string | undefined>(undefined);
   const [artikalPristizanje, setArtikalPristizanje] = useState<string | undefined>(undefined);
-  console.log('ArticleCard props:', { naziv, idArtikla, kolZaIzdavanje });
 
   useEffect(() => {
     setMounted(true);
@@ -93,7 +92,6 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZ
 
   const cenaArtikla = artikalCene?.[0]?.cena ?? 0;
   const novaCena = artikalCene?.[0]?.akcija?.cena ?? null;
-  console.log("koja cena je nova cena", novaCena);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
