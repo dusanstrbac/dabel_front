@@ -54,11 +54,7 @@ const OmiljeniArtikli = () => {
         return;
       }
 
-      const url = new URL(`${apiAddress}/api/Partner/POA`);
-      url.searchParams.append("idPartnera", korisnik.partner);
-      url.searchParams.append("idKorisnika", korisnik.idKorisnika)
-
-      const res = await fetch(url.toString());
+      const res = await fetch(`${apiAddress}/api/Partner/POA?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`);
       if (!res.ok) throw new Error("Greška pri preuzimanju omiljenih artikala");
 
       const data = await res.json();
