@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { CircleUser, Map, MapPinned, Phone, PhoneCall, UserCircle } from 'lucide-react';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
-import Link from 'next/link';
 
 const ProfilPodaci = () => {
   const [userData, setUserData] = useState<KorisnikPodaciType | null>(null);
@@ -13,19 +12,18 @@ const ProfilPodaci = () => {
     const fetchKorisnikData = async () => {
       try {
         const korisnik = dajKorisnikaIzTokena();
+        const idPartnera = korisnik?.korisnickoIme;
 
         if (!korisnik) {
           setLoading(false);
           return;
         }
 
-        const emailEncoded = korisnik.email.replace('@', '%40');
-
         setLoading(true);
         setError(null);
         
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?email=${emailEncoded}`);
+        const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}`);
         const data = await response.json();
 
         if(!response) {
@@ -74,7 +72,7 @@ const ProfilPodaci = () => {
             </div>
             <div className="flex items-center gap-2">
               <PhoneCall />
-              <p>{userData.telefon}</p>
+              <p>{userData.telefon || "Nema broja telefona"}</p>
             </div>
             <div className="flex items-center gap-2">
               <Map />
@@ -94,7 +92,7 @@ const ProfilPodaci = () => {
 
       <div className="mt-[50px] flex gap-10 lg:gap-[150px]">
         <div className="flex flex-col gap-2">
-          <h1>Delatnost: <span>{userData.delatnost}</span></h1>
+          <h1>Delatnost: <span>{userData.delatnost || "Nema šifre delatnosti"}</span></h1>
           <p>MB: <span>{userData.maticniBroj}</span></p>
           <p>PIB: <span>{userData.pib}</span></p>
         </div>
@@ -106,17 +104,17 @@ const ProfilPodaci = () => {
           </div>
           <div className="flex items-center gap-2">
             <PhoneCall />
-            <p>{userData.telefon}</p>
+            <p>{userData.telefon || "Nema broja telefona"}</p>
           </div>
         </div>
       </div>
       <div className='mt-[40px] lg:mt-[40px] flex gap-[20px]'>
                 <UserCircle color='grey' size={80} className='p-[20px] border border-gray-400 rounded-[25px]'/>
                 <div className='flex flex-col'>
-                    <h1 className='font-bold text-xl'>Marko Kraljevic</h1>
+                    <h1 className='font-bold text-xl'>{userData.komercijalisti.naziv}</h1>
                     <div className='flex items-center gap-2'>
                         <Phone color='grey' />
-                        <p className='text-lg'>06012345678</p>
+                        <p className='text-lg'>{userData.komercijalisti.telefon}</p>
                     </div>
                 </div>
       </div>

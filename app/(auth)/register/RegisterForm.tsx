@@ -8,11 +8,11 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-// ✅ Validacija za email i JMBG (13 cifara)
+// ✅ Validacija za email i JMBG (8 cifara)
 const emailSchema = z.object({
   email: z.string().email("Unesite validan email"),
-  jmbg: z.string()
-    .regex(/^\d{13}$/, "JMBG mora imati tačno 13 cifara"),
+  mb: z.string()
+    .regex(/^\d{8}$/, "Maticni broj mora imati tačno 8 cifara"),
 });
 
 type EmailFormValues = z.infer<typeof emailSchema>;
@@ -35,7 +35,7 @@ export default function PosaljiLinkZaAktivacijuForm() {
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
       const response = await axios.post(`${apiAddress}/api/Partner/PosaljiLinkZaAktivaciju`, {
         Email: values.email,
-        JMBG: values.jmbg,
+        mb: values.mb,
       });
 
       if (response.data?.poruka) {
@@ -72,13 +72,13 @@ export default function PosaljiLinkZaAktivacijuForm() {
 
         <input
           type="text"
-          placeholder="Unesite JMBG"
-          {...form.register("jmbg")}
+          placeholder="Unesite Matični broj"
+          {...form.register("mb")}
           disabled={loading}
           className="w-full border p-2 rounded"
         />
-        {form.formState.errors.jmbg && (
-          <p className="text-red-600 text-sm">{form.formState.errors.jmbg.message}</p>
+        {form.formState.errors.mb && (
+          <p className="text-red-600 text-sm">{form.formState.errors.mb.message}</p>
         )}
         <p className="text-sm float-right font-semibold">Već posedujete nalog? <Link href={'/login'} className="font-normal text-blue-500 hover:text-blue-300">Prijavite se ovde</Link></p>
         <Button

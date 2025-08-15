@@ -16,7 +16,8 @@ const KataloziPage = () => {
   useEffect(() => {
     const fetchKatalozi = async () => {
       try {
-        const res = await fetch('http://localhost:7235/api/Web/DajSveKataloge');
+        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+        const res = await fetch(`${apiAddress}/api/Web/DajSveKataloge`);
         const data = await res.json();
         setKatalozi(data);
       } catch (err) {
@@ -53,7 +54,7 @@ const KataloziPage = () => {
             <img
               src={thumbnailPutanja}
               alt={`Thumbnail za ${naziv}`}
-              className="w-full h-64 object-cover rounded-t"
+              className="w-full h-64 object-full rounded-t"
               loading="lazy"
             />
           ) : (

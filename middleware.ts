@@ -20,7 +20,6 @@ export function middleware(request: NextRequest) {
   if (
     AUTH_EXEMPT_ROUTES.includes(pathname) || /// Login rute koje su dostupne iz apija da bi se korisnik logovao
     PUBLIC_FILE.test(pathname) ||
-    pathname === "/" || // Samo glavna strana
     pathname.startsWith("/_next") || // Sistemski fajlovi ( JS, css ) -- Ne sme biti blokirano nikada
     pathname.startsWith("/api")
   ) {

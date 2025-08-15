@@ -6,6 +6,7 @@ export type ArtikalType = {
   kolicina: string;
   kategorijaId: string;
   status?: string;
+  kolZaIzdavanje?: number;
   originalnaCena?: number;
   artikalCene: ArtikalCena[];
   artikalAtributi: ArtikalAtribut[];
@@ -61,13 +62,21 @@ export type ArtikalAtribut = {
 };
 
 export interface ListaArtikalaProps {
-  artikli: ArtikalType[];
-  atributi: ArtikalAtribut[];
-  kategorija: string;
-  podkategorija: string | null;
+  artikli: any[];
+  atributi: AtributiResponse; // Promenjeno iz ArtikalAtribut[] u AtributiResponse
+  kategorija?: string;
+  podkategorija?: string | null;
   totalCount: number;
   currentPage: number;
+  pageSize?: number;
   onPageChange: (page: number) => void;
+  loading?: boolean;
+  onFilterChange: (filters: ArtikalFilterProp) => void;
+
+}
+
+interface AtributiResponse {
+  [artikalId: string]: ArtikalAtribut[];
 }
 
 export interface SortiranjeButtonProps {
@@ -85,7 +94,7 @@ export interface ArtikalFilterProp {
   RobnaMarka: string[];
   Upotreba: string[];
   Boja: string[];
-  
+
   [key: string]: string | string[] | undefined; // Dodaj indeksnu potpisu
 }
 

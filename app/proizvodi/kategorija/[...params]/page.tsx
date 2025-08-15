@@ -1,164 +1,132 @@
 'use client';
 
-import { use, useEffect, useMemo, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
-import { ArtikalFilterProp, ArtikalType } from '@/types/artikal';
 import ListaArtikala from '@/components/ListaArtikala';
 import SortiranjeButton from '@/components/SortiranjeButton';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
+import { ArtikalFilterProp } from '@/types/artikal';
+
+type SortKey = "cena" | "naziv";
+type SortOrder = 'asc' | 'desc';
 
 export default function ProizvodiPage() {
   const { params } = useParams() as { params?: string[] };
-  const [artikli, setArtikli] = useState<ArtikalType[]>([]);
-  const [atribut, setAtribut] = useState< any | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [totalCount, setTotalCount] = useState(0);
-
-  const [sortKey, setSortKey] = useState<'cena' | 'naziv'>('cena');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-
   const searchParams = useSearchParams();
   const router = useRouter();
+  const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+  const idPartnera = dajKorisnikaIzTokena()?.partner;
 
-  const pageSize = 8; // Poželjno da backend vraća ovaj broj po strani
+  // State za artikle, atribute, broj artikala, učitavanje i greške
+  const [artikli, setArtikli] = useState<any[]>([]);
+  const [atributi, setAtributi] = useState<any>({}); // Atributi po idArtikla
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  
-  const [aktivniFilteri, setAktivniFilteri] = useState<ArtikalFilterProp>({
-      naziv: '',
-      jm: [],
-      Materijal: [],
-      Model: [],
-      Pakovanje: [],
-      RobnaMarka: [],
-      Upotreba: [],
-      Boja: [],
-  });
+  // Parametri za paginaciju i sortiranje
+  const pageSize = 8;
+  const pageFromUrl = parseInt(searchParams.get('page') || '1', 10); // Dobijanje broja stranice iz URL-a
+  const sortKey: SortKey = searchParams.get('sortKey') as SortKey || 'cena';
+  const sortOrder: SortOrder = searchParams.get('sortOrder') as SortOrder || 'asc';
 
-  const pageFromUrl = useMemo(() => {
-    const pageParam = searchParams.get('page');
-    const parsed = parseInt(pageParam || '1', 10);
-    return isNaN(parsed) || parsed < 1 ? 1 : parsed;
-  }, [searchParams]);
+  const kategorija = params?.[0] ? decodeURIComponent(params[0]) : '';
+  const podkategorija = params?.length && params.length >= 2 ? decodeURIComponent(params[1]) : null;
 
-  const fetchArtikli = async (
-    kategorija: string | null,
-    podkategorija: string | null,
-    filters: ArtikalFilterProp,
-    page: number,
-    sortKey: 'cena' | 'naziv',
-    sortOrder: 'asc' | 'desc'
-  ) => {
-    setLoading(true);
-    setArtikli([]);
-    setError(null);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('page', page.toString());
-    queryParams.append('pageSize', pageSize.toString());
 
-    if (kategorija) {
-      queryParams.append('Kategorija', kategorija);
-    }
+  // Funkcija za fetch artikala sa paginacijom
+  const DajArtikleSaPaginacijom = async (
+  kategorija: string,
+  podkategorija: string | null,
+  page: number,
+  pageSize: number,
+  sortKey: string,
+  sortOrder: string,
+  filters: ArtikalFilterProp
+) => {
+  try {
+    const query = new URLSearchParams();
+
+    // Osnovni parametri
+    query.append('idPartnera', idPartnera!);
+    query.append('page', page.toString());
+    query.append('pageSize', pageSize.toString());
+    query.append('sortKey', sortKey);
+    query.append('sortOrder', sortOrder);
+    query.append('Kategorija', kategorija);
 
     if (podkategorija) {
-      queryParams.append('PodKategorija', podkategorija);
+      query.append('PodKategorija', podkategorija);
     }
 
-    queryParams.append('sortKey', sortKey);
-    queryParams.append('sortOrder', sortOrder);
-
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) {
-        if (Array.isArray(value) && value.length > 0) {
-          value.forEach(v => v && queryParams.append(key, v));
-        } else if (typeof value === 'string' && value.trim() !== '') {
-          queryParams.append(key, value);
-        }
-      }
-    });
-
-    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-    const korisnik = dajKorisnikaIzTokena();
-    const fullUrl = `${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${queryParams.toString()}&idPartnera=${korisnik?.idKorisnika}`;
-    //const fullUrl = `${apiAddress}/api/Artikal/DajFilterArtikle?idPartnera=${korisnik?.idKorisnika}&batchSize=10000&${queryParams.toString()}`;
-    //console.log("API URL:", fullUrl);
-    // http://localhost:7235/api/Artikal/DajArtikleSaPaginacijom?page=1&pageSize=8&sortBy=naziv&sortOrder=asc&idPartnera=3005
-
-
-    try {
-      const res = await fetch(fullUrl);
-
-      if (!res.ok) {
-        throw new Error(`HTTP greška: ${res.status} - ${res.statusText}`);
-      }
-
-      const data = await res.json();
-
-      if (data.items?.length) {
-        setArtikli(data.items); //ovde vrv stize 8 artikala
-        setTotalCount(data.totalCount ?? 0);
-      } else {
-        setArtikli([]);
-        setTotalCount(0);
-        setError('Nema rezultata za ove parametre.');
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError('Greška pri učitavanju podataka. Detalji greške: ' + error.message);
-        console.error('Greška:', error);
-      } else {
-        setError('Došlo je do nepoznate greške.');
-        console.error('Nepoznata greška:', error);
-      }
-    } finally {
-      setLoading(false);
+    // Dodaj filtere za cenu (koristite minCena/maxCena kako backend očekuje)
+    if (filters.cena) {
+      const [minCena, maxCena] = filters.cena.split('-').map(Number);
+      query.append('minCena', minCena.toString());
+      query.append('maxCena', maxCena.toString());
     }
-  };
 
-  useEffect(() => {
-    //if (!brojDokumenta) return;
-
-    const fetchAtributi = async () => {
-      try {
-        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const korisnik = dajKorisnikaIzTokena();
-        const res = await fetch(`${apiAddress}/api/Artikal/ArtikliKategorije?idPartnera=${korisnik?.idKorisnika}`);
-        if (!res.ok) throw new Error('Greška pri učitavanju dokumenta.');
-
-        const data = await res.json();
-        setAtribut(data);
-        console.log("Atributi",data);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+    // Dodaj ostale filtere
+    for (const key of ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja']) {
+      const vrednosti = filters[key as keyof ArtikalFilterProp];
+      if (Array.isArray(vrednosti) && vrednosti.length > 0) {
+        vrednosti.forEach(val => query.append(key, val));
       }
+    }
+
+    const { data } = await axios.get(`${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${query.toString()}`);
+    
+    return {
+      artikli: data.artikli || [],
+      totalCount: data.totalCount || 0
     };
+  } catch (error) {
+    console.error('Greška pri učitavanju:', error);
+    throw new Error('Došlo je do greške pri učitavanju artikala');
+  }
+};
 
-    fetchAtributi();
-  }, []);
-
-  // Fetch artikle kad se menjaju parametri ili sortiranje ili stranica
-  useEffect(() => {
-    if (!params || params.length === 0) return;
-
-    const kategorija = decodeURIComponent(params[0]);
-    const podkategorija = params.length > 1 ? decodeURIComponent(params[1]) : null;
-    const totalPages = Math.ceil(totalCount / pageSize);
-
-    if (pageFromUrl > totalPages && totalPages > 0) {
-      const newParams = new URLSearchParams(searchParams.toString());
-      newParams.set('page', '1');
-      router.replace(`?${newParams.toString()}`);
+  // FETCH ATRIBUTA ZA ARTIKLE
+  const DajAtributeZaArtikle = async (kategorija: string, podkategorija: string | null) => {
+    if (Object.keys(atributi).length > 0) {
+      // Ako su atributi već učitani, ne ponavljaj fetch
       return;
     }
 
-    // ✅ Čitanje filtera iz URL-a
-    const filteri: ArtikalFilterProp = {
-      naziv: '',
-      jm: searchParams.getAll('jm') || '',
+    try {
+      const { data } = await axios.get(`${apiAddress}/api/Artikal/ArtikalAtributi`, {
+        params: {
+          idPartnera,
+          kategorija,
+          podkategorija,
+        },
+      });
+      setAtributi(data); // Spremamo atribute po artiklu
+    } catch (error) {
+      throw new Error('Greska prilikom fetcha atributa');
+    }
+  };
+
+  // Učitaj artikle i atribute kada se stranica učita
+  useEffect(() => {
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+
+    // Pročitaj filtere iz URL-a
+    const minCenaParam = searchParams.get('minCena');
+    const maxCenaParam = searchParams.get('maxCena');
+    const cenaFilter = minCenaParam && maxCenaParam 
+      ? `${minCenaParam}-${maxCenaParam}`
+      : '';
+
+    const filtersFromUrl: ArtikalFilterProp = {
+      naziv: searchParams.get('naziv') || '',
+      cena: cenaFilter,
+      jm: searchParams.getAll('jm'),
       Materijal: searchParams.getAll('Materijal'),
       Model: searchParams.getAll('Model'),
       Pakovanje: searchParams.getAll('Pakovanje'),
@@ -166,111 +134,121 @@ export default function ProizvodiPage() {
       Upotreba: searchParams.getAll('Upotreba'),
       Boja: searchParams.getAll('Boja'),
     };
-    setAktivniFilteri(filteri); // dodaj ovu liniju
 
+    try {
+      const result = await DajArtikleSaPaginacijom(
+        kategorija,
+        podkategorija,
+        pageFromUrl,
+        pageSize,
+        sortKey,
+        sortOrder,
+        filtersFromUrl
+      );
 
-    fetchArtikli(
-      kategorija,
-      podkategorija,
-      filteri,
-      pageFromUrl,
-      sortKey,
-      sortOrder
-    );
-  }, [params, pageFromUrl, sortKey, sortOrder, totalCount, searchParams]);
+      setArtikli(result.artikli);
+      setTotalCount(result.totalCount);
 
-
-  const handleSortChange = (key: 'cena' | 'naziv', order: 'asc' | 'desc') => {
-    setSortKey(key);
-    setSortOrder(order);
-
-    const newParams = new URLSearchParams(searchParams.toString());
-    newParams.set('page', '1');
-    router.push(`?${newParams.toString()}`);
-  };
-
-  const handlePageChange = (page: number) => {
-    if (!params || params.length === 0) return;
-
-    const newParams = new URLSearchParams();
-
-    // Kopiramo samo ne-prazne parametre
-    searchParams.forEach((value, key) => {
-      if (value && value.trim() !== '') {
-        newParams.append(key, value);
+      // Učitaj atribute samo ako već nisu učitani
+      if (Object.keys(atributi).length === 0) {
+        await DajAtributeZaArtikle(kategorija, podkategorija);
       }
-    });
-
-    newParams.set('page', page.toString());
-
-    const basePath = `/proizvodi/kategorija/${params[0]}${
-      params.length > 1 ? `/${params[1]}` : ''
-    }`;
-
-    router.push(`${basePath}?${newParams.toString()}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  if (!params || params.length === 0) {
-    return <p>Greška: Očekuje se najmanje jedna ruta (kategorija).</p>;
-  }
-
-  const kategorija = decodeURIComponent(params[0]);
-  const podkategorija = params.length >= 2 ? decodeURIComponent(params[1]) : null;
-
-
-  const removeEmptyParams = (params: URLSearchParams): URLSearchParams => {
-    const newParams = new URLSearchParams();
-
-    const keys = Array.from(params.keys());
-
-    for (const key of keys) {
-      const values = params.getAll(key);
-      const nonEmpty = values.filter((val) => val.trim() !== '');
-
-      for (const val of nonEmpty) {
-        newParams.append(key, val);
-      }
+    } catch (err) {
+      setError('Došlo je do greške pri učitavanju artikala');
+    } finally {
+      setLoading(false);
     }
-
-    return newParams;
   };
+
+  if (kategorija) {
+    fetchData();
+  }
+}, [kategorija, podkategorija, pageFromUrl, sortKey, sortOrder, searchParams]);
+
+
+  // Funkcija za promenu stranice
+  const handlePageChange = (newPage: number) => {
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.set('page', newPage.toString());
+    router.push(`${window.location.pathname}?${searchParams.toString()}`);
+  };
+
+const handleFilterChange = async (filters: ArtikalFilterProp) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+        // Razdvajamo cenu na min i max
+        const cenaRange = filters.cena?.split('-');
+        const minCena = cenaRange ? parseFloat(cenaRange[0]) : 0;
+        const maxCena = cenaRange ? parseFloat(cenaRange[1]) : 100000;
+
+        // Kreiramo novi query string sa filterima
+        const query = new URLSearchParams();
+
+        // Dodajemo filtere u URL
+        if (filters.naziv) query.append('naziv', filters.naziv);
+        if (filters.cena) query.append('minCena', minCena.toString());
+        if (filters.cena) query.append('maxCena', maxCena.toString());
+
+        // Dodavanje ostalih filtera
+        for (const key of ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja']) {
+            const vrednosti = filters[key as keyof ArtikalFilterProp];
+            if (Array.isArray(vrednosti)) {
+                vrednosti.forEach((val) => query.append(key, val));
+            }
+        }
+
+        // Dodajemo parametre za paginaciju, sortiranje
+        query.set('page', '1');  // Resetujemo stranicu na 1 prilikom promena filtera
+        query.set('sortKey', sortKey);
+        query.set('sortOrder', sortOrder);
+
+        // Prosleđujemo filtrirane parametre
+        router.push(`${window.location.pathname}?${query.toString()}`);
+    } catch (err) {
+        console.error('Greška pri filter fetchu', err);
+        setError('Došlo je do greške pri filtriranju.');
+    } finally {
+        setLoading(false);
+    }
+};
+
 
   return (
-    <div className="">
-      <div className="w-full mx-auto flex justify-center items-center gap-6 py-2 px-8 flex-wrap md:justify-between">
+    <div className="w-full mx-auto">
+      <div className="flex justify-center items-center gap-6 py-2 px-8 flex-wrap md:justify-between">
         <h1 className="font-bold text-3xl mb-[5px]">
           {kategorija} {podkategorija ? `/ ${podkategorija}` : ''}
         </h1>
         <SortiranjeButton
           sortKey={sortKey}
           sortOrder={sortOrder}
-          onSortChange={handleSortChange}
+          onSortChange={(newSortKey, newSortOrder) => {
+            const searchParams = new URLSearchParams(window.location.search);
+            searchParams.set('sortKey', newSortKey);
+            searchParams.set('sortOrder', newSortOrder);
+            router.push(`${window.location.pathname}?${searchParams.toString()}`);
+          }}
         />
       </div>
+
+      {/* Error handling */}
+      {error && <p className="text-center text-red-500">{error}</p>}
+
       <div>
-        {loading ? (
-          <p className="text-center">Učitavanje...</p>
-        ) : (
-          <ListaArtikala
-            artikli={artikli}
-            atributi={atribut}
-            kategorija={kategorija}
-            podkategorija={podkategorija}
-            totalCount={totalCount}
-            currentPage={pageFromUrl}
-            onPageChange={(page) => {
-              const cleanedParams = removeEmptyParams(new URLSearchParams(searchParams.toString()));
-              cleanedParams.set('page', page.toString());
-
-              const basePath = `/proizvodi/kategorija/${params[0]}${params.length > 1 ? `/${params[1]}` : ''}`;
-
-              router.push(`${basePath}?${cleanedParams.toString()}`);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-          />
-        )}
-        {error && <p className="text-center text-red-600 mt-2">{error}</p>}
+        <ListaArtikala
+          artikli={artikli}
+          atributi={atributi}
+          kategorija={kategorija}
+          podkategorija={podkategorija}
+          totalCount={totalCount}
+          currentPage={pageFromUrl}
+          pageSize={pageSize}
+          loading={loading}
+          onPageChange={handlePageChange} // Promena stranice
+          onFilterChange={handleFilterChange} // Promena filtera
+        />
       </div>
     </div>
   );

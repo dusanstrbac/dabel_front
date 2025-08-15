@@ -90,7 +90,7 @@ export default function Header() {
     if (localStorage.getItem("cart")) localStorage.removeItem("cart");
     deleteCookie("AuthToken");
     setIsLoggedIn(false);
-    router.push('/');
+    router.push('/login');
     window.location.reload();
   };
 

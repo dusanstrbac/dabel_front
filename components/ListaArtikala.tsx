@@ -15,10 +15,20 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ArtikalFilterProp, ListaArtikalaProps } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 
-const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCount, currentPage, onPageChange }: ListaArtikalaProps) => {
+const ListaArtikala = ({
+  artikli,
+  atributi,
+  kategorija,
+  podkategorija,
+  totalCount,
+  currentPage,
+  onPageChange,
+  loading = false,
+  onFilterChange,
+}: ListaArtikalaProps) => {
   const artikliPoStrani = 8;
   const router = useRouter();
-  const pathname = usePathname(); // Dobijanje pathname-a
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const trenutnaStrana = currentPage;
   const korisnik = dajKorisnikaIzTokena();
@@ -35,67 +45,102 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
     Boja: [],
   });
 
+  const [noResults, setNoResults] = useState(false);
+
   const brojStranica = useMemo(() => {
     const br = Math.ceil(totalCount / artikliPoStrani);
     return br < 1 ? 1 : br;
   }, [totalCount]);
 
-  const prikazaniArtikli = artikli;
+  // Prikazivanje artikala prema trenutnoj stranici
+  const prikazaniArtikli = useMemo(() => {
+    const startIndex = (trenutnaStrana - 1) * artikliPoStrani;
+    return artikli.slice(startIndex, startIndex + artikliPoStrani);
+  }, [artikli, trenutnaStrana]);
 
-  // Funkcija za menjanje strane i update URL-a bez reloada
+  // Funkcija za menjanje strane i update URL-a
   const idiNaStranu = (broj: number, noviFilteri: any, event?: React.MouseEvent) => {
     if (event) event.preventDefault();
     if (broj < 1 || broj > brojStranica || broj === trenutnaStrana) return;
 
-    // Kreiraj objekat sa svim filterima i trenutnim parametrima
     const noviUpit = new URLSearchParams();
-
     searchParams.forEach((value, key) => {
       if (value.trim() !== '') {
         noviUpit.append(key, value);
       }
     });
-
     noviUpit.set('page', broj.toString());
-
     router.push(`${pathname}?${noviUpit.toString()}`);
   };
 
-  const onFilterChange = (noviFilteri: ArtikalFilterProp) => {
-    setFilteri(noviFilteri);
-    // Ovde dodaj logiku za filtriranje artikala ako je potrebno
-  };
+  useEffect(() => {
+    if (artikli.length === 0) {
+      setNoResults(true);
+    } else {
+      setNoResults(false);
+    }
+  }, [artikli]);
 
-  if (!artikli || artikli.length === 0) {
-    return <p className="text-center py-5 text-gray-500">Nema artikala za prikaz.</p>;
+  async function fetchArtikliSaFilterima(filters: ArtikalFilterProp) {
+    const query = new URLSearchParams();
+
+    if (filters.naziv) query.append('naziv', filters.naziv);
+    if (filters.cena) query.append('cena', filters.cena);
+
+    for (const key of ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja']) {
+      const vrednosti = filters[key as keyof ArtikalFilterProp];
+      if (Array.isArray(vrednosti)) {
+        vrednosti.forEach((val) => query.append(key, val));
+      }
+    }
+
+    const res = await fetch(`/api/Artikal/DajArtikleSaPaginacijom?${query.toString()}`);
+    const data = await res.json();
+    // setArtikli(data.artikli)
   }
 
+  console.log("evo jebo sam ti majku",artikli);
   return (
     <div className="flex flex-col md:flex-row w-full px-1 gap-4">
-      {/* Filter sekcija */}
       <div className="w-full md:w-1/4">
-        <ArtikalFilter artikli={artikli} atributi={atributi} kategorija={kategorija} podkategorija={podkategorija} onFilterChange={onFilterChange} />
+        <ArtikalFilter
+          artikli={artikli}
+          atributi={atributi}
+          kategorija={kategorija || ''}
+          podkategorija={podkategorija || ''}
+          onFilterChange={onFilterChange}
+        />
       </div>
 
-      {/* Lista artikala */}
       <div className="w-full md:w-3/4">
-        <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle">
-          {prikazaniArtikli.map((artikal, idx) => (
-            <ArticleCard
-              key={artikal.idArtikla ?? idx}
-              naziv={artikal.naziv}
-              idArtikla={artikal.idArtikla}
-              barkod={artikal.barkod}
-              kategorijaId={artikal.kategorijaId}
-              kolicina={artikal.kolicina}
-              jm={artikal.jm}
-              artikalAtributi={artikal.artikalAtributi}
-              artikalCene={artikal.artikalCene ?? []}
-              lastPurchaseDate="2025-06-20"
-              idPartnera={idPartnera!}
-            />
-          ))}
+        <div className="relative">
+          <div
+            className={`grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle transition-opacity duration-300 ${
+              loading ? 'opacity-50 pointer-events-none' : ''
+            }`}
+          >
+            {prikazaniArtikli.map((artikal, idx) => (
+              <ArticleCard
+                key={artikal.idArtikla ?? idx}
+                naziv={artikal.naziv}
+                idArtikla={artikal.idArtikla}
+                barkod={artikal.barkod}
+                kategorijaId={artikal.kategorijaId}
+                kolicina={artikal.kolicina}
+                jm={artikal.jm}
+                artikalAtributi={artikal.artikalAtributi}
+                artikalCene={artikal.artikalCene ?? []}
+                lastPurchaseDate="2025-06-20"
+                idPartnera={idPartnera!}
+                kolZaIzdavanje={artikal.kolZaIzdavanje}
+              />
+            ))}
+          </div>
         </div>
+
+        {noResults && (
+          <p className="text-center py-5 text-red-500">Nema artikala koji odgovaraju izabranim filterima.</p>
+        )}
 
         {/* Paginacija */}
         {brojStranica > 1 && (
@@ -126,15 +171,18 @@ const ListaArtikala = ({ artikli, atributi, kategorija, podkategorija, totalCoun
                     </PaginacijaStavka>
                   );
                 }
+
                 if (
                   (broj === 2 && trenutnaStrana > 3) ||
                   (broj === brojStranica - 1 && trenutnaStrana < brojStranica - 2)
                 ) {
                   return (
                     <PaginacijaStavka key={`ellipsis-${broj}`}>
+                      <span className="px-2 text-gray-500">...</span>
                     </PaginacijaStavka>
                   );
                 }
+
                 return null;
               })}
 

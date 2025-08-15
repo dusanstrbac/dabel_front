@@ -1,6 +1,5 @@
 
 export type DokumentInfo = {
-  partner: KorisnikPodaciType,
   tip: "narudzbenica",
   idPartnera: string,
   brojDokumenta: number,
@@ -9,6 +8,7 @@ export type DokumentInfo = {
   datumVazenja: Date,
   lokacija: string,
   napomena: string,
+  dostava: string,
   status: number,
   stavkeDokumenata: StavkaDokumenta[];
 }
@@ -19,6 +19,7 @@ export type StavkaDokumenta = {
   idArtikla: string;
   nazivArtikla: string;
   cena: number;
+  jm: string;
   originalnaCena: number;
   kolicina: string;
   pdv: string;

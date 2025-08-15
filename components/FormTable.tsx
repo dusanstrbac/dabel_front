@@ -95,7 +95,7 @@ const FormTable = ({ title }: myProps) => {
     const izvuciDokumenta = async () => {
       try {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const idKorisnika = korisnik?.idKorisnika;
+        const idKorisnika = korisnik?.partner;
         const res = await fetch(
           `${apiAddress}/api/Dokument/DajDokumentePoPartneru?idPartnera=${idKorisnika}`
         );

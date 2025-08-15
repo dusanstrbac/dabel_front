@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import AddToCartButton from "./AddToCartButton";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { date } from "zod";
 
 type ArtikalIstorijaDTO = {
   idPartnera: string;
@@ -23,10 +24,11 @@ const PoruciPonovo = () => {
   const [cart, setCart] = useState<Record<string, { kolicina: number }> | null>(null);
   const router = useRouter();
   const korisnik = dajKorisnikaIzTokena();
-  const idKorisnika = korisnik?.idKorisnika;
+  const idKorisnika = korisnik?.partner;
 
   useEffect(() => {
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
     fetch(`${apiAddress}/api/Artikal/ArtikalDatumKupovine?idPartnera=${idKorisnika}`)
       .then((res) => {
         if (!res.ok) throw new Error("Greška prilikom učitavanja");
@@ -88,7 +90,7 @@ const PoruciPonovo = () => {
                                 alt={artikal.naziv}
                                 fill
                                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                className="object-cover"
+                                className="object-contain"
                             />
                             </div>
 
@@ -107,13 +109,14 @@ const PoruciPonovo = () => {
                             </div>
 
                             <AddToCartButton
-                            id={artikal.idArtikla}
-                            className="w-full sm:w-auto px-6 py-2"
-                            title="Dodaj u korpu"
-                            getKolicina={() => artikal.kolicina}
-                            nazivArtikla={artikal.naziv}
-                            disabled={disabled}
-                            ukupnaKolicina={mozeJos}
+                              id={artikal.idArtikla}
+                              className="w-full sm:w-auto px-6 py-2"
+                              title="Dodaj u korpu"
+                              getKolicina={() => artikal.kolicina}
+                              nazivArtikla={artikal.naziv}
+                              disabled={disabled}
+                              ukupnaKolicina={mozeJos}
+                              kolZaIzdavanje={artikal.kolicina}
                             />
                         </div>
                         </CarouselItem>

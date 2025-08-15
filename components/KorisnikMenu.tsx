@@ -9,7 +9,7 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import Link from 'next/link';
-import { deleteCookie } from 'cookies-next';
+import { deleteCookie, getCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 
@@ -39,8 +39,46 @@ export default function KorisnikMenu() {
     localStorage.removeItem("webparametri");
     
     deleteCookie('AuthToken');
-    router.push('/');
+    router.push('/login');
     window.location.reload();
+  };
+
+  const preuzmiCenovnik = async () => {
+    try {
+      const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+      const token = getCookie("AuthToken");
+
+      const response = await fetch(`${apiAddress}/api/Web/PreuzmiCenovnik`, {
+        method: 'GET',
+          headers: {
+          Authorization: `Bearer ${token}`
+        }      
+      });
+
+      if (!response.ok) {
+        throw new Error('Greška prilikom preuzimanja cenovnika.');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let fileName = 'cenovnik.xlsx';
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?(.+)"?/);
+        if (match?.[1]) fileName = match[1];
+      }
+
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      alert((error as Error).message);
+    }
   };
 
   if (!isMounted) {
@@ -55,18 +93,21 @@ export default function KorisnikMenu() {
     ...(uloga === 'ADMINISTRATOR' ? [
       { icon: <ShieldUser className="h-4 w-4" />, text: 'Admin podešavanja', href: `/${username}/admin` },
     ] : []),
-    ...(uloga === 'PARTNER' ? [
+   ...(uloga === 'PARTNER' || uloga === 'PODKORISNIK' ? [
       { icon: <User2 className="h-4 w-4" />, text: 'Moji podaci', href: `/${username}/profil/podaci` },
       { icon: <FileText className="h-4 w-4" />, text: 'Narudžbenica', href: `/${username}/profil/narudzbenica` },
       { icon: <Wallet className="h-4 w-4" />, text: 'Moje uplate', href: `/${username}/profil/uplate` },
       { icon: <Package className="h-4 w-4" />, text: 'Poslata roba', href: `/${username}/profil/roba` },
-      { icon: <Users className="h-4 w-4" />, text: 'Korisnici', href: `/${username}/profil/korisnici` },
-      { icon: <BadgeDollarSign className="h-4 w-4" />, text: 'Cenovnik', href: '/admin/cenovnik' },
-      { icon: <Youtube className="h-4 w-4" />, text: 'Video uputstva', href: '/video' },
+      { icon: <BadgeDollarSign className="h-4 w-4" />, text: 'Cenovnik', onClick: preuzmiCenovnik },
+      //{ icon: <Youtube className="h-4 w-4" />, text: 'Video uputstva', href: '/video' },
     ] : []),
-    ...(uloga === 'PARTNER' || uloga === 'ADMINISTRATOR' ? [
+    ...(uloga === "PARTNER" ? [
+      { icon: <Users className="h-4 w-4" />, text: 'Korisnici', href: `/${username}/profil/korisnici` },
+    ] : []),
+    ...(uloga === 'PARTNER' || uloga === 'ADMINISTRATOR' || uloga === 'PODKORISNIK' ? [
       { icon: <Key className="h-4 w-4" />, text: 'Promena lozinke', href: `/${username}/profil/podesavanja` },
     ] : []),
+
   ];
 
   return (
@@ -82,14 +123,24 @@ export default function KorisnikMenu() {
               {korisnickoIme || 'Korisnik'}
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="my-1" />
-            {menuItems.map((item, index) => (
-              <DropdownMenuItem key={index} asChild>
-                <Link href={item.href} className="flex w-full items-center gap-3 px-2 py-1.5 text-sm hover:bg-gray-100">
-                  {item.icon}
-                  <span>{item.text}</span>
-                </Link>
-              </DropdownMenuItem>
-            ))}
+              {menuItems.map((item, index) => (
+                <DropdownMenuItem key={index} asChild>
+                  {item.onClick ? (
+                    <button
+                      onClick={item.onClick}
+                      className="flex w-full items-center gap-3 px-2 py-1.5 text-sm hover:bg-gray-100"
+                    >
+                      {item.icon}
+                      <span>{item.text}</span>
+                    </button>
+                  ) : (
+                    <Link href={item.href} className="flex w-full items-center gap-3 px-2 py-1.5 text-sm hover:bg-gray-100">
+                      {item.icon}
+                      <span>{item.text}</span>
+                    </Link>
+                  )}
+                </DropdownMenuItem>
+              ))}
             <DropdownMenuSeparator className="my-1" />
             {isLoggedIn ? (
               <DropdownMenuItem asChild>
@@ -141,16 +192,26 @@ export default function KorisnikMenu() {
             </SheetHeader>
             <div className="mt-6 flex flex-col gap-3">
               {menuItems.map((item, index) => (
-                <Link
-                  key={index}
-                  href={item.href}
-                  className="flex items-center gap-3 px-2 py-3 text-[15px] text-gray-700 hover:bg-gray-100 rounded"
-                >
-                  {item.icon}
-                  {item.text}
-                </Link>
+                item.onClick ? (
+                  <button
+                    key={index}
+                    onClick={item.onClick}
+                    className="flex items-center gap-3 px-2 py-3 text-[15px] text-gray-700 hover:bg-gray-100 rounded"
+                  >
+                    {item.icon}
+                    {item.text}
+                  </button>
+                ) : (
+                  <Link
+                    key={index}
+                    href={item.href}
+                    className="flex items-center gap-3 px-2 py-3 text-[15px] text-gray-700 hover:bg-gray-100 rounded"
+                  >
+                    {item.icon}
+                    {item.text}
+                  </Link>
+                )
               ))}
-
               <div className="border-t pt-4 mt-4">
                 {isLoggedIn ? (
                   <button

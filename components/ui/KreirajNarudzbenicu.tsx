@@ -4,17 +4,19 @@ import { AritkalKorpaType } from "@/types/artikal";
 import { cn } from "@/lib/utils";
 import { DokumentInfo } from "@/types/dokument";
 import { useState } from "react";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 interface KreirajNarudzbenicuProps {
   artikli: AritkalKorpaType[];
   partner: KorisnikPodaciType;
   mestoIsporuke: string;
   napomena: string;
+  dostava: number;
   disabled: boolean;
 }
 
 
-const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabled }: KreirajNarudzbenicuProps) => {
+const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabled, dostava }: KreirajNarudzbenicuProps) => {
     const router = useRouter();
     const [korisnikUdugu, setKorisnikUdugu] = useState(false);
 
@@ -60,10 +62,12 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
             datumVazenja: datumVazenja.toISOString(),
             lokacija: mestoIsporuke, 
             napomena: napomena,
+            dostava: dostava,
             stavkeDokumenata: artikli.map((value) => ({
                 idArtikla: value.idArtikla.toString() || "",
                 nazivArtikla: value.naziv || "",
                 cena: value.koriscenaCena,
+                jm: value.jm,
                 originalnaCena: value.originalnaCena,
                 kolicina: value.kolicina.toString() || "0",
                 pdv: value.pdv.toString() || "20",
@@ -89,10 +93,10 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
             if (res.ok) {
                 // Nakon uspešnog upisa dokumenta, fetchuj najnoviji dokument
                 const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-                const idKorisnika = partner.idPartnera;
+                const korisnik = dajKorisnikaIzTokena();
 
                 try {
-                    const resDoc = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?idPartnera=${idKorisnika}`);
+                    const resDoc = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?idPartnera=${korisnik?.partner}&idKorisnika=${korisnik?.idKorisnika}`);
                     if (!resDoc.ok) throw new Error("❌ Greška pri učitavanju dokumenta posle POST-a.");
 
                     const docData = await resDoc.json();
@@ -102,6 +106,7 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
                         datumDokumenta: dokument.datumDokumenta,
                         lokacija: dokument.lokacija,
                         napomena: dokument.napomena,
+                        dostava: dokument.dostava
                     }));
 
                 } catch (err) {
@@ -121,7 +126,6 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
                     sessionStorage.removeItem("dostava");
                     sessionStorage.removeItem("ukupnoSaDostavom");
                     localStorage.removeItem("cart");
-
                     kanal.close();
                     router.push("/");
                 }
@@ -130,8 +134,6 @@ const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabl
             } catch (err) {
                 console.error("❌ Greška pri slanju POST zahteva:", err);
             }
-
-
         };
 
     return (

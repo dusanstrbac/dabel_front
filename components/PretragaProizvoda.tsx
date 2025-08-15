@@ -39,7 +39,7 @@ const PretragaProizvoda = () => {
         if (!trimmedQuery) return;
 
         const res = await fetch(
-          `${apiAddress}/api/Artikal/DajFilterArtikle?idPartnera=${korisnik?.idKorisnika}&batchSize=1000&naziv=${encodeURIComponent(trimmedQuery)}`
+          `${apiAddress}/api/Artikal/DajFilterArtikle?idPartnera=${korisnik?.partner}&idKorisnika=${korisnik?.idKorisnika}&batchSize=1000&naziv=${encodeURIComponent(trimmedQuery)}`
         );
 
         const data = await res.json();
@@ -64,10 +64,15 @@ const PretragaProizvoda = () => {
     router.push(`/proizvodi/${idArtikla}`);
   };
 
-  const handleBarcodeRedirect = (idArtikla: string) => {
-    router.push(`/proizvodi/${idArtikla}`);
+  const handleBarcodeRedirect = (barkod: string) => {
+    if (barkod) {
+      router.push(`/proizvodi/${barkod}`);
+    } else {
+      console.error("Barkod nije prepoznat");
+    }
     setScannerActive(false);
   };
+
 
   return (
     <div className="w-full lg:w-[40%] relative lg:ml-16 mr-2">

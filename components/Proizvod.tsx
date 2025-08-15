@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import PreporuceniProizvodi from "@/components/PreporuceniProizvodi";
 import DodajUOmiljeno from "@/components/DodajUOmiljeno";
 import AddToCartButton from "./AddToCartButton";
 import ClientLightbox from "./ui/ClientLightbox";
@@ -11,6 +10,9 @@ import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { ArtikalAtribut, ArtikalType } from "@/types/artikal";
 import { CircleAlert } from "lucide-react";
 import { toast } from "sonner";
+import { Input } from "./ui/input";
+import { DokumentInfo } from "@/types/dokument";
+import PoruciPonovo from "./PoruciPonovo";
 
 
 // Dinamički uvoz Lightbox-a
@@ -33,6 +35,7 @@ export default function Proizvod() {
   const [proizvod, setProizvod] = useState<ArtikalType | null>(null);
   const [atributi, setAtributi] = useState<ArtikalAtribut[]>([]);
   const [lastPurchaseDate, setLastPurchaseDate] = useState<string | null>(null);
+  const debounceVreme = 700;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +46,11 @@ export default function Proizvod() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [lajkovano, setLajkovano] = useState(false);
   const [datumPonovnogStanja, setDatumPonovnogStanja] = useState<string | null>(null);
+  const [pristiglaKolicina, setPristiglaKolicina] = useState(0);
+
+  const [imaDozvoluZaPakovanje, setImaDozvoluZaPakovanje] = useState(false);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+
 
 
   const korisnik = dajKorisnikaIzTokena();
@@ -57,12 +65,10 @@ export default function Proizvod() {
       try {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const res = await fetch(`${apiAddress}/api/Artikal/DajArtikalPoId?idPartnera=${korisnik?.idKorisnika}&ids=${productId}`);
-
         if (!res.ok) throw new Error("Greška prilikom učitavanja proizvoda");
 
         const data = await res.json();
         if (!data || data.length === 0) throw new Error("Proizvod nije pronađen");
-
         const osnovni: ArtikalType = data[0];
         setProizvod(osnovni);
 
@@ -92,6 +98,31 @@ export default function Proizvod() {
     }
   }, []);
 
+
+  useEffect(() => {
+    const fetchDozvole = async () => {
+      if (!korisnik) {
+        console.warn("Nema korisnika iz tokena.");
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Web/DajDozvoleKorisnika?idKorisnika=${korisnik.idKorisnika}&idDozvole=1`);
+        const data: DokumentInfo[] = await res.json();
+        
+        const imaDozvolu = data.some(dozvola => dozvola.status === 1);
+        setImaDozvoluZaPakovanje(imaDozvolu);
+      } catch (error) {
+        console.error("Greška pri dobavljanju dozvola:", error);
+        setImaDozvoluZaPakovanje(false);
+      }
+    };
+
+    if (korisnik?.idKorisnika) {
+      fetchDozvole();
+    }
+  }, [korisnik]);
+
   useEffect(() => {
     if (!proizvod) return;
 
@@ -105,8 +136,10 @@ export default function Proizvod() {
         if (response.ok) {
           const data = await response.json();
           setDatumPonovnogStanja(data.datumPonovnogStanja || null);
+          setPristiglaKolicina(data.kolicina || 0);
         } else {
           setDatumPonovnogStanja(null);
+          setPristiglaKolicina(0);
         }
       } catch (error) {
         console.error("Greška prilikom dohvatanja datuma ponovnog stanja:", error);
@@ -175,6 +208,26 @@ export default function Proizvod() {
       ? Number(proizvod.artikalCene[0].akcija.cena)
       : undefined;
 
+
+  //deo za racunanje pakovanja
+
+  const getRoundedQuantity = (requested: number, packSize: number) => {
+    if (requested <= 0 || isNaN(requested)) {
+      return imaDozvoluZaPakovanje ? 1 : packSize;
+    }
+    
+    return imaDozvoluZaPakovanje 
+      ? requested 
+      : Math.ceil(requested / packSize) * packSize;
+  };
+
+  const getMaxAllowedQuantity = (kolicina: string, pakovanje: number) => {
+    const maxKolicina = Number(kolicina) || 0;
+    return Math.floor(maxKolicina / pakovanje) * pakovanje;
+  };
+
+
+  
   // Loader i error handling
   if (loading) return <div className="px-4 md:px-10 lg:px-[40px] py-6">Učitavanje...</div>;
   if (error) return <div className="px-4 md:px-10 lg:px-[40px] py-6 text-red-600">{error}</div>;
@@ -234,6 +287,7 @@ export default function Proizvod() {
                   month: 'long',
                   day: 'numeric',
                 })}
+                <p>Kolicina koja stiže u magacin: {pristiglaKolicina}</p>
               </span>
             )}
             <ul className="text-sm md:text-base space-y-1">
@@ -245,6 +299,9 @@ export default function Proizvod() {
               </li>
               <li>
                 <span className="font-semibold">Jedinica mere:</span> {proizvod.jm}
+              </li>
+              <li>
+                <span className="font-semibold">Količina za izdavanje:</span> {proizvod.kolZaIzdavanje}
               </li>
             </ul>
             <ul className="text-sm md:text-base space-y-1 mt-2">
@@ -291,61 +348,71 @@ export default function Proizvod() {
                 </div>
               )}
             </div>
-            {Number(proizvod.kolicina) > 0 ? (
-              <input
-                ref={inputRef}
-                name="inputProizvod"
-                className="w-16 border rounded px-2 py-1 text-center"
-                type="number"
-                min={preostalo > 0 ? 1 : 0}
-                max={preostalo}
-                defaultValue={preostalo > 0 ? 1 : 0}
-                disabled={preostalo === 0}
-                onChange={(e) => {
-                  const input = e.currentTarget;
-                  const vrednost = Number(input.value);
-                  if (vrednost > preostalo) {
-                    input.value = preostalo.toString();
-                  }
-                }}
-              />
-            ) : (
-              <input
-                ref={inputRef}
-                name="inputProizvod"
-                className="w-16 border rounded px-2 py-1 text-center"
-                type="number"
-                min={0}
-                max={0}
-                defaultValue={0}
-              />
-            )}
-            <AddToCartButton
-              id={proizvod.idArtikla}
-              className="w-full sm:w-auto px-6 py-2"
-              title="Dodaj u korpu"
-              getKolicina={() => Number(inputRef.current?.value || 1)}
-              nazivArtikla={proizvod.naziv}
-              disabled={Number(proizvod.kolicina) <= 0 || preostalo === 0}
-              ukupnaKolicina={preostalo}
-              onPreAdd={() => {
-                const uneta = Number(inputRef.current?.value || 1);
-                if (uneta > preostalo) {
-                  toast.error("Nema dovoljno artikala na stanju!", {
-                    description: `Maksimalno možete dodati ${preostalo} kom.`,
-                  });
-                  return false;
-                }
-                return true;
-              }}
-            />
+                <Input
+                  type="number"
+                  className="min-w-10 w-full max-w-21"
+                  step={imaDozvoluZaPakovanje ? 1 : (proizvod.kolZaIzdavanje || 1)}
+                  min={0}
+                  defaultValue={imaDozvoluZaPakovanje ? 1 : (proizvod.kolZaIzdavanje || 1)}
+                  onChange={(e) => {
+                    if (debounceTimeout.current) {
+                      clearTimeout(debounceTimeout.current);
+                    }
+
+                    debounceTimeout.current = setTimeout(() => {
+                      const pakovanje = proizvod.kolZaIzdavanje || 1;
+                      let enteredValue = Number(e.target.value);
+                      const maxAllowed = getMaxAllowedQuantity(proizvod.kolicina, pakovanje);
+
+                      if (isNaN(enteredValue)) {
+                        enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanje;
+                      }
+
+                      const roundedValue = imaDozvoluZaPakovanje 
+                        ? enteredValue 
+                        : Math.ceil(enteredValue / pakovanje) * pakovanje;
+                      
+                      const finalValue = Math.min(roundedValue, maxAllowed);
+                      if (inputRef.current) {
+                        inputRef.current.value = finalValue.toString();
+                      }
+                    }, debounceVreme)
+                  }}
+                  ref={inputRef}
+                />
+                <AddToCartButton
+                  id={proizvod.idArtikla}
+                  className="w-full sm:w-auto px-6 py-2"
+                  title="Dodaj u korpu"
+                  getKolicina={() => {
+                    const pakovanje = proizvod.kolZaIzdavanje || 1;
+                    const rawValue = Number(inputRef.current?.value || (imaDozvoluZaPakovanje ? 1 : pakovanje));
+                    return getRoundedQuantity(rawValue, pakovanje);
+                  }}
+                  nazivArtikla={proizvod.naziv}
+                  disabled={Number(proizvod.kolicina) <= 0 || preostalo === 0}
+                  ukupnaKolicina={preostalo}
+                  onPreAdd={() => {
+                    const pakovanje = proizvod.kolZaIzdavanje || 1;
+                    const rawValue = Number(inputRef.current?.value || (imaDozvoluZaPakovanje ? 1 : pakovanje));
+                    const uneta = getRoundedQuantity(rawValue, pakovanje);
+                    
+                    if (uneta > preostalo) {
+                      toast.error("Nema dovoljno artikala na stanju!", {
+                        description: `Maksimalno možete dodati ${preostalo} kom.`,
+                      });
+                      return false;
+                    }
+                    return true;
+                  }}
+                />
           </div>
         </div>
       </div>
 
       {/* Preporučeni proizvodi */}
       <div className="mt-[50px]">
-        <PreporuceniProizvodi />
+        <PoruciPonovo />
       </div>
 
       {/* Lightbox za slike */}
