@@ -72,15 +72,24 @@ const Akcije = () => {
     const korisnik = dajKorisnikaIzTokena();
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
     const res = await fetch(
+<<<<<<< HEAD
+      `${apiAddress}/api/Artikal/AkcijeSaPaginacijom?idPartnera=${korisnik?.idKorisnika}&page=${currentPage}&pageSize=${pageSize}`
+=======
       `${apiAddress}/api/Artikal/PartnerAkcije?idPartnera=${korisnik?.partner}&idKorisnika=${korisnik?.idKorisnika}`
+>>>>>>> bdfe10082df22cc2e869c69f8e8b8afae23e841a
     );
 
     if (!res.ok) throw new Error("Greška pri preuzimanju artikala");
 
     const data = await res.json();
+<<<<<<< HEAD
+
+    setArtikli(data.artikli ?? []);
+=======
     console.log('Data za akciju', data.akcije);
 
     setArtikli(data.akcije ?? []);
+>>>>>>> bdfe10082df22cc2e869c69f8e8b8afae23e841a
     setTotalCount(data.totalCount ?? 0);
     setTotalPages(Math.ceil((data.totalCount ?? 0) / pageSize));
   } catch (err: any) {

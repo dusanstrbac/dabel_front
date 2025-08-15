@@ -167,7 +167,6 @@ const OmiljeniArtikli = () => {
       ) : (
         <ListaArtikala
           artikli={artikli}
-          atributi={atributi}
           totalCount={totalCount}
           currentPage={currentPage}
           pageSize={pageSize}
