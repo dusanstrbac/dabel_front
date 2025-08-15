@@ -57,11 +57,9 @@ const OmiljeniArtikli = () => {
       }
 
       const url = new URL(`${apiAddress}/api/Partner/POA`);
-      url.searchParams.append("idPartnera", korisnik.idKorisnika);
-      url.searchParams.append("page", currentPage.toString());
-      url.searchParams.append("pageSize", pageSize.toString());
-      url.searchParams.append("sortKey", sortKey);
-      url.searchParams.append("sortOrder", sortOrder);
+      url.searchParams.append("idPartnera", korisnik.partner);
+      url.searchParams.append("idKorisnika", korisnik.idKorisnika);
+
 
       const res = await fetch(url.toString());
       if (!res.ok) throw new Error("Greška pri preuzimanju omiljenih artikala");
@@ -100,6 +98,8 @@ const OmiljeniArtikli = () => {
       setLoading(false);
     }
   };
+
+    console.log(artikli);
 
   // Učitaj artikle kada se stranica, sortiranje ili parametri promene
   useEffect(() => {
@@ -180,7 +180,6 @@ const OmiljeniArtikli = () => {
       ) : (
         <ListaArtikala
           artikli={artikli}
-          atributi={atributi}  // Prosleđivanje atributa
           totalCount={totalCount}
           currentPage={currentPage}
           pageSize={pageSize}
