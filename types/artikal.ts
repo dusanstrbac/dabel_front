@@ -1,4 +1,5 @@
 export type ArtikalType = {
+  cena: number;
   idArtikla: string;
   naziv: string;
   barkod: string;
@@ -10,8 +11,19 @@ export type ArtikalType = {
   // originalnaCena?: number;
   artikalCene: ArtikalCena[];
   artikalAtributi: ArtikalAtribut[];
+  artikalIstorija: artikalIstorija[];
+  artikalPristizanje: artikalPristizanje[];
 };
 
+export type artikalPristizanje = {
+  kolicina: number;
+  datum: Date;
+}
+
+export type artikalIstorija = {
+  datumPoslednjeKupovine: Date;
+  kolicina: number;
+}
 
 export type AritkalKorpaType = {
   idArtikla: string;

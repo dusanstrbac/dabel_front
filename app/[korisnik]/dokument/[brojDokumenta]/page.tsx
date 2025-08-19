@@ -25,6 +25,7 @@ export default function PrikazDokumenta() {
         if (!res.ok) throw new Error('Greška pri učitavanju dokumenta.');
 
         const data = await res.json();
+        console.log(data);
         setDokument(data);
       } catch (err: any) {
         setError(err.message);

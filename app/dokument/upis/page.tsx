@@ -6,11 +6,6 @@
     import { ComboboxAdrese } from "@/components/ui/ComboboxAdrese";
     import { Input } from "@/components/ui/input";
     import { LocationEdit } from "lucide-react";
-<<<<<<< HEAD
-    import { dajKorisnikaIzTokena } from "@/lib/auth";
-
-=======
->>>>>>> bdfe10082df22cc2e869c69f8e8b8afae23e841a
 
     const DokumentUpis = () => {
         const [artikli, setArtikli] = useState<AritkalKorpaType[]>([]);
@@ -55,10 +50,6 @@
         setArtikli(korpaPodaci.artikli);
         setUkupnaCenaSaPDV(korpaPodaci.ukupnaCenaSaPDV);
 
-<<<<<<< HEAD
-
-=======
->>>>>>> bdfe10082df22cc2e869c69f8e8b8afae23e841a
         // Postavi prvu adresu kao početnu vrednost ako postoje adrese
         if (korpaPodaci.partner?.partnerDostava?.length > 0) {
             setMestoIsporuke(korpaPodaci.partner.partnerDostava[0].adresa);

@@ -2,72 +2,18 @@ import { useRouter } from 'next/navigation';
 import '@/app/globals.css';
 import AddToCartButton from './AddToCartButton';
 import { ArtikalType } from '@/types/artikal';
-import { useEffect, useState } from 'react';
 
 interface ArticleCardProps extends ArtikalType {
   idPartnera: string;
   lastPurchaseDate?: string;
+  datumPoslednjeKupovine?: string;
+  kolicinaKupovine?: number;
+  datumPristizanja?: string;
+  kolicinaPristizanja?: number;
 }
 
-const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZaIzdavanje }: ArticleCardProps) => {
+const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZaIzdavanje, artikalIstorija, datumPoslednjeKupovine, kolicinaKupovine, datumPristizanja, kolicinaPristizanja }: ArticleCardProps) => {
   const router = useRouter();
-  const [isMounted, setMounted] = useState(false);
-  const [lastPurchaseDate, setLastPurchaseDate] = useState<string | undefined>(undefined);
-  const [artikalPristizanje, setArtikalPristizanje] = useState<string | undefined>(undefined);
-
-  useEffect(() => {
-    setMounted(true);
-
-    const fetchDatumPoslednjeKupovine = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Artikal/ArtikalDatumKupovine?idPartnera=${idPartnera}&idArtikla=${idArtikla}`
-        );
-
-        if (response.status === 404) return;
-
-        if (!response.ok) {
-          console.error("Greška u fetchovanju datuma kupovine:", await response.text());
-          return;
-        }
-
-        const data = await response.json();
-        setLastPurchaseDate(data.datumPoslednjeKupovine);
-      } catch (error) {
-        console.error("Došlo je do greške prilikom dohvatanja istorije kupovine:", error);
-      }
-    };
-
-    if (idArtikla && idPartnera) {
-      fetchDatumPoslednjeKupovine();
-    }
-  }, [idArtikla, idPartnera]);
-
-  useEffect(() => {
-    const fetchPristiznanjeArtiklaUSkladiste = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Artikal/PristizanjeArtikla?idArtikla=${idArtikla}`
-        );
-
-        if (response.status === 404) return;
-
-        if (!response.ok) {
-          console.error("Greška u fetchovanju artikal pristizanja:", await response.text());
-          return;
-        }
-
-        const data = await response.json();
-        setArtikalPristizanje(data.datumPonovnogStanja);
-      } catch (error) {
-        console.error("Došlo je do greške prilikom dohvatanja pristizanja artikla u skladište:", error);
-      }
-    };
-
-    if (idArtikla) {
-      fetchPristiznanjeArtiklaUSkladiste();
-    }
-  }, [idArtikla]);
 
   const imageUrl = '/images';
   const fotografijaProizvoda = `${imageUrl}/s${idArtikla}.jpg`;
@@ -88,19 +34,27 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZ
     router.push(`/proizvodi/${idArtikla}`);
   };
 
-  if (!isMounted) return null;
 
   const cenaArtikla = artikalCene?.[0]?.cena ?? 0;
   const novaCena = artikalCene?.[0]?.akcija?.cena ?? null;
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+  const formatDate = (dateInput: string | Date | undefined) => {
+    if (!dateInput) return "";
+
+    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+      // Nije validan datum
+      return "";
+    }
+
     return date.toLocaleDateString('sr-RS', {
-      year: 'numeric',
-      month: 'long',
       day: 'numeric',
+      month: 'long',
+      year: 'numeric',
     });
   };
+
 
   return (
     <div
@@ -130,18 +84,19 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZ
 
         <p
           className={`text-xs text-center text-gray-600 italic transition-all duration-200 ${
-            lastPurchaseDate ? 'min-h-[1.25rem] opacity-100' : 'min-h-[0.25rem] opacity-0'
+            datumPoslednjeKupovine ? 'min-h-[1.25rem] opacity-100' : 'min-h-[0.25rem] opacity-0'
           }`}
         >
-          {lastPurchaseDate && `Poslednja kupovina: ${formatDate(lastPurchaseDate)}`}
+          {datumPoslednjeKupovine && `Poslednja kupovina: ${formatDate(datumPoslednjeKupovine)}`}
         </p>
 
         {/* Datum pristizanja artikla */}
-        {Number(kolicina) <= 0 && artikalPristizanje && (
+        {Number(kolicina) <= 0 && datumPristizanja && (
           <p className="text-xs text-center text-gray-600 italic transition-all duration-200">
-            {`Planirani datum pristizanja: ${formatDate(artikalPristizanje)}`}
+            {`Planirani datum pristizanja: ${formatDate(datumPristizanja)}`}
           </p>
         )}
+
 
         {/* Cena i dugme */}
         <div className="flex justify-between items-end mt-auto">

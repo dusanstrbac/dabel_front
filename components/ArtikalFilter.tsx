@@ -79,9 +79,7 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
   const stableOnFilterChange = useCallback(onFilterChange, []);
 
   useEffect(() => {
-    if (JSON.stringify(filtriraniArtikli) !== JSON.stringify(artikli)) {
       stableOnFilterChange(filtriraniArtikli);
-    }
   }, [filtriraniArtikli, artikli, stableOnFilterChange]);
 
   // Generisanje opcija za filtere
@@ -143,6 +141,7 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
       Upotreba: [],
       Boja: [],
     });
+    stableOnFilterChange(artikli);
   };
 
   return (
