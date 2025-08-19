@@ -42,11 +42,18 @@ const OmiljeniArtikli = () => {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const korisnik = dajKorisnikaIzTokena();
 
+<<<<<<< HEAD
         if (!korisnik) {
           setError('Korisnik nije prijavljen.');
           setLoading(false);
           return;
         }
+=======
+      const data = await res.json();
+      console.log("DATAAAAAAAAAAAAAAAAAA:", data);
+      setArtikli(data.artikli);
+
+>>>>>>> eddafae92cac920bb11e7d9e7423019c38bc26a4
 
         const res = await fetch(
           `${apiAddress}/api/Partner/POA?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`

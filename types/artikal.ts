@@ -106,8 +106,9 @@ export interface ArtikalFilterProp {
   RobnaMarka: string[];
   Upotreba: string[];
   Boja: string[];
+  naStanju?: boolean;
 
-  [key: string]: string | string[] | undefined; // Dodaj indeksnu potpisu
+  [key: string]: string | string[] | undefined | boolean; // Dodaj indeksnu potpisu
 }
 
 export const defaultFilters: ArtikalFilterProp = {
@@ -119,7 +120,7 @@ export const defaultFilters: ArtikalFilterProp = {
   RobnaMarka: [],
   Upotreba: [],
   Boja: [],
-  
+  naStanju: false,
 };
 
 
