@@ -128,57 +128,7 @@ const Akcije = () => {
       query.set('sortOrder', sortOrder);
   
       router.push(`${window.location.pathname}?${query.toString()}`);
-<<<<<<< HEAD
     };
-=======
-    } catch (err) {
-      setError('Došlo je do greške pri filtriranju.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchAkcijeArtikli = async () => {
-  try {
-    setLoading(true);
-    setError(null);
-
-    const korisnik = dajKorisnikaIzTokena();
-    const partner = korisnik?.partner;
-    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-    const res = await fetch(
-      `${apiAddress}/api/Artikal/PartnerAkcije?idPartnera=${partner}&idKorisnika=${korisnik?.idKorisnika}`
-    );
-
-    if (!res.ok) throw new Error("Greška pri preuzimanju artikala");
-
-    const data = await res.json();
-    console.log(data.akcije);
-
-    setArtikli(data.akcije);
-    setAtributi(data.akcije.artikalAtributi);
-    setTotalCount(data.totalCount ?? 0);
-    setTotalPages(Math.ceil((data.totalCount ?? 0) / pageSize));
-  } catch (err: any) {
-    setError(err.message || "Došlo je do greške");
-  } finally {
-    setLoading(false);
-  }
-};
-
-  useEffect(() => {
-    fetchAkcijeArtikli();
-  }, [currentPage]);
-
-  const handlePageChange = (newPage: number) => {
-    if (newPage < 1 || newPage > totalPages) return;
-    setCurrentPage(newPage);
-
-    const url = new URL(window.location.href);
-    url.searchParams.set("page", newPage.toString());
-    router.push(`${url.pathname}${url.search}`, { scroll: false });
-  };
->>>>>>> eddafae92cac920bb11e7d9e7423019c38bc26a4
 
   return (
     <div className="lg:p-4">
@@ -193,13 +143,8 @@ const Akcije = () => {
         <p className="text-center text-red-600 mt-4">{error}</p>
       ) : (
         <ListaArtikala
-<<<<<<< HEAD
           artikli={sortiraneAkcije}
           totalCount={sortiraneAkcije.length}
-=======
-          artikli={artikli}
-          totalCount={totalCount}
->>>>>>> eddafae92cac920bb11e7d9e7423019c38bc26a4
           currentPage={currentPage}
           pageSize={pageSize}
           loading={loading}

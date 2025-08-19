@@ -94,13 +94,8 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
   const stableOnFilterChange = useCallback(onFilterChange, []);
 
   useEffect(() => {
-<<<<<<< HEAD
-      stableOnFilterChange(filtriraniArtikli);
-  }, [filtriraniArtikli, artikli, stableOnFilterChange]);
-=======
     stableOnFilterChange(filtriraniArtikli);
   }, [filtriraniArtikli, stableOnFilterChange]);
->>>>>>> eddafae92cac920bb11e7d9e7423019c38bc26a4
 
   const filterOptions = useMemo(() => {
     const options: Record<keyof Omit<ArtikalFilterProp, 'cena' | 'naziv'>, Set<string>> = {
