@@ -123,7 +123,10 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
   };
 
   const handleCenaChange = (min: number, max: number) => {
-    setFilters(prev => ({ ...prev, cena: `${min}-${max}` }));
+    const novaCena = `${min}-${max}`;
+    if (filters.cena !== novaCena) {
+      setFilters(prev => ({ ...prev, cena: novaCena }));
+    }
   };
 
   const handleNaStanjuChange = (value: boolean) => {
