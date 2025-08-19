@@ -130,7 +130,7 @@ const DokumentPage = () => {
   const handlePrint = () => window.print();
 
   const izracunajStavku = (stavka: AritkalKorpaType) => {
-    const artikalCena = stavka.koriscenaCena > 0 ? stavka.koriscenaCena : stavka.originalnaCena;
+    const artikalCena = stavka.koriscenaCena > 0 ? stavka.koriscenaCena : stavka.originalnaCena ?? 0;
     const cenaPosleRabata = artikalCena * (1 - stavka.rabat / 100);
     const cenaBezPDV = cenaPosleRabata;
     const cenaSaPDV = cenaBezPDV * (1 + stavka.pdv / 100);

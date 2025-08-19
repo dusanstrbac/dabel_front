@@ -1,9 +1,9 @@
-import FormTable from "@/components/FormTable";
+import UplateTable from "@/components/UplateTable";
 
 const Uplate = () => {
 
     return (
-        <FormTable title="Uplate" />
+        <UplateTable title="Uplate" />
     );
 }
 

@@ -124,7 +124,6 @@ const Akcije = () => {
         <>
         <ListaArtikala
           artikli={artikli}
-          atributi={atributi || {}}  // Prosleđivanje atributa
           totalCount={totalCount}
           currentPage={currentPage}
           pageSize={pageSize}

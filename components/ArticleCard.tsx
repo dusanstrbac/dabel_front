@@ -14,7 +14,6 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZ
   const [isMounted, setMounted] = useState(false);
   const [lastPurchaseDate, setLastPurchaseDate] = useState<string | undefined>(undefined);
   const [artikalPristizanje, setArtikalPristizanje] = useState<string | undefined>(undefined);
-  console.log('ArticleCard props:', { naziv, idArtikla, kolZaIzdavanje });
 
   useEffect(() => {
     setMounted(true);
@@ -129,15 +128,6 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZ
           {naziv}
         </h2>
 
-        {/* {kolZaIzdavanje && kolZaIzdavanje > 1 ? (
-          <p className="text-xs text-gray-500">
-            Pakovanje: {kolZaIzdavanje} kom
-          </p>
-        ):(
-          <p>NEMA KOLICINE</p>
-          //ovo ovde ne stize
-        )} */}
-
         <p
           className={`text-xs text-center text-gray-600 italic transition-all duration-200 ${
             lastPurchaseDate ? 'min-h-[1.25rem] opacity-100' : 'min-h-[0.25rem] opacity-0'
@@ -180,7 +170,7 @@ const ArticleCard = ({ naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZ
           <div className="pointer-events-auto">
             <AddToCartButton
               id={idArtikla}
-              getKolicina={() => kolZaIzdavanje || 1} //ovaj se buni
+              getKolicina={() => kolZaIzdavanje || 1} 
               kolZaIzdavanje={kolZaIzdavanje}
               nazivArtikla={naziv}
               disabled={Number(kolicina) <= 0}

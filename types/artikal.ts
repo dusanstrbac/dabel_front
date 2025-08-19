@@ -7,10 +7,11 @@ export type ArtikalType = {
   kategorijaId: string;
   status?: string;
   kolZaIzdavanje?: number;
-  originalnaCena?: number;
+  // originalnaCena?: number;
   artikalCene: ArtikalCena[];
   artikalAtributi: ArtikalAtribut[];
 };
+
 
 export type AritkalKorpaType = {
   idArtikla: string;
@@ -62,20 +63,19 @@ export type ArtikalAtribut = {
 };
 
 export interface ListaArtikalaProps {
-  artikli: any[];
-  atributi: AtributiResponse; // Promenjeno iz ArtikalAtribut[] u AtributiResponse
+  artikli: ArtikalType[];
   kategorija?: string;
   podkategorija?: string | null;
   totalCount: number;
   currentPage: number;
-  pageSize?: number;
+  pageSize: number;
   onPageChange: (page: number) => void;
   loading?: boolean;
   onFilterChange: (filters: ArtikalFilterProp) => void;
 
 }
 
-interface AtributiResponse {
+export type AtributiResponse = {
   [artikalId: string]: ArtikalAtribut[];
 }
 
@@ -86,7 +86,7 @@ export interface SortiranjeButtonProps {
 
 export interface ArtikalFilterProp {
   cena?: string; // tip je string u formatu "min-max"
-  naziv: string;
+  naziv?: string;
   jm: string[];
   Materijal: string[];
   Model: string[];
@@ -94,8 +94,9 @@ export interface ArtikalFilterProp {
   RobnaMarka: string[];
   Upotreba: string[];
   Boja: string[];
+  naStanju?: boolean;
 
-  [key: string]: string | string[] | undefined; // Dodaj indeksnu potpisu
+  [key: string]: string | string[] | undefined | boolean; // Dodaj indeksnu potpisu
 }
 
 export const defaultFilters: ArtikalFilterProp = {
@@ -107,7 +108,7 @@ export const defaultFilters: ArtikalFilterProp = {
   RobnaMarka: [],
   Upotreba: [],
   Boja: [],
-  
+  naStanju: false,
 };
 
 

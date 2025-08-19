@@ -21,11 +21,10 @@ const Najprodavanije = () => {
   const [cart, setCart] = useState<Record<string, { kolicina: number }> | null>(null);
   const router = useRouter();
   const korisnik = dajKorisnikaIzTokena();
-  const idKorisnika = korisnik?.partner;
 
   useEffect(() => {
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-    fetch(`${apiAddress}/api/Artikal/DajNajprodavanije?idPartnera=${idKorisnika}`)
+    fetch(`${apiAddress}/api/Artikal/DajNajprodavanije?idPartnera=${korisnik?.partner}&idKorisnika=${korisnik?.idKorisnika}`)
       .then((res) => {
         if (!res.ok) throw new Error("Greška prilikom učitavanja");
         return res.json();

@@ -12,8 +12,7 @@ const ProfilPodaci = () => {
     const fetchKorisnikData = async () => {
       try {
         const korisnik = dajKorisnikaIzTokena();
-        const idPartnera = korisnik?.korisnickoIme;
-
+        
         if (!korisnik) {
           setLoading(false);
           return;
@@ -23,8 +22,10 @@ const ProfilPodaci = () => {
         setError(null);
         
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}`);
+        const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`);
         const data = await response.json();
+
+        console.log("konzole log fetcha:", data);
 
         if(!response) {
           alert("Korisik nije ulogovan. Obratite se administraciji sajta za ovaj problem");
@@ -33,7 +34,7 @@ const ProfilPodaci = () => {
         if (data && Array.isArray(data) && data.length > 0) {
           setUserData(data[0]);
         } else {
-          console.error('Korisnik nije pronađen ili API ne vraća ispravan odgovor');
+          console.error('Korisnik nije pronađen ili API ne vraća ispravan odgovor');//sto kaze i izbacuje losu poruku kad ja ako udjem na rutu, on mi izbaci sve potrebne podatke, cak je i server responsive i postman takodje mi da sve podatke, kao da su tu samo me front zeza i kaze kao da ne postoji
         }
       } catch (err) {
         console.error('Greška prilikom učitavanja korisnika:', err);

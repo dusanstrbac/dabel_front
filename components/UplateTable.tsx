@@ -36,7 +36,33 @@ const statusPriority: Record<string, number> = {
   "Opozvan": 5,
 };
 
-const FormTable = ({ title }: myProps) => {
+// Dummy podaci za uplate
+const dummyUplate = [
+  {
+    brojDokumenta: "UPL-001",
+    datumDokumenta: "2025-05-15T00:00:00",
+    stavkeDokumenata: [{ ukupnaCena: 12500.00 }],
+    status: 1,
+    statusText: "Obrađen"
+  },
+  {
+    brojDokumenta: "UPL-002",
+    datumDokumenta: "2025-06-20T00:00:00",
+    stavkeDokumenata: [{ ukupnaCena: 8500.00 }],
+    status: 1,
+    statusText: "Obrađen"
+  },
+  {
+    brojDokumenta: "UPL-003",
+    datumDokumenta: "2025-07-10T00:00:00",
+    stavkeDokumenata: [{ ukupnaCena: 22000.00 }],
+    status: 1,
+    statusText: "Obrađen"
+  },
+  // Dodajte više dummy podataka po potrebi
+];
+
+const UplateTable = ({ title }: myProps) => {
   const [error, setError] = useState("");
   const [dokumenta, setDokumenta] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,14 +73,57 @@ const FormTable = ({ title }: myProps) => {
   const pathname = usePathname();
   const prikazNarudzbenica = pathname.includes(`/narudzbenica`);
   const prikazPoslataRoba = pathname.includes(`/roba`);
+  const prikazUplata = title === "Uplate";
 
   const itemsPerPage = 15;
   const searchParams = useSearchParams();
-//   const [korisnik, setKorisnik] = useState<any>(null);
-    const korisnik = dajKorisnikaIzTokena();
-//   useEffect(() => {
-//     setKorisnik(dajKorisnikaIzTokena());
-//   }, []);
+  const [korisnik, setKorisnik] = useState<any>(null);
+
+  useEffect(() => {
+    setKorisnik(dajKorisnikaIzTokena());
+  }, []);
+
+  useEffect(() => {
+    if (prikazUplata) {
+      // Koristi dummy podatke za uplate
+      setDokumenta(dummyUplate);
+      setLoading(false);
+      return;
+    }
+
+    if (!korisnik) return;
+    
+    const izvuciDokumenta = async () => {
+      try {
+        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+        const idKorisnika = korisnik?.partner;
+        const res = await fetch(
+          `${apiAddress}/api/Dokument/DajDokumentePoPartneru?idPartnera=${idKorisnika}`
+        );
+
+        if (!res.ok) {
+          throw new Error("Greška pri učitavanju podataka.");
+        }
+        const data = await res.json();
+
+        const dokumentiSaStatusom = data.map((dok: any) => ({
+          ...dok,
+          statusText: statusMap[dok.status] ?? "Nepoznat"
+        }));
+
+        const dokumentiZaPrikaz = prikazPoslataRoba
+          ? dokumentiSaStatusom.filter((d: any) => d.statusText === "Obrađen")
+          : dokumentiSaStatusom;
+
+        setDokumenta(dokumentiZaPrikaz);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    izvuciDokumenta();
+  }, [korisnik, prikazPoslataRoba, prikazUplata]);
 
   const sortiranaDokumenta = [...dokumenta].sort((a, b) => {
     if (sortKey === 'datum') {
@@ -90,72 +159,36 @@ const FormTable = ({ title }: myProps) => {
     return sum + suma;
   }, 0);
 
-  useEffect(() => {
-    if (!korisnik) return;
-    const izvuciDokumenta = async () => {
-      try {
-        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const idKorisnika = korisnik?.partner;
-        const res = await fetch(
-          `${apiAddress}/api/Dokument/DajDokumentePoPartneru?idPartnera=${idKorisnika}`
-        );
-
-        if (!res.ok) {
-          throw new Error("Greška pri učitavanju podataka.");
-        }
-        const data = await res.json();
-
-        const dokumentiSaStatusom = data.map((dok: any) => ({
-          ...dok,
-          statusText: statusMap[dok.status] ?? "Nepoznat"
-        }));
-
-        const dokumentiZaPrikaz = prikazPoslataRoba
-          ? dokumentiSaStatusom.filter((d: any) => d.statusText === "Obrađen")
-          : dokumentiSaStatusom;
-
-        setDokumenta(dokumentiZaPrikaz);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    izvuciDokumenta();
-  }, [korisnik, prikazPoslataRoba]);
-
-
   const handleOpoziv = async (brojDokumenta: number) => {
-  try {
-    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+    try {
+      const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
-    const res = await fetch(`${apiAddress}/api/Dokument/OpozoviDokument`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ BrojDokumenta: brojDokumenta }),
-    });
+      const res = await fetch(`${apiAddress}/api/Dokument/OpozoviDokument`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ BrojDokumenta: brojDokumenta }),
+      });
 
-    if (!res.ok) {
-      throw new Error("Greška prilikom opoziva dokumenta.");
+      if (!res.ok) {
+        throw new Error("Greška prilikom opoziva dokumenta.");
+      }
+
+      toast.success("Dokument je uspešno opozvan.");
+      setDokumenta((prev) =>
+        prev.map((dok) =>
+          dok.brojDokumenta === brojDokumenta
+            ? { ...dok, status: 4, statusText: statusMap[4] }
+            : dok
+        )
+      );
+    } catch (err: any) {
+      toast.error(err.message || "Došlo je do greške pri opozivu.");
     }
+  };
 
-    toast.success("Dokument je uspešno opozvan.");
-    setDokumenta((prev) =>
-      prev.map((dok) =>
-        dok.brojDokumenta === brojDokumenta
-          ? { ...dok, status: 4, statusText: statusMap[4] }
-          : dok
-      )
-    );
-  } catch (err: any) {
-    toast.error(err.message || "Došlo je do greške pri opozivu.");
-  }
-};
-
-
-  if (loading) return <div>Učitavanje podataka...</div>;
+  if (loading && !prikazUplata) return <div>Učitavanje podataka...</div>;
   if (error) return <div>Greška: {error}</div>;
   if (!dokumenta.length) return <div>Nema podataka.</div>;
 
@@ -195,7 +228,7 @@ const FormTable = ({ title }: myProps) => {
             <TableRow>
               <TableHead className="lg:w-[200px] text-xl">Datum</TableHead>
               <TableHead className="text-xl">Dokument</TableHead>
-              {prikazNarudzbenica && (
+              {!prikazUplata && prikazNarudzbenica && (
                 <TableHead className="text-xl">Status</TableHead>
               )}
               <TableHead className="text-xl text-right">Iznos</TableHead>
@@ -217,15 +250,19 @@ const FormTable = ({ title }: myProps) => {
                     {new Date(dokument.datumDokumenta).toLocaleDateString("sr-RS")}
                   </TableCell>
                   <TableCell>
-                    <a
-                      href={`/${korisnik?.korisnickoIme}/dokument/${dokument.brojDokumenta}`}
-                      className="text-blue-500 hover:underline"
-                      target="_blank"
-                    >
-                      {dokument.brojDokumenta}
-                    </a>
+                    {prikazUplata ? (
+                      <span>{dokument.brojDokumenta}</span>
+                    ) : (
+                      <a
+                        href={`/${korisnik?.korisnickoIme}/dokument/${dokument.brojDokumenta}`}
+                        className="text-blue-500 hover:underline"
+                        target="_blank"
+                      >
+                        {dokument.brojDokumenta}
+                      </a>
+                    )}
                   </TableCell>
-                  {prikazNarudzbenica && (
+                  {!prikazUplata && prikazNarudzbenica && (
                     <TableCell className="flex items-center gap-2">
                       <span
                         className={`inline-block w-3 h-3 rounded-full border
@@ -243,7 +280,7 @@ const FormTable = ({ title }: myProps) => {
                   )}
 
                   <TableCell className="text-right">{ukupno.toFixed(2)}</TableCell>
-                  {prikazNarudzbenica && (
+                  {!prikazUplata && prikazNarudzbenica && (
                     <TableCell className="flex justify-center">
                       {dokument.status === 0 && (
                         <a
@@ -267,16 +304,16 @@ const FormTable = ({ title }: myProps) => {
             <TableRow className="bg-gray-400 hover:bg-gray-400">
               <TableCell className="font-medium">Ukupno po strani:</TableCell>
               <TableCell />
-              {prikazNarudzbenica && <TableCell />}
+              {!prikazUplata && prikazNarudzbenica && <TableCell />}
               <TableCell className="text-right">{ukupnaSuma.toFixed(2)}</TableCell>
-              {prikazNarudzbenica && <TableCell />}
+              {!prikazUplata && prikazNarudzbenica && <TableCell />}
             </TableRow>
             <TableRow>
               <TableCell className="font-medium">Ukupno:</TableCell>
               <TableCell />
-              {prikazNarudzbenica && <TableCell />}
+              {!prikazUplata && prikazNarudzbenica && <TableCell />}
               <TableCell className="text-right">{ukupnaSumaSvihDokumenata.toFixed(2)}</TableCell>
-              {prikazNarudzbenica && <TableCell />}
+              {!prikazUplata && prikazNarudzbenica && <TableCell />}
             </TableRow>
           </TableFooter>
         </Table>
@@ -293,4 +330,4 @@ const FormTable = ({ title }: myProps) => {
   );
 };
 
-export default FormTable;``
+export default UplateTable;

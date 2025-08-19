@@ -18,21 +18,45 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 
-
 type Props = {
   dostavaList: KorisnikDostavaType[];
   onSelectOption: (dostava: KorisnikDostavaType) => void;
   placeholder?: string;
+  defaultValue?: string; // Dodajemo novi prop za default vrednost
 };
 
 export const ComboboxAdrese: React.FC<Props> = ({
   dostavaList,
   onSelectOption,
   placeholder = "Izaberi adresu dostave",
+  defaultValue, // Dodajemo defaultValue u props
 }) => {
   const [open, setOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<KorisnikDostavaType | null>(null);
   const [inputValue, setInputValue] = React.useState("");
+
+  // Dodajemo useEffect za automatsko selektovanje prve adrese
+  React.useEffect(() => {
+    if (dostavaList.length > 0 && !selected) {
+      // Ako postoji defaultValue, pokušajmo da nađemo odgovarajuću adresu
+      if (defaultValue) {
+        const defaultAdresa = dostavaList.find(item => 
+          item.adresa === defaultValue ||
+          `${item.adresa}, ${item.postBroj} ${item.grad}` === defaultValue
+        );
+        if (defaultAdresa) {
+          setSelected(defaultAdresa);
+          onSelectOption(defaultAdresa);
+          return;
+        }
+      }
+      
+      // Ako nema defaultValue ili nije pronađen, selektuj prvu adresu
+      const firstAdresa = dostavaList[0];
+      setSelected(firstAdresa);
+      onSelectOption(firstAdresa);
+    }
+  }, [dostavaList, defaultValue]);
 
   const filtered = React.useMemo(() => {
     const search = inputValue.toLowerCase();

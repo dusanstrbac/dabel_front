@@ -6,7 +6,11 @@
     import { ComboboxAdrese } from "@/components/ui/ComboboxAdrese";
     import { Input } from "@/components/ui/input";
     import { LocationEdit } from "lucide-react";
+<<<<<<< HEAD
+    import { dajKorisnikaIzTokena } from "@/lib/auth";
 
+=======
+>>>>>>> bdfe10082df22cc2e869c69f8e8b8afae23e841a
 
     const DokumentUpis = () => {
         const [artikli, setArtikli] = useState<AritkalKorpaType[]>([]);
@@ -31,7 +35,7 @@
                 const parsedMinCena = parseFloat(minCenaRaw);
 
                 if (!isNaN(parsedMinCena)) {
-                setMinCena(parsedMinCena);
+                    setMinCena(parsedMinCena);
                 }
             } catch (err) {
                 console.error("Greška prilikom parsiranja webparametara:", err);
@@ -51,6 +55,14 @@
         setArtikli(korpaPodaci.artikli);
         setUkupnaCenaSaPDV(korpaPodaci.ukupnaCenaSaPDV);
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> bdfe10082df22cc2e869c69f8e8b8afae23e841a
+        // Postavi prvu adresu kao početnu vrednost ako postoje adrese
+        if (korpaPodaci.partner?.partnerDostava?.length > 0) {
+            setMestoIsporuke(korpaPodaci.partner.partnerDostava[0].adresa);
+        }
     }, []);
 
     useEffect(() => {
@@ -60,7 +72,8 @@
         sessionStorage.setItem("ukupnoSaDostavom", JSON.stringify(ukupnoSaDostavom));
     }, [ukupnaCenaSaPDV, dostava, ukupnoSaDostavom]);
 
-
+    
+    
 
     return (
         <div className="flex flex-col gap-5 p-4 min-w-[320px]">
@@ -81,6 +94,7 @@
                                     onSelectOption={(adresa) => {
                                         setMestoIsporuke(adresa.adresa);
                                     }}
+                                    defaultValue={mestoIsporuke}
                                 />
                                 
                             </div>
