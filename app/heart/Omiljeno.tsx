@@ -98,33 +98,33 @@ const OmiljeniArtikli = () => {
   }, [currentPage, sortKey, sortOrder]);
 
   // Funkcija za promenu filtera
- const handleFilterChange = async (filters: ArtikalFilterProp) => {
-  setLoading(true);
-  setError(null);
+//  const handleFilterChange = async (filters: ArtikalFilterProp) => {
+//   setLoading(true);
+//   setError(null);
 
-  try {
-    const query = new URLSearchParams();
-    if (filters.naziv) query.append('naziv', filters.naziv);
-    if (filters.cena) query.append('cena', filters.cena);
+//   try {
+//     const query = new URLSearchParams();
+//     if (filters.naziv) query.append('naziv', filters.naziv);
+//     if (filters.cena) query.append('cena', filters.cena);
 
-    for (const key of ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja']) {
-      const vrednosti = filters[key as keyof ArtikalFilterProp];
-      if (Array.isArray(vrednosti)) {
-        vrednosti.forEach((val) => query.append(key, val));
-      }
-    }
+//     for (const key of ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja']) {
+//       const vrednosti = filters[key as keyof ArtikalFilterProp];
+//       if (Array.isArray(vrednosti)) {
+//         vrednosti.forEach((val) => query.append(key, val));
+//       }
+//     }
 
-    query.set('page', '1');  // Resetovanje stranice
-    query.set('sortKey', sortKey);
-    query.set('sortOrder', sortOrder);
+//     query.set('page', '1');  // Resetovanje stranice
+//     query.set('sortKey', sortKey);
+//     query.set('sortOrder', sortOrder);
 
-    router.push(`${window.location.pathname}?${query.toString()}`);
-  } catch (err) {
-    setError('Došlo je do greške pri filtriranju.');
-  } finally {
-    setLoading(false);
-  }
-};
+//     router.push(`${window.location.pathname}?${query.toString()}`);
+//   } catch (err) {
+//     setError('Došlo je do greške pri filtriranju.');
+//   } finally {
+//     setLoading(false);
+//   }
+// };
 
 
   // Promena stranice
@@ -153,6 +153,26 @@ const OmiljeniArtikli = () => {
     setCurrentPage(1);  // Postavljanje trenutne stranice na 1
   };
 
+  const handleFilterChange = (filters: ArtikalFilterProp) => {
+    const query = new URLSearchParams();
+    
+    if (filters.cena) {
+      query.set('minCena', filters.cena.split('-')[0]);
+      query.set('maxCena', filters.cena.split('-')[1]);
+    }
+
+    const filterKeys = ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja'];
+    filterKeys.forEach(key => {
+      const values = filters[key as keyof ArtikalFilterProp];
+      if (Array.isArray(values) && values.length > 0) {
+        values.forEach(val => query.append(key, val));
+      }
+    });
+
+    router.push(`${window.location.pathname}?${query.toString()}`);
+  };
+
+console.log(artikli);
   return (
     <div className="lg:p-4">
       <div className="w-full mx-auto flex justify-between items-center p-2">

@@ -95,10 +95,10 @@ export default function ProizvodiPage() {
   const handleFilterChange = (filters: ArtikalFilterProp) => {
     const query = new URLSearchParams();
     
-    if (filters.cena) {
-      query.set('minCena', filters.cena.split('-')[0]);
-      query.set('maxCena', filters.cena.split('-')[1]);
-    }
+    // if (filters.cena) {
+    //   query.set('minCena', filters.cena.split('-')[0]);
+    //   query.set('maxCena', filters.cena.split('-')[1]);
+    // }
 
     const filterKeys = ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja'];
     filterKeys.forEach(key => {
@@ -108,8 +108,12 @@ export default function ProizvodiPage() {
       }
     });
 
-    router.push(`${window.location.pathname}?${query.toString()}`);
+//    router.push(`${window.location.pathname}?${query.toString()}`);
   };
+
+
+
+
 
   return (
     <div className="w-full mx-auto">
@@ -132,21 +136,23 @@ export default function ProizvodiPage() {
 
         {loading ? (
           <p className="text-center mt-4">Učitavanje...</p>
-        ): error ? (
-          <p className="text-center text-red-600 mt-4">{error}</p>
+        ) : error || sviArtikli.length === 0 ? (
+          <p className="text-center text-xl font-medium text-red-600 mt-4">
+            {sviArtikli.length === 0 ? "Partner nema asortiman za ovu kategoriju!" : error}
+          </p>
         ) : (
           <>
-        <ListaArtikala
-          artikli={sortiraniArtikli} // Šaljemo SVE sortirane artikle
-          kategorija={kategorija}
-          podkategorija={podkategorija}
-          totalCount={sortiraniArtikli.length} // Ukupan broj artikala za paginaciju
-          currentPage={currentPage}
-          pageSize={pageSize}
-          loading={loading}
-          onPageChange={handlePageChange}
-          onFilterChange={handleFilterChange}
-        />       
+          <ListaArtikala
+            artikli={sortiraniArtikli} // Šaljemo SVE sortirane artikle
+            kategorija={kategorija}
+            podkategorija={podkategorija}
+            totalCount={sortiraniArtikli.length} // Ukupan broj artikala za paginaciju
+            currentPage={currentPage}
+            pageSize={pageSize}
+            loading={loading}
+            onPageChange={handlePageChange}
+            onFilterChange={handleFilterChange}
+          />       
           </>
         )} 
     </div>

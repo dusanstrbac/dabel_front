@@ -70,18 +70,27 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
       }
     });
 
+
+    // Logujemo broj filtriranih artikala
+    if (result.length === artikli.length) {
+      console.log(`Prikazujem sve artikle: ${artikli.length}/${artikli.length}`);
+    } else {
+      console.log(`Filtrirani artikli: ${result.length}/${artikli.length}`);
+    }
+
+
+
     return JSON.stringify(result) === JSON.stringify(artikli) 
-    ? artikli 
-    : result;
+      ? artikli 
+      : result;
   }, [artikli, filters]);
+
 
   // Obavesti parent komponentu o promenama
   const stableOnFilterChange = useCallback(onFilterChange, []);
 
   useEffect(() => {
-    if (JSON.stringify(filtriraniArtikli) !== JSON.stringify(artikli)) {
       stableOnFilterChange(filtriraniArtikli);
-    }
   }, [filtriraniArtikli, artikli, stableOnFilterChange]);
 
   // Generisanje opcija za filtere
@@ -117,12 +126,14 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
     ) as Record<keyof Omit<ArtikalFilterProp, 'cena' | 'naziv'>, string[]>;
   }, [artikli]);
 
-  // Funkcije za upravljanje filterima
+  //Funkcije za upravljanje filterima
   const handleFilterChange = (key: keyof ArtikalFilterProp, value: string[]) => {
     setFilters(prev => ({
       ...prev,
       [key]: value
     }));
+
+    console.log(`Selektovano ${value.length} opcija u ${key}`);
   };
 
   const handleCenaChange = (min: number, max: number) => {
@@ -143,7 +154,9 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
       Upotreba: [],
       Boja: [],
     });
+    stableOnFilterChange(artikli);
   };
+
 
   return (
     <div className="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
@@ -187,7 +200,7 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
                     <label key={option} className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={filters[key as keyof ArtikalFilterProp]?.includes(option) ?? false}
+                        checked={(filters[key as keyof ArtikalFilterProp] as string[] || []).includes(option)}
                         onChange={(e) => {
                           const current = filters[key as keyof ArtikalFilterProp] as string[] || [];
                           const newValue = e.target.checked
@@ -209,7 +222,7 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
 
       <button
         onClick={resetFilters}
-        className="w-full py-2 px-4 mt-4 text-center text-sm font-semibold text-white bg-gray-600 hover:bg-gray-700 rounded-lg"
+        className="w-full py-2 px-4 mt-4 text-center text-sm font-semibold text-white bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
       >
         Resetuj filtere
       </button>
