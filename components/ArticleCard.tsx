@@ -34,7 +34,6 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZa
     router.push(`/proizvodi/${idArtikla}`);
   };
 
-
   const cenaArtikla = artikalCene?.[0]?.cena ?? 0;
   const novaCena = artikalCene?.[0]?.akcija?.cena ?? null;
 
@@ -96,6 +95,13 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZa
             {`Planirani datum pristizanja: ${formatDate(datumPristizanja)}`}
           </p>
         )}
+
+        {typeof artikalCene[0]?.akcija?.kolicina === 'number' && (
+          <p className="text-xs text-center text-gray-600 italic transition-all duration-200">
+            {`Akcijska količina: ${artikalCene[0].akcija.kolicina} kom${artikalCene[0].akcija.kolicina === 1 ? 'ad' : 'ada'}`}
+          </p>
+        )}
+
 
 
         {/* Cena i dugme */}
