@@ -75,13 +75,14 @@ const Novopristigli = () => {
   // Sortiranje artikala memoizovano
   const sortiraniArtikli = useMemo(() => {
     const kopija = [...artikli];
+    console.log(...artikli);
     kopija.sort((a, b) => {
       let aVal: string | number = '';
       let bVal: string | number = '';
 
       if (sortKey === 'cena') {
-        aVal = a.cena ?? 0;
-        bVal = b.cena ?? 0;
+        aVal = a.artikalCene?.[0]?.cena ?? 0;
+        bVal = b.artikalCene?.[0]?.cena ?? 0;
       } else {
         aVal = a.naziv.toLowerCase();
         bVal = b.naziv.toLowerCase();
@@ -158,8 +159,8 @@ const Novopristigli = () => {
         <p className="text-center text-red-600 mt-4">{error}</p>
       ) : (
         <ListaArtikala
-          artikli={artikli}
-          totalCount={totalCount}
+          artikli={sortiraniArtikli}
+          totalCount={sortiraniArtikli.length}
           currentPage={currentPage}
           pageSize={pageSize}
           loading={loading}
