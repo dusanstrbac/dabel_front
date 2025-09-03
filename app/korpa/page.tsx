@@ -107,14 +107,9 @@ const Korpa = () => {
       }
 
       const idPartnera = korisnik?.partner;
-<<<<<<< HEAD
-      try {
-          const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}`);
-=======
-      const idKorisnika = korisnik.idKorisnika;
+      const idKorisnika = korisnik?.idKorisnika
       try {
           const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}&idKorisnika=${idKorisnika}`);
->>>>>>> bdfe10082df22cc2e869c69f8e8b8afae23e841a
           const data = await res.json();
           const fPartner = data[0] as KorisnikPodaciType;
           setPartner(fPartner);
@@ -290,12 +285,7 @@ const Korpa = () => {
     fetchDozvole();
   }, [korisnik, apiAddress]);
 
-  const raspolozivoStanje = korisnik?.finKarta?.raspolozivoStanje;
-  const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina || Number(raspolozivoStanje) < totalAmountWithPDV;
-  
-
-    if ( Number( raspolozivoStanje ) < totalAmountWithPDV ) { toast.error("Prekoračili ste dozvoljeno zaduženje!"); }
-
+  const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina;
 
   
   const razlogZabraneNarucivanja = narucivanjeDisabled

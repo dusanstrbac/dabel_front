@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import AddToCartButton from "./AddToCartButton";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { date } from "zod";
 
 type ArtikalIstorijaDTO = {
   idPartnera: string;

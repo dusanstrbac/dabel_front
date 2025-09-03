@@ -34,7 +34,6 @@ const PretragaProizvoda = () => {
       
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
       try {
-
         const trimmedQuery = query.trim();
         if (!trimmedQuery) return;
 
@@ -64,15 +63,32 @@ const PretragaProizvoda = () => {
     router.push(`/proizvodi/${idArtikla}`);
   };
 
+  const extractIdFromUrl = (url: string): string => {
+    try {
+      // Ako je URL, izvuci poslednji deo putanje (ID)
+      if (url.includes('/')) {
+        const urlObj = new URL(url);
+        const pathParts = urlObj.pathname.split('/').filter(part => part);
+        return pathParts[pathParts.length - 1];
+      }
+      // Ako nije URL, vrati originalni tekst (verovatno direktan ID)
+      return url;
+    } catch (e) {
+      // Ako nije validan URL, vrati originalni tekst
+      return url;
+    }
+  };
+
   const handleBarcodeRedirect = (barkod: string) => {
     if (barkod) {
-      router.push(`/proizvodi/${barkod}`);
+      // Ekstrahuj ID iz URL-a ako je QR kod sadrži link
+      const idArtikla = extractIdFromUrl(barkod);
+      router.push(`/proizvodi/${idArtikla}`);
     } else {
       console.error("Barkod nije prepoznat");
     }
     setScannerActive(false);
   };
-
 
   return (
     <div className="w-full lg:w-[40%] relative lg:ml-16 mr-2">
@@ -83,6 +99,7 @@ const PretragaProizvoda = () => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.length >= 2 && setShowDropdown(true)}
+          onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
         />
         
         <div className="absolute inset-y-0 right-2 flex items-center gap-2">
@@ -95,7 +112,6 @@ const PretragaProizvoda = () => {
               <Camera className="cursor-pointer text-gray-500 hover:text-black h-5 w-5"/>
             </DialogTrigger>
 
-              {/* max-w-[300px] w-[400px] md:max-w-full p-4 */}
             <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6">
               <DialogHeader>
                 <DialogTitle className="text-center text-lg mb-2">Skeniranje barkoda</DialogTitle>
@@ -121,6 +137,7 @@ const PretragaProizvoda = () => {
           </Dialog>
         </div>
       </div>
+      
       {/* Dropdown rezultati */}
       {showDropdown && rezultati.length > 0 && (
         <div className="absolute z-50 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg">

@@ -1,4 +1,5 @@
 export type ArtikalType = {
+  cena: number;
   idArtikla: string;
   naziv: string;
   barkod: string;
@@ -10,8 +11,19 @@ export type ArtikalType = {
   // originalnaCena?: number;
   artikalCene: ArtikalCena[];
   artikalAtributi: ArtikalAtribut[];
+  artikalIstorija: artikalIstorija[];
+  artikalPristizanje: artikalPristizanje[];
 };
 
+export type artikalPristizanje = {
+  kolicina: number;
+  datum: Date;
+}
+
+export type artikalIstorija = {
+  datumPoslednjeKupovine: Date;
+  kolicina: number;
+}
 
 export type AritkalKorpaType = {
   idArtikla: string;
@@ -94,8 +106,9 @@ export interface ArtikalFilterProp {
   RobnaMarka: string[];
   Upotreba: string[];
   Boja: string[];
+  naStanju?: boolean;
 
-  [key: string]: string | string[] | undefined; // Dodaj indeksnu potpisu
+  [key: string]: string | string[] | undefined | boolean; // Dodaj indeksnu potpisu
 }
 
 export const defaultFilters: ArtikalFilterProp = {
@@ -107,7 +120,7 @@ export const defaultFilters: ArtikalFilterProp = {
   RobnaMarka: [],
   Upotreba: [],
   Boja: [],
-  
+  naStanju: false,
 };
 
 

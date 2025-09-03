@@ -37,9 +37,9 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
 
       rows.forEach((r) => {
         if (/^\d{13}$/.test(r.sifra)) {
-          barKods.push(r.sifra); // ako je 13 cifara, tretiraj kao barkod
+          barKods.push(r.sifra);
         } else {
-          ids.push(r.sifra); // ostalo tretiraj kao IdArtikla
+          ids.push(r.sifra);
         }
       });
 
@@ -58,42 +58,69 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
         return;
       }
 
-      // ✅ Provera da li korisnik traži više nego što postoji na stanju
-      const artikliSaNedovoljnomKolicinom = artikli.filter(({ idArtikla, barKod, kolicina }) => {
-        const row = rows.find((r) => r.sifra === idArtikla || r.sifra === barKod);
-        return row && row.kolicina > kolicina;
+      // ✅ KREIRAJ MAPU ZA BRZO PRONALAŽENJE ARTIKALA PO ŠIFRI
+      const artikalMapa: Record<string, Artikal> = {};
+      artikli.forEach(artikal => {
+        // Mapiraj po ID-u artikla
+        artikalMapa[artikal.idArtikla] = artikal;
+        // Mapiraj i po barkodu
+        artikalMapa[artikal.barKod] = artikal;
+      });
+
+      // ✅ GRUPIŠI KOLIČINE PO STVARNOM ID-U ARTIKLA
+      const kolicinePoArtiklu: Record<string, number> = {};
+
+      rows.forEach(row => {
+        if (!row.sifra) return;
+        
+        // Pronađi koji artikal odgovara ovoj šifri (bilo ID ili barkod)
+        const artikal = artikalMapa[row.sifra];
+        if (artikal) {
+          // Koristi idArtikla kao jedinstveni ključ
+          if (kolicinePoArtiklu[artikal.idArtikla]) {
+            kolicinePoArtiklu[artikal.idArtikla] += row.kolicina;
+          } else {
+            kolicinePoArtiklu[artikal.idArtikla] = row.kolicina;
+          }
+        }
+      });
+
+      // ✅ Provera zaliha - sada koristi kolicinePoArtiklu
+      const artikliSaNedovoljnomKolicinom = artikli.filter(artikal => {
+        const trazenaKolicina = kolicinePoArtiklu[artikal.idArtikla] || 0;
+        return trazenaKolicina > artikal.kolicina;
       });
 
       if (artikliSaNedovoljnomKolicinom.length > 0) {
-        const poruke = artikliSaNedovoljnomKolicinom.map((a) => {
-          const row = rows.find((r) => r.sifra === a.idArtikla || r.sifra === a.barKod);
-          return `Artikal ${a.idArtikla} zahteva ${row?.kolicina}, a dostupno je ${a.kolicina}`;
+        const poruke = artikliSaNedovoljnomKolicinom.map((artikal) => {
+          const trazenaKolicina = kolicinePoArtiklu[artikal.idArtikla] || 0;
+          return `Artikal ${artikal.idArtikla} zahteva ${trazenaKolicina}, a dostupno je ${artikal.kolicina}`;
         });
 
         toast.error("Neki artikli nemaju dovoljno na stanju", {
           description: poruke.join("\n"),
         });
-
         return;
       }
 
-      // ✅ Dodavanje u korpu
+      // ✅ DODAVANJE U KORPU
       const existing = localStorage.getItem("cart");
       let cart: Record<string, { kolicina: number; barKod?: string }> = existing
         ? JSON.parse(existing)
         : {};
 
-      artikli.forEach(({ idArtikla, barKod }) => {
-        const row = rows.find((r) => r.sifra === idArtikla || r.sifra === barKod);
-        if (!row) return;
-
-        if (cart[idArtikla]) {
-          cart[idArtikla].kolicina += row.kolicina;
-        } else {
-          cart[idArtikla] = {
-            kolicina: row.kolicina,
-            barKod,
-          };
+      // Prođi kroz sve artikle i dodaj/azuriraj korpu
+      artikli.forEach(artikal => {
+        const trazenaKolicina = kolicinePoArtiklu[artikal.idArtikla] || 0;
+        if (trazenaKolicina > 0) {
+          if (cart[artikal.idArtikla]) {
+            cart[artikal.idArtikla].kolicina += trazenaKolicina;
+          } else {
+            cart[artikal.idArtikla] = {
+              kolicina: trazenaKolicina,
+              barKod: artikal.barKod,
+            };
+          }
         }
       });
 
@@ -101,7 +128,7 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
       window.dispatchEvent(new Event("storage"));
 
       toast.success("Artikli su uspešno dodati u korpu", {
-        description: `Ukupno dodatih: ${artikli.length}`,
+        description: `Ukupno dodatih: ${Object.keys(kolicinePoArtiklu).length}`,
         descriptionClassName: "toast-success-description"
       });
 
