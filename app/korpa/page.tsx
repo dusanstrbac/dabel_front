@@ -139,9 +139,9 @@ const Korpa = () => {
           if (fPartner.partnerRabat.rabat) {
             setRabatPartnera(fPartner.partnerRabat.rabat);
           }
-          if (fPartner.finKarta?.nijeDospelo) {
-            setNerealizovanIznos(parseFloat(fPartner.finKarta.nijeDospelo)); 
-            if (parseFloat(fPartner.finKarta.nijeDospelo) > 0) {
+          if (fPartner.finKarta?.nerealizovano) {
+            setNerealizovanIznos(parseFloat(fPartner.finKarta.nerealizovano)); 
+            if (parseFloat(fPartner.finKarta.nerealizovano) > 0) {
               toast.error("Imate neplaćene fakture, pa vam je poručivanje zabranjeno");
               return;
             }
@@ -309,6 +309,7 @@ const Korpa = () => {
     fetchDozvole();
   }, [korisnik, apiAddress]);
 
+  console.log(nerealizovanIznos);
   const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina;
 
   
