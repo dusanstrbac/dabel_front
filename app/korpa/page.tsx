@@ -406,7 +406,7 @@ const Korpa = () => {
                             type="number"
                             step={imaDozvoluZaPakovanje ? 1 : (pakovanje || 1)}
                             min={0}
-                            value={quantities[index]}
+                            value={quantities[index] ?? 0}
                             onChange={(e) => {
                               if (debounceTimeout.current) {
                                 clearTimeout(debounceTimeout.current);
