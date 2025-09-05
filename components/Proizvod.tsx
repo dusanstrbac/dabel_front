@@ -208,6 +208,15 @@ export default function Proizvod() {
       ? Number(proizvod.artikalCene[0].akcija.cena)
       : undefined;
 
+  const akcijskaKolicina = 
+    proizvod?.artikalCene &&
+    proizvod.artikalCene.length > 0 &&
+    proizvod.artikalCene[0].akcija.kolicina !== 0
+      ? Number(proizvod.artikalCene[0].akcija.kolicina)
+      : undefined;
+
+
+  console.log(proizvod);
 
   //deo za racunanje pakovanja
 
@@ -280,6 +289,12 @@ export default function Proizvod() {
                 <span className="text-red-500">Nije dostupno</span>
               )}
             </span>
+            {/* Prikaz akcijske količine ako postoji */}
+            {Number(akcijskaKolicina) > 0 && (
+              <span className="text-red-500 text-base">
+                Preostala količina: {akcijskaKolicina}
+              </span>
+            )}
             {Number(proizvod.kolicina) === 0 && datumPonovnogStanja && (
               <span className="text-red-500">
                 Proizvod ponovo dostupan od: {new Date(datumPonovnogStanja).toLocaleDateString('sr-RS', {
