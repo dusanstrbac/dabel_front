@@ -15,6 +15,9 @@ import { deleteCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import PretragaProizvoda from "./PretragaProizvoda";
 import IconComponent from "./IconComponent";
+import "flag-icons/css/flag-icons.min.css";
+import LanguageSelector from "./LanguageSelector";
+
 
 export default function Header() {
   const [korisnickoIme, setKorisnickoIme] = useState<string | null>(null);
@@ -97,7 +100,11 @@ export default function Header() {
   return (
     <header className="w-full z-[20] relative border-b border-gray-200">
       {/* Desktop navigacija */}
-      <div className="hidden border-b border-gray-200 lg:flex lg:flex-col lg:gap-2 h-[138px]">
+      <div>
+        <div className="flex justify-end">
+          <LanguageSelector />
+        </div>
+        <div className="hidden border-b border-gray-200 lg:flex lg:flex-col lg:gap-2 h-[138px]">
         <div className="w-full h-[45%] flex items-center px-8">
           <Link href="/"><Image src="/Dabel-logo-2.png" alt="Dabel logo" height={80} width={125} className="object-contain" priority /></Link>
           <PretragaProizvoda />
@@ -156,7 +163,7 @@ export default function Header() {
           </div>
         </nav>
       </div>
-
+      </div>
       {/* Mobile navigacija */}
       <div className="lg:hidden px-3">
         <div className="flex items-center justify-between py-3">
