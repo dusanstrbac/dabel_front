@@ -174,6 +174,26 @@ const handlePageChange = (newPage: number) => {
     router.push(`${window.location.pathname}?${query.toString()}`);
   };
 
+  // const handleFilterChange = (filters: ArtikalFilterProp) => {
+  //   const query = new URLSearchParams();
+    
+  //   if (filters.cena) {
+  //     query.set('minCena', filters.cena.split('-')[0]);
+  //     query.set('maxCena', filters.cena.split('-')[1]);
+  //   }
+
+  //   const filterKeys = ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja'];
+  //   filterKeys.forEach(key => {
+  //     const values = filters[key as keyof ArtikalFilterProp];
+  //     if (Array.isArray(values) && values.length > 0) {
+  //       values.forEach(val => query.append(key, val));
+  //     }
+  //   });
+
+  //   router.push(`${window.location.pathname}?${query.toString()}`);
+  // };
+
+console.log(artikli);
   return (
     <div className="lg:p-4">
       <div className="w-full mx-auto flex justify-between items-center p-2">

@@ -96,11 +96,13 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZa
           </p>
         )}
 
-        {typeof artikalCene[0]?.akcija?.kolicina === 'number' && (
+        {typeof artikalCene[0]?.akcija?.kolicina === 'number' &&
+        artikalCene[0]?.akcija?.cena > 0 && (
           <p className="text-xs text-center text-gray-600 italic transition-all duration-200">
             {`Akcijska količina: ${artikalCene[0].akcija.kolicina} kom${artikalCene[0].akcija.kolicina === 1 ? 'ad' : 'ada'}`}
           </p>
         )}
+
 
 
 

@@ -43,6 +43,7 @@ const ListaArtikala = ({
     onPageChange(broj);
   };
 
+
   // Prikazani artikli za trenutnu stranicu
   const prikazaniArtikli = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;

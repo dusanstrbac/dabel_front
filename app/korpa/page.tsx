@@ -41,12 +41,11 @@ const Korpa = () => {
   const [validnaKolicina, setValidnaKolicina] = useState(true);
   const korisnik = dajKorisnikaIzTokena();
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+  const [isLoading, setIsLoading] = useState(true);
 
   const [imaDozvoluZaPakovanje, setImaDozvoluZaPakovanje] = useState(false);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const debounceVreme = 700;
-  
-
   
 
   useEffect(() => {
@@ -65,6 +64,7 @@ const Korpa = () => {
     }
   }, [validnaKolicina]);
 
+  
 
   useEffect(() => {
     setIsClient(true);
@@ -77,8 +77,10 @@ const Korpa = () => {
     const queryString = storedIds.map(id => `ids=${id}`).join("&");
     const url = `${apiAddress}/api/Artikal/DajArtikalPoId?idPartnera=${korisnik?.idKorisnika}&${queryString}`;
 
+    
     const fetchArticles = async () => {
       try {
+        setIsLoading(true);
         const response = await fetch(url);
         const data = await response.json();
 
@@ -90,13 +92,32 @@ const Korpa = () => {
         }));
 
         setArticleList(transformed);
-        // setQuantities(transformed.map((a: any) => cart[a.id]?.kolicina || a.pakovanje));
-        setQuantities(transformed.map((a: any) => {
+        
+        // Prvo proveri da li korisnik ima dozvolu za pakovanje
+        const dozvoleResponse = await fetch(
+          `${apiAddress}/api/Web/DajDozvoleKorisnika?idKorisnika=${korisnik?.idKorisnika}&idDozvole=1`
+        );
+        const dozvoleData = await dozvoleResponse.json();
+        const imaDozvolu = dozvoleData.some((dozvola: DozvoleInfo) => dozvola.status === 1);
+        
+        // Sada postavi količine sa pravim zaokruživanjem
+        const initialQuantities = transformed.map((a: any) => {
           const savedQty = cart[a.id]?.kolicina;
-          return savedQty ? getRoundedQuantity(savedQty, a.pakovanje || 1) : (a.pakovanje || 1);
-        }));
+          const pakovanje = a.kolZaIzdavanje || a.pakovanje || 1;
+          
+          if (imaDozvolu) {
+            return savedQty || 1;
+          } else {
+            return savedQty ? Math.ceil(savedQty / pakovanje) * pakovanje : pakovanje;
+          }
+        });
+        
+        setQuantities(initialQuantities);
+        setImaDozvoluZaPakovanje(imaDozvolu);
       } catch (error) {
         console.error("Greška pri učitavanju artikala:", error);
+      } finally {
+        setIsLoading(false); // Dodaj ovo
       }
     };
 
@@ -140,6 +161,9 @@ const Korpa = () => {
     localStorage.removeItem("cart");
     window.dispatchEvent(new Event("storage"));
   };
+
+
+
 
   const removeArticle = (index: number) => {
     const updatedArticles = [...articleList];
@@ -376,40 +400,48 @@ const Korpa = () => {
                   <TableCell className="text-center">{pakovanje}</TableCell>
                   <TableCell className="text-center">
                     <Input
-                      className="flex justify-center min-w-10 w-full max-w-21"
-                      type="number"
-                      step={imaDozvoluZaPakovanje ? 1 : (pakovanje || 1)}
-                      min={0}
-                      value={quantities[index]}
-                      onChange={(e) => {
-                        if (debounceTimeout.current) {
-                          clearTimeout(debounceTimeout.current);
-                        }
-                        
-                        const newValue = Number(e.target.value);
-                        const newQuantities = [...quantities];
-                        newQuantities[index] = isNaN(newValue) ? (imaDozvoluZaPakovanje ? 1 : pakovanje) : newValue;
-                        setQuantities(newQuantities);
-
-                        debounceTimeout.current = setTimeout(() => {
-                          const pakovanjeValue = article.kolZaIzdavanje || 1;
-                          let enteredValue = Number(e.target.value);
-                          const maxAllowed = getMaxAllowedQuantity(article.kolicina, pakovanjeValue);
-
-                          if (isNaN(enteredValue)) {
-                            enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanjeValue;
+                        className="flex justify-center min-w-10 w-full max-w-21"
+                        type="number"
+                        step={imaDozvoluZaPakovanje ? 1 : (pakovanje || 1)}
+                        min={0}
+                        value={quantities[index] ?? 0}
+                        onChange={(e) => {
+                          if (debounceTimeout.current) {
+                            clearTimeout(debounceTimeout.current);
                           }
-
-                          // Ako korisnik nema dozvolu, zaokružujemo na pakovanje
-                          const roundedValue = imaDozvoluZaPakovanje 
-                            ? enteredValue 
-                            : Math.ceil(enteredValue / pakovanjeValue) * pakovanjeValue;
                           
-                          const finalValue = Math.min(roundedValue, maxAllowed);
-                          updateQuantity(index, finalValue);
-                        }, debounceVreme)
-                      }} 
-                    />
+                          const newValue = Number(e.target.value);
+                          const newQuantities = [...quantities];
+                          newQuantities[index] = isNaN(newValue) ? (imaDozvoluZaPakovanje ? 1 : pakovanje) : newValue;
+                          setQuantities(newQuantities);
+
+                          debounceTimeout.current = setTimeout(() => {
+                            const pakovanjeValue = article.kolZaIzdavanje || 1;
+                            let enteredValue = Number(e.target.value);
+                            const maxAllowed = getMaxAllowedQuantity(article.kolicina, pakovanjeValue);
+
+                            if (isNaN(enteredValue) || enteredValue <= 0) {
+                              enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanjeValue;
+                            }
+
+                            // Ako korisnik nema dozvolu, zaokružujemo na pakovanje
+                            const roundedValue = imaDozvoluZaPakovanje 
+                              ? enteredValue 
+                              : Math.ceil(enteredValue / pakovanjeValue) * pakovanjeValue;
+                            
+                            const finalValue = Math.min(roundedValue, maxAllowed);
+                            updateQuantity(index, finalValue);
+                          }, debounceVreme)
+                        }} 
+                        onBlur={(e) => {
+                          // Kada izgubi fokus, ako je vrednost 0, postavi na minimalnu dozvoljenu
+                          if (Number(e.target.value) <= 0) {
+                            const pakovanjeValue = article.kolZaIzdavanje || 1;
+                            const minValue = imaDozvoluZaPakovanje ? 1 : pakovanjeValue;
+                            updateQuantity(index, minValue);
+                          }
+                        }}
+                      />
                   </TableCell>
                   <TableCell className="text-center">{kolicina}</TableCell>
                   <TableCell className="text-center">{rabatPartnera}</TableCell>
@@ -488,7 +520,7 @@ const Korpa = () => {
                         pattern="[0-9]*"
                         step={imaDozvoluZaPakovanje ? 1 : (pakovanje || 1)}
                         min={0}
-                        value={quantities[index]}
+                        value={quantities[index] ?? 0}
                         onChange={(e) => {
                           if (debounceTimeout.current) {
                             clearTimeout(debounceTimeout.current);

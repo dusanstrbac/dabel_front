@@ -128,7 +128,7 @@ const BrzoNarucivanje = () => {
   };
 
   const handleDownloadTemplate = () => {
-    const csvContent = "Šifra,Količina\n\n";
+    const csvContent = "Šifra,Količina\n3398017,4\n8605004203857,1\n";
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -138,6 +138,7 @@ const BrzoNarucivanje = () => {
     link.click();
     document.body.removeChild(link);
   };
+
 
   return (
     <div className="flex min-h-screen">
