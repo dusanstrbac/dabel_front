@@ -21,12 +21,12 @@ const LanguageSelector = () => {
   const languages: Language[] = [
     { value: 'sr', label: 'Srpski', flag: 'fi-rs' },
     { value: 'en', label: 'English', flag: 'fi-gb' },
-    { value: 'me', label: 'Crnogorski', flag: 'fi-me' },
     { value: 'mk', label: 'Makedonski', flag: 'fi-mk' },
-    { value: 'ba', label: 'Bosanski', flag: 'fi-ba' },
-    { value: 'hr', label: 'Dećki', flag: 'fi-hr' },
-    { value: 'ks', label: 'Kosovo', flag: 'fi-rs' },
+    { value: 'hr', label: 'Hrvatski', flag: 'fi-hr' },
+    { value: 'al', label: 'Albanski', flag: 'fi-al' },
   ];
+
+  languages.sort((a, b) => a.label.localeCompare(b.label));
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -50,7 +50,7 @@ const LanguageSelector = () => {
   };
 
   return (
-    <div className="relative inline-block text-left mt-3 mr-5" ref={dropdownRef}>
+    <div className="relative inline-block text-left w-full" ref={dropdownRef}>
       <div>
         <button
           type="button"
