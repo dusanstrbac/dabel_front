@@ -101,9 +101,6 @@ export default function Header() {
     <header className="w-full z-[20] relative border-b border-gray-200">
       {/* Desktop navigacija */}
       <div>
-        <div className="flex justify-end">
-          <LanguageSelector />
-        </div>
         <div className="hidden border-b border-gray-200 lg:flex lg:flex-col lg:gap-2 h-[138px]">
         <div className="w-full h-[45%] flex items-center px-8">
           <Link href="/"><Image src="/Dabel-logo-2.png" alt="Dabel logo" height={80} width={125} className="object-contain" priority /></Link>
@@ -116,6 +113,7 @@ export default function Header() {
             <Link href="/heart"><Heart className="h-6 w-6 text-gray-500 hover:text-gray-700"/></Link>
             <Link href="/korpa" className="relative inline-block"><ShoppingCart className="h-6 w-6 text-gray-500 hover:text-gray-700"/>{brojRazlicitihArtikala > 0 && <span className="absolute -top-2.5 -right-2.5 px-2 py-1 text-xs font-bold text-white bg-red-600 rounded-full min-w-[20px] h-5 flex justify-center items-center">{brojRazlicitihArtikala}</span>}</Link>
             <KorisnikMenu />
+            <LanguageSelector />
           </div>
         </div>
 
@@ -272,6 +270,12 @@ export default function Header() {
                     ))}
                   </div>
                 </div>
+                <div className="px-2">
+                  <div className="border-t py-2 border-gray-300 px-2">
+                    <LanguageSelector />
+                  </div>
+                </div>
+
               </SheetContent>
             </Sheet>
           </div>

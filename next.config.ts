@@ -15,13 +15,13 @@ const nextConfig = {
       },
       {
         protocol: 'http',
-        hostname: '**', // samo ako imaš više lokalnih IP-a (nije zvanično podržano)
+        hostname: '**',
         pathname: '/**',
       },
     ],
   },
 
-  webpack(config: { module: { rules: { test: RegExp; use: { loader: string; }; }[]; }; }) {
+  webpack(config:any) {
     // Dodaj worker-loader za pdf.worker.js
     config.module.rules.push({
       test: /pdf\.worker\.js$/,
