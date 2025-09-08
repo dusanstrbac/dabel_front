@@ -1,35 +1,86 @@
 import { NextRequest, NextResponse } from "next/server";
+import { locales, defaultLocale, type Locale } from "./i18n";
 
-const PUBLIC_FILE = /\.(.*)$/; // Public fajlovi iz projekta ( fotografije, ikonice ... )
+const PUBLIC_FILE = /\.(.*)$/;
 const AUTH_EXEMPT_ROUTES = [
-    "/login", 
-    "/api/Auth/LoginPodaci",
-    "/register",
-    "/aktivacija"
+  "/login",
+  "/register",
+  "/aktivacija",
+  "/api/Auth/LoginPodaci"
 ];
 
-// Sve api rute su zasticene osim ovih iznad da bi korisnik mogao da ih pozove i da se uloguje.
-// Kada korisnik dobije token onda ce moci ostale api rute da poziva.
-// Ubaciti u token permisiju korisnika, da bi moglo i to da se filtrira koja uloga moze sta da poziva
+function isLocale(locale: string): locale is Locale {
+  return locales.includes(locale as Locale);
+}
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-    const token = request.cookies.get("AuthToken")?.value;
+  const { pathname, origin, search } = request.nextUrl;
 
-// Rute koje su trenutno dozvoljene od strane middleware-a. Menjati po potrebi.
+  // Dozvoli pristup svim slikama direktno bez redirekta ili token provere
+  if (pathname.startsWith("/images")) {
+    return NextResponse.next();
+  }
+
+  const pathnameSegments = pathname.split("/");
+  const potentialLocale = pathnameSegments[1];
+
+  const token = request.cookies.get("AuthToken")?.value;
+  const cookieLocale = request.cookies.get('preferredLocale')?.value;
+
+  // Ako nema validan locale, redirect na defaultLocale
+  if (!isLocale(potentialLocale)) {
+    if (cookieLocale && isLocale(cookieLocale)) {
+      return NextResponse.redirect(
+        new URL(`/${cookieLocale}${pathname}${search}`, origin)
+      );
+    }
+    return NextResponse.redirect(
+      new URL(`/${defaultLocale}${pathname}${search}`, origin)
+    );
+  }
+
+  // Normalizuj path bez locale i ukloni prazne segmente
+  const normalizedSegments = pathnameSegments.slice(2).filter(Boolean);
+  const normalizedPath = "/" + normalizedSegments.join("/");
+
+  // Dozvoli statičke fajlove, favicon i _next foldere
   if (
-    AUTH_EXEMPT_ROUTES.includes(pathname) || /// Login rute koje su dostupne iz apija da bi se korisnik logovao
     PUBLIC_FILE.test(pathname) ||
-    pathname.startsWith("/_next") || // Sistemski fajlovi ( JS, css ) -- Ne sme biti blokirano nikada
-    pathname.startsWith("/api")
+    pathname.startsWith("/_next") ||
+    pathname === "/favicon.ico"
   ) {
     return NextResponse.next();
   }
 
-  if (!token) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirectTo", pathname); // redirectTo znaci da ga vraca na rutu u koju je prvobitno hteo da udje
-    return NextResponse.redirect(loginUrl);
+  // Dozvoli pristup exempt rutama
+  if (AUTH_EXEMPT_ROUTES.includes(normalizedPath)) {
+    return NextResponse.next();
   }
+
+  // Ako je api ruta i exempt (startuje sa /api i poklapa se sa exempt), dozvoli
+  if (pathname.startsWith("/api")) {
+    if (AUTH_EXEMPT_ROUTES.some(route => normalizedPath.startsWith(route))) {
+      return NextResponse.next();
+    }
+  }
+
+  // Ako nema token, redirect na login (ali ne ako je već na login strani)
+  if (!token) {
+    if (normalizedPath !== "/login") {
+      const loginUrl = new URL(`/${potentialLocale}/login`, origin);
+      loginUrl.searchParams.set("redirectTo", pathname);
+      return NextResponse.redirect(loginUrl);
+    } else {
+      return NextResponse.next();
+    }
+  }
+
+  // Token postoji, dozvoli pristup
   return NextResponse.next();
 }
+
+export const config = {
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|api/Auth/LoginPodaci|images).*)",
+  ],
+};
