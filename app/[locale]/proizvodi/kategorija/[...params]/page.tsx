@@ -117,8 +117,14 @@ export default function ProizvodiPage() {
 
   return (
     <div className="w-full mx-auto">
-      <div className="flex justify-center items-center gap-6 py-2 px-8 flex-wrap md:justify-between">
-        <h1 className="font-bold text-3xl mb-[5px]">
+      <div  className="flex justify-center items-center gap-6 py-2 px-8 flex-wrap md:justify-between">
+        <h1 className="font-bold text-2xl sm:text-3xl mb-[5px] break-words whitespace-normal text-center md:text-left w-full"
+            style={{
+              hyphens: "auto",
+              wordBreak: "break-word",
+              overflowWrap: "anywhere",
+            }}
+        >
           {kategorija} {podkategorija ? `/ ${podkategorija}` : ''}
         </h1>
         <SortiranjeButton
