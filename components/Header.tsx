@@ -21,6 +21,9 @@ import LanguageSelector from "./LanguageSelector";
 
 export default function Header() {
   const [korisnickoIme, setKorisnickoIme] = useState<string | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -162,6 +165,7 @@ export default function Header() {
         </nav>
       </div>
       </div>
+      {/* SAMO OVAJ DOLE HAMBURGER MENI TREBAS DA MENJAS DA BI OVO RADILO */}
       {/* Mobile navigacija */}
       <div className="lg:hidden px-3">
         <div className="flex items-center justify-between py-3">
@@ -194,7 +198,7 @@ export default function Header() {
             </Link>
 
             {/* Hamburger menu */}
-            <Sheet>
+            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger className="p-1">
                 <MenuIcon className="w-6 h-6" color="gray"/>
               </SheetTrigger>
@@ -222,6 +226,7 @@ export default function Header() {
                           <AccordionTrigger className="flex items-center gap-3 px-2 py-3 hover:bg-gray-50 rounded">
                             {item.icon}
                             <span className="text-[16px]">{item.text}</span>
+                            {/* ovaj item.text je da kazem glavna kategorija */}
                           </AccordionTrigger>
                           <AccordionContent className="pl-10">
                             <ul className="flex flex-col gap-1 py-2">
@@ -229,9 +234,12 @@ export default function Header() {
                                 <li key={subIndex}>
                                   <Link
                                     href={subItem.href}
+                                    onClick={() => setIsSheetOpen(false)}
                                     className="block px-2 py-2 text-[15px] text-gray-700 hover:bg-gray-100 rounded transition-colors"
                                   >
-                                    {subItem.text}
+                                    {subItem.text} 
+                                    {/* ovde je podkategorija */}
+                                    {/* da li ti mozda treba ovde da ti dam kod ovog accordion??? ili?? da bi znali zasto se zatvara on sam od sebe? */}
                                   </Link>
                                 </li>
                               ))}
@@ -242,6 +250,7 @@ export default function Header() {
                         <Link
                           key={index}
                           href={item.href}
+                          onClick={() => setIsSheetOpen(false)}
                           className="flex items-center gap-3 px-2 py-3 hover:bg-gray-50 rounded"
                         >
                           {item.icon}
