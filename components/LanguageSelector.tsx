@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { locales, languages, isLocale, type Locale } from '@/i18n';
+import { locales, languages, isLocale, type Locale } from '@/locales';
 import { setCookie } from 'cookies-next';
 
 interface Language {

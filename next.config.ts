@@ -1,3 +1,4 @@
+// next.config.ts
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -11,18 +12,15 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**',
-        pathname: '/**',
       },
       {
         protocol: 'http',
         hostname: '**',
-        pathname: '/**',
       },
     ],
   },
 
-  webpack(config:any) {
-    // Dodaj worker-loader za pdf.worker.js
+  webpack(config: any) {
     config.module.rules.push({
       test: /pdf\.worker\.js$/,
       use: { loader: 'worker-loader' },

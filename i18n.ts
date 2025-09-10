@@ -1,18 +1,19 @@
-export const locales = ['sr', 'en', 'mk', 'bh', 'al', 'cg'] as const;
+// i18n.ts - alternativa
+import {getRequestConfig} from 'next-intl/server';
+import {locales, defaultLocale, isLocale} from './locales';
 
-export type Locale = (typeof locales)[number];
+const config = getRequestConfig(async ({locale}) => {
+  if (!locale || !isLocale(locale)) {
+    return {
+      locale: defaultLocale,
+      messages: (await import(`./messages/${defaultLocale}.json`)).default
+    };
+  }
 
-export function isLocale(locale: string): locale is Locale {
-  return locales.includes(locale as Locale);
-}
+  return {
+    locale: locale,
+    messages: (await import(`./messages/${locale}.json`)).default
+  };
+});
 
-export const defaultLocale: Locale = 'sr';
-
-export const languages: Record<Locale, { label: string; flag: string }> = {
-  sr: { label: 'Srpski', flag: 'fi-rs' },
-  en: { label: 'English', flag: 'fi-gb' },
-  mk: { label: 'Makedonski', flag: 'fi-mk' },
-  bh: { label: 'Bosanski', flag: 'fi-ba' },
-  cg: { label: 'Crnogorski', flag: 'fi-me' },
-  al: { label: 'Albanski', flag: 'fi-al' },
-};
+export default config;

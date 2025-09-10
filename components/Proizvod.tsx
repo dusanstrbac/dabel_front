@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Input } from "./ui/input";
 import { DokumentInfo } from "@/types/dokument";
 import PoruciPonovo from "./PoruciPonovo";
+import {useTranslations} from 'next-intl';
 
 
 // Dinamički uvoz Lightbox-a
@@ -51,6 +52,7 @@ export default function Proizvod() {
   const [imaDozvoluZaPakovanje, setImaDozvoluZaPakovanje] = useState(false);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
+  const t = useTranslations('Proizvod');
 
 
   const korisnik = dajKorisnikaIzTokena();
@@ -307,7 +309,7 @@ export default function Proizvod() {
             )}
             <ul className="text-sm md:text-base space-y-1">
               <li>
-                <span className="font-semibold">Šifra proizvoda:</span> {proizvod.idArtikla}
+                <span className="font-semibold">{t('Proizvod-SifraProizvoda')}:</span> {proizvod.idArtikla}
               </li>
               <li>
                 <span className="font-semibold">Barkod:</span> {proizvod.barkod}
