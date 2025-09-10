@@ -39,7 +39,7 @@ export default function Header() {
     { text: "Novo", href: "/novo", icon: <Bolt className="w-5 h-5" /> },
     { text: "Brzo Naručivanje", href: "/BrzoNarucivanje", icon: <Smartphone className="w-5 h-5" /> },
     { text: "Korpa", href: "/korpa", icon: <ShoppingCart className="w-5 h-5" /> },
-    { text: "Kontakt", href: "/kontakt", icon: <Phone className="w-5 h-5" /> },
+    { text: "Kontakt", href: "/page/Kontakt", icon: <Phone className="w-5 h-5" /> },
   ];
 
   useEffect(() => {
@@ -210,13 +210,15 @@ export default function Header() {
 
                 <div className="pl-2 flex flex-col gap-2 mt-4">
                   {/* Pretraga */}
-                  <div className="relative mb-4">
+                  {/* <div className="relative mb-4">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
                     <Input
                       placeholder="Pretraga"
                       className="pl-10 border border-gray-300 rounded-md"
                     />
-                  </div>
+                  </div> */}
+                  {/* valjda je samo ovo i to je to */}
+                  <PretragaProizvoda/>
 
                   {/* Kategorije */}
                   <Accordion type="single" collapsible className="flex flex-col gap-2">
