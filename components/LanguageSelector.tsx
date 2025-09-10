@@ -25,21 +25,24 @@ const LanguageSelector = () => {
   const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isMedium, setIsMedium] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
 
-  // Provera da li je mobilni uredjaj
+  // Provera veličine ekrana
   useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsMedium(width >= 768 && width < 1024);
     };
     
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
     
-    return () => window.removeEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
   // Inicijalizacija jezika iz URL-a ili localStorage
@@ -131,7 +134,7 @@ const LanguageSelector = () => {
 
       {isOpen && (
         <div
-          className={`origin-top-right absolute ${isMobile ? 'bottom-full mb-2' : 'right-0 mt-2'} w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10`}
+          className={`origin-top-right absolute ${isMobile || isMedium ? 'bottom-full mb-2' : 'right-0 mt-2'} w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10`}
           role="menu"
           aria-orientation="vertical"
           aria-labelledby="options-menu"
