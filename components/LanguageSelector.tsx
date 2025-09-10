@@ -23,11 +23,24 @@ const languageList: Language[] = locales.map((locale) => {
 const LanguageSelector = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
-  const [hydrated, setHydrated] = useState(false); // novo
+  const [hydrated, setHydrated] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
+
+  // Provera da li je mobilni uredjaj
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   // Inicijalizacija jezika iz URL-a ili localStorage
   useEffect(() => {
@@ -87,7 +100,7 @@ const LanguageSelector = () => {
     router.push(newPath);
   };
 
-  if (!hydrated || !selectedLanguage) return null; // čeka dok se sve ne inicijalizuje
+  if (!hydrated || !selectedLanguage) return null;
 
   return (
     <div className="relative inline-block text-left w-full" ref={dropdownRef}>
@@ -118,7 +131,7 @@ const LanguageSelector = () => {
 
       {isOpen && (
         <div
-          className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
+          className={`origin-top-right absolute ${isMobile ? 'bottom-full mb-2' : 'right-0 mt-2'} w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10`}
           role="menu"
           aria-orientation="vertical"
           aria-labelledby="options-menu"

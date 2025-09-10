@@ -234,9 +234,9 @@ export default function Header() {
                                   <Link
                                     href={subItem.href}
                                     onClick={() => setIsSheetOpen(false)}
-                                    className="block px-2 py-2 text-[15px] text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                                    className="block px-2 py-2 text-[15px] break-words text-gray-700 hover:bg-gray-100 rounded transition-colors"
                                   >
-                                    {subItem.text} 
+                                    {subItem.text}
                                   </Link>
                                 </li>
                               ))}
