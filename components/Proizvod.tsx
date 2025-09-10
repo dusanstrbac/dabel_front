@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Input } from "./ui/input";
 import { DokumentInfo } from "@/types/dokument";
 import PoruciPonovo from "./PoruciPonovo";
+import { useTranslations } from 'next-intl';
 
 
 // Dinamički uvoz Lightbox-a
@@ -50,7 +51,7 @@ export default function Proizvod() {
 
   const [imaDozvoluZaPakovanje, setImaDozvoluZaPakovanje] = useState(false);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
-
+  const t = useTranslations('Proizvod');
 
 
   const korisnik = dajKorisnikaIzTokena();

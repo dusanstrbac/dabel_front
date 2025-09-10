@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Vaša postojeća konfiguracija
   images: {
     remotePatterns: [
       {
@@ -20,16 +21,6 @@ const nextConfig = {
       },
     ],
   },
-
-  webpack(config:any) {
-    // Dodaj worker-loader za pdf.worker.js
-    config.module.rules.push({
-      test: /pdf\.worker\.js$/,
-      use: { loader: 'worker-loader' },
-    });
-    return config;
-  },
-
   async headers() {
     return [
       {

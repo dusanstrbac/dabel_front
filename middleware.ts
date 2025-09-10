@@ -1,5 +1,9 @@
+// middleware.ts
 import { NextRequest, NextResponse } from "next/server";
-import { locales, defaultLocale, type Locale } from "./i18n";
+
+// Lista podržanih jezika i podrazumevani jezik
+const locales = ['sr', 'en', 'mk', 'hr', 'al', 'lt'];
+const defaultLocale = 'sr';
 
 const PUBLIC_FILE = /\.(.*)$/;
 const AUTH_EXEMPT_ROUTES = [
@@ -9,14 +13,24 @@ const AUTH_EXEMPT_ROUTES = [
   "/api/Auth/LoginPodaci"
 ];
 
-function isLocale(locale: string): locale is Locale {
-  return locales.includes(locale as Locale);
-}
-
 export function middleware(request: NextRequest) {
   const { pathname, origin, search } = request.nextUrl;
 
-  // Dozvoli pristup svim slikama direktno bez redirekta ili token provere
+  // --- LOGIKA ZA PREVOD ---
+  // Prvo, proveri da li ruta ima prefiks jezika.
+  const pathnameIsMissingLocale = locales.every(
+    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
+  );
+
+  // Ako fali prefiks, preusmeri na podrazumevani jezik.
+  if (pathnameIsMissingLocale) {
+    const newUrl = new URL(`/${defaultLocale}${pathname}`, request.url);
+    return NextResponse.redirect(newUrl);
+  }
+
+  // --- TVOJA LOGIKA ZA AUTENTIFIKACIJU ---
+  
+  // Dozvoli pristup slikama direktno bez redirekta ili provere tokena.
   if (pathname.startsWith("/images")) {
     return NextResponse.next();
   }
@@ -27,23 +41,11 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("AuthToken")?.value;
   const cookieLocale = request.cookies.get('preferredLocale')?.value;
 
-  // Ako nema validan locale, redirect na defaultLocale
-  if (!isLocale(potentialLocale)) {
-    if (cookieLocale && isLocale(cookieLocale)) {
-      return NextResponse.redirect(
-        new URL(`/${cookieLocale}${pathname}${search}`, origin)
-      );
-    }
-    return NextResponse.redirect(
-      new URL(`/${defaultLocale}${pathname}${search}`, origin)
-    );
-  }
-
-  // Normalizuj path bez locale i ukloni prazne segmente
+  // Normalizuj putanju bez jezika i ukloni prazne segmente.
   const normalizedSegments = pathnameSegments.slice(2).filter(Boolean);
   const normalizedPath = "/" + normalizedSegments.join("/");
 
-  // Dozvoli statičke fajlove, favicon i _next foldere
+  // Dozvoli statičke fajlove, favicon i _next foldere.
   if (
     PUBLIC_FILE.test(pathname) ||
     pathname.startsWith("/_next") ||
@@ -52,7 +54,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Dozvoli pristup exempt rutama
+  // Dozvoli pristup rutama koje ne zahtevaju autentifikaciju.
   if (AUTH_EXEMPT_ROUTES.includes(normalizedPath)) {
     return NextResponse.next();
   }
@@ -64,7 +66,7 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Ako nema token, redirect na login (ali ne ako je već na login strani)
+  // Ako nema token, preusmeri na prijavu (ali ne ako je već na stranici za prijavu).
   if (!token) {
     if (normalizedPath !== "/login") {
       const loginUrl = new URL(`/${potentialLocale}/login`, origin);
@@ -75,12 +77,13 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Token postoji, dozvoli pristup
+  // Ako token postoji, dozvoli pristup.
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
+    // Rukuj svim putanjama osim statičnih fajlova i onih koje ne treba proveravati
     "/((?!_next/static|_next/image|favicon.ico|api/Auth/LoginPodaci|images).*)",
   ],
 };

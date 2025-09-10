@@ -6,7 +6,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArtikalType } from '@/types/artikal';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
-import BarcodeScannerComponent from "react-qr-barcode-scanner";
+import dynamic from 'next/dynamic';
+const BarcodeScannerComponent = dynamic(() => import("react-qr-barcode-scanner"), {
+  ssr: false
+});
 
 import {
   Dialog,
