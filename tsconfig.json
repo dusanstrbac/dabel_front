@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "contexts/ImageDownloader.js", "next.config.js", "next-intl.config.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "contexts/ImageDownloader.js", "next.config.js", "next-intl.config.js", "i18n.js"],
   "exclude": ["node_modules"]
 }

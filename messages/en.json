@@ -1,0 +1,17 @@
+{
+  "profile": {
+    "loading": "Loading data...",
+    "error": "Error loading user data",
+    "notFound": "User not found",
+    "notLoggedIn": "User not logged in",
+    "noPhoneNumber": "No phone number",
+    "noActivityCode": "No activity code",
+    "allowedDebt": "Allowed debt",
+    "currentDebt": "Current debt",
+    "unrealizedAmount": "Unrealized amount",
+    "availableBalance": "Available balance",
+    "activity": "Activity",
+    "mb": "Registration number",
+    "pib": "VAT number"
+  }
+}

@@ -1,34 +1,49 @@
-// app/[locale]/layout.tsx
-import { ReactNode } from 'react';
-import { notFound } from 'next/navigation';
-import { locales } from '@/types/locale';
-import { TranslationProvider } from '@/components/TranslationProvider';
-import initTranslations from '../i18n';
-import '../globals.css'; // Dodaj ovu liniju za uvoz globalnih stilova
+'use client';
+
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { NextIntlClientProvider } from 'next-intl';
+import { Locale } from '@/config/locales';
+import allMessages from '@/messages/allMessages';
 
 interface LocaleLayoutProps {
-  children: ReactNode;
-  params: { locale: string };
+  children: React.ReactNode;
 }
 
-export default async function LocaleLayout({
-  children,
-  params,
-}: LocaleLayoutProps) {
-  const { locale } = params;
+export default function LocaleLayout({ children }: LocaleLayoutProps) {
+  const params = useParams();
+  const locale = params?.locale as Locale | undefined;
 
-  if (!locales.includes(locale as any)) {
-    notFound();
-  }
+  const [messages, setMessages] = useState<any>(null);
 
-  // Učitavamo prevode na serveru pre renderovanja
-  const { resources } = await initTranslations(locale, ['common', 'header', 'profile']);
+  useEffect(() => {
+    if (!locale) return;
+
+    const loader = allMessages[locale];
+    if (!loader) {
+      console.error('Nepoznat jezik:', locale);
+      setMessages(null);
+      return;
+    }
+
+    loader()
+      .then(mod => setMessages(mod.default))
+      .catch(err => {
+        console.error('Greška prilikom učitavanja poruka:', err);
+        setMessages(null);
+      });
+  }, [locale]);
+
+  if (!locale) return <p>Učitavanje jezika...</p>;
+  if (!messages) return <p>Učitavanje poruka...</p>;
 
   return (
-    <TranslationProvider locale={locale} resources={resources}>
-      <body>
-        {children}
-      </body>
-    </TranslationProvider>
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      <div className="min-h-screen flex flex-col">
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
+    </NextIntlClientProvider>
   );
 }

@@ -1,11 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Map, MapPinned, Phone, PhoneCall, UserCircle } from 'lucide-react';
+import { CircleUser, Map, MapPinned, Phone, PhoneCall, UserCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
-import { useTranslations } from '@/components/TranslationProvider';
 
-// Definisanje tipova podataka
 interface FinKartaType {
   kredit: number;
   nijeDospelo: number;
@@ -31,53 +30,43 @@ interface KorisnikPodaciType {
 }
 
 const ProfilPodaci = () => {
-  const t = useTranslations();
+  const t = useTranslations('profile'); // Koristi namespace 'profile'
   const [userData, setUserData] = useState<KorisnikPodaciType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-const fetchKorisnikData = async () => {
-  setLoading(true);
-  try {
-    const korisnik = dajKorisnikaIzTokena();
-    if (!korisnik) {
-      setError(t('alerts.notLoggedIn'));
-      setLoading(false);
-      return;
-    }
+    const fetchKorisnikData = async () => {
+      try {
+        const korisnik = dajKorisnikaIzTokena();
+        if (!korisnik) {
+          setError(t('notLoggedIn'));
+          setLoading(false);
+          return;
+        }
 
-    console.log("Pokušavam da dohvatin podatke za partnera:", korisnik.partner, "i korisnika:", korisnik.idKorisnika);
-    const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-    const url = `${apiAddress}/api/Partner/DajPartnere?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`;
-    
-    console.log("API URL:", url);
-    const response = await fetch(url);
-    console.log("API odgovor:", response.status, response.statusText);
+        setLoading(true);
+        setError(null);
 
-    if (!response.ok) {
-      throw new Error(`API server response was not ok. Status: ${response.status}`);
-    }
+        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+        const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`);
+        const data = await response.json();
 
-    const data = await response.json();
-    console.log("Dohvaćeni podaci:", data);
-
-    if (data && Array.isArray(data) && data.length > 0) {
-      setUserData(data[0]);
-    } else {
-      console.error('Korisnik nije pronađen ili API ne vraća ispravan odgovor');
-      setError(t('profile.notFound'));
-    }
-  } catch (err) {
-    console.error('Greška prilikom učitavanja korisnika:', err);
-    setError(t('profile.error'));
-  } finally {
-    setLoading(false);
-  }
-};
+        if (data && Array.isArray(data) && data.length > 0) {
+          setUserData(data[0]);
+        } else {
+          setError(t('notFound'));
+        }
+      } catch (err) {
+        console.error(err);
+        setError(t('error'));
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchKorisnikData();
-  }, []);
+  }, [t]);
 
   const getTodayDate = () => {
     const today = new Date();
@@ -87,26 +76,26 @@ const fetchKorisnikData = async () => {
     return `${day}.${month}.${year}`;
   };
 
-  if (loading) return <div className="text-center p-4">{t('profile.loading')}</div>;
-  if (error) return <div className="text-center p-4 text-red-600">{error}</div>;
-  if (!userData) return <div className="text-center p-4">{t('profile.notFound')}</div>;
+  if (loading) return <div>{t('loading')}</div>;
+  if (error) return <div className="text-red-600">{error}</div>;
+  if (!userData) return <div>{t('notFound')}</div>;
 
   return (
-    <div className="lg:px-[120px] lg:mt-[40px] p-4">
+    <div className="lg:px-[120px] lg:mt-[40px]">
       <div className="flex flex-wrap justify-between gap-10 lg:gap-4">
         <div>
           <h1 className="text-3xl font-bold">{userData.ime}</h1>
           <div className="mt-4 flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <MapPinned className="text-gray-600" />
+              <MapPinned />
               <p>{userData.adresa}</p>
             </div>
             <div className="flex items-center gap-2">
-              <PhoneCall className="text-gray-600" />
-              <p>{userData.telefon || t('profile.noPhoneNumber')}</p>
+              <PhoneCall />
+              <p>{userData.telefon || t('noPhoneNumber')}</p>
             </div>
             <div className="flex items-center gap-2">
-              <Map className="text-gray-600" />
+              <Map />
               <p>{userData.grad}</p>
             </div>
           </div>
@@ -114,31 +103,32 @@ const fetchKorisnikData = async () => {
 
         <div className="flex flex-col lg:gap-3 text-left lg:text-right">
           <p className="text-gray-600">{getTodayDate()}</p>
-          <p className="font-semibold">{t('profile.section2.allowedDebt')} <span className="font-extrabold">{userData.finKarta?.kredit ?? 'N/A'}</span></p>
-          <p className="font-semibold">{t('profile.section2.currentDebt')} <span className="font-extrabold">{userData.finKarta?.nijeDospelo ?? 'N/A'}</span></p>
-          <p className="font-semibold">{t('profile.section2.unrealizedAmount')} <span className="font-extrabold">{userData.finKarta?.nerealizovano ?? 'N/A'}</span></p>
-          <p className="font-semibold">{t('profile.section2.availableBalance')} <span className="font-extrabold">{userData.finKarta?.raspolozivoStanje ?? 'N/A'}</span></p>
+          <p className="font-semibold">{t('allowedDebt')}: <span className="font-extrabold">{userData.finKarta?.kredit ?? 'N/A'}</span></p>
+          <p className="font-semibold">{t('currentDebt')}: <span className="font-extrabold">{userData.finKarta?.nijeDospelo ?? 'N/A'}</span></p>
+          <p className="font-semibold">{t('unrealizedAmount')}: <span className="font-extrabold">{userData.finKarta?.nerealizovano ?? 'N/A'}</span></p>
+          <p className="font-semibold">{t('availableBalance')}: <span className="font-extrabold">{userData.finKarta?.raspolozivoStanje ?? 'N/A'}</span></p>
         </div>
       </div>
 
       <div className="mt-[50px] flex gap-10 lg:gap-[150px]">
         <div className="flex flex-col gap-2">
-          <p>{t('profile.section3.activity')} <span>{userData.delatnost || t('profile.noActivityCode')}</span></p>
-          <p>{t('profile.section3.maticniBroj')} <span>{userData.maticniBroj}</span></p>
-          <p>{t('profile.section3.pib')} <span>{userData.pib}</span></p>
+          <h1>{t('activity')}: <span>{userData.delatnost || t('noActivityCode')}</span></h1>
+          <p>{t('mb')}: <span>{userData.maticniBroj}</span></p>
+          <p>{t('pib')}: <span>{userData.pib}</span></p>
         </div>
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <UserCircle className="text-gray-600" />
-            <p>{userData.ime}</p>
+            <CircleUser />
+            <h1>{userData.ime}</h1>
           </div>
           <div className="flex items-center gap-2">
-            <PhoneCall className="text-gray-600" />
-            <p>{userData.telefon || t('profile.noPhoneNumber')}</p>
+            <PhoneCall />
+            <p>{userData.telefon || t('noPhoneNumber')}</p>
           </div>
         </div>
       </div>
+
       <div className='mt-[40px] lg:mt-[40px] flex gap-[20px]'>
         <UserCircle color='grey' size={80} className='p-[20px] border border-gray-400 rounded-[25px]'/>
         <div className='flex flex-col'>

@@ -1,0 +1,17 @@
+{
+  "profile": {
+    "loading": "Duke ngarkuar të dhënat...",
+    "error": "Gabim gjatë ngarkimit të përdoruesit",
+    "notFound": "Përdoruesi nuk u gjet",
+    "notLoggedIn": "Përdoruesi nuk është kyçur",
+    "noPhoneNumber": "Nuk ka numër telefoni",
+    "noActivityCode": "Nuk ka kod aktiviteti",
+    "allowedDebt": "Borxh i lejuar",
+    "currentDebt": "Borxh aktual",
+    "unrealizedAmount": "Shuma e parealizuar",
+    "availableBalance": "Bilanci i disponueshëm",
+    "activity": "Aktiviteti",
+    "mb": "Numri i regjistrimit",
+    "pib": "Numri i TVSH-së"
+  }
+}

@@ -1,11 +1,10 @@
-// middleware.ts
+import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from "next/server";
 
 // Lista podržanih jezika i podrazumevani jezik
 const locales = ['sr', 'en', 'mk', 'hr', 'al', 'lt'];
 const defaultLocale = 'sr';
 
-const PUBLIC_FILE = /\.(.*)$/;
 const AUTH_EXEMPT_ROUTES = [
   "/login",
   "/register",
@@ -13,77 +12,40 @@ const AUTH_EXEMPT_ROUTES = [
   "/api/Auth/LoginPodaci"
 ];
 
+// 1. Kreirajte next-intl middleware.
+const intlMiddleware = createMiddleware({
+  locales,
+  defaultLocale,
+});
+
 export function middleware(request: NextRequest) {
-  const { pathname, origin, search } = request.nextUrl;
-
-  // --- LOGIKA ZA PREVOD ---
-  // Prvo, proveri da li ruta ima prefiks jezika.
-  const pathnameIsMissingLocale = locales.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-  );
-
-  // Ako fali prefiks, preusmeri na podrazumevani jezik.
-  if (pathnameIsMissingLocale) {
-    const newUrl = new URL(`/${defaultLocale}${pathname}`, request.url);
-    return NextResponse.redirect(newUrl);
-  }
-
-  // --- TVOJA LOGIKA ZA AUTENTIFIKACIJU ---
-  
-  // Dozvoli pristup slikama direktno bez redirekta ili provere tokena.
-  if (pathname.startsWith("/images")) {
-    return NextResponse.next();
-  }
-
-  const pathnameSegments = pathname.split("/");
-  const potentialLocale = pathnameSegments[1];
-
+  const { pathname, origin } = request.nextUrl;
   const token = request.cookies.get("AuthToken")?.value;
-  const cookieLocale = request.cookies.get('preferredLocale')?.value;
 
-  // Normalizuj putanju bez jezika i ukloni prazne segmente.
-  const normalizedSegments = pathnameSegments.slice(2).filter(Boolean);
-  const normalizedPath = "/" + normalizedSegments.join("/");
+  // Normalizuj putanju bez jezika
+  const pathnameSegments = pathname.split("/");
+  const normalizedPath = "/" + pathnameSegments.slice(2).join("/");
 
-  // Dozvoli statičke fajlove, favicon i _next foldere.
-  if (
-    PUBLIC_FILE.test(pathname) ||
-    pathname.startsWith("/_next") ||
-    pathname === "/favicon.ico"
-  ) {
+  // Dozvoli pristup rutama koje ne zahtevaju autentifikaciju, bez obzira na jezik
+  if (AUTH_EXEMPT_ROUTES.includes(normalizedPath) || pathname.startsWith("/api")) {
     return NextResponse.next();
   }
 
-  // Dozvoli pristup rutama koje ne zahtevaju autentifikaciju.
-  if (AUTH_EXEMPT_ROUTES.includes(normalizedPath)) {
-    return NextResponse.next();
-  }
-
-  // Ako je api ruta i exempt (startuje sa /api i poklapa se sa exempt), dozvoli
-  if (pathname.startsWith("/api")) {
-    if (AUTH_EXEMPT_ROUTES.some(route => normalizedPath.startsWith(route))) {
-      return NextResponse.next();
-    }
-  }
-
-  // Ako nema token, preusmeri na prijavu (ali ne ako je već na stranici za prijavu).
+  // 2. Proverite da li korisnik ima token.
   if (!token) {
-    if (normalizedPath !== "/login") {
-      const loginUrl = new URL(`/${potentialLocale}/login`, origin);
-      loginUrl.searchParams.set("redirectTo", pathname);
-      return NextResponse.redirect(loginUrl);
-    } else {
-      return NextResponse.next();
-    }
+    // Ako nema token, preusmerite na stranicu za prijavu.
+    const loginUrl = new URL(`/${pathnameSegments[1] || defaultLocale}/login`, origin);
+    loginUrl.searchParams.set("redirectTo", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // Ako token postoji, dozvoli pristup.
-  return NextResponse.next();
+  // 3. Ako korisnik ima token, prosledite zahtev na next-intl middleware.
+  // Next-intl će se pobrinuti za sve ostalo (preusmeravanje, dodavanje prefiksa, itd.).
+  return intlMiddleware(request);
 }
 
 export const config = {
-  matcher: [
-    // Rukuj svim putanjama osim statičnih fajlova i onih koje ne treba proveravati
-    "/((?!_next/static|_next/image|favicon.ico|api/Auth/LoginPodaci|images).*)",
-  ],
+  // Ovo je važno - matcher sada treba da obuhvati sve rute.
+  // Vaša logika za izuzeća se nalazi unutar same funkcije.
+  matcher: ['/((?!api|_next|.*\\..*).*)'],
 };

@@ -7,19 +7,22 @@ import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuL
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion";
 import { Separator } from "./ui/separator";
-import { ScrollArea } from "./ui/scroll-area";
 import KorisnikMenu from "./KorisnikMenu";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { deleteCookie } from 'cookies-next';
-import { dajKorisnikaIzTokena } from "@/lib/auth";
-import PretragaProizvoda from "./PretragaProizvoda";
 import IconComponent from "./IconComponent";
 import "flag-icons/css/flag-icons.min.css";
 import LanguageSelector from "./LanguageSelector";
+import PretragaProizvoda from "./PretragaProizvoda";
+import { Locale } from "@/config/locales";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
+interface HeaderProps {
+  currentLocale: Locale;
+}
 
-export default function Header() {
+export default function Header({ currentLocale }: HeaderProps) {
   const [korisnickoIme, setKorisnickoIme] = useState<string | null>(null);
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
@@ -113,7 +116,7 @@ export default function Header() {
             <Link href="/heart"><Heart className="h-6 w-6 text-gray-500 hover:text-gray-700"/></Link>
             <Link href="/korpa" className="relative inline-block"><ShoppingCart className="h-6 w-6 text-gray-500 hover:text-gray-700"/>{brojRazlicitihArtikala > 0 && <span className="absolute -top-2.5 -right-2.5 px-2 py-1 text-xs font-bold text-white bg-red-600 rounded-full min-w-[20px] h-5 flex justify-center items-center">{brojRazlicitihArtikala}</span>}</Link>
             <KorisnikMenu />
-            <LanguageSelector />
+            <LanguageSelector currentLocale={currentLocale} />
           </div>
         </div>
 
@@ -272,7 +275,7 @@ export default function Header() {
                 </div>
                 <div className="px-2">
                   <div className="border-t py-2 border-gray-300 px-2">
-                    <LanguageSelector />
+                    <LanguageSelector currentLocale={currentLocale} />
                   </div>
                 </div>
 
