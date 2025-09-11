@@ -54,7 +54,6 @@ export default function Proizvod() {
 
   const t = useTranslations('Proizvod');
 
-
   const korisnik = dajKorisnikaIzTokena();
 
   useEffect(() => {

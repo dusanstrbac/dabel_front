@@ -1,33 +1,24 @@
-// layout.tsx
-import {NextIntlClientProvider} from "next-intl";
-import {getMessages} from "next-intl/server";
-import {ParametriWatcher} from "@/components/ui/ParametriWatcher";
-import {Providers} from "@/providers/provides";
-import {Toaster} from "@/components/ui/sonner";
+// app/layout.tsx
+import { ParametriWatcher } from "@/components/ui/ParametriWatcher";
 import "./globals.css";
-import {isLocale, defaultLocale} from '../locales';
+import 'flag-icons/css/flag-icons.min.css'; // Dodaj ovaj red
+import type { Metadata } from "next";
+import { Toaster } from "@/components/ui/sonner";
+import { Providers } from "@/providers/provides";
+import { getMessages } from "next-intl/server";
 
-export default async function LocaleLayout({
-  children,
-  params
-}: {
-  children: React.ReactNode;
-  params: Promise<{locale: string}>;
-}) {
-  const {locale} = await params;
-  
-  // Umesto notFound(), koristite defaultLocale
-  const currentLocale = isLocale(locale) ? locale : defaultLocale;
-  const messages = await getMessages();
+export const metadata : Metadata = {
+  title: "Dabel.rs",
+  description: "Dabel web shop"
+};
 
+export default function RootLayout({children}:{children:React.ReactNode}){
   return (
-    <html lang={currentLocale}>
+    <html lang="sr">
       <body>
-        <NextIntlClientProvider locale={currentLocale} messages={messages}>
-          <Providers>
-            {children}
-          </Providers>
-        </NextIntlClientProvider>
+        <Providers>
+          {children}
+        </Providers>
         <ParametriWatcher/>
         <Toaster
           toastOptions={{
