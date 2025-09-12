@@ -103,6 +103,7 @@ const FormTable = ({ title }: myProps) => {
         if (!res.ok) {
           throw new Error("Greška pri učitavanju podataka.");
         }
+        
         const data = await res.json();
 
         const dokumentiSaStatusom = data.map((dok: any) => ({
