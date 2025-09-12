@@ -19,6 +19,7 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { useTranslations } from 'next-intl';
 
 const PretragaProizvoda = () => {
   const [query, setQuery] = useState('');
@@ -93,11 +94,13 @@ const PretragaProizvoda = () => {
     setScannerActive(false);
   };
 
+  const t = useTranslations('header');
+
   return (
     <div className="w-full lg:w-[40%] relative lg:ml-16 mr-2">
       <div className='relative'>
         <Input
-          placeholder="Pretraga"
+          placeholder={t('header-PretragaProizvodaLabel')}
           className="pl-4 pr-10 py-2 border border-black rounded-md"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -117,7 +120,7 @@ const PretragaProizvoda = () => {
 
             <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6">
               <DialogHeader>
-                <DialogTitle className="text-center text-lg mb-2">Skeniranje barkoda</DialogTitle>
+                <DialogTitle className="text-center text-lg mb-2">{t('header-SkeniranjeBarkodaLabel')}</DialogTitle>
               </DialogHeader>
               
               <div className="flex justify-center">
@@ -134,7 +137,7 @@ const PretragaProizvoda = () => {
               </div>
 
               <DialogClose className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                Zatvori
+                {t('header-SkeniranjeBarKodaZatvoriButton')}
               </DialogClose>
             </DialogContent>
           </Dialog>
@@ -159,7 +162,7 @@ const PretragaProizvoda = () => {
       {/* Ako nema rezultata */}
       {showDropdown && query.length >= 2 && rezultati.length === 0 && (
         <div className="absolute z-50 w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg px-4 py-2 text-sm text-gray-500">
-          Nema rezultata.
+          {t('header-PretragaProizvodaNemaRezultata')}
         </div>
       )}
     </div>

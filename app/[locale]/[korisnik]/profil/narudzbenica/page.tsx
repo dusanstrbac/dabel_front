@@ -1,5 +1,4 @@
 import NarudzbenicaTable from "@/components/NarudzbenicaTable";
-import FormTable from "@/components/UplateTable";
 
 const narudzbenica = () => {
     return (

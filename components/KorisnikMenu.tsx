@@ -1,17 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  User, User2, History, Package, Users,
-  BadgeDollarSign, Youtube, Key, LogOut,
-  Wallet, FileText, ShieldUser
-} from 'lucide-react';
+import { User, User2, Package, Users, BadgeDollarSign, Key, LogOut, Wallet, FileText, ShieldUser } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import Link from 'next/link';
 import { deleteCookie, getCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export default function KorisnikMenu() {
   const [isMounted, setIsMounted] = useState(false);
@@ -21,6 +18,7 @@ export default function KorisnikMenu() {
   const korisnik = dajKorisnikaIzTokena();
   const username = korisnik?.korisnickoIme;
   const uloga = korisnik?.webUloga;
+  const t = useTranslations('header');
 
   useEffect(() => {
     const korisnik = dajKorisnikaIzTokena();
@@ -94,18 +92,18 @@ export default function KorisnikMenu() {
       { icon: <ShieldUser className="h-4 w-4" />, text: 'Admin podešavanja', href: `/${username}/admin` },
     ] : []),
    ...(uloga === 'PARTNER' || uloga === 'PODKORISNIK' ? [
-      { icon: <User2 className="h-4 w-4" />, text: 'Moji podaci', href: `/${username}/profil/podaci` },
-      { icon: <FileText className="h-4 w-4" />, text: 'Narudžbenica', href: `/${username}/profil/narudzbenica` },
-      { icon: <Wallet className="h-4 w-4" />, text: 'Moje uplate', href: `/${username}/profil/uplate` },
-      { icon: <Package className="h-4 w-4" />, text: 'Poslata roba', href: `/${username}/profil/roba` },
-      { icon: <BadgeDollarSign className="h-4 w-4" />, text: 'Cenovnik', onClick: preuzmiCenovnik },
+      { icon: <User2 className="h-4 w-4" />, text: t('header-MojiPodaci'), href: `/${username}/profil/podaci` },
+      { icon: <FileText className="h-4 w-4" />, text: t('header-Narudzbenica'), href: `/${username}/profil/narudzbenica` },
+      { icon: <Wallet className="h-4 w-4" />, text: t('header-MojeUplate'), href: `/${username}/profil/uplate` },
+      { icon: <Package className="h-4 w-4" />, text: t('header-PoslataRoba'), href: `/${username}/profil/roba` },
+      { icon: <BadgeDollarSign className="h-4 w-4" />, text: t('header-Cenovnik'), onClick: preuzmiCenovnik },
       //{ icon: <Youtube className="h-4 w-4" />, text: 'Video uputstva', href: '/video' },
     ] : []),
     ...(uloga === "PARTNER" ? [
-      { icon: <Users className="h-4 w-4" />, text: 'Korisnici', href: `/${username}/profil/korisnici` },
+      { icon: <Users className="h-4 w-4" />, text: t('header-Korisnici'), href: `/${username}/profil/korisnici` },
     ] : []),
     ...(uloga === 'PARTNER' || uloga === 'ADMINISTRATOR' || uloga === 'PODKORISNIK' ? [
-      { icon: <Key className="h-4 w-4" />, text: 'Promena lozinke', href: `/${username}/profil/podesavanja` },
+      { icon: <Key className="h-4 w-4" />, text: t('header-PromenaLozinke'), href: `/${username}/profil/podesavanja` },
     ] : []),
 
   ];
@@ -120,7 +118,7 @@ export default function KorisnikMenu() {
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56 rounded-md border border-gray-200 bg-white p-1 shadow-lg" align="end">
             <DropdownMenuLabel className="px-2 py-1.5 text-sm font-normal text-gray-600">
-              {korisnickoIme || 'Korisnik'}
+              {korisnickoIme || t('header-Korisnik')}
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="my-1" />
               {menuItems.map((item, index) => (
@@ -149,7 +147,7 @@ export default function KorisnikMenu() {
                   className="flex w-full items-center gap-3 px-2 py-1.5 text-sm text-red-600 hover:bg-gray-100"
                 >
                   <LogOut className="h-4 w-4" />
-                  <span>Odjava</span>
+                  <span>{t('header-Odjava')}</span>
                 </button>
               </DropdownMenuItem>
             ) : (
@@ -160,7 +158,7 @@ export default function KorisnikMenu() {
                     className="flex w-full items-center gap-3 px-2 py-1.5 text-sm hover:bg-gray-100"
                   >
                     <LogOut className="h-4 w-4" />
-                    <span>Prijavi se</span>
+                    <span>{t('header-PrijaviSe')}</span>
                   </button>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -169,7 +167,7 @@ export default function KorisnikMenu() {
                     className="flex w-full items-center gap-3 px-2 py-1.5 text-sm hover:bg-gray-100"
                   >
                     <User2 className="h-4 w-4" />
-                    <span>Registruj se</span>
+                    <span>{t('header-RegistrujSe')}</span>
                   </button>
                 </DropdownMenuItem>
               </>
@@ -187,7 +185,7 @@ export default function KorisnikMenu() {
           <SheetContent className="w-full">
             <SheetHeader>
               <SheetTitle className="text-left text-lg font-semibold">
-                {korisnickoIme ? `👋 Zdravo, ${korisnickoIme}` : 'Dobrodošli'}
+                {korisnickoIme}
               </SheetTitle>
             </SheetHeader>
             <div className="mt-6 flex flex-col gap-3">
@@ -219,7 +217,7 @@ export default function KorisnikMenu() {
                     className="flex items-center gap-3 px-2 py-2 text-red-600 hover:bg-gray-100 rounded text-[15px]"
                   >
                     <LogOut className="w-5 h-5" />
-                    Odjava
+                    {t('header-Odjava')}
                   </button>
                 ) : (
                   <>
@@ -228,14 +226,14 @@ export default function KorisnikMenu() {
                       className="flex items-center gap-3 px-2 py-2 hover:bg-gray-100 rounded text-[15px]"
                     >
                       <LogOut className="w-5 h-5" />
-                      Prijavi se
+                      {t('header-PrijaviSe')}
                     </button>
                     <button
                       onClick={() => router.push('/register')}
                       className="flex items-center gap-3 px-2 py-2 hover:bg-gray-100 rounded text-[15px]"
                     >
                       <User2 className="w-5 h-5" />
-                      Registruj se
+                      {t('header-RegistrujSe')}
                     </button>
                   </>
                 )}

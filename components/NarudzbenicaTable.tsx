@@ -122,7 +122,7 @@ const FormTable = ({ title }: myProps) => {
       }
     };
     izvuciDokumenta();
-  }, [korisnik, prikazPoslataRoba]);
+  }, [prikazPoslataRoba]);
 
 
   const handleOpoziv = async (brojDokumenta: number) => {

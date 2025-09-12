@@ -1,66 +1,96 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 const UsloviKoriscenja = () => {
+
+    const [WEBKontaktEmail, setWEBKontaktEmail] = useState<string>('N/A');
+    const [AdresaZaPrijemPoste, setAdresaZaPrijemPoste] = useState<string>('N/A');
+
+    const t = useTranslations('usloviKoriscenja');
+
+    
+    useEffect(() => {
+        const parametriString = localStorage.getItem('webparametri');
+        if (parametriString) {
+            try {
+                const parami = JSON.parse(parametriString);
+                const email = parami.find((p: any) => p.naziv === 'WebKontaktEmail')?.vrednost;
+                const adresa = parami.find((p: any) => p.naziv === 'AdresaZaPrijemPoste')?.vrednost;
+                if (email) {
+                    setWEBKontaktEmail(email);
+                }
+                if (adresa) {
+                    setAdresaZaPrijemPoste(adresa);
+                }
+            } catch (err) {
+                console.error("Greška pri parsiranju localStorage parametara:", err);
+            }
+        }
+    }, []);
+
     return (
         <div className="max-w-4xl mx-auto px-4 py-6 text-gray-800">
-            <h1 className="text-3xl font-bold mb-6 text-center">Uslovi korišćenja</h1>
+            <h1 className="text-3xl font-bold mb-6 text-center">{t('usloviKoriscenja-String')}</h1>
 
             <p className="mb-4">
-                Kompanija <strong>Dabel d.o.o.</strong> Vam omogućava korišćenje usluga i sadržaja svog sajta u skladu sa dole navedenim uslovima korišćenja. Uslovi se primenjuju na sve sadržaje i usluge sajta <a href="https://www.dabel.rs" className="text-blue-600 underline hover:text-blue-800" target="_blank">www.dabel.rs</a>.
+                {t('usloviKoriscenja-KompanijaString')} <strong>{t('usloviKoriscenja-firmaDoo')}</strong> {t('usloviKoriscenja-Jedan')} <a href="https://www.dabel.rs" className="text-blue-600 underline hover:text-blue-800" target="_blank">{t('usloviKoriscenja-DabelLink')}</a>.
             </p>
             <p className="mb-4">
-                Smatra se da su korisnici upoznati sa ovim uslovima ukoliko koriste bilo koji deo sajta, kao i da prihvataju korišćenje sadržaja ovog sajta isključivo za ličnu upotrebu i na sopstvenu odgovornost.
+                {t('usloviKoriscenja-Dva')}
             </p>
 
-            <h2 className="text-xl font-semibold mt-8 mb-3">Podaci o kompaniji</h2>
+            <h2 className="text-xl font-semibold mt-8 mb-3">{t('usloviKoriscenja-PodaciOKompanijiNaslov')}</h2>
 
             <Image src="/Dabel-logo-2.png" alt="Dabel logo" width={150} height={150} className="mb-[15px]"/>
-            <span className="font-semibold">DABEL d.o.o. – Trgovina, proizvodnja i usluge</span>
+            <span className="font-semibold">{t('usloviKoriscenja-firmaDoo')} – {t('usloviKoriscenja-firmaDesk')}</span>
 
             <ul className="list-none space-y-1 mb-6">
-                <li><strong>Adresa:</strong> Šesta Industrijska 12, 22330 Nova Pazova, Srbija</li>
-                <li><strong>Email:</strong> mail@dabel.rs</li>
-                <li><strong>Web:</strong> www.dabel.rs</li>
-                <li><strong>Matični broj:</strong> 17141724</li>
-                <li><strong>PIB:</strong> 100267585</li>
-                <li><strong>Šifra delatnosti:</strong> 4690 – Nespecijalizovana trgovina na veliko</li>
+                <li><strong>{t('usloviKoriscenja-AdresaString')}</strong> {AdresaZaPrijemPoste}</li>
+                <li><strong>{t('usloviKoriscenja-EmailString')}</strong> {WEBKontaktEmail}</li>
+                <li><strong>{t('usloviKoriscenja-WebString')}</strong> {t('usloviKoriscenja-DabelLink')}</li>
+                <li><strong>{t('usloviKoriscenja-MaticniBrojString')}</strong> 17141724</li>
+                <li><strong>{t('usloviKoriscenja-PIBString')}</strong> 100267585</li>
+                <li><strong>{t('usloviKoriscenja-SifraDelatnostiString')}</strong> 4690 – {t('usloviKoriscenja-SifraDelatnosti')}</li>
             </ul>
 
-            <h2 className="text-xl font-semibold mt-8 mb-3">Opšte odredbe</h2>
+            <h2 className="text-xl font-semibold mt-8 mb-3">{t('usloviKoriscenja-OpsteOdredbeNaslov')}</h2>
             <p className="mb-4">
-                Sajt <strong>www.dabel.rs</strong> ima autorska prava na sve sadržaje (tekstualne, vizuelne i audio materijale, baze podataka i programski kod). Neovlašćeno korišćenje bilo kog dela sajta bez dozvole vlasnika smatra se kršenjem autorskih prava i može dovesti do pravnih posledica.
+
+                {t('usloviKoriscenja-SajtString')} <strong>{t('usloviKoriscenja-DabelLink')}</strong> {t('usloviKoriscenja-Tri')}
             </p>
             <p className="mb-4">
-                O važnim promenama i dopunama uslova, Dabel d.o.o. može obavestiti korisnike putem emaila ili objavljivanjem na sajtu.
+                {t('usloviKoriscenja-Cetiri')}
             </p>
             <p className="mb-4">
-                Korišćenjem sajta smatrate se upoznatim sa najnovijim pravilima o uslovima korišćenja i politikom privatnosti.
+                {t('usloviKoriscenja-Pet')}
             </p>
             <p className="mb-4">
-                Dabel d.o.o. nastoji da pruži tačne informacije o proizvodima, uključujući slike, opise i tehničke detalje, ali ne garantuje potpunu tačnost zbog mogućih tehničkih grešaka. Boje proizvoda na ekranu mogu se razlikovati od stvarnih.
+                {t('usloviKoriscenja-Sest')}
             </p>
 
-            <h2 className="text-xl font-semibold mt-8 mb-3">Lični podaci korisnika</h2>
+            <h2 className="text-xl font-semibold mt-8 mb-3">{t('usloviKoriscenja-LicniPodaciNaslov')}</h2>
             <p className="mb-4">
-                Podaci koje ostavljate na sajtu služe za internu upotrebu i biće zaštićeni u skladu sa Zakonom o zaštiti podataka o ličnosti. Vaše podatke koristimo isključivo za obradu zahteva, informisanje o ponudama i komunikaciju sa našim timom.
+                {t('usloviKoriscenja-Sedam')}
             </p>
             <p className="mb-4">
-                Podaci se neće objavljivati, niti deliti sa trećim licima bez vašeg pristanka.
-            </p>
-
-            <h2 className="text-xl font-semibold mt-8 mb-3">Veze sa drugim web lokacijama</h2>
-            <p className="mb-4">
-                Na sajtu se mogu nalaziti linkovi ka drugim lokacijama radi vašeg boljeg korisničkog iskustva. Dabel d.o.o. nije odgovoran za sadržaj eksternih lokacija.
+                {t('usloviKoriscenja-Osam')}
             </p>
 
-            <h2 className="text-xl font-semibold mt-8 mb-3">Zapošljavanje i obrada podataka kandidata</h2>
+            <h2 className="text-xl font-semibold mt-8 mb-3">{t('usloviKoriscenja-VezeNaslov')}</h2>
             <p className="mb-4">
-                Prilikom selekcije i zapošljavanja, kandidat pristaje da Dabel d.o.o. koristi njegove podatke isključivo u svrhu selekcije. Podaci se čuvaju na internim serverima i ne prosleđuju trećim licima.
+                {t('usloviKoriscenja-Devet')}
             </p>
+
+            <h2 className="text-xl font-semibold mt-8 mb-3">{t('usloviKoriscenja-ZaposljavanjeNaslov')}</h2>
             <p className="mb-4">
-                Kandidati mogu u bilo kom trenutku povući saglasnost kontaktiranjem putem email adrese <a href="mailto:zeljka.jankovic@dabel.rs" className="text-blue-600 underline">zeljka.jankovic@dabel.rs</a>, nakon čega se njihovi podaci brišu iz baze.
+                {t('usloviKoriscenja-Deset')}
+                
+            </p>
+            <p className="mb-4">    
+                {t('usloviKoriscenja-Jedanest_Jedan')} <a href="mailto:zeljka.jankovic@dabel.rs" className="text-blue-600 underline">zeljka.jankovic@dabel.rs</a>, {t('usloviKoriscenja-Jedanest_Dva')}
             </p>
         </div>
     );

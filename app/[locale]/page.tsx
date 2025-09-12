@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import { Locale } from '@/config/locales';
 import HeroImage from '@/components/HeroImage';
+import Footer from '@/components/Footer';
 
 const DEFAULT_LOCALE: Locale = 'sr'; // default fallback
 
@@ -23,6 +24,7 @@ export default function Home() {
             <PoruciPonovo />
             <Najprodavanije />
           </div>
+            <Footer />
         </main>
       </Suspense>
     </>

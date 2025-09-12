@@ -17,6 +17,7 @@ import LanguageSelector from "./LanguageSelector";
 import PretragaProizvoda from "./PretragaProizvoda";
 import { Locale } from "@/config/locales";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { useTranslations } from "next-intl";
 
 interface HeaderProps {
   currentLocale: Locale;
@@ -33,13 +34,14 @@ export default function Header({ currentLocale }: HeaderProps) {
   const [WebKontaktEmail, setWebKontaktEmail] = useState<string>('N/A');
   const korisnik = dajKorisnikaIzTokena();
   const [headerMainNav, setHeaderMainNav] = useState<NavigacijaItem[]>([]);
+  const t = useTranslations('header');
 
   const dodatniLinkovi = [
-    { text: "Akcije", href: "/akcije", icon: <BadgePercent className="w-5 h-5" /> },
-    { text: "Novo", href: "/novo", icon: <Bolt className="w-5 h-5" /> },
-    { text: "Brzo Naručivanje", href: "/BrzoNarucivanje", icon: <Smartphone className="w-5 h-5" /> },
-    { text: "Korpa", href: "/korpa", icon: <ShoppingCart className="w-5 h-5" /> },
-    { text: "Kontakt", href: "/kontakt", icon: <Phone className="w-5 h-5" /> },
+    { text: t('header-NavAkcije'), href: "/akcije", icon: <BadgePercent className="w-5 h-5" /> },
+    { text: t('header-NavNovoPristigli'), href: "/novo", icon: <Bolt className="w-5 h-5" /> },
+    { text: t('header-NavBrzoNarucivanje'), href: "/BrzoNarucivanje", icon: <Smartphone className="w-5 h-5" /> },
+    { text: t('header-NavKorpa'), href: "/korpa", icon: <ShoppingCart className="w-5 h-5" /> },
+    { text: t('header-NavKontakt'), href: "/kontakt", icon: <Phone className="w-5 h-5" /> },
   ];
 
   useEffect(() => {
@@ -116,7 +118,7 @@ export default function Header({ currentLocale }: HeaderProps) {
             <Link href="/heart"><Heart className="h-6 w-6 text-gray-500 hover:text-gray-700"/></Link>
             <Link href="/korpa" className="relative inline-block"><ShoppingCart className="h-6 w-6 text-gray-500 hover:text-gray-700"/>{brojRazlicitihArtikala > 0 && <span className="absolute -top-2.5 -right-2.5 px-2 py-1 text-xs font-bold text-white bg-red-600 rounded-full min-w-[20px] h-5 flex justify-center items-center">{brojRazlicitihArtikala}</span>}</Link>
             <KorisnikMenu />
-            <LanguageSelector currentLocale={currentLocale} />
+            <LanguageSelector />
           </div>
         </div>
 
@@ -125,7 +127,7 @@ export default function Header({ currentLocale }: HeaderProps) {
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-[20px] font-normal bg-transparent hover:bg-transparent data-[state=open]:bg-transparent">Proizvodi</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className="text-[20px] font-normal bg-transparent hover:bg-transparent data-[state=open]:bg-transparent">{t('header-NavProizvodi')}</NavigationMenuTrigger>
                   <NavigationMenuContent className="min-w-[300px] p-4 relative !overflow-visible z-50">
                     <ul className="grid gap-2 relative">
                       {headerMainNav.map((item, idx) => (
@@ -158,9 +160,9 @@ export default function Header({ currentLocale }: HeaderProps) {
               </NavigationMenuList>
             </NavigationMenu>
 
-            <Link href="/akcije" className="text-[20px] font-normal hover:text-red-600 transition-colors">Akcije</Link>
-            <Link href="/novo" className="text-[20px] font-normal hover:text-red-600 transition-colors">Novopristigli artikli</Link>
-            <Link href="/BrzoNarucivanje" className="text-[20px] font-normal hover:text-red-600 transition-colors">Brzo Naručivanje</Link>
+            <Link href="/akcije" className="text-[20px] font-normal hover:text-red-600 transition-colors">{t('header-NavAkcije')}</Link>
+            <Link href="/novo" className="text-[20px] font-normal hover:text-red-600 transition-colors">{t('header-NavNovoPristigli')}</Link>
+            <Link href="/BrzoNarucivanje" className="text-[20px] font-normal hover:text-red-600 transition-colors">{t('header-NavBrzoNarucivanje')}</Link>
           </div>
         </nav>
       </div>
@@ -275,7 +277,7 @@ export default function Header({ currentLocale }: HeaderProps) {
                 </div>
                 <div className="px-2">
                   <div className="border-t py-2 border-gray-300 px-2">
-                    <LanguageSelector currentLocale={currentLocale} />
+                    <LanguageSelector />
                   </div>
                 </div>
 
