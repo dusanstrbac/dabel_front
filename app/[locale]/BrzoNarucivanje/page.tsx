@@ -4,17 +4,8 @@ import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import PrebaciUKorpu from "@/components/PrebaciUKorpu";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose,
-} from "@/components/ui/dialog";
-
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { useTranslations } from "next-intl";
 
 const BrzoNarucivanje = () => {
   const [rows, setRows] = useState([{ sifra: "", kolicina: "" }]);
@@ -22,8 +13,8 @@ const BrzoNarucivanje = () => {
   const [scannerActive, setScannerActive] = useState(false);
   const barcodeInputRef = useRef<HTMLInputElement>(null);
   const quantityRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const t = useTranslations('brzoPorucivanje');
 
-  
   const handleBarcodeDetected = (text: string) => {
         const sifra = text.replace(/\D/g, "");
         if (!sifra) return;
@@ -101,7 +92,7 @@ const BrzoNarucivanje = () => {
       const kolicinaIndex = headers.findIndex((h) => h === "Količina");
 
       if (sifraIndex === -1 || kolicinaIndex === -1) {
-        alert("CSV mora imati kolone 'Šifra' i 'Količina'");
+        t('CSV mora imati kolone Šifra i Količina')
         return;
       }
 
@@ -117,7 +108,7 @@ const BrzoNarucivanje = () => {
         .filter((row) => row.sifra && row.kolicina);
 
       if (parsedRows.length === 0) {
-        alert("CSV fajl nema validne podatke");
+        t('CSV fajl nema validne podatke')
         return;
       }
 
@@ -144,12 +135,12 @@ const BrzoNarucivanje = () => {
     <div className="flex min-h-screen">
       <aside className="hidden md:flex md:flex-col md:w-1/3 bg-gray-50 p-6 border-r border-gray-200 overflow-auto">
         {/* Uputstva - levi panel */}
-        <h2 className="text-2xl font-bold mb-4">Kako koristiti?</h2>
+        <h2 className="text-2xl font-bold mb-4">{t('KakoKoristiti')}</h2>
         <ul className="list-disc ml-5 text-gray-700 flex flex-col gap-4">
-          <li><strong>Uključi kameru:</strong> klikni dugme i usmeri kameru na barkod.</li>
-          <li><strong>Ručno unošenje:</strong> unesi šifru, pritisni Enter i upiši količinu.</li>
-          <li><strong>CSV:</strong> koristi „Uvezi CSV“ dugme sa kolonama „Šifra“ i „Količina“.</li>
-          <li><strong>Prebaci u korpu:</strong> kada završiš, klikni na dugme.</li>
+          <li><strong>{t('Uključi kameru:')}</strong> {t('klikni dugme i usmeri kameru na barkod')}</li>
+          <li><strong>{t('Ručno unošenje')}</strong> {t('unesi šifru, pritisni Enter i upiši količinu')}</li>
+          <li><strong>{t('CSV')}</strong> {t('koristi Uvezi CSV dugme sa kolonama Šifra i Količina')}</li>
+          <li><strong>{t('Prebaci u korpu')}</strong> {t('kada završiš, klikni na dugme')}</li>
         </ul>
       </aside>
 
@@ -166,23 +157,23 @@ const BrzoNarucivanje = () => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-sm">
             <DialogHeader>
-              <DialogTitle>Kako koristiti?</DialogTitle>
+              <DialogTitle>{t('KakoKoristiti')}</DialogTitle>
             </DialogHeader>
             {/* isti sadržaj kao u aside */}
             <ul className="list-disc ml-5 text-gray-700 flex flex-col gap-3">
-              <li><strong>Uključi kameru:</strong> klikni dugme i usmeri kameru na barkod.</li>
-              <li><strong>Ručno unošenje:</strong> unesi šifru, pritisni Enter i upiši količinu.</li>
-              <li><strong>CSV:</strong> koristi „Uvezi CSV“ dugme sa kolonama „Šifra“ i „Količina“.</li>
-              <li><strong>Prebaci u korpu:</strong> kada završiš, klikni na dugme.</li>
+              <li><strong>{t('Uključi kameru:')}</strong> {t('klikni dugme i usmeri kameru na barkod')}</li>
+              <li><strong>{t('Ručno unošenje')}</strong> {t('unesi šifru, pritisni Enter i upiši količinu')}</li>
+              <li><strong>{t('CSV')}</strong> {t('koristi Uvezi CSV dugme sa kolonama Šifra i Količina')}</li>
+              <li><strong>{t('Prebaci u korpu')}</strong> {t('kada završiš, klikni na dugme')}</li>
             </ul>
             <DialogClose className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-              Zatvori
+              {t('Zatvori')}
             </DialogClose>
           </DialogContent>
         </Dialog>
 
         <h1 className="font-bold text-3xl text-center lg:text-4xl mb-4">
-          Brzo naručivanje
+          {t('Brzo naručivanje')}
         </h1>
 
         <div className="flex justify-center mb-6">
@@ -195,15 +186,15 @@ const BrzoNarucivanje = () => {
                 }`}
               >
                 {scannerActive
-                  ? "Isključi kameru za skeniranje"
-                  : "Uključi kameru za skeniranje"}
+                  ? t('Isključi kameru za skeniranje')
+                  : t('Uključi kameru za skeniranje')}
               </button>
             </DialogTrigger>
 
               {/* max-w-[300px] w-[400px] md:max-w-full p-4 */}
             <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6">
               <DialogHeader>
-                <DialogTitle className="text-center text-lg mb-2">Skeniranje barkoda</DialogTitle>
+                <DialogTitle className="text-center text-lg mb-2">{t('Skeniranje barkoda')}</DialogTitle>
               </DialogHeader>
               
               <div className="flex justify-center">
@@ -219,7 +210,7 @@ const BrzoNarucivanje = () => {
               </div>
 
               <DialogClose className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                Zatvori
+                {t('Zatvori')}
               </DialogClose>
             </DialogContent>
           </Dialog>
@@ -239,7 +230,7 @@ const BrzoNarucivanje = () => {
             onClick={handleDownloadTemplate}
             title="Preuzmi CSV šablon za unos"
           >
-            📄 Preuzmi šablon
+            📄 {t('Preuzmi šablon')}
           </button>
         </div>
 

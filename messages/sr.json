@@ -145,5 +145,24 @@
     "header-PretragaProizvodaNemaRezultata": "Nema rezultata.",
     "header-SkeniranjeBarkodaLabel": "Skeniranje barkoda",
     "header-SkeniranjeBarKodaZatvoriButton": "Zatvori"
+  },
+  "brzoPorucivanje": {
+    "CSV mora imati kolone Šifra i Količina": "CSV mora imati kolone Šifra i Količina",
+    "CSV fajl nema validne podatke": "CSV fajl nema validne podatke",
+    "KakoKoristiti": "Kako koristiti?",
+    "Uključi kameru:": "Uključi kameru:",
+    "klikni dugme i usmeri kameru na barkod": "klikni dugme i usmeri kameru na barkod.",
+    "Ručno unošenje": "Ručno unošenje:",
+    "CSV": "CSV:",
+    "Prebaci u korpu": "Prebaci u korpu:",
+    "unesi šifru, pritisni Enter i upiši količinu": "unesi šifru, pritisni Enter i upiši količinu.",
+    "koristi Uvezi CSV dugme sa kolonama Šifra i Količina": "koristi „Uvezi CSV“ dugme sa kolonama „Šifra“ i „Količina“.",
+    "kada završiš, klikni na dugme": "kada završiš, klikni na dugme.",
+    "Zatvori": "Zatvori",
+    "Brzo naručivanje": "Brzo naručivanje",
+    "Isključi kameru za skeniranje": "Isključi kameru za skeniranje",
+    "Uključi kameru za skeniranje": "Uključi kameru za skeniranje",
+    "Skeniranje barkoda": "Skeniranje barkoda",
+    "Preuzmi šablon": "Preuzmi šablon"
   }
 }
