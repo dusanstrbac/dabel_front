@@ -23,9 +23,6 @@ const LanguageSelector = () => {
       flag: '',
     };
 
-  // Debug info
-  console.log('Locale from path:', localeFromPath);
-  console.log('Selected language:', selectedLanguage);
 
   // 📌 Zatvori dropdown kad se klikne van njega
   useEffect(() => {
