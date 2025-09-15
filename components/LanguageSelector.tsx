@@ -1,81 +1,33 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { locales, languages, isLocale, type Locale } from '@/i18n';
+import React, { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { setCookie } from 'cookies-next';
-
-interface Language {
-  value: Locale;
-  label: string;
-  flag: string;
-}
-
-const languageList: Language[] = locales.map((locale) => {
-  if (!isLocale(locale)) throw new Error(`Nepoznat locale: ${locale}`);
-  return {
-    value: locale,
-    label: languages[locale].label,
-    flag: languages[locale].flag,
-  };
-}).sort((a, b) => a.label.localeCompare(b.label));
+import Link from 'next/link';
+import { locales, Locale } from '@/config/locales';
 
 const LanguageSelector = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
-  const [hydrated, setHydrated] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isMedium, setIsMedium] = useState(false);
-
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
   const pathname = usePathname();
 
-  // Provera veličine ekrana
-  useEffect(() => {
-    const checkScreenSize = () => {
-      const width = window.innerWidth;
-      setIsMobile(width < 768);
-      setIsMedium(width >= 768 && width < 1024);
+  // 🔍 Izvuci locale iz URL-a (primer: /en/about -> "en")
+  const segments = pathname.split('/');
+  const localeFromPath = segments[1] as Locale;
+
+  // Pronađi trenutno selektovani jezik
+  const selectedLanguage =
+    locales.find((l) => l.code === localeFromPath) ?? {
+      code: '',
+      label: 'Unknown',
+      flag: '',
     };
-    
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
 
-  // Inicijalizacija jezika iz URL-a ili localStorage
-  useEffect(() => {
-    const segments = pathname.split('/').filter(Boolean);
-    const localeFromUrl = segments[0];
+  // Debug info
+  console.log('Locale from path:', localeFromPath);
+  console.log('Selected language:', selectedLanguage);
 
-    if (isLocale(localeFromUrl)) {
-      const lang = languageList.find((l) => l.value === localeFromUrl);
-      if (lang) {
-        setSelectedLanguage(lang);
-        setHydrated(true);
-      }
-    } else {
-      const storedLocale = localStorage.getItem('preferredLocale');
-      if (storedLocale && isLocale(storedLocale)) {
-        const lang = languageList.find((l) => l.value === storedLocale);
-        if (lang) {
-          setSelectedLanguage(lang);
-          const newSegments = [storedLocale, ...segments];
-          const newPath = '/' + newSegments.join('/');
-          router.replace(newPath);
-        }
-      } else {
-        // fallback ako ništa nema — postavi default
-        const lang = languageList.find((l) => l.value === 'sr');
-        setSelectedLanguage(lang || languageList[0]);
-        setHydrated(true);
-      }
-    }
-  }, [pathname]);
-
-  // Klik van dropdown-a zatvara meni
+  // 📌 Zatvori dropdown kad se klikne van njega
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -86,75 +38,45 @@ const LanguageSelector = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSelectLanguage = (lang: Language) => {
-    setSelectedLanguage(lang);
-    setIsOpen(false);
-    localStorage.setItem('preferredLocale', lang.value);
-    setCookie('preferredLocale', lang.value, { maxAge: 60 * 60 * 24 * 365, path: '/' }); 
-  
-    const segments = pathname.split('/').filter(Boolean);
-    if (isLocale(segments[0])) {
-      segments[0] = lang.value;
-    } else {
-      segments.unshift(lang.value);
-    }
-
-    const newPath = '/' + segments.join('/');
-    router.push(newPath);
-  };
-
-  if (!hydrated || !selectedLanguage) return null;
-
   return (
-    <div className="relative inline-block text-left w-full" ref={dropdownRef}>
+    <div className="relative inline-block text-left" ref={dropdownRef}>
+      {/* Dugme za selektovanje jezika */}
       <button
         type="button"
-        className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        id="options-menu"
-        aria-haspopup="true"
-        aria-expanded={isOpen}
+        className="inline-flex justify-center items-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className={`fi ${selectedLanguage.flag} mr-2 mt-0.5`}></span>
+        <span className={`fi fi-${selectedLanguage.flag} mr-2 mt-0.5`}></span>
         {selectedLanguage.label}
-        <svg
-          className="-mr-1 ml-2 h-5 w-5"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            fillRule="evenodd"
-            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-            clipRule="evenodd"
-          />
-        </svg>
       </button>
 
+      {/* Dropdown sa jezicima */}
       {isOpen && (
-        <div
-          className={`origin-top-right absolute ${isMobile || isMedium ? 'bottom-full mb-2' : 'right-0 mt-2'} w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10`}
-          role="menu"
-          aria-orientation="vertical"
-          aria-labelledby="options-menu"
-        >
+        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white z-10">
           <div className="py-1">
-            {languageList.map((lang) => (
-              <a
-                key={lang.value}
-                href="#"
-                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                role="menuitem"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleSelectLanguage(lang);
-                }}
-              >
-                <span className={`fi ${lang.flag} mr-2`}></span>
-                {lang.label}
-              </a>
-            ))}
+            {[...locales]
+              .sort((a, b) => a.label.localeCompare(b.label))
+              .map((lang) => {
+                // Promeni prvi segment URL-a u novi locale
+                const newSegments = [...segments];
+                newSegments[1] = lang.code;
+                const newPath = newSegments.join('/');
+
+                return (
+                  <Link
+                    key={lang.code}
+                    href={newPath}
+                    onClick={() => {
+                      setCookie('preferredLocale', lang.code);
+                      setIsOpen(false);
+                    }}
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <span className={`fi fi-${lang.flag} mr-2`}></span>
+                    {lang.label}
+                  </Link>
+                );
+              })}
           </div>
         </div>
       )}

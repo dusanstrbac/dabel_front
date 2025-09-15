@@ -1,0 +1,57 @@
+{
+  "profile": {
+    "loading": "Loading data...",
+    "error": "Error loading user data",
+    "notFound": "User not found",
+    "notLoggedIn": "User not logged in",
+    "noPhoneNumber": "No phone number",
+    "noActivityCode": "No activity code",
+    "allowedDebt": "Allowed debt",
+    "currentDebt": "Current debt",
+    "unrealizedAmount": "Unrealized amount",
+    "availableBalance": "Available balance",
+    "activity": "Activity",
+    "mb": "Registration number",
+    "pib": "VAT number"
+  },
+  "proizvod": {
+    "sifraProizvoda": "Product code",
+    "barkod": "Barcode",
+    "jedinicaMere": "Unit of measure",
+    "kolicinaZaIzdavanje": "Quantity for issue",
+    "nemaDodatnihAtributa": "No additional attributes",
+    "model": "Model",
+    "robnaMarka": "Brand",
+    "materijal": "Material",
+    "boja": "Color",
+    "pakovanje": "Package",
+    "upotreba": "Usage",
+    "dimenzija": "Dimension",
+    "datumPoslednjeKupovine": "Last purchase date",
+    "preostalaKolicinaArtikla": "Remaining item quantity",
+    "nijeDostupno": "Not available",
+    "preostalaKolicina": "Remaining quantity",
+    "opetDostupan": "Product available again from",
+    "kolUMagacinu": "Quantity arriving in warehouse",
+    "dodajUKorpu": "Add to cart",
+    "nedovoljnoNaStanju": "Not enough items in stock!",
+    "maks": "Maximum you can add is",
+    "jos": "",
+    "kom": "more pcs.",
+    "ucitavanje": "Loading...",
+    "nijePronadjen": "Product not found",
+    "greskaPoslKupovina": "Error while retrieving last purchase date:",
+    "greskaPonStanje": "Error while retrieving restock date:",
+    "greskaDozvole": "Error while fetching permissions:",
+    "nemaKorisnika": "No user from token.",
+    "greskaUcitavanjeProizvoda": "Error while loading product"
+  },
+  "heart": {
+    "ukloniOmiljeno": "Remove from favorites",
+    "dodajOmiljeno": "Add to favorites"
+  },
+  "poruciPonovo":{
+    "naslov": "Order again"
+  }
+}
+

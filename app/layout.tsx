@@ -1,30 +1,29 @@
-import { ParametriWatcher } from "@/components/ui/ParametriWatcher";
+// app/layout.tsx
 import "./globals.css";
+import 'flag-icons/css/flag-icons.min.css';
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner";
-import { Providers } from "@/providers/provides";
+import { ParametriWatcher } from "@/components/ui/ParametriWatcher";
 
-export const metadata: Metadata = {
+export const metadata : Metadata = {
   title: "Dabel.rs",
-  description: "Dabel web shop",
+  description: "Dabel web shop"
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({children}:{children:React.ReactNode}){
   return (
-    <html lang="en">
+    <html lang="sr">
       <body>
-          <Providers>
-          {children}
-          </Providers>
-          <ParametriWatcher/>
-          <Toaster
-            toastOptions={{
-              classNames: {
-                error: "toast-error",
-                success: "toast-info"
-              }
-            }}
-          />
+        {children}
+        <ParametriWatcher/>
+        <Toaster
+          toastOptions={{
+            classNames: {
+              error: "toast-error",
+              success: "toast-info"
+            }
+          }}
+        />
       </body>
     </html>
   );

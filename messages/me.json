@@ -1,0 +1,17 @@
+{
+"profile": {
+"loading": "Učitavanje podataka...",
+"error": "Greška prilikom učitavanja korisnika",
+"notFound": "Korisnik nije pronađen",
+"notLoggedIn": "Korisnik nije prijavljen",
+"noPhoneNumber": "Nema broja telefona",
+"noActivityCode": "Nema šifre djelatnosti",
+"allowedDebt": "Dozvoljeno zaduženje",
+"currentDebt": "Trenutno zaduženje",
+"unrealizedAmount": "Nerealizovani iznos",
+"availableBalance": "Raspoloživo stanje",
+"activity": "Djelatnost",
+"mb": "MB",
+"pib": "PIB"
+}
+}

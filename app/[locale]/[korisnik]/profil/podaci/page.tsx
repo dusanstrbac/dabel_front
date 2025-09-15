@@ -1,68 +1,87 @@
 'use client';
+
 import { useEffect, useState } from 'react';
 import { CircleUser, Map, MapPinned, Phone, PhoneCall, UserCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 
+interface FinKartaType {
+  kredit: number;
+  nijeDospelo: number;
+  nerealizovano: number;
+  raspolozivoStanje: number;
+}
+
+interface KomercijalistaType {
+  naziv: string;
+  telefon: string;
+}
+
+interface KorisnikPodaciType {
+  ime: string;
+  adresa: string;
+  grad: string;
+  telefon: string;
+  maticniBroj: string;
+  pib: string;
+  delatnost: string;
+  komercijalisti: KomercijalistaType;
+  finKarta: FinKartaType;
+}
+
 const ProfilPodaci = () => {
+  const t = useTranslations('profile'); // Koristi namespace 'profile'
   const [userData, setUserData] = useState<KorisnikPodaciType | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchKorisnikData = async () => {
       try {
         const korisnik = dajKorisnikaIzTokena();
-        
         if (!korisnik) {
+          setError(t('notLoggedIn'));
           setLoading(false);
           return;
         }
 
         setLoading(true);
         setError(null);
-        
+
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`);
         const data = await response.json();
 
-        console.log("konzole log fetcha:", data);
-
-        if(!response) {
-          alert("Korisik nije ulogovan. Obratite se administraciji sajta za ovaj problem");
-        }
-
         if (data && Array.isArray(data) && data.length > 0) {
           setUserData(data[0]);
         } else {
-          console.error('Korisnik nije pronađen ili API ne vraća ispravan odgovor');//sto kaze i izbacuje losu poruku kad ja ako udjem na rutu, on mi izbaci sve potrebne podatke, cak je i server responsive i postman takodje mi da sve podatke, kao da su tu samo me front zeza i kaze kao da ne postoji
+          setError(t('notFound'));
         }
       } catch (err) {
-        console.error('Greška prilikom učitavanja korisnika:', err);
-        throw Error('Greška prilikom učitavanja korisnika');
+        console.error(err);
+        setError(t('error'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchKorisnikData();
-  }, []);
-
-  if (loading) return <div>Učitavanje podataka...</div>;
-  if (error) return <div>{error}</div>;
-  if (!userData) return <div>Korisnik nije pronađen.</div>;
+  }, [t]);
 
   const getTodayDate = () => {
     const today = new Date();
-    
     const year = today.getFullYear();
-    const month = (today.getMonth() + 1).toString().padStart(2, '0'); // Dodajemo 1 jer meseci u JS idu od 0
-    const day = today.getDate().toString().padStart(2, '0'); // Dodajemo 0 iispred broja, ako je dan manji od 10
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
     return `${day}.${month}.${year}`;
   };
 
+  if (loading) return <div>{t('loading')}</div>;
+  if (error) return <div className="text-red-600">{error}</div>;
+  if (!userData) return <div>{t('notFound')}</div>;
 
   return (
-    <div className="lg:px-[120px] lg:mt-[40px]">     
+    <div className="lg:px-[120px] lg:mt-[40px]">
       <div className="flex flex-wrap justify-between gap-10 lg:gap-4">
         <div>
           <h1 className="text-3xl font-bold">{userData.ime}</h1>
@@ -73,7 +92,7 @@ const ProfilPodaci = () => {
             </div>
             <div className="flex items-center gap-2">
               <PhoneCall />
-              <p>{userData.telefon || "Nema broja telefona"}</p>
+              <p>{userData.telefon || t('noPhoneNumber')}</p>
             </div>
             <div className="flex items-center gap-2">
               <Map />
@@ -84,18 +103,18 @@ const ProfilPodaci = () => {
 
         <div className="flex flex-col lg:gap-3 text-left lg:text-right">
           <p className="text-gray-600">{getTodayDate()}</p>
-          <p className="font-semibold">Dozvoljeno zaduženje: <span className="font-extrabold">{userData.finKarta?.kredit ?? 'N/A'}</span></p>
-          <p className="font-semibold">Trenutno zaduženje: <span className="font-extrabold">{userData.finKarta?.nijeDospelo ?? 'N/A'}</span></p>
-          <p className="font-semibold">Nerealizovan iznos: <span className="font-extrabold">{userData.finKarta?.nerealizovano ?? 'N/A'}</span></p>
-          <p className="font-semibold">Raspoloživo stanje: <span className="font-extrabold">{userData.finKarta?.raspolozivoStanje ?? 'N/A'}</span></p>
+          <p className="font-semibold">{t('allowedDebt')}: <span className="font-extrabold">{userData.finKarta?.kredit ?? 'N/A'}</span></p>
+          <p className="font-semibold">{t('currentDebt')}: <span className="font-extrabold">{userData.finKarta?.nijeDospelo ?? 'N/A'}</span></p>
+          <p className="font-semibold">{t('unrealizedAmount')}: <span className="font-extrabold">{userData.finKarta?.nerealizovano ?? 'N/A'}</span></p>
+          <p className="font-semibold">{t('availableBalance')}: <span className="font-extrabold">{userData.finKarta?.raspolozivoStanje ?? 'N/A'}</span></p>
         </div>
       </div>
 
       <div className="mt-[50px] flex gap-10 lg:gap-[150px]">
         <div className="flex flex-col gap-2">
-          <h1>Delatnost: <span>{userData.delatnost || "Nema šifre delatnosti"}</span></h1>
-          <p>MB: <span>{userData.maticniBroj}</span></p>
-          <p>PIB: <span>{userData.pib}</span></p>
+          <h1>{t('activity')}: <span>{userData.delatnost || t('noActivityCode')}</span></h1>
+          <p>{t('mb')}: <span>{userData.maticniBroj}</span></p>
+          <p>{t('pib')}: <span>{userData.pib}</span></p>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -105,19 +124,20 @@ const ProfilPodaci = () => {
           </div>
           <div className="flex items-center gap-2">
             <PhoneCall />
-            <p>{userData.telefon || "Nema broja telefona"}</p>
+            <p>{userData.telefon || t('noPhoneNumber')}</p>
           </div>
         </div>
       </div>
+
       <div className='mt-[40px] lg:mt-[40px] flex gap-[20px]'>
-                <UserCircle color='grey' size={80} className='p-[20px] border border-gray-400 rounded-[25px]'/>
-                <div className='flex flex-col'>
-                    <h1 className='font-bold text-xl'>{userData.komercijalisti.naziv}</h1>
-                    <div className='flex items-center gap-2'>
-                        <Phone color='grey' />
-                        <p className='text-lg'>{userData.komercijalisti.telefon}</p>
-                    </div>
-                </div>
+        <UserCircle color='grey' size={80} className='p-[20px] border border-gray-400 rounded-[25px]'/>
+        <div className='flex flex-col'>
+          <h1 className='font-bold text-xl'>{userData.komercijalisti.naziv}</h1>
+          <div className='flex items-center gap-2'>
+            <Phone color='grey' />
+            <p className='text-lg'>{userData.komercijalisti.telefon}</p>
+          </div>
+        </div>
       </div>
     </div>
   );

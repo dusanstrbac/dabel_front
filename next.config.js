@@ -1,4 +1,7 @@
+// next.config.ts
 /** @type {import('next').NextConfig} */
+import createNextIntlPlugin from 'next-intl/plugin';
+
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -11,25 +14,13 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**',
-        pathname: '/**',
       },
       {
         protocol: 'http',
         hostname: '**',
-        pathname: '/**',
       },
     ],
   },
-
-  webpack(config:any) {
-    // Dodaj worker-loader za pdf.worker.js
-    config.module.rules.push({
-      test: /pdf\.worker\.js$/,
-      use: { loader: 'worker-loader' },
-    });
-    return config;
-  },
-
   async headers() {
     return [
       {
@@ -49,4 +40,6 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+const withNextIntl = createNextIntlPlugin();
+
+export default withNextIntl(nextConfig);
