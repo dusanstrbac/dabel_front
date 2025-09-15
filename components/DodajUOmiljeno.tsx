@@ -1,5 +1,6 @@
 'use client';
 import { Heart } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 interface OmiljeniType {
@@ -9,6 +10,7 @@ interface OmiljeniType {
 }
 
 const DodajUOmiljeno = ({ idArtikla, idPartnera, inicijalniStatus = false }: OmiljeniType) => {
+  const t = useTranslations('heart');
   const [lajkovano, setLajkovano] = useState<boolean>(inicijalniStatus);
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
@@ -27,19 +29,19 @@ const DodajUOmiljeno = ({ idArtikla, idPartnera, inicijalniStatus = false }: Omi
       });
 
       if (!res.ok) {
-        throw new Error("Neuspešan zahtev");
+        throw new Error(t('neuspesanZahtev'));
       }
 
       setLajkovano(prev => !prev);
     } catch (err) {
-      console.error("Greška pri promeni statusa omiljenog:", err);
+      console.error(t('greskaPromenaStatusa'), err);
     }
   };
 
   return (
     <div className="flex items-center gap-2">
       <p className="text-[16px]">
-        {lajkovano ? "Ukloni iz omiljenog" : "Dodaj u omiljeno"}
+        {lajkovano ? t('ukloniOmiljeno') : t('dodajOmiljeno')}
       </p>
       <Heart
         width={25}

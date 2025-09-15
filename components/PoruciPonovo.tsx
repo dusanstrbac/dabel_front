@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import AddToCartButton from "./AddToCartButton";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { date } from "zod";
+import { useTranslations } from "next-intl";
 
 type ArtikalIstorijaDTO = {
   idPartnera: string;
@@ -25,17 +26,18 @@ const PoruciPonovo = () => {
   const router = useRouter();
   const korisnik = dajKorisnikaIzTokena();
   const idKorisnika = korisnik?.partner;
+  const t = useTranslations('poruciPonovo');
 
   useEffect(() => {
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
     fetch(`${apiAddress}/api/Artikal/ArtikalDatumKupovine?idPartnera=${idKorisnika}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Greška prilikom učitavanja");
+        if (!res.ok) throw new Error(t('greskaUcitavanje'));
         return res.json();
       })
       .then((data) => setArtikli(data))
-      .catch((err) => console.error("Greška:", err))
+      .catch((err) => console.error(t('greska'), err))
       .finally(() => setLoading(false));
   }, []);
 
@@ -58,12 +60,12 @@ const PoruciPonovo = () => {
   return (
     <section className="w-full bg-muted py-10">
       <div className="px-6">
-        <h2 className="text-3xl font-bold mb-6">Poruči ponovo</h2>
+        <h2 className="text-3xl font-bold mb-6">{t('naslov')}</h2>
 
         {loading ? (
-          <p className="text-gray-500">Učitavanje...</p>
+          <p className="text-gray-500">{t('ucitavanje')}</p>
         ) : artikli.length === 0 ? (
-          <p className="text-gray-500">Nema prethodnih porudžbina.</p>
+          <p className="text-gray-500">{t('nemaPrethodnih')}</p>
         ) : (
           <Carousel opts={{ align: "start", loop: false }} className="w-full">
             <motion.div
@@ -101,17 +103,17 @@ const PoruciPonovo = () => {
                             <h3 className="text-lg font-semibold">{artikal.naziv}</h3>
                             <div className="flex justify-between text-sm text-gray-500 mt-2">
                                 <p>
-                                Datum:{" "}
+                                {t('datum')}:{" "}
                                 {new Date(artikal.datumPoslednjeKupovine).toLocaleDateString("sr-RS")}
                                 </p>
-                                <p>Količina: {artikal.kolicina}</p>
+                                <p>{t('kolicina')}: {artikal.kolicina}</p>
                             </div>
                             </div>
 
                             <AddToCartButton
                               id={artikal.idArtikla}
                               className="w-full sm:w-auto px-6 py-2"
-                              title="Dodaj u korpu"
+                              title={t('dodajUKorpu')}
                               getKolicina={() => artikal.kolicina}
                               nazivArtikla={artikal.naziv}
                               disabled={disabled}

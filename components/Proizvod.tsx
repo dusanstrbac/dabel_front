@@ -52,7 +52,7 @@ export default function Proizvod() {
   const [imaDozvoluZaPakovanje, setImaDozvoluZaPakovanje] = useState(false);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  const t = useTranslations('Proizvod');
+  const t = useTranslations('proizvod');
 
   const korisnik = dajKorisnikaIzTokena();
 
@@ -66,10 +66,10 @@ export default function Proizvod() {
       try {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
         const res = await fetch(`${apiAddress}/api/Artikal/DajArtikalPoId?idPartnera=${korisnik?.idKorisnika}&ids=${productId}`);
-        if (!res.ok) throw new Error("Greška prilikom učitavanja proizvoda");
+        if (!res.ok) throw new Error(t('greskaUcitavanjeProizvoda'));
 
         const data = await res.json();
-        if (!data || data.length === 0) throw new Error("Proizvod nije pronađen");
+        if (!data || data.length === 0) throw new Error(t('nijePronadjen'));
         const osnovni: ArtikalType = data[0];
         setProizvod(osnovni);
 
@@ -82,7 +82,7 @@ export default function Proizvod() {
 
         setLajkovano(osnovni?.status === "1");
       } catch (e) {
-        setError((e as Error).message || "Došlo je do greške prilikom učitavanja proizvoda");
+        setError((e as Error).message || t('greskaUcitavanjeProizvoda'));
         setProizvod(null);
       } finally {
         setLoading(false);
@@ -103,7 +103,7 @@ export default function Proizvod() {
   useEffect(() => {
     const fetchDozvole = async () => {
       if (!korisnik) {
-        console.warn("Nema korisnika iz tokena.");
+        console.warn(t('nemaKorisnika'));
         return;
       }
       
@@ -114,7 +114,7 @@ export default function Proizvod() {
         const imaDozvolu = data.some(dozvola => dozvola.status === 1);
         setImaDozvoluZaPakovanje(imaDozvolu);
       } catch (error) {
-        console.error("Greška pri dobavljanju dozvola:", error);
+        console.error(t('greskaDozvole'), error);
         setImaDozvoluZaPakovanje(false);
       }
     };
@@ -143,7 +143,7 @@ export default function Proizvod() {
           setPristiglaKolicina(0);
         }
       } catch (error) {
-        console.error("Greška prilikom dohvatanja datuma ponovnog stanja:", error);
+        console.error(t('greskaPonStanje'), error);
         setDatumPonovnogStanja(null);
       }
     };
@@ -163,7 +163,7 @@ export default function Proizvod() {
         setLastPurchaseDate(data.datumPoslednjeKupovine || null);
       }
     } catch (error) {
-      console.error("Greška prilikom dohvatanja datuma poslednje kupovine:", error);
+      console.error(t('greskaPoslKupovina'), error);
     }
   };
 
@@ -239,9 +239,9 @@ export default function Proizvod() {
 
   
   // Loader i error handling
-  if (loading) return <div className="px-4 md:px-10 lg:px-[40px] py-6">Učitavanje...</div>;
+  if (loading) return <div className="px-4 md:px-10 lg:px-[40px] py-6">{t('ucitavanje')}</div>;
   if (error) return <div className="px-4 md:px-10 lg:px-[40px] py-6 text-red-600">{error}</div>;
-  if (!proizvod) return <div className="px-4 md:px-10 lg:px-[40px] py-6">Proizvod nije pronađen</div>;
+  if (!proizvod) return <div className="px-4 md:px-10 lg:px-[40px] py-6">{t('nijePronadjen')}</div>;
 
   return (
     <main className="px-4 md:px-10 lg:px-[40px] py-6">
@@ -287,37 +287,37 @@ export default function Proizvod() {
                   `${cena} RSD`
                 )
               ) : (
-                <span className="text-red-500">Nije dostupno</span>
+                <span className="text-red-500">{t('nijeDostupno')}</span>
               )}
             </span>
             {/* Prikaz akcijske količine ako postoji */}
             {Number(akcijskaKolicina) > 0 && (
               <span className="text-red-500 text-base">
-                Preostala količina: {akcijskaKolicina}
+                {t('preostalaKolicina')}: {akcijskaKolicina}
               </span>
             )}
             {Number(proizvod.kolicina) === 0 && datumPonovnogStanja && (
               <span className="text-red-500">
-                Proizvod ponovo dostupan od: {new Date(datumPonovnogStanja).toLocaleDateString('sr-RS', {
+                {t('opetDostupan')}: {new Date(datumPonovnogStanja).toLocaleDateString('sr-RS', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
                 })}
-                <p>Kolicina koja stiže u magacin: {pristiglaKolicina}</p>
+                <p>{t('kolUMagacinu')}: {pristiglaKolicina}</p>
               </span>
             )}
             <ul className="text-sm md:text-base space-y-1">
               <li>
-                <span className="font-semibold">{t('Proizvod-SifraProizvoda')}:</span> {proizvod.idArtikla}
+                <span className="font-semibold">{t('sifraProizvoda')}:</span> {proizvod.idArtikla}
               </li>
               <li>
-                <span className="font-semibold">Barkod:</span> {proizvod.barkod}
+                <span className="font-semibold">{t('barkod')}:</span> {proizvod.barkod}
               </li>
               <li>
-                <span className="font-semibold">Jedinica mere:</span> {proizvod.jm}
+                <span className="font-semibold">{t('jedinicaMere')}:</span> {proizvod.jm}
               </li>
               <li>
-                <span className="font-semibold">Količina za izdavanje:</span> {proizvod.kolZaIzdavanje}
+                <span className="font-semibold">{t('kolicinaZaIzdavanje')}:</span> {proizvod.kolZaIzdavanje}
               </li>
             </ul>
             <ul className="text-sm md:text-base space-y-1 mt-2">
@@ -328,7 +328,7 @@ export default function Proizvod() {
                   </li>
                 ))
               ) : (
-                <li>Nema dodatnih atributa</li>
+                <li>{t('nemaDodatnihAtributa')}</li>
               )}
             </ul>
           </div>
@@ -344,7 +344,7 @@ export default function Proizvod() {
           )}
           {lastPurchaseDate ? (
             <p className="text-sm text-gray-600">
-              Datum poslednje kupovine: {new Date(lastPurchaseDate).toLocaleDateString('sr-RS', {
+              {t('datumPoslednjeKupovine')}: {new Date(lastPurchaseDate).toLocaleDateString('sr-RS', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
@@ -358,7 +358,7 @@ export default function Proizvod() {
                   <div className="group cursor-pointer">
                     <CircleAlert width={18} height={18} color="red" />
                     <div className="absolute left-6 top-1/2 -translate-y-1/2 bg-white text-red-500 border border-red-300 text-sm px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 whitespace-nowrap pointer-events-none">
-                      Preostala količina artikla: {proizvod.kolicina}
+                      {t('preostalaKolicinaArtikla')}: {proizvod.kolicina}
                     </div>
                   </div>
                 </div>
@@ -399,7 +399,7 @@ export default function Proizvod() {
                 <AddToCartButton
                   id={proizvod.idArtikla}
                   className="w-full sm:w-auto px-6 py-2"
-                  title="Dodaj u korpu"
+                  title={t('dodajUKorpu')}
                   getKolicina={() => {
                     const pakovanje = proizvod.kolZaIzdavanje || 1;
                     const rawValue = Number(inputRef.current?.value || (imaDozvoluZaPakovanje ? 1 : pakovanje));
@@ -414,8 +414,8 @@ export default function Proizvod() {
                     const uneta = getRoundedQuantity(rawValue, pakovanje);
                     
                     if (uneta > preostalo) {
-                      toast.error("Nema dovoljno artikala na stanju!", {
-                        description: `Maksimalno možete dodati ${preostalo} kom.`,
+                      toast.error(t('nedovoljnoNaStanju'), {
+                        description: `${t('maks')} ${t('jos')} ${preostalo} ${t('kom')}`,
                       });
                       return false;
                     }

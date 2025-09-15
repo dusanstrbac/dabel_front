@@ -1,7 +1,8 @@
 // next.config.ts
 /** @type {import('next').NextConfig} */
+import createNextIntlPlugin from 'next-intl/plugin';
+
 const nextConfig = {
-  // Vaša postojeća konfiguracija
   images: {
     remotePatterns: [
       {
@@ -39,4 +40,6 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+const withNextIntl = createNextIntlPlugin();
+
+export default withNextIntl(nextConfig);
