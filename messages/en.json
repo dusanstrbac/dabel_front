@@ -242,6 +242,42 @@
     "Kreiraj korisnika": "Create User",
     "Kreiranje novog korisnika": "Creating a New User",
     "Unesite sve podatke da biste registrovali novog korisnika": "All data is required to register a new user"
+  },
+  "brojDokumenta": {
+    "Učitavanje dokumenta": "Loading document...",
+    "Dokument nije pronađen": "Document not found.",
+    "Štampaj": "Print",
+    "Partner": "Partner",
+    "Stavke": "Items",
+    "Artikal": "Article",
+    "Količina": "Amount",
+    "Cena": "Price",
+    "Dostava:": "Delivery:",
+    "Besplatna dostava": "Free shipping"
+  },
+  "stampaj": {
+    "Nema dostupnih podataka za prikaz dokumenta": "No data available to display the document.",
+    "Kontakt osoba:": "Contact Person:",
+    "Ime i prezime": "First and Last Name:",
+    "Mob telefon": "Mobile Phone:",
+    "E-mail adresa": "E-mail Address:",
+    "Nepoznato": "Unknown",
+    "Naručeno": "Ordered",
+    "Adresa isporuke": "Delivery Address",
+    "Datum izdavanja": "Issue Date:",
+    "Sadržaj": "Content",
+    "Redni broj": "No.",
+    "Jedinica mere": "UOM",
+    "Cena bez PDV": "Price w/o VAT",
+    "Rabat": "Discount",
+    "Cena sa Rabatom": "Price with Discount",
+    "PDV": "VAT",
+    "Cena sa PDV": "Price incl. VAT",
+    "Vrednost": "Value",
+    "Ukupno sa PDV:": "Total incl. VAT:",
+    "Isporučene količine mogu biti manje u zavisnosti od stanja na lageru": "Delivered quantities may be less depending on stock availability",
+    "Napomena": "Note",
+    "Dokument kreirao": "Document created by"
   }
 
 

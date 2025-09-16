@@ -274,6 +274,45 @@
     "Kreiraj korisnika": "Kreiraj korisnika",
     "Kreiranje novog korisnika": "Kreiranje novog korisnika",
     "Unesite sve podatke da biste registrovali novog korisnika": "Unesite sve podatke da biste registrovali novog korisnika"
+  },
+  "brojDokumenta": {
+    "Učitavanje dokumenta": "Učitavanje dokumenta...",
+    "Dokument nije pronađen": "Dokument nije pronađen.",
+    "Štampaj": "Štampaj",
+    "Partner": "Partner",
+    "Stavke": "Stavke",
+    "Artikal": "Artikal",
+    "Količina": "Količina",
+    "Cena": "Cena",
+    "Dostava:": "Dostava:",
+    "Besplatna dostava": "Besplatna dostava"
+  },
+  "stampaj": {
+    "Nema dostupnih podataka za prikaz dokumenta": "Nema dostupnih podataka za prikaz dokumenta.",
+    "Kontakt osoba:": "Kontakt osoba:",
+    "Ime i prezime": "Ime i prezime:",
+    "Mob telefon": "Mob. telefon:",
+    "E-mail adresa": "E-mail adresa:",
+    "Nepoznato": "Nepoznato",
+    "Naručeno": "Naručeno",
+    "Adresa isporuke": "Adresa isporuke",
+    "Datum izdavanja": "Datum izdavanja:",
+    "Sadržaj": "Sadržaj",
+    "Redni broj": "R. br.",
+    "Jedinica mere": "JM",
+    "Cena bez PDV": "Cena bez PDV",
+    "Rabat": "Rabat",
+    "Cena sa Rabatom": "Cena sa Rabatom",
+    "PDV": "PDV",
+    "Cena sa PDV": "Cena sa PDV",
+    "Vrednost": "Vrednost",
+    "Ukupno sa PDV:": "Ukupno sa PDV:",
+    "Isporučene količine mogu biti manje u zavisnosti od stanja na lageru": "Isporučene količine mogu biti manje u zavisnosti od stanja na lageru",
+    "Napomena": "Napomena",
+    "Dokument kreirao": "Dokument kreirao"
+  },
+  "dokument": {
+    "Vaša porudžbina je uspešno evidentirana": "Vaša porudžbina je uspešno evidentirana"
   }
   
 

@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 
 export default function PrikazDokumenta() {
+  const t = useTranslations();
   const params = useParams();
   const brojDokumenta = params.brojDokumenta as string;
   const router = useRouter();
@@ -42,42 +44,42 @@ export default function PrikazDokumenta() {
       router.push(`/${korisnik?.korisnickoIme}/dokument/stampaj/${dokument.brojDokumenta}`)
   };
 
-  if (loading) return <p className="text-center py-8">Učitavanje dokumenta...</p>;
-  if (error) return <p className="text-red-500 text-center py-8">Greška: {error}</p>;
-  if (!dokument) return <p className="text-center py-8">Dokument nije pronađen.</p>;
+  if (loading) return <p className="text-center py-8">{t('brojDokumenta.Učitavanje dokumenta')}</p>;
+  if (error) return <p className="text-red-500 text-center py-8">{t('narudzbenica.Greska:')} {error}</p>;
+  if (!dokument) return <p className="text-center py-8">{t('brojDokumenta.Dokument nije pronađen')}</p>;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
       <div className="max-w-4xl w-full py-10 px-6 bg-white shadow-lg rounded-lg">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-blue-700">Dokument #{dokument.brojDokumenta}</h1>
+          <h1 className="text-3xl font-bold text-blue-700">{t('narudzbenica.Dokument')} #{dokument.brojDokumenta}</h1>
           <Button className="cursor-pointer bg-blue-700 hover:bg-blue-500 py-5 px-8" onClick={handleStampanje}>
-            Štampaj
+            {t('brojDokumenta.Štampaj')}
           </Button>
         </div>
 
         {/* Osnovne informacije */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div>
-            <p className="text-gray-500">Datum</p>
+            <p className="text-gray-500">{t('narudzbenica.Datum')}</p>
             <p className="font-semibold text-lg">{new Date(dokument.datumDokumenta).toLocaleDateString('sr-RS')}</p>
           </div>
           <div>
-            <p className="text-gray-500">Partner</p>
+            <p className="text-gray-500">{t('brojDokumenta.Partner')}</p>
             <p className="font-semibold text-lg">{dokument.idPartnera}</p>
           </div>
         </div>
 
         {/* Tabela stavki */}
-        <h2 className="text-2xl font-semibold mb-4">Stavke</h2>
+        <h2 className="text-2xl font-semibold mb-4">{t('brojDokumenta.Stavke')}</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-left border border-gray-200 rounded-md overflow-hidden">
             <thead className="bg-gray-100">
               <tr>
-                <th className="py-2 px-4">Artikal</th>
-                <th className="py-2 px-4">Količina</th>
-                <th className="py-2 px-4">Cena</th>
-                <th className="py-2 px-4">Ukupno</th>
+                <th className="py-2 px-4">{t('brojDokumenta.Artikal')}</th>
+                <th className="py-2 px-4">{t('brojDokumenta.Količina')}</th>
+                <th className="py-2 px-4">{t('brojDokumenta.Cena')}</th>
+                <th className="py-2 px-4">{t('narudzbenica.Ukupno')}</th>
               </tr>
             </thead>
             <tbody>
@@ -95,16 +97,16 @@ export default function PrikazDokumenta() {
         {/* Ukupna cena i dostava */}
         <div className="mt-6 text-right space-y-1">
           <div>
-            <span className="text-lg text-gray-600 mr-2">Dostava:</span>
+            <span className="text-lg text-gray-600 mr-2">{t('brojDokumenta.Dostava:')}</span>
             <span className="text-lg font-semibold text-blue-700">
               {dokument.dostava == null || dokument.dostava === 0
-                ? "Besplatna dostava"
+                ? t('brojDokumenta.Besplatna dostava')
                 : `${dokument.dostava.toLocaleString('sr-RS')} RSD`}
             </span>
           </div>
 
           <div>
-            <span className="text-lg text-gray-600 mr-2">Ukupno:</span>
+            <span className="text-lg text-gray-600 mr-2">{t('narudzbenica.Ukupno')}</span>
             <span className="text-2xl font-bold text-blue-700">
               {(
                 dokument.stavkeDokumenata?.reduce((sum: number, s: any) => sum + s.ukupnaCena, 0) +
