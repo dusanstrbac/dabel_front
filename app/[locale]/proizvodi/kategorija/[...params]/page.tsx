@@ -113,15 +113,14 @@ export default function ProizvodiPage() {
 
 
 
-
-
   return (
     <div className="w-full mx-auto">
-      <div className="flex justify-center items-center gap-6 py-2 px-8 flex-wrap md:justify-between">
-        <h1 className="font-bold text-3xl mb-[5px]">
+      <div  className="flex justify-between items-center gap-6 py-2 px-8 flex-wrap">
+        <h1 className="font-bold text-2xl sm:text-3xl mb-[5px] break-words whitespace-normal w-full">
           {kategorija} {podkategorija ? `/ ${podkategorija}` : ''}
         </h1>
         <SortiranjeButton
+        //ovaj button zelim da bude ispod ovog h1 u divu kao, ili mozda ne treba novi wrapper div jer vec je 
           sortKey={sortKey}
           sortOrder={sortOrder}
           onSortChange={(newSortKey, newSortOrder) => {

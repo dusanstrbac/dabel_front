@@ -1,6 +1,7 @@
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { CircleOffIcon, ShoppingCartIcon } from "lucide-react";
+import {useTranslations} from 'next-intl';
 
 interface AddToCartButtonProp {
     id: any,
@@ -15,6 +16,7 @@ interface AddToCartButtonProp {
   }
 
 const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disabled=false, ukupnaKolicina, onPreAdd, kolZaIzdavanje}: AddToCartButtonProp) => {
+  const t = useTranslations();
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (disabled) return;
@@ -25,7 +27,7 @@ const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disa
     // Proveri da li je id validan za artikle
     const brojId = Number(id);
     if (isNaN(brojId)) {
-      console.error("Nevalidan ID artikla:", id);
+      console.error(t('proizvod.nevalidanID'), id);
       return;
     }
 
@@ -40,8 +42,8 @@ const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disa
     const trenutnoUKorpi = cart[id]?.kolicina ?? 0;
 
     if (trenutnoUKorpi + novaKolicina > ukupnaKolicina) {
-      toast.error("Nema dovoljno artikala na stanju!", {
-        description: `Maksimalno možete dodati još ${Math.max(ukupnaKolicina - trenutnoUKorpi, 0)} kom.`,
+      toast.error(t('proizvod.nedovoljnoNaStanju'), {
+        description: `${t('proizvod.maks')} ${t('proizvod.jos')} ${Math.max(ukupnaKolicina - trenutnoUKorpi, 0)} ${t('proizvod.kom')}`,
       });
       return;
     }
@@ -57,8 +59,8 @@ const AddToCartButton = ({ id, className, title, getKolicina, nazivArtikla, disa
 
     const brojRazlicitih = Object.keys(cart).length;
 
-    toast.success("Uspešno ste dodali artikal u korpu!", {
-        description: `Artikal ${nazivArtikla} je uspešno dodat u korpu`,
+    toast.success(t('proizvod.dodatUspesno'), {
+        description: `${t('proizvod.artikalLabel')} ${nazivArtikla} ${t('proizvod.jeDodatUspesno')}`,
         descriptionClassName: 'toast-success-description'
     });
 };

@@ -148,7 +148,7 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
 
         <DialogFooter className="mt-4 flex justify-between">
           <Button type="button" onClick={handleSubmit}>Sačuvaj promene</Button>
-          <Button type="button" onClick={handleDeleteUser} variant="destructive" className="ml-4">Obriši korisnika</Button>
+          <Button type="button" onClick={handleDeleteUser} variant="destructive">Obriši korisnika</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

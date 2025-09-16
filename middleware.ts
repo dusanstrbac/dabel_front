@@ -2,14 +2,14 @@ import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from "next/server";
 
 // Lista podržanih jezika i podrazumevani jezik
-const locales = ['sr', 'en', 'mk', 'hr', 'al', 'lt'];
+const locales = ['sr', 'en', 'mk', 'al', 'me'];
 const defaultLocale = 'sr';
 
 const AUTH_EXEMPT_ROUTES = [
-  "/login",
-  "/register",
-  "/aktivacija",
-  "/api/Auth/LoginPodaci"
+  '/login',
+  '/register',
+  '/aktivacija',
+  '/api/Auth/LoginPodaci'
 ];
 
 // 1. Kreirajte next-intl middleware.

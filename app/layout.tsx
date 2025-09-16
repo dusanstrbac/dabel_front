@@ -5,12 +5,12 @@ import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner";
 import { ParametriWatcher } from "@/components/ui/ParametriWatcher";
 
-export const metadata: Metadata = {
+export const metadata : Metadata = {
   title: "Dabel.rs",
-  description: "Dabel web shop",
+  description: "Dabel web shop"
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({children}:{children:React.ReactNode}){
   return (
     <html lang="sr">
       <body>

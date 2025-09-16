@@ -1,3 +1,4 @@
+// next.config.ts
 /** @type {import('next').NextConfig} */
 import createNextIntlPlugin from 'next-intl/plugin';
 
@@ -13,12 +14,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**',
-        pathname: '/**',
       },
       {
         protocol: 'http',
         hostname: '**',
-        pathname: '/**',
       },
     ],
   },

@@ -19,6 +19,8 @@ export default function KorisnikMenu() {
   const username = korisnik?.korisnickoIme;
   const uloga = korisnik?.webUloga;
   const locale = useLocale();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
   const t = useTranslations('header');
 
   useEffect(() => {
@@ -179,7 +181,7 @@ export default function KorisnikMenu() {
 
       {/* Mobilni meni */}
       <div className="lg:hidden">
-        <Sheet>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <User className="h-6 w-6 text-gray-500 hover:text-gray-700 cursor-pointer" />
           </SheetTrigger>
@@ -204,6 +206,7 @@ export default function KorisnikMenu() {
                   <Link
                     key={index}
                     href={item.href}
+                    onClick={() => setIsSheetOpen(false)}
                     className="flex items-center gap-3 px-2 py-3 text-[15px] text-gray-700 hover:bg-gray-100 rounded"
                   >
                     {item.icon}

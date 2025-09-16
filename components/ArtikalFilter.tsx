@@ -4,6 +4,7 @@ import { ArtikalFilterProp, ArtikalType } from '@/types/artikal'
 import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import MultiRangeSlider from './ui/MultiRangeSlider' // Pretpostavka da je putanja ispravna
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible'
+import { useTranslations } from 'next-intl'
 
 interface ProductFilterProps {
   artikli: ArtikalType[];
@@ -92,6 +93,7 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
   }, [artikli, filters, priceRange]);
 
   const stableOnFilterChange = useCallback(onFilterChange, []);
+  const t = useTranslations();
 
   useEffect(() => {
     stableOnFilterChange(filtriraniArtikli);
@@ -148,12 +150,15 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
       return [parseInt(minStr, 10), parseInt(maxStr, 10)];
   }, [filters.cena, priceRange]);
 
+
+  console.log(filterOptions);
+
   return (
     <div className="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
-      <h2 className="text-lg font-semibold mb-4">Filteri</h2>
+      <h2 className="text-lg font-semibold mb-4">{t('artikalFilter.Filteri')}</h2>
       
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2 text-center">Cena (RSD)</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2 text-center">{t('artikalFilter.cenaNaslov')}</label>
         <MultiRangeSlider
           min={priceRange.min}
           max={priceRange.max}
@@ -168,7 +173,7 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
 
       <div className="flex justify-end mb-4">
         <label className="flex items-center space-x-2 text-sm text-gray-700">
-          <span>Prikaži artikle na stanju</span>
+          <span>{t('artikalFilter.Prikaži artikle na stanju')}</span>
           <input
             type="checkbox"
             checked={filters.naStanju}
@@ -186,8 +191,13 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
             <Collapsible>
               <CollapsibleTrigger className="flex justify-between items-center w-full text-left">
                 <h3 className="font-medium text-gray-700">
-                  {key === 'RobnaMarka' ? 'Robna marka' : 
-                   key === 'jm' ? 'Jedinica mere' : 
+                  {key === 'RobnaMarka' ? t('artikalFilter.Robna marka') : 
+                   key === 'jm' ? t('artikalFilter.Jedinica Mere') :
+                   key === 'Boja' ? t('artikalFilter.Boja') : 
+                   key === 'Materijal' ? t('artikalFilter.Materijal') :
+                   key === 'Model' ? t('artikalFilter.Model') :
+                   key === 'Pakovanje' ? t('artikalFilter.Pakovanje') :
+                   key === 'Upotreba' ? t('artikalFilter.Upotreba') :    
                    key.replace(/([A-Z])/g, ' $1').trim()}
                 </h3>
                 <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -224,7 +234,7 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
         onClick={resetFilters}
         className="w-full py-2 px-4 mt-6 text-center text-sm font-semibold text-white bg-gray-700 hover:bg-gray-800 rounded-lg transition-colors"
       >
-        Resetuj filtere
+        {t('artikalFilter.Resetuj filtere')}
       </button>
     </div>
   )

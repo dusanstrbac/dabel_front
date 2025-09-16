@@ -2,6 +2,7 @@ import { useRouter } from 'next/navigation';
 import '@/app/globals.css';
 import AddToCartButton from './AddToCartButton';
 import { ArtikalType } from '@/types/artikal';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface ArticleCardProps extends ArtikalType {
   idPartnera: string;
@@ -12,9 +13,10 @@ interface ArticleCardProps extends ArtikalType {
   kolicinaPristizanja?: number;
 }
 
-const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZaIzdavanje, artikalIstorija, datumPoslednjeKupovine, kolicinaKupovine, datumPristizanja, kolicinaPristizanja }: ArticleCardProps) => {
+const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, datumPoslednjeKupovine, datumPristizanja }: ArticleCardProps) => {
   const router = useRouter();
-
+  const t = useTranslations();
+  const locale = useLocale();
   const imageUrl = '/images';
   const fotografijaProizvoda = `${imageUrl}/s${idArtikla}.jpg`;
 
@@ -47,7 +49,7 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZa
       return "";
     }
 
-    return date.toLocaleDateString('sr-RS', {
+    return date.toLocaleDateString(locale, {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
@@ -86,13 +88,13 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, idPartnera, kolZa
             datumPoslednjeKupovine ? 'min-h-[1.25rem] opacity-100' : 'min-h-[0.25rem] opacity-0'
           }`}
         >
-          {datumPoslednjeKupovine && `Poslednja kupovina: ${formatDate(datumPoslednjeKupovine)}`}
+          {datumPoslednjeKupovine && `${t('main.Poslednja kupovina')} ${formatDate(datumPoslednjeKupovine)}`}
         </p>
 
         {/* Datum pristizanja artikla */}
         {Number(kolicina) <= 0 && datumPristizanja && (
           <p className="text-xs text-center text-gray-600 italic transition-all duration-200">
-            {`Planirani datum pristizanja: ${formatDate(datumPristizanja)}`}
+            {`${t('main.Planirani datum pristizanja')} ${formatDate(datumPristizanja)}`}
           </p>
         )}
 

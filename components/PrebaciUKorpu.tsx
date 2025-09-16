@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { ShoppingCartIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import axios from "axios";
+import { useTranslations } from "next-intl";
 
 interface RowItem {
   sifra: string;
@@ -21,11 +22,14 @@ interface PrebaciUKorpuProps {
 }
 
 const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
+
+  const t = useTranslations();
+
   const handleAddToCart = async () => {
     if (rows.length === 0) {
-      toast.error("Greška", {
+      toast.error(t('PrebaciUKorpu.Greska'), {
         className: 'toast-error',
-        description: 'Niste uneli ni jedan artikal'
+        description: t('PrebaciUKorpu.NemaArtikala')
       });
       return;
     }
@@ -54,7 +58,10 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
       const artikli: Artikal[] = data.artikli;
 
       if (!artikli || artikli.length === 0) {
-        toast.error("Nijedan artikal nije pronađen u bazi.");
+        toast.error(t('PrebaciUKorpu.Greska'), {
+        className: 'toast-error',
+        description: t('PrebaciUKorpu.NepostojeciArtikal')
+      });
         return;
       }
 
@@ -94,10 +101,10 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
       if (artikliSaNedovoljnomKolicinom.length > 0) {
         const poruke = artikliSaNedovoljnomKolicinom.map((artikal) => {
           const trazenaKolicina = kolicinePoArtiklu[artikal.idArtikla] || 0;
-          return `Artikal ${artikal.idArtikla} zahteva ${trazenaKolicina}, a dostupno je ${artikal.kolicina}`;
+          return `${t('proizvod.artikalLabel')} ${artikal.idArtikla} ${t('PrebaciUKorpu.zahteva')} ${trazenaKolicina}, ${t('PrebaciUKorpu.a dostupno je')} ${artikal.kolicina}`;
         });
 
-        toast.error("Neki artikli nemaju dovoljno na stanju", {
+        toast.error(t('PrebaciUKorpu.NemaNaStanju'), {
           description: poruke.join("\n"),
         });
         return;
@@ -127,8 +134,8 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
       localStorage.setItem("cart", JSON.stringify(cart));
       window.dispatchEvent(new Event("storage"));
 
-      toast.success("Artikli su uspešno dodati u korpu", {
-        description: `Ukupno dodatih: ${Object.keys(kolicinePoArtiklu).length}`,
+      toast.success(t('PrebaciUKorpu.Artikli su uspešno dodati u korpu'), {
+        description: `${t('PrebaciUKorpu.Ukupno dodatih')} ${Object.keys(kolicinePoArtiklu).length}`,
         descriptionClassName: "toast-success-description"
       });
 
@@ -144,7 +151,7 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
   return (
     <Button onClick={handleAddToCart} variant="default" className="cursor-pointer">
       <ShoppingCartIcon className="w-5 h-5 text-white mr-2" />
-      Prebaci u korpu
+      {t('PrebaciUKorpu.Prebaci u korpu')}
     </Button>
   );
 };

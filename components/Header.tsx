@@ -25,6 +25,9 @@ interface HeaderProps {
 
 export default function Header({ currentLocale }: HeaderProps) {
   const [korisnickoIme, setKorisnickoIme] = useState<string | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -167,6 +170,7 @@ export default function Header({ currentLocale }: HeaderProps) {
         </nav>
       </div>
       </div>
+      
       {/* Mobile navigacija */}
       <div className="lg:hidden px-3">
         <div className="flex items-center justify-between py-3">
@@ -199,7 +203,7 @@ export default function Header({ currentLocale }: HeaderProps) {
             </Link>
 
             {/* Hamburger menu */}
-            <Sheet>
+            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger className="p-1">
                 <MenuIcon className="w-6 h-6" color="gray"/>
               </SheetTrigger>
@@ -211,13 +215,15 @@ export default function Header({ currentLocale }: HeaderProps) {
 
                 <div className="pl-2 flex flex-col gap-2 mt-4">
                   {/* Pretraga */}
-                  <div className="relative mb-4">
+                  {/* <div className="relative mb-4">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
                     <Input
                       placeholder="Pretraga"
                       className="pl-10 border border-gray-300 rounded-md"
                     />
-                  </div>
+                  </div> */}
+                  {/* valjda je samo ovo i to je to */}
+                  <PretragaProizvoda/>
 
                   {/* Kategorije */}
                   <Accordion type="single" collapsible className="flex flex-col gap-2">
@@ -234,7 +240,8 @@ export default function Header({ currentLocale }: HeaderProps) {
                                 <li key={subIndex}>
                                   <Link
                                     href={subItem.href}
-                                    className="block px-2 py-2 text-[15px] text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                                    onClick={() => setIsSheetOpen(false)}
+                                    className="block px-2 py-2 text-[15px] break-words text-gray-700 hover:bg-gray-100 rounded transition-colors"
                                   >
                                     {subItem.text}
                                   </Link>
@@ -247,6 +254,7 @@ export default function Header({ currentLocale }: HeaderProps) {
                         <Link
                           key={index}
                           href={item.href}
+                          onClick={() => setIsSheetOpen(false)}
                           className="flex items-center gap-3 px-2 py-3 hover:bg-gray-50 rounded"
                         >
                           {item.icon}
