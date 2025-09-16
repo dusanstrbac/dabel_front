@@ -278,6 +278,9 @@
     "Isporučene količine mogu biti manje u zavisnosti od stanja na lageru": "Delivered quantities may be less depending on stock availability",
     "Napomena": "Note",
     "Dokument kreirao": "Document created by"
+  },
+  "dokument": {
+    "Vaša porudžbina je uspešno evidentirana": "Your order has been successfully registered"
   }
 
 
