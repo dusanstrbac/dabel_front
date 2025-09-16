@@ -216,5 +216,32 @@
     "Uključi kameru za skeniranje": "Uključi kameru za skeniranje",
     "Skeniranje barkoda": "Skeniranje barkoda",
     "Preuzmi šablon": "Preuzmi šablon"
+  },
+  "korpa":{
+    "vecaKolOdDostupne": "Uneta količina je veća od dostupne na stanju.",
+    "greskaUcitavanje": "Greška pri učitavanju artikala:",
+    "nemaKorisnika": "Nema korisnika iz tokena.",
+    "neplaceneFakture": "Imate neplaćene fakture, pa vam je poručivanje zabranjeno",
+    "greskaFetchPartnera": "Greška pri fetchovanju partnera:",
+    "greskaDobavljanjeDozvola": "Greška pri dobavljanju dozvola:",
+    "pregledKorpe": "Pregled korpe",
+    "isprazniKorpu": "Isprazni korpu",
+    "nazivArtikla": "Naziv artikla",
+    "jm": "JM",
+    "cena": "Cena",
+    "pakovanje": "Pakovanje",
+    "trebovanaKolicina": "Trebovana količina",
+    "kolicina": "Količina",
+    "rabat": "Rabat",
+    "iznos": "Iznos",
+    "iznosPDV": "Iznos sa PDV",
+    "praznaKorpa": "Nijedan artikal nije dodat u korpu.",
+    "sifra": "Šifra:",
+    "barkod": "BarKod:",
+    "ukloni": "Ukloni",
+    "ukupno": "Ukupno:",
+    "pdv": "sa PDV",
+    "bezPDV": "bez PDV",
+    "naruci": "Naruči"
   }
 }

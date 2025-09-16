@@ -10,6 +10,7 @@ import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { DozvoleInfo } from "@/types/dozvole";
+import { useTranslations } from "next-intl";
 
 type ArtikalCena = {
   cena: number;
@@ -46,6 +47,8 @@ const Korpa = () => {
   const [imaDozvoluZaPakovanje, setImaDozvoluZaPakovanje] = useState(false);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const debounceVreme = 700;
+
+  const t = useTranslations('korpa');
   
 
   useEffect(() => {
@@ -60,7 +63,7 @@ const Korpa = () => {
 
   useEffect(() => {
     if (!validnaKolicina) {
-      toast.error("Uneta količina je veća od dostupne na stanju.");
+      toast.error(t('vecaKolOdDostupne'));
     }
   }, [validnaKolicina]);
 
@@ -115,7 +118,7 @@ const Korpa = () => {
         setQuantities(initialQuantities);
         setImaDozvoluZaPakovanje(imaDozvolu);
       } catch (error) {
-        console.error("Greška pri učitavanju artikala:", error);
+        console.error(t('greskaUcitavanje'), error);
       } finally {
         setIsLoading(false); // Dodaj ovo
       }
@@ -123,7 +126,7 @@ const Korpa = () => {
 
     const fetchPartner = async () => {
       if (!korisnik) {
-          console.warn("Nema korisnika iz tokena.");
+          console.warn(t('nemaKorisnika'));
           return;
       }
 
@@ -142,12 +145,12 @@ const Korpa = () => {
           if (fPartner.finKarta?.nerealizovano) {
             setNerealizovanIznos(parseFloat(fPartner.finKarta.nerealizovano)); 
             if (parseFloat(fPartner.finKarta.nerealizovano) > 0) {
-              toast.error("Imate neplaćene fakture, pa vam je poručivanje zabranjeno");
+              toast.error(t('neplaceneFakture'));
               return;
             }
           }
       } catch (err) {
-          console.error("Greška pri fetchovanju partnera:", err);
+          console.error(t('greskaFetchPartnera'), err);
       }
     };
 
@@ -288,7 +291,7 @@ const Korpa = () => {
   useEffect(() => {
     const fetchDozvole = async () => {
       if (!korisnik) {
-        console.warn("Nema korisnika iz tokena.");
+        console.warn(t('nemaKorisnika'));
         return;
       }
       
@@ -301,7 +304,7 @@ const Korpa = () => {
         const imaDozvolu = data.some(dozvola => dozvola.status === 1);
         setImaDozvoluZaPakovanje(imaDozvolu);
       } catch (error) {
-        console.error("Greška pri dobavljanju dozvola:", error);
+        console.error(t('greskaDobavljanjeDozvola'), error);
         setImaDozvoluZaPakovanje(false);
       }
     };
@@ -323,8 +326,8 @@ const Korpa = () => {
   return (
     <div className="flex flex-col p-2 md:p-5">
       <div className="flex flex-wrap justify-between items-center gap-2">
-        <h1 className="font-bold text-lg">Pregled korpe</h1>
-        <Button onClick={isprazniKorpu} variant={"outline"} className="cursor-pointer">Isprazni korpu</Button>
+        <h1 className="font-bold text-lg">{t('pregledKorpe')}</h1>
+        <Button onClick={isprazniKorpu} variant={"outline"} className="cursor-pointer">{t('isprazniKorpu')}</Button>
       </div>
 
       {/* DESKTOP VERZIJA */}
@@ -333,15 +336,15 @@ const Korpa = () => {
           <TableHeader>
             <TableRow>
               <TableHead />
-              <TableHead className="text-xl font-light">Naziv artikla</TableHead>
-              <TableHead className="text-xl text-center font-light">JM</TableHead>
-              <TableHead className="text-xl text-center font-light">Cena</TableHead>
-              <TableHead className="text-xl text-center font-light">Pakovanje</TableHead>
-              <TableHead className="text-xl text-center font-light">Trebovana količina</TableHead>
-              <TableHead className="text-xl text-center font-light">Količina</TableHead>
-              <TableHead className="text-xl text-center font-light">Rabat</TableHead>
-              <TableHead className="text-xl text-center font-light">Iznos</TableHead>
-              <TableHead className="text-xl text-center font-light">Iznos sa PDV</TableHead>
+              <TableHead className="text-xl font-light">{t('nazivArtikla')}</TableHead>
+              <TableHead className="text-xl text-center font-light">{t('jm')}</TableHead>
+              <TableHead className="text-xl text-center font-light">{t('cena')}</TableHead>
+              <TableHead className="text-xl text-center font-light">{t('pakovanje')}</TableHead>
+              <TableHead className="text-xl text-center font-light">{t('trebovanaKolicina')}</TableHead>
+              <TableHead className="text-xl text-center font-light">{t('kolicina')}</TableHead>
+              <TableHead className="text-xl text-center font-light">{t('rabat')}</TableHead>
+              <TableHead className="text-xl text-center font-light">{t('iznos')}</TableHead>
+              <TableHead className="text-xl text-center font-light">{t('iznosPDV')}</TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>
@@ -349,7 +352,7 @@ const Korpa = () => {
             {articleList.length === 0 && (
               <TableRow>
                 <TableCell colSpan={10} className="italic text-center py-4">
-                  Ni jedan artikal nije dodat u korpu.
+                  {t('praznaKorpa')}
                 </TableCell>
               </TableRow>
             )}
@@ -377,8 +380,8 @@ const Korpa = () => {
                   <TableCell>
                     <div className="flex flex-col max-w-[500px]">
                       <span className="font-semibold text-base whitespace-pre-wrap mb-2">{article.naziv}</span>
-                      <span>Šifra: {article.id}</span>
-                      <span>BarKod: {article.barkod}</span>
+                      <span>{t('sifra')} {article.id}</span>
+                      <span>{t('barkod')} {article.barkod}</span>
                       {article.stanje && <span className="text-sm text-red-500">{article.stanje}</span>}
                     </div>
                   </TableCell>
@@ -448,7 +451,7 @@ const Korpa = () => {
                   <TableCell className="text-center">{formatCena(iznos)} RSD</TableCell>
                   <TableCell className="text-center">{formatCena(iznosSaPDV)} RSD</TableCell>
                   <TableCell>
-                    <Button onClick={() => removeArticle(index)}>Ukloni</Button>
+                    <Button onClick={() => removeArticle(index)}>{t('ukloni')}</Button>
                   </TableCell>
                 </TableRow>
               );
@@ -456,7 +459,7 @@ const Korpa = () => {
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell className="font-bold text-center">Ukupno:</TableCell>
+              <TableCell className="font-bold text-center">{t('ukupno')}</TableCell>
               <TableCell colSpan={7}></TableCell>
               <TableCell className="text-center font-bold">{formatCena(totalAmount)} RSD</TableCell>
               <TableCell className="text-center font-bold">{formatCena(totalAmountWithPDV)} RSD</TableCell>
@@ -494,9 +497,9 @@ const Korpa = () => {
               <CardContent className="flex-1">
                 <h2 className="font-semibold">{article.naziv}</h2>
                 <div className="text-sm text-muted-foreground">
-                  <p>Šifra: {article.id}</p>
-                  <p>Barkod: {article.barkod}</p>
-                  <p>JM: {article.jm}</p>
+                  <p>{t('sifra')} {article.id}</p>
+                  <p>{t('barkod')} {article.barkod}</p>
+                  <p>{t('jm')} {article.jm}</p>
                   <p className="font-bold">
                     {imaAkciju ? (
                       <>
@@ -512,7 +515,7 @@ const Korpa = () => {
                 </div>
                 <div className="pt-2">
                   <div className="mb-2 flex items-center gap-2">
-                    <span className="mr-2 whitespace-nowrap">Trebovana količina:</span>
+                    <span className="mr-2 whitespace-nowrap">{t('trebovanaKolicina')}:</span>
                       <input
                         className="flex h-10 w-24 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-center"
                         type="number"
@@ -557,12 +560,12 @@ const Korpa = () => {
                         }}
                       />
                   </div>
-                  <p>Pakovanje: {pakovanje}</p>
-                  <p>Količina: {kolicina}</p>
-                  <p>Iznos: {formatCena(iznos)} RSD</p>
-                  <p className="font-bold">Sa PDV: {formatCena(iznosSaPDV)} RSD</p>
+                  <p>{t('pakovanje')} {pakovanje}</p>
+                  <p>{t('kolicina')} {kolicina}</p>
+                  <p>{t('iznos')} {formatCena(iznos)} RSD</p>
+                  <p className="font-bold">{t('pdv')}: {formatCena(iznosSaPDV)} RSD</p>
                   <div className="mt-2">
-                    <Button onClick={() => removeArticle(index)}>Ukloni</Button>
+                    <Button onClick={() => removeArticle(index)}>{t('ukloni')}</Button>
                   </div>
                 </div>
                 {article.stanje && <p className="text-red-500 mt-2">{article.stanje}</p>}
@@ -571,12 +574,12 @@ const Korpa = () => {
           );
         })}
         <div className="flex justify-between font-semibold py-5">
-          <span>Ukupno (bez PDV):</span>
+          <span>{t('ukupno')} ({t('bezPDV')}):</span>
           <span>{formatCena(totalAmount)} RSD</span>
         </div>
         
         <div className="flex justify-between font-semibold text-red-600">
-          <span>Ukupno (sa PDV):</span>
+          <span>{t('ukupno')} ({t('pdv')}):</span>
           <span>{formatCena(totalAmountWithPDV)} RSD</span>
         </div>
         
