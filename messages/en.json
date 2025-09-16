@@ -184,6 +184,66 @@
     "header-PretragaProizvodaNemaRezultata": "No results.",
     "header-SkeniranjeBarkodaLabel": "Barcode Scanning",
     "header-SkeniranjeBarKodaZatvoriButton": "Close"
+  },
+  "narudzbenica": {
+    "Narudžbenica": "Order form",
+    "Ucitavanje podataka": "Loading data...",
+    "Greska": "Error:",
+    "Nema podataka": "No data.",
+    "Sortiraj po": "Sort by:",
+    "Datumu": "Date",
+    "Ceni": "Price",
+    "Statusu": "Status",
+    "Rastuce": "Ascending",
+    "Opadajuce": "Descending",
+    "Datum": "Date",
+    "Dokument": "Document",
+    "Status": "Status",
+    "Iznos": "Amount",
+    "U obradi": "Processing",
+    "Obradjen": "Processed",
+    "Odbijen": "Rejected",
+    "Opozvan": "Cancelled",
+    "Opoziv": "Cancellation",
+    "Ukupno po strani": "Total per page:",
+    "Ukupno": "Total:"
+  },
+  "korisnici": {
+    "Korisnici": "Users",
+    "Pretraga korisnika": "User Search",
+    "Promeni korisnika": "Edit User",
+    "Korisničko ime": "Username",
+    "E-mail": "E-mail",
+    "Telefon": "Phone",
+    "Nema registrovanih korisnika": "No registered users"
+  },
+  "promenaPodatakaKorisnika": {
+    "Telefon nije u validnom formatu (Na primer: +38160XXXXXXX)": "Phone is not in a valid format. (For example: +447XXXXXXXXX)",
+    "Podaci o korisniku u uspešno ažurirani": "User successfully updated",
+    "Došlo je do greške": "An error has occurred.",
+    "Došlo je do greške pri slanju podataka": "An error occurred while sending data.",
+    "Korisnik je uspešno obrisan": "User successfully deleted",
+    "Greška prilikom brisanja korisnika": "Error while deleting user",
+    "Došlo je do greške pri brisanju korisnika": "An error occurred while deleting the user.",
+    "Promena": "Edit",
+    "Izmena podataka korisnika": "Edit User Data",
+    "Ažurirajte informacije o korisniku": "Update user information",
+    "Lozinka": "Password",
+    "Unesite novu lozinku (ako želite da je promenite)": "Enter a new password (if you want to change it)",
+    "Sačuvaj promene": "Save Changes",
+    "Obriši korisnika": "Delete User"
+  },
+  "kreirajKorisnika": {
+    "Sva polja moraju biti popunjena!": "All fields must be filled!",
+    "Email nije u validnom formatu!": "Email is not in a valid format!",
+    "Lozinka mora imati najmanje 6 karaktera!": "Password must be at least 6 characters long!",
+    "Uspešno ste kreirali korisnika": "You have successfully created a user",
+    "Greška prilikom kreiranja korisnika": "Error while creating user",
+    "Kreiraj korisnika": "Create User",
+    "Kreiranje novog korisnika": "Creating a New User",
+    "Unesite sve podatke da biste registrovali novog korisnika": "All data is required to register a new user"
   }
+
+
 }
 

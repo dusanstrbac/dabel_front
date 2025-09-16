@@ -24,11 +24,7 @@ export default function Home() {
             <PoruciPonovo />
             <Najprodavanije />
           </div>
-<<<<<<< HEAD
-          <Footer/>
-=======
             <Footer />
->>>>>>> 31734bf190f45fb5ffae95f027d9e05d8d533227
         </main>
       </Suspense>
     </>

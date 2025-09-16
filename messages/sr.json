@@ -216,5 +216,65 @@
     "Uključi kameru za skeniranje": "Uključi kameru za skeniranje",
     "Skeniranje barkoda": "Skeniranje barkoda",
     "Preuzmi šablon": "Preuzmi šablon"
+  },
+  "narudzbenica": {
+    "Narudžbenica": "Narudžbenica",
+    "Ucitavanje podataka": "Učitavanje podataka...",
+    "Greska": "Greška:",
+    "Nema podataka": "Nema podataka.",
+    "Sortiraj po": "Sortiraj po:",
+    "Datumu": "Datumu",
+    "Ceni": "Ceni",
+    "Statusu": "Statusu",
+    "Rastuce": "Rastuće",
+    "Opadajuce": "Opadajuće",
+    "Datum": "Datum",
+    "Dokument": "Dokument",
+    "Status": "Status",
+    "Iznos": "Iznos",
+    "U obradi": "U obradi",
+    "Obradjen": "Obrađen",
+    "Odbijen": "Odbijen",
+    "Opozvan": "Opozvan",    
+    "Opoziv": "Opoziv",
+    "Ukupno po strani": "Ukupno po strani:",
+    "Ukupno": "Ukupno:"
+  },
+  "korisnici": {
+    "Korisnici": "Korisnici",
+    "Pretraga korisnika": "Pretraga korisnika",
+    "Promeni korisnika": "Promeni korisnika",
+    "Korisničko ime": "Korisničko ime",
+    "E-mail": "E-mail",
+    "Telefon": "Telefon",
+    "Nema registrovanih korisnika": "Nema registrovanih korisnika"
+  },
+  "promenaPodatakaKorisnika": {
+    "Telefon nije u validnom formatu (Na primer: +38160XXXXXXX)": "Telefon nije u validnom formatu. (Na primer: +38160XXXXXXX)",
+    "Podaci o korisniku u uspešno ažurirani": "Podaci o korisniku u uspešno ažurirani",
+    "Došlo je do greške": "Došlo je do greške.",
+    "Došlo je do greške pri slanju podataka": "Došlo je do greške pri slanju podataka.",
+    "Korisnik je uspešno obrisan": "Korisnik je uspešno obrisan",
+    "Greška prilikom brisanja korisnika": "Greška prilikom brisanja korisnika",
+    "Došlo je do greške pri brisanju korisnika": "Došlo je do greške pri brisanju korisnika.",
+    "Promena": "Promena",
+    "Izmena podataka korisnika": "Izmena podataka korisnika",
+    "Ažurirajte informacije o korisniku": "Ažurirajte informacije o korisniku",
+    "Lozinka": "Lozinka",
+    "Unesite novu lozinku (ako želite da je promenite)": "Unesite novu lozinku (ako želite da je promenite)",
+    "Sačuvaj promene": "Sačuvaj promene",
+    "Obriši korisnika": "Obriši korisnika"
+  },
+  "kreirajKorisnika": {
+    "Sva polja moraju biti popunjena!": "Sva polja moraju biti popunjena!",
+    "Email nije u validnom formatu!": "Email nije u validnom formatu!",
+    "Lozinka mora imati najmanje 6 karaktera!": "Lozinka mora imati najmanje 6 karaktera!",
+    "Uspešno ste kreirali korisnika": "Uspešno ste kreirali korisnika",
+    "Greška prilikom kreiranja korisnika": "Greška prilikom kreiranja korisnika",
+    "Kreiraj korisnika": "Kreiraj korisnika",
+    "Kreiranje novog korisnika": "Kreiranje novog korisnika",
+    "Unesite sve podatke da biste registrovali novog korisnika": "Unesite sve podatke da biste registrovali novog korisnika"
   }
+  
+
 }

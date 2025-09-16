@@ -14,6 +14,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
 import { delay } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 interface Korisnik {
   korisnickoIme: string;
@@ -24,6 +25,7 @@ interface Korisnik {
 }
 
 const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
+  const t = useTranslations();
   const [korisnickoIme, setKorisnickoIme] = useState(korisnik.korisnickoIme);
   const [lozinka, setLozinka] = useState(korisnik.lozinka || '');
   const [email, setEmail] = useState(korisnik.email);
@@ -44,7 +46,8 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
 
     // Validacija broja telefona
     if (!/^(\+381|0)[6-9][0-9]{7,8}$/.test(telefon)) {
-      toast.error("Telefon nije u validnom formatu. (Na primer: +38160XXXXXXX)");
+      toast.error(t('promenaPodatakaKorisnika.Telefon nije u validnom formatu (Na primer: +38160XXXXXXX)'));
+
       return;
     }
 
@@ -59,7 +62,7 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
       if (res.ok) {
         try {
           const data = await res.json();
-          toast.success(data.message || "Dozvola je uspešno ažurirana");
+          toast.success(t('promenaPodatakaKorisnika.Podaci o korisniku u uspešno ažurirani'));
           setOpen(false);
           setTimeout(() => {
             window.location.reload();
@@ -70,11 +73,11 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
         }
       } else {
         const errorText = await res.text();
-        toast.error(errorText || 'Došlo je do greške.');
+        toast.error(errorText || t('promenaPodatakaKorisnika.Došlo je do greške'));
       }
     } catch (error) {
       console.error("Greška prilikom slanja zahteva:", error);
-      toast.error("Došlo je do greške pri slanju podataka.");
+      toast.error(t('promenaPodatakaKorisnika.Došlo je do greške pri slanju podataka.'));
     }
   };
 
@@ -87,15 +90,15 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
 
       if (res.ok) {
         const data = await res.json();
-        toast.success(data.message || "Korisnik je uspešno obrisan");
+        toast.success(data.message || t('promenaPodatakaKorisnika.Korisnik je uspešno obrisan'));
         window.location.reload();
       } else {
         const data = await res.json();
-        toast.error(data.message || "Greška prilikom brisanja korisnika");
+        toast.error(data.message || t('promenaPodatakaKorisnika.Greška prilikom brisanja korisnika'));
       }
     } catch (error) {
       console.error("Greška prilikom brisanja korisnika:", error);
-      toast.error("Došlo je do greške pri brisanju korisnika.");
+      toast.error(t('promenaPodatakaKorisnika.Došlo je do greške pri brisanju korisnika'));
     }
   };
 
@@ -110,35 +113,35 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="cursor-pointer">Promena</Button>
+        <Button variant="outline" className="cursor-pointer">{t('promenaPodatakaKorisnika.Promena')}</Button>
       </DialogTrigger>
 
       <DialogContent className="w-full max-w-3xl h-auto max-h-[95vh] overflow-y-auto px-4">
         <DialogHeader>
-          <DialogTitle className="font-bold text-xl">Izmena podataka korisnika</DialogTitle>
-          <DialogDescription>Ažurirajte informacije o korisniku</DialogDescription>
+          <DialogTitle className="font-bold text-xl">{t('promenaPodatakaKorisnika.Izmena podataka korisnika')}</DialogTitle>
+          <DialogDescription>{t('promenaPodatakaKorisnika.Ažurirajte informacije o korisniku')}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="korisnickoIme">Korisničko ime</Label>
+            <Label htmlFor="korisnickoIme">{t('korisnici.Korisničko ime')}</Label>
             <Input value={korisnickoIme} disabled />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="lozinka">Lozinka</Label>
+            <Label htmlFor="lozinka">{t('promenaPodatakaKorisnika.Lozinka')}</Label>
             <Input 
-              type="password" 
+              type="password"
               value={lozinka} 
               onChange={(e) => setLozinka(e.target.value)} 
-              placeholder="Unesite novu lozinku (ako želite da je promenite)" 
+              placeholder={t('promenaPodatakaKorisnika.Unesite novu lozinku (ako želite da je promenite)')} 
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('korisnici.E-mail')}</Label>
             <Input value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="telefon">Telefon</Label>
+            <Label htmlFor="telefon">{t('korisnici.Telefon')}</Label>
             <Input 
               value={telefon} 
               onChange={(e) => setTelefon(e.target.value)} 
@@ -147,8 +150,8 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
         </div>
 
         <DialogFooter className="mt-4 flex justify-between">
-          <Button type="button" onClick={handleSubmit}>Sačuvaj promene</Button>
-          <Button type="button" onClick={handleDeleteUser} variant="destructive">Obriši korisnika</Button>
+          <Button type="button" onClick={handleSubmit}>{t('promenaPodatakaKorisnika.Sačuvaj promene')}</Button>
+          <Button type="button" onClick={handleDeleteUser} variant="destructive">{t('promenaPodatakaKorisnika.Obriši korisnika')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

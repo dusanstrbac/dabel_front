@@ -6,12 +6,14 @@ import KreirajKorisnika from "./KreirajKorisnika";
 import { Input } from "./ui/input";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import PromenaPodatakaKorisnika from "./PromenaPodatakaKorisnika";
+import { useTranslations } from "next-intl";
 
 interface myProps {
     title: string;
 }
 
 const KorisniciTable = ({ title }: myProps) => {
+    const t = useTranslations('korisnici');
     const [tabelaStavke, setTabelaStavke] = useState<any[]>([]); // Ovdje inicijalizujemo kao prazan niz
     const [pretraga, setPretraga] = useState("");
     const [trenutnaStrana, setTrenutnaStrana] = useState(1);
@@ -51,11 +53,12 @@ const KorisniciTable = ({ title }: myProps) => {
     return (
         <div className="mt-2 flex flex-col gap-2 lg:gap-4">
             <div className="flex justify-between items-center w-full px-2 lg:px-4 flex-wrap">
-                <h1 className="font-bold text-3xl text-center">{title}</h1>
+                <h1 className="font-bold text-3xl text-center">{t('Korisnici')}</h1>
+                {/* prevedi naslov */}
                 <div className="flex gap-2">
                     <Input
                         type="text"
-                        placeholder="Pretraga korisnika"
+                        placeholder={t('Pretraga korisnika')}
                         className="border-2"
                         value={pretraga}
                         onChange={(e) => setPretraga(e.target.value)}
@@ -68,17 +71,17 @@ const KorisniciTable = ({ title }: myProps) => {
                 <Table className="min-w-full">
                     <TableHeader className="bg-gray-400 hover:bg-gray-400">
                         <TableRow>
-                            <TableHead className="text-xl">Promeni korisnika</TableHead>
-                            <TableHead className="text-xl">Korisničko ime</TableHead>
-                            <TableHead className="text-xl">E-mail</TableHead>
-                            <TableHead className="text-xl">Telefon</TableHead>
+                            <TableHead className="text-xl">{t('Promeni korisnika')}</TableHead>
+                            <TableHead className="text-xl">{t('Korisničko ime')}</TableHead>
+                            <TableHead className="text-xl">{t('E-mail')}</TableHead>
+                            <TableHead className="text-xl">{t('Telefon')}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {trenutniBrojKorisnika.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={4} className="text-center">
-                                    Nema registrovanih korisnika
+                                    {t('Nema registrovanih korisnika')}
                                 </TableCell>
                             </TableRow>
                         ) : (
