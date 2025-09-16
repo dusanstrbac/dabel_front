@@ -301,5 +301,43 @@
     "Uključi kameru za skeniranje": "Përfshi kamerën për skanim",
     "Skeniranje barkoda": "Skanim barkodi",
     "Preuzmi šablon": "Shkarkoni modelin"
+  },
+  "korpa": {
+    "vecaKolOdDostupne": "Sasia e futur është më e madhe se ajo e disponueshme në stok.",
+    "greskaUcitavanje": "Gabim gjatë ngarkimit të artikujve:",
+    "nemaKorisnika": "Asnjë përdorues nga tokeni.",
+    "neplaceneFakture": "Keni faturat e papaguara, kështu që porositja është e ndaluar",
+    "greskaFetchPartnera": "Gabim gjatë marrjes së partnerit:",
+    "greskaDobavljanjeDozvola": "Gabim gjatë marrjes së lejeve:",
+    "pregledKorpe": "Shikimi i shportës",
+    "isprazniKorpu": "Zbraz shportën",
+    "nazivArtikla": "Emri i artikullit",
+    "jm": "NJ",
+    "cena": "Çmimi",
+    "pakovanje": "Paketimi",
+    "trebovanaKolicina": "Sasia e kërkuar",
+    "kolicina": "Sasia",
+    "rabat": "Zbritje",
+    "iznos": "Shuma",
+    "iznosPDV": "Shuma me TVSH",
+    "praznaKorpa": "Asnjë artikull nuk është shtuar në shportë.",
+    "sifra": "Kodi:",
+    "barkod": "Barkod:",
+    "ukloni": "Hiq",
+    "ukupno": "Totali:",
+    "pdv": "me TVSH",
+    "bezPDV": "pa TVSH",
+    "naruci": "Porosit"
+  },
+  "promenaLozinke": {
+    "naslov": "Ndryshimi i fjalëkalimit",
+    "uputstvo": "Plotësoni fushat më poshtë për të ndryshuar fjalëkalimin tuaj",
+    "trenutnaLozinka": "Fjalëkalimi aktual",
+    "novaLozinka": "Fjalëkalim i ri",
+    "potvrdaNoveLozinke": "Konfirmo fjalëkalimin e ri",
+    "sacuvaj": "Ruaj",
+    "greskaUlogujSeOpet": "Ka ndodhur një gabim. Ju lutem identifikohu përsëri",
+    "lozinka4karaktera": "Fjalëkalimi duhet të ketë të paktën 4 karaktere",
+    "lozinka6karaktera": "Fjalëkalimi duhet të ketë të paktën 6 karaktere"
   }
 }

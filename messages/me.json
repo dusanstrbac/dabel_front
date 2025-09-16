@@ -301,5 +301,43 @@
     "Uključi kameru za skeniranje": "Uključi kameru za skeniranje",
     "Skeniranje barkoda": "Skeniranje barkoda",
     "Preuzmi šablon": "Preuzmi šablon"
+  },
+  "korpa": {
+    "vecaKolOdDostupne": "Unesena količina je veća od dostupne na stanju.",
+    "greskaUcitavanje": "Greška pri učitavanju artikala:",
+    "nemaKorisnika": "Nema korisnika iz tokena.",
+    "neplaceneFakture": "Imate neplaćene fakture, pa vam je poručivanje zabranjeno",
+    "greskaFetchPartnera": "Greška pri fetchovanju partnera:",
+    "greskaDobavljanjeDozvola": "Greška pri dobavljanju dozvola:",
+    "pregledKorpe": "Pregled korpe",
+    "isprazniKorpu": "Isprazni korpu",
+    "nazivArtikla": "Naziv artikla",
+    "jm": "JM",
+    "cena": "Cijena",
+    "pakovanje": "Pakovanje",
+    "trebovanaKolicina": "Tražena količina",
+    "kolicina": "Količina",
+    "rabat": "Rabat",
+    "iznos": "Iznos",
+    "iznosPDV": "Iznos sa PDV",
+    "praznaKorpa": "Nijedan artikal nije dodat u korpu.",
+    "sifra": "Šifra:",
+    "barkod": "BarKod:",
+    "ukloni": "Ukloni",
+    "ukupno": "Ukupno:",
+    "pdv": "sa PDV",
+    "bezPDV": "bez PDV",
+    "naruci": "Naruči"
+  },
+  "promenaLozinke": {
+    "naslov": "Promena lozinke",
+    "uputstvo": "Popunite polja ispod da biste promijenili lozinku",
+    "trenutnaLozinka": "Trenutna lozinka",
+    "novaLozinka": "Nova lozinka",
+    "potvrdaNoveLozinke": "Potvrda nove lozinke",
+    "sacuvaj": "Sačuvaj",
+    "greskaUlogujSeOpet": "Došlo je do greške. Molimo ulogujte se ponovo",
+    "lozinka4karaktera": "Lozinka mora imati najmanje 4 karaktera",
+    "lozinka6karaktera": "Lozinka mora imati najmanje 6 karaktera"
   }
 }
