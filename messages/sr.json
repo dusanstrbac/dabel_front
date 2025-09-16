@@ -1,4 +1,46 @@
 {
+  "main": {
+    "Nema artikala koji odgovaraju izabranim filterima": "Nema artikala koji odgovaraju izabranim filterima.",
+    "Poslednja kupovina": "Poslednja kupovina:",
+    "Planirani datum pristizanja": "Planirani datum pristizanja:",
+    "Omiljeni Artikli": "Omiljeni Artikli",
+    "Učitavanje": "Učitavanje..."
+  },
+  "Paginacija": {
+    "Prethodna": "Prethodna",
+    "Sledeca": "Sledeća"
+  },
+  "sortiranjeButton": {
+    "Sortiraj": "Sortiraj",
+    "CenaRastuće": "Cena: Rastuće",
+    "CenaOpadajuće": "Cena: Opadajuće",
+    "NazivA-Z": "Naziv: A-Z",
+    "NazivZ-A": "Naziv: Z-A"
+  },
+  "PrebaciUKorpu": {
+    "Greska": "Greška",
+    "NemaArtikala": "Niste uneli ni jedan artikal",
+    "NepostojeciArtikal": "Artikal ne postoji u bazi podataka",
+    "NemaNaStanju": "Nekih artikala nema dovoljno na stanju",
+    "zahteva": "zahteva",
+    "a dostupno je": "a dostupno je",
+    "Artikli su uspešno dodati u korpu": "Artikli su uspešno dodati u korpu",
+    "Ukupno dodatih": "Ukupno dodatih:",
+    "Prebaci u korpu": "Prebaci u korpu"
+  },
+  "artikalFilter": {
+    "cenaNaslov": "Cena (RSD)",
+    "Filteri": "Filteri",
+    "Prikaži artikle na stanju": "Prikaži artikle na stanju",
+    "Resetuj filtere": "Resetuj filtere",
+    "Jedinica Mere": "Jedinica mere",
+    "Robna marka": "Robna marka",
+    "Boja": "Boja",
+    "Materijal": "Materijal",
+    "Model": "Model",
+    "Pakovanje": "Pakovanje",
+    "Upotreba": "Upotreba"
+  },
   "profile": {
     "loading": "Učitavanje podataka...",
     "error": "Greška prilikom učitavanja korisnika",
@@ -243,5 +285,16 @@
     "pdv": "sa PDV",
     "bezPDV": "bez PDV",
     "naruci": "Naruči"
+  },
+  "promenaLozinke":{
+    "naslov": "Promena lozinke",
+    "uputstvo": "Popunite polja ispod da bi ste promenili lozinku",
+    "trenutnaLozinka": "Trenutna lozinka",
+    "novaLozinka": "Nova lozinka",
+    "potvrdaNoveLozinke": "Potvrda nove lozinke",
+    "sacuvaj": "Sačuvaj",
+    "greskaUlogujSeOpet": "Doslo je do greske. Molimo ulogujte se opet",
+    "lozinka4karaktera": "Lozinka mora imati najmanje 4 karaktera",
+    "lozinka6karaktera": "Lozinka mora imati najmanje 6 karaktera"
   }
 }

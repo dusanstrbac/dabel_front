@@ -8,6 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 // Hook za praćenje da li je ekran mobilni (širina < 640px)
 function useIsMobile(breakpoint = 640) {
@@ -110,6 +111,7 @@ function PaginacijaPrethodna({
   className,
   ...props
 }: React.ComponentProps<typeof PaginacijaLink>) {
+  const t = useTranslations();
   return (
     <PaginacijaLink
       aria-label="Idi na prethodnu stranicu"
@@ -122,7 +124,7 @@ function PaginacijaPrethodna({
     >
       <div className="flex items-center gap-1 justify-center">
         <ChevronLeftIcon className="h-5 w-5" />
-        <span className="hidden sm:block">Prethodna</span>
+        <span className="hidden sm:block">{t('Paginacija.Prethodna')}</span>
       </div>
     </PaginacijaLink>
   );
@@ -132,6 +134,7 @@ function PaginacijaSledeca({
   className,
   ...props
 }: React.ComponentProps<typeof PaginacijaLink>) {
+  const t = useTranslations();
   return (
     <PaginacijaLink
       aria-label="Idi na sledeću stranicu"
@@ -143,7 +146,7 @@ function PaginacijaSledeca({
       {...props}
     >
       <div className="flex items-center gap-1 justify-center">
-        <span className="hidden sm:block">Sledeća</span>
+        <span className="hidden sm:block">{t('Paginacija.Sledeca')}</span>
         <ChevronRightIcon className="h-5 w-5" />
       </div>
     </PaginacijaLink>

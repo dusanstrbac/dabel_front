@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { deleteCookie, getCookie } from 'cookies-next';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 export default function KorisnikMenu() {
   const [isMounted, setIsMounted] = useState(false);
@@ -18,6 +18,7 @@ export default function KorisnikMenu() {
   const korisnik = dajKorisnikaIzTokena();
   const username = korisnik?.korisnickoIme;
   const uloga = korisnik?.webUloga;
+  const locale = useLocale();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const t = useTranslations('header');
@@ -91,21 +92,21 @@ export default function KorisnikMenu() {
 
   const menuItems = [
     ...(uloga === 'ADMINISTRATOR' ? [
-      { icon: <ShieldUser className="h-4 w-4" />, text: 'Admin podešavanja', href: `/${username}/admin` },
+      { icon: <ShieldUser className="h-4 w-4" />, text: 'Admin podešavanja', href: `/${locale}/${username}/admin` },
     ] : []),
    ...(uloga === 'PARTNER' || uloga === 'PODKORISNIK' ? [
-      { icon: <User2 className="h-4 w-4" />, text: t('header-MojiPodaci'), href: `/${username}/profil/podaci` },
-      { icon: <FileText className="h-4 w-4" />, text: t('header-Narudzbenica'), href: `/${username}/profil/narudzbenica` },
-      { icon: <Wallet className="h-4 w-4" />, text: t('header-MojeUplate'), href: `/${username}/profil/uplate` },
-      { icon: <Package className="h-4 w-4" />, text: t('header-PoslataRoba'), href: `/${username}/profil/roba` },
+      { icon: <User2 className="h-4 w-4" />, text: t('header-MojiPodaci'), href: `/${locale}/${username}/profil/podaci` },
+      { icon: <FileText className="h-4 w-4" />, text: t('header-Narudzbenica'), href: `/${locale}/${username}/profil/narudzbenica` },
+      { icon: <Wallet className="h-4 w-4" />, text: t('header-MojeUplate'), href: `/${locale}/${username}/profil/uplate` },
+      { icon: <Package className="h-4 w-4" />, text: t('header-PoslataRoba'), href: `/${locale}/${username}/profil/roba` },
       { icon: <BadgeDollarSign className="h-4 w-4" />, text: t('header-Cenovnik'), onClick: preuzmiCenovnik },
       //{ icon: <Youtube className="h-4 w-4" />, text: 'Video uputstva', href: '/video' },
     ] : []),
     ...(uloga === "PARTNER" ? [
-      { icon: <Users className="h-4 w-4" />, text: t('header-Korisnici'), href: `/${username}/profil/korisnici` },
+      { icon: <Users className="h-4 w-4" />, text: t('header-Korisnici'), href: `/${locale}/${username}/profil/korisnici` },
     ] : []),
     ...(uloga === 'PARTNER' || uloga === 'ADMINISTRATOR' || uloga === 'PODKORISNIK' ? [
-      { icon: <Key className="h-4 w-4" />, text: t('header-PromenaLozinke'), href: `/${username}/profil/podesavanja` },
+      { icon: <Key className="h-4 w-4" />, text: t('header-PromenaLozinke'), href: `/${locale}/${username}/profil/podesavanja` },
     ] : []),
 
   ];

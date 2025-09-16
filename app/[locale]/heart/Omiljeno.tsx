@@ -7,6 +7,7 @@ import SortiranjeButton from '@/components/SortiranjeButton';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 import { ocistiImeAtributa } from '@/contexts/OcistiImeAtributa';
 import { ArtikalAtribut, ArtikalFilterProp, ArtikalType } from '@/types/artikal';
+import { useTranslations } from 'next-intl';
 
 type SortKey = 'cena' | 'naziv';
 type SortOrder = 'asc' | 'desc';
@@ -174,35 +175,17 @@ const handlePageChange = (newPage: number) => {
     router.push(`${window.location.pathname}?${query.toString()}`);
   };
 
-  // const handleFilterChange = (filters: ArtikalFilterProp) => {
-  //   const query = new URLSearchParams();
-    
-  //   if (filters.cena) {
-  //     query.set('minCena', filters.cena.split('-')[0]);
-  //     query.set('maxCena', filters.cena.split('-')[1]);
-  //   }
+  const t = useTranslations();
 
-  //   const filterKeys = ['jm', 'Materijal', 'Model', 'Pakovanje', 'RobnaMarka', 'Upotreba', 'Boja'];
-  //   filterKeys.forEach(key => {
-  //     const values = filters[key as keyof ArtikalFilterProp];
-  //     if (Array.isArray(values) && values.length > 0) {
-  //       values.forEach(val => query.append(key, val));
-  //     }
-  //   });
-
-  //   router.push(`${window.location.pathname}?${query.toString()}`);
-  // };
-
-console.log(artikli);
   return (
     <div className="lg:p-4">
       <div className="w-full mx-auto flex justify-between items-center p-2">
-        <h1 className="font-bold text-3xl">Omiljeni Artikli</h1>
+        <h1 className="font-bold text-3xl">{t('main.Omiljeni Artikli')}</h1>
         <SortiranjeButton sortKey={sortKey} sortOrder={sortOrder} onSortChange={handleSortChange} />
       </div>
 
       {loading ? (
-        <p className="text-center mt-4">Učitavanje...</p>
+        <p className="text-center mt-4">{t('main.Učitavanje')}</p>
       ) : error ? (
         <p className="text-center text-red-600 mt-4">{error}</p>
       ) : (

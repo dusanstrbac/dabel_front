@@ -1,43 +1,65 @@
-import { useState } from "react";
-import { BadgePercent, Bolt, Hammer, Heart, Lightbulb, LinkIcon, MenuIcon, Rows2, ShoppingCart, Sofa, User, Vault } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
-import { Separator } from "./ui/separator";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
+"use client";
+import { JSX, useEffect, useState } from "react";
 import Link from "next/link";
+import { MenuIcon, ShoppingCart, User, Heart, BadgePercent, LinkIcon } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
+import { Separator } from "./ui/separator";
+import IconComponent from "./IconComponent";
+import { useTranslations } from "next-intl";
+
+interface SubMenuItem {
+  text: string;
+  href: string;
+}
+
+interface NavItem {
+  text: string;
+  href: string;
+  icon: JSX.Element;
+  subMenuItems?: SubMenuItem[];
+}
 
 const HamburgerMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-
-  const headerMainNav = [ 
-    { icon: <Bolt className="w-4 h-4"/>, text: 'Okov građevinski', href: '/okov-gradjevinski'},
-    { icon: <Sofa className="w-4 h-4"/>, text: 'Okov nameštaj', href: '/okov-namestaj'},
-    { icon: <Rows2 className="w-4 h-4"/>, text: 'Klizni okov za građevinu, nameštaj', href: '/klizni-okov'},
-    { 
-      icon: <LinkIcon className="w-4 h-4"/>, 
-      text: 'Elementi za pričvršćivanje', 
-      href: '/elementi-pricvrscivanje', 
-      subMenuItems:[
-        { text: 'Spojnice', href: '/elementi-spojnice'},
-        { text: 'Ručke', href: '/elementi-rucke'},
-        { text: 'Delovi za sajle', href: '/elementi-sajle'},
-        { text: 'Tiplovi', href: '/elementi-tiplovi'},
-        { text: 'Drvo', href: '/elementi-drvo'},
-        { text: 'Podloške, navrtke', href: '/elementi-podloske'},
-        { text: 'Kapice', href: '/elementi-kapice'},
-      ]
-    },
-    { icon: <Lightbulb className="w-4 h-4"/>, text: 'LED rasveta', href: '/led-rasveta'},
-    { icon: <Vault className="w-4 h-4"/>, text: 'Kontrola pristupa', href: '/kontrola-pristupa'},
-    { icon: <Hammer className="w-4 h-4"/>, text: 'Ručni alat', href: '/rucni-alat'},
-  ];
+  const [headerMainNav, setHeaderMainNav] = useState<NavItem[]>([]);
+  const t = useTranslations("header");
 
   const dodatniLinkovi = [
-    { icon: <BadgePercent className="w-4 h-4" />, text: "Akcije", href: "/akcije" },
-    { icon: <LinkIcon className="w-4 h-4" />, text: "Novopristigli artikli", href: "/novo" },
-    { icon: <Heart className="w-4 h-4" />, text: "Omiljeni artikli", href: "/heart" },
-    { icon: <ShoppingCart className="w-4 h-4" />, text: "Korpa", href: "/korpa" },
-    { icon: <User className="w-4 h-4" />, text: "Moj profil", href: "/profil" },
+    { text: t('header-NavAkcije'), href: "/akcije", icon: <BadgePercent className="w-5 h-5" /> },
+    { text: t('header-NavNovoPristigli'), href: "/novo", icon: <LinkIcon className="w-5 h-5" /> },
+    { text: t('header-NavOmiljeniArtikli'), href: "/heart", icon: <Heart className="w-5 h-5" /> },
+    { text: t('header-NavKorpa'), href: "/korpa", icon: <ShoppingCart className="w-5 h-5" /> },
+    { text: t('header-NavMojProfil'), href: "/profil", icon: <User className="w-5 h-5" /> },
   ];
+
+  useEffect(() => {
+    const fetchNav = async () => {
+      try {
+        const api = process.env.NEXT_PUBLIC_API_ADDRESS;
+        const res = await fetch(`${api}/api/Web/KategorijeNavigacija`);
+        const data: any[] = await res.json();
+
+        const mapped = data.map((item) => ({
+          icon: <IconComponent name={item.naziv} />,
+          text: item.naziv,
+          href: `/proizvodi/kategorija/${encodeURIComponent(item.naziv)}`,
+          subMenuItems: item.deca?.length
+            ? item.deca.map((sub: any) => ({
+                text: sub.naziv,
+                href: `/proizvodi/kategorija/${encodeURIComponent(item.naziv)}/${encodeURIComponent(sub.naziv)}`
+              }))
+            : null
+        }));
+
+        setHeaderMainNav(mapped);
+      } catch (error) {
+        console.error("Greška pri fetch-ovanju navigacije:", error);
+      }
+    };
+
+    fetchNav();
+  }, []);
 
   const handleLinkClick = () => {
     setIsOpen(false);
@@ -52,11 +74,11 @@ const HamburgerMenu = () => {
       </SheetTrigger>
       <SheetContent className="w-full overflow-scroll">
         <SheetHeader>
-          <SheetTitle>Menu</SheetTitle>
+          <SheetTitle>Meni</SheetTitle>
           <Separator />
         </SheetHeader>
 
-        <div className="pl-2 flex flex-col gap-2 mb-[20px]">
+        <div className="pl-2 flex flex-col gap-2 mb-5">
           <Accordion type="single" collapsible className="flex flex-col gap-4">
             {headerMainNav.map((item, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
@@ -94,7 +116,7 @@ const HamburgerMenu = () => {
             ))}
           </Accordion>
 
-          <div className="flex flex-col gap-8 mt-2">
+          <div className="flex flex-col gap-4 mt-2">
             {dodatniLinkovi.map((item, index) => (
               <Link
                 key={`add-${index}`}
@@ -104,7 +126,6 @@ const HamburgerMenu = () => {
               >
                 {item.icon}
                 <span>{item.text}</span>
-                <div></div>
               </Link>
             ))}
           </div>
@@ -112,6 +133,6 @@ const HamburgerMenu = () => {
       </SheetContent>
     </Sheet>
   );
-}
+};
 
 export default HamburgerMenu;

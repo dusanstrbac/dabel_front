@@ -8,15 +8,18 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
-const formSchema = z.object({
-  lozinka: z.string().min(4, 'Lozinka mora imati najmanje 4 karaktera'),
-  novalozinka: z.string().min(6, 'Lozinka mora imati najmanje 6 karaktera'),
-  plozinka: z.string().min(6, 'Lozinka mora imati najmanje 6 karaktera'),
-});
 
 export default function Podesavanja() {
   const [isMounted, setIsMounted] = useState(false);
+  const t = useTranslations('promenaLozinke');
+
+  const formSchema = z.object({
+    lozinka: z.string().min(4, t('lozinka4karaktera')),
+    novalozinka: z.string().min(6, t('lozinka6karaktera')),
+    plozinka: z.string().min(6, t('lozinka6karaktera')),
+  });
 
   useEffect(() => {
     setIsMounted(true);
@@ -37,7 +40,7 @@ export default function Podesavanja() {
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
     if(!idPartnera) {
-      alert("Doslo je do greske. Molimo ulogujte se opet");
+      alert(t('greskaUlogujSeOpet'));
       return;
     }
 
@@ -77,8 +80,8 @@ export default function Podesavanja() {
   return (
     <div className="mx-auto max-w-md space-y-6 pt-10">
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold">Promena lozinke</h1>
-        <p className="text-gray-500">Popunite polja ispod da bi ste promenili lozinku</p>
+        <h1 className="text-3xl font-bold">{t('naslov')}</h1>
+        <p className="text-gray-500">{t('uputstvo')}</p>
       </div>
 
       <Form {...form}>
@@ -90,7 +93,7 @@ export default function Podesavanja() {
             render={({ field }) => (
               <FormItem>
                 <div className="flex justify-between items-center">
-                  <FormLabel>Trenutna lozinka</FormLabel>
+                  <FormLabel>{t('trenutnaLozinka')}</FormLabel>
                   <FormMessage />
                 </div>
                 <FormControl>
@@ -111,7 +114,7 @@ export default function Podesavanja() {
             render={({ field }) => (
               <FormItem>
                 <div className="flex justify-between items-center">
-                  <FormLabel>Nova lozinka</FormLabel>
+                  <FormLabel>{t('novaLozinka')}</FormLabel>
                   <FormMessage />
                 </div>
                 <FormControl>
@@ -132,7 +135,7 @@ export default function Podesavanja() {
             render={({ field }) => (
               <FormItem>
                 <div className="flex justify-between items-center">
-                  <FormLabel>Potvrda nove lozinke</FormLabel>
+                  <FormLabel>{t('potvrdaNoveLozinke')}</FormLabel>
                   <FormMessage />
                 </div>
                 <FormControl>
@@ -148,7 +151,7 @@ export default function Podesavanja() {
           />
 
           <Button type="submit" className="w-full cursor-pointer">
-            Sačuvaj
+            {t('sacuvaj')}
           </Button>
         </form>
       </Form>
