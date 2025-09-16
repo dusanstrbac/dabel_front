@@ -13,6 +13,7 @@ import {
 } from "./ui/table";
 import { Button } from "./ui/button";
 import Pagination from "./ui/pagination";
+import { useLocale, useTranslations } from "next-intl";
 
 interface myProps {
   title: string;
@@ -32,6 +33,8 @@ const UplateTable = ({ title }: myProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortKey, setSortKey] = useState<'datum' | 'cena'>('datum');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const t = useTranslations();
+  const locale = useLocale();
 
   const itemsPerPage = 15;
 
@@ -52,7 +55,7 @@ const UplateTable = ({ title }: myProps) => {
         );
 
         if (!res.ok) {
-          throw new Error("Greška pri učitavanju uplata.");
+          throw new Error(t('uplateTable.Greška pri učitavanju uplata'));
         }
 
         const data = await res.json();
@@ -85,9 +88,9 @@ const UplateTable = ({ title }: myProps) => {
   const ukupnoNaStrani = paginatedUplate.reduce((sum, u) => sum + u.potrazuje, 0);
   const ukupnoSve = uplate.reduce((sum, u) => sum + u.potrazuje, 0);
 
-  if (loading) return <div>Učitavanje podataka...</div>;
+  if (loading) return <div>{t('main.Učitavanje')}</div>;
   if (error) return <div>Greška: {error}</div>;
-  if (!uplate.length) return <div>Nema podataka.</div>;
+  if (!uplate.length) return <div>{t('uplateTable.Nema podataka')}</div>;
 
   return (
     <div className="flex flex-col gap-2 lg:gap-4 my-[20px] lg:items-center lg:justify-center">
@@ -100,7 +103,7 @@ const UplateTable = ({ title }: myProps) => {
               setSortKey(prev => (prev === 'datum' ? 'cena' : 'datum'))
             }
           >
-            Sortiraj po: {sortKey === 'datum' ? 'Datumu' : 'Ceni'}
+            {t('uplateTable.Sortiraj po')} {sortKey === 'datum' ? t('uplateTable.Datumu') : t('uplateTable.Ceni')}
           </Button>
           <Button
             variant="outline"
@@ -108,7 +111,7 @@ const UplateTable = ({ title }: myProps) => {
               setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'))
             }
           >
-            Redosled: {sortOrder === 'asc' ? 'Rastuće' : 'Opadajuće'}
+            {t('uplateTable.Redosled')} {sortOrder === 'asc' ? t('uplateTable.Rastuće') : t('uplateTable.Opadajuće')}
           </Button>
         </div>
       </div>
@@ -117,16 +120,16 @@ const UplateTable = ({ title }: myProps) => {
         <Table className="lg:w-[800px]">
           <TableHeader>
             <TableRow>
-              <TableHead className="lg:w-[200px] text-xl">Datum</TableHead>
-              <TableHead className="text-xl">Dokument</TableHead>
-              <TableHead className="text-xl text-right">Iznos</TableHead>
+              <TableHead className="lg:w-[200px] text-xl">{t('uplateTable.Datum')}</TableHead>
+              <TableHead className="text-xl">{t('uplateTable.Dokument')}</TableHead>
+              <TableHead className="text-xl text-right">{t('uplateTable.Iznos')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedUplate.map((uplata, index) => (
               <TableRow key={index} className="hover:odd:bg-gray-300">
                 <TableCell className="font-medium">
-                  {new Date(uplata.datumPristizanja).toLocaleDateString("sr-RS")}
+                  {new Date(uplata.datumPristizanja).toLocaleDateString(locale)}
                 </TableCell>
                 <TableCell>{`Dokument-${uplata.id}`}</TableCell>
                 <TableCell className="text-right">
@@ -137,12 +140,12 @@ const UplateTable = ({ title }: myProps) => {
           </TableBody>
           <TableFooter>
             <TableRow className="bg-gray-400 hover:bg-gray-400">
-              <TableCell className="font-medium">Ukupno po strani:</TableCell>
+              <TableCell className="font-medium">{t('uplateTable.Ukupno po strani')}</TableCell>
               <TableCell />
               <TableCell className="text-right">{ukupnoNaStrani.toFixed(2)}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="font-medium">Ukupno:</TableCell>
+              <TableCell className="font-medium">{t('uplateTable.Ukupno')}</TableCell>
               <TableCell />
               <TableCell className="text-right">{ukupnoSve.toFixed(2)}</TableCell>
             </TableRow>

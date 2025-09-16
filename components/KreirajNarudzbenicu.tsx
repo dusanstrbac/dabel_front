@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 interface KreirajNarudzbenicuProps {
@@ -14,6 +15,7 @@ interface KreirajNarudzbenicuProps {
 
 const KreirajNarudzbenicu = ({ artikli, partner, imeiPrezime, mestoIsporuke, grad, telefon, email, valid }: KreirajNarudzbenicuProps) => {
     const router = useRouter();
+    const t = useTranslations();
 
     const handleClick = () => {
         const validno = valid();
