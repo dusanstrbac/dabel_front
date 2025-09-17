@@ -1,3 +1,4 @@
+import { setCookie } from 'cookies-next';
 import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from "next/server";
 
@@ -21,6 +22,8 @@ const intlMiddleware = createMiddleware({
 export function middleware(request: NextRequest) {
   const { pathname, origin } = request.nextUrl;
   const token = request.cookies.get("AuthToken")?.value;
+  const languageCookie = request.cookies.get("NEXT_LOCALE");
+  const preferredLocaleCookie = request.cookies.get("preferredLocale");
 
   // Normalizuj putanju bez jezika
   const pathnameSegments = pathname.split("/");
@@ -29,6 +32,16 @@ export function middleware(request: NextRequest) {
   // Dozvoli pristup rutama koje ne zahtevaju autentifikaciju, bez obzira na jezik
   if (AUTH_EXEMPT_ROUTES.includes(normalizedPath) || pathname.startsWith("/api")) {
     return NextResponse.next();
+  }
+
+  if (!languageCookie || !preferredLocaleCookie) {
+    const response = NextResponse.next();
+    
+    // Postavi oba cookija na default jezik
+    response.cookies.set("NEXT_LOCALE", defaultLocale);
+    response.cookies.set("preferredLocale", defaultLocale);
+    
+    return response;
   }
 
   // 2. Proverite da li korisnik ima token.

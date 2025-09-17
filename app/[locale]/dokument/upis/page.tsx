@@ -6,6 +6,7 @@
     import { ComboboxAdrese } from "@/components/ui/ComboboxAdrese";
     import { Input } from "@/components/ui/input";
     import { LocationEdit } from "lucide-react";
+import { useTranslations } from "next-intl";
 
     const DokumentUpis = () => {
         const [artikli, setArtikli] = useState<AritkalKorpaType[]>([]);
@@ -63,7 +64,7 @@
         sessionStorage.setItem("ukupnoSaDostavom", JSON.stringify(ukupnoSaDostavom));
     }, [ukupnaCenaSaPDV, dostava, ukupnoSaDostavom]);
 
-    
+    const t = useTranslations();
     
 
     return (
@@ -91,12 +92,12 @@
                             </div>
 
                             <div className="flex flex-col md:col-span-2 w-full max-w-[600px] mt-5">
-                                <label className="font-semibold mb-1">Napomena</label>
+                                <label className="font-semibold mb-1">{t('dokumentUpis.Napomena')}</label>
                                 <Input
                                     type="text"
                                     value={napomena}
                                     onChange={(e) => setNapomena(e.target.value)}
-                                    placeholder="Unesite napomenu"
+                                    placeholder={t('dokumentUpis.Unesite napomenu')}
                                     className={`w-full border rounded-md p-2 "border-gray-300"`}
                                 />
                             </div>
@@ -104,22 +105,22 @@
 
 
                         <div className="flex flex-col w-full mt-8">
-                            <h1 className="text-center font-light text-2xl border-b pb-2">Podaci o partneru</h1>
+                            <h1 className="text-center font-light text-2xl border-b pb-2">{t('dokumentUpis.Podaci o partneru')}</h1>
                             {/* PARTNER */}
                             <div className="flex flex-col sm:flex-row items-center justify-between w-full px-5 my-8 ">
                                 <div>
-                                    <p><strong>Partner ID:</strong> {partner?.idPartnera}</p>
-                                    <p><strong>Naziv:</strong> {partner?.ime}</p>
-                                    <p><strong>PIB:</strong> {partner?.pib}</p>
-                                    <p><strong>Matični broj:</strong> {partner?.maticniBroj}</p>
-                                    <p><strong>Email:</strong> {partner?.email}</p>
+                                    <p><strong>{t('dokumentUpis.Partner ID')}</strong> {partner?.idPartnera}</p>
+                                    <p><strong>{t('dokumentUpis.Naziv')}</strong> {partner?.ime}</p>
+                                    <p><strong>{t('dokumentUpis.PIB')}</strong> {partner?.pib}</p>
+                                    <p><strong>{t('dokumentUpis.Matični broj')}</strong> {partner?.maticniBroj}</p>
+                                    <p><strong>{t('dokumentUpis.Email')}</strong> {partner?.email}</p>
                                 </div>
                                 <div>
-                                    <p><strong>Adresa:</strong> {partner?.adresa}</p>
-                                    <p><strong>Grad:</strong> {partner?.grad}</p>
-                                    <p><strong>ZIP:</strong> {partner?.zip}</p>
-                                    <p><strong>Delatnost:</strong> {partner?.delatnost}</p>
-                                    <p><strong>Telefon:</strong> {partner?.telefon}</p>
+                                    <p><strong>{t('dokumentUpis.Adresa')}</strong> {partner?.adresa}</p>
+                                    <p><strong>{t('dokumentUpis.Grad')}</strong> {partner?.grad}</p>
+                                    <p><strong>{t('dokumentUpis.ZIP')}</strong> {partner?.zip}</p>
+                                    <p><strong>{t('dokumentUpis.Delatnost')}</strong> {partner?.delatnost}</p>
+                                    <p><strong>{t('dokumentUpis.Telefon')}</strong> {partner?.telefon}</p>
                                 </div>
                             </div>
                         </div>
@@ -127,10 +128,10 @@
                     </div>
                 </div>
 
-                {/* ARTIkLI */}
+                {/* Artikli */}
                 <div className="flex flex-col w-full gap-4">
                     {artikli.length === 0 ? (
-                        <p className="italic">Nema artikala u korpi.</p>
+                        <p className="italic">{t('dokumentUpis.Nema artikala u korpi')}</p>
                     ) : (
                         <div className="flex flex-col max-h-[550px] overflow-y-auto pr-2 gap-5 ">
                         {artikli.map((artikal) => {
@@ -155,13 +156,13 @@
                                             )}
 
                                         <div className="flex flex-col lg:flex-row gap-1 justify-between text-gray-400 max-w-[400px] text-sm">
-                                            <p>Šifra: {artikal.idArtikla}</p>
-                                            <p>Količina: {artikal.kolicina}</p> 
+                                            <p>{t('dokumentUpis.Šifra')} {artikal.idArtikla}</p>
+                                            <p>{t('dokumentUpis.Količina')} {artikal.kolicina}</p> 
                                             {artikal.koriscenaCena !== undefined && (
-                                                <p>Cena: {artikal.koriscenaCena.toLocaleString("sr-RS")} RSD</p>
+                                                <p>{t('dokumentUpis.Cena')} {artikal.koriscenaCena.toLocaleString("sr-RS")} RSD</p>
                                             )}
                                             
-                                            <p>PDV: 20%</p>
+                                            <p>{t('dokumentUpis.PDV')} 20%</p>
                                             {/* <p>Pakovanje: {artikal.pakovanje}</p> */}
                                         </div>
                                     </div>
@@ -177,7 +178,7 @@
                         <div className="max-w-[400px] w-full">
                             <div className="flex items-center justify-between">
                                 <p className="font-medium">{pravaDostava > 0
-                                                            ? `Ukupno`
+                                                            ? t('dokumentUpis.Ukupno')
                                                             : ""}
                                 </p>
                                 <p className="text-gray-500">
@@ -188,16 +189,16 @@
                             </div>
                             
                             <div className="flex items-center justify-between text-base">
-                                <p className="font-medium">Dostava:</p>
+                                <p className="font-medium">{t('dokumentUpis.Dostava')}</p>
                                 <p className="text-right text-gray-500">
                                     {pravaDostava > 0
                                                 ? `${pravaDostava.toLocaleString("sr-RS")} RSD`
-                                                : "Besplatna dostava"}
+                                                : t('dokumentUpis.Besplatna dostava')}
                                 </p>
                             </div>
                             
                             <div className="flex items-center justify-between text-lg font-bold mt-2">
-                                <p>Ukupno:</p>
+                                <p>{t('dokumentUpis.Ukupno')}</p>
                                 <p className="text-2xl">{ukupnoSaDostavom.toLocaleString("sr-RS")} RSD</p>
                             </div>
                         </div>

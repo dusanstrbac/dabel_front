@@ -1,4 +1,89 @@
 {
+  "main": {
+    "Nema artikala koji odgovaraju izabranim filterima": "Nema artikala koji odgovaraju izabranim filterima.",
+    "Poslednja kupovina": "Poslednja kupovina:",
+    "Planirani datum pristizanja": "Planirani datum pristizanja:",
+    "Omiljeni Artikli": "Omiljeni Artikli",
+    "Učitavanje": "Učitavanje..."
+  },
+  "Paginacija": {
+    "Prethodna": "Prethodna",
+    "Sledeca": "Sledeća"
+  },
+  "dokumentUpis": {
+    "Napomena": "Napomena",
+    "Unesite napomenu": "Unesite napomenu",
+    "Podaci o partneru": "Podaci o partneru",
+    "Partner ID": "ID Partnera",
+    "Naziv": "Naziv:",
+    "PIB": "PIB:",
+    "Matični broj": "Matični broj:",
+    "Email": "Email:",
+    "Adresa": "Adresa:",
+    "Grad": "Grad:",
+    "ZIP": "ZIP:",
+    "Delatnost": "Delatnost:",
+    "Telefon": "Telefon:",
+    "Nema artikala u korpi": "Nema artikala u korpi.",
+    "Šifra": "Šifra",
+    "Količina": "Količina:",
+    "Cena": "Cena:",
+    "PDV": "PDV:",
+    "Ukupno": "Ukupno",
+    "Dostava": "Dostava:",
+    "Besplatna dostava": "Besplatna dostava"
+  },
+  "kreirajNarudzbenicu": {
+    "Kreiranje": "Kreiranje...",
+    "Postoje neplaćene fakture": "Postoje neplaćene fakture",
+    "Kreiraj Narudžbenicu": "Kreiraj Narudžbenicu"
+  },
+  "uplateTable": {
+    "Greška pri učitavanju uplata": "Greška pri učitavanju uplata.",
+    "Nema podataka": "Nema podataka.",
+    "Datum": "Datum",
+    "Dokument": "Dokument",
+    "Iznos": "Iznos",
+    "Ukupno po strani": "Ukupno po strani:",
+    "Ukupno": "Ukupno:",
+    "Redosled": "Redosled:",
+    "Sortiraj po": "Sortiraj po:",
+    "Datumu": "Datumu",
+    "Ceni": "Ceni",
+    "Rastuće": "Rastuće",
+    "Opadajuće": "Opadajuće"
+  },
+  "sortiranjeButton": {
+    "Sortiraj": "Sortiraj",
+    "CenaRastuće": "Cena: Rastuće",
+    "CenaOpadajuće": "Cena: Opadajuće",
+    "NazivA-Z": "Naziv: A-Z",
+    "NazivZ-A": "Naziv: Z-A"
+  },
+  "PrebaciUKorpu": {
+    "Greska": "Greška",
+    "NemaArtikala": "Niste uneli ni jedan artikal",
+    "NepostojeciArtikal": "Artikal ne postoji u bazi podataka",
+    "NemaNaStanju": "Nekih artikala nema dovoljno na stanju",
+    "zahteva": "zahteva",
+    "a dostupno je": "a dostupno je",
+    "Artikli su uspešno dodati u korpu": "Artikli su uspešno dodati u korpu",
+    "Ukupno dodatih": "Ukupno dodatih:",
+    "Prebaci u korpu": "Prebaci u korpu"
+  },
+  "artikalFilter": {
+    "cenaNaslov": "Cena (RSD)",
+    "Filteri": "Filteri",
+    "Prikaži artikle na stanju": "Prikaži artikle na stanju",
+    "Resetuj filtere": "Resetuj filtere",
+    "Jedinica Mere": "Jedinica mere",
+    "Robna marka": "Robna marka",
+    "Boja": "Boja",
+    "Materijal": "Materijal",
+    "Model": "Model",
+    "Pakovanje": "Pakovanje",
+    "Upotreba": "Upotreba"
+  },
   "profile": {
     "loading": "Učitavanje podataka...",
     "error": "Greška prilikom učitavanja korisnika",
@@ -313,7 +398,44 @@
   },
   "dokument": {
     "Vaša porudžbina je uspešno evidentirana": "Vaša porudžbina je uspešno evidentirana"
-  }
+  },
   
-
+  "korpa":{
+    "vecaKolOdDostupne": "Uneta količina je veća od dostupne na stanju.",
+    "greskaUcitavanje": "Greška pri učitavanju artikala:",
+    "nemaKorisnika": "Nema korisnika iz tokena.",
+    "neplaceneFakture": "Imate neplaćene fakture, pa vam je poručivanje zabranjeno",
+    "greskaFetchPartnera": "Greška pri fetchovanju partnera:",
+    "greskaDobavljanjeDozvola": "Greška pri dobavljanju dozvola:",
+    "pregledKorpe": "Pregled korpe",
+    "isprazniKorpu": "Isprazni korpu",
+    "nazivArtikla": "Naziv artikla",
+    "jm": "JM",
+    "cena": "Cena",
+    "pakovanje": "Pakovanje",
+    "trebovanaKolicina": "Trebovana količina",
+    "kolicina": "Količina",
+    "rabat": "Rabat",
+    "iznos": "Iznos",
+    "iznosPDV": "Iznos sa PDV",
+    "praznaKorpa": "Nijedan artikal nije dodat u korpu.",
+    "sifra": "Šifra:",
+    "barkod": "BarKod:",
+    "ukloni": "Ukloni",
+    "ukupno": "Ukupno:",
+    "pdv": "sa PDV",
+    "bezPDV": "bez PDV",
+    "naruci": "Naruči"
+  },
+  "promenaLozinke":{
+    "naslov": "Promena lozinke",
+    "uputstvo": "Popunite polja ispod da bi ste promenili lozinku",
+    "trenutnaLozinka": "Trenutna lozinka",
+    "novaLozinka": "Nova lozinka",
+    "potvrdaNoveLozinke": "Potvrda nove lozinke",
+    "sacuvaj": "Sačuvaj",
+    "greskaUlogujSeOpet": "Doslo je do greske. Molimo ulogujte se opet",
+    "lozinka4karaktera": "Lozinka mora imati najmanje 4 karaktera",
+    "lozinka6karaktera": "Lozinka mora imati najmanje 6 karaktera"
+  }
 }

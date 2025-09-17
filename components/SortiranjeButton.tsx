@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from "next-intl";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 type SortKey = 'cena' | 'naziv';
@@ -12,11 +13,12 @@ interface Props {
 }
 
 const SortiranjeButton = ({ sortKey, sortOrder, onSortChange }: Props) => {
+  const t = useTranslations();
   return (
     <Popover>
       <PopoverTrigger asChild>
         <button className="text-sm font-semibold border px-3 py-1 rounded-md hover:bg-gray-100">
-          Sortiraj
+          {t('sortiranjeButton.Sortiraj')}
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-48">
@@ -25,26 +27,26 @@ const SortiranjeButton = ({ sortKey, sortOrder, onSortChange }: Props) => {
             onClick={() => onSortChange('cena', 'asc')}
             className="text-left hover:underline"
           >
-            Cena: Rastuće {sortKey === 'cena' && sortOrder === 'asc' && '✓'}
+            {t('sortiranjeButton.CenaRastuće')} {sortKey === 'cena' && sortOrder === 'asc' && '✓'}
           </button>
           <button
             onClick={() => onSortChange('cena', 'desc')}
             className="text-left hover:underline"
           >
-            Cena: Opadajuće {sortKey === 'cena' && sortOrder === 'desc' && '✓'}
+            {t('sortiranjeButton.CenaOpadajuće')} {sortKey === 'cena' && sortOrder === 'desc' && '✓'}
           </button>
 
           <button
             onClick={() => onSortChange('naziv', 'asc')}
             className="text-left hover:underline"
           >
-            Naziv: A-Z {sortKey === 'naziv' && sortOrder === 'asc' && '✓'}
+            {t('sortiranjeButton.NazivA-Z')}{sortKey === 'naziv' && sortOrder === 'asc' && '✓'}
           </button>
           <button
             onClick={() => onSortChange('naziv', 'desc')}
             className="text-left hover:underline"
           >
-            Naziv: Z-A {sortKey === 'naziv' && sortOrder === 'desc' && '✓'}
+            {t('sortiranjeButton.NazivZ-A')} {sortKey === 'naziv' && sortOrder === 'desc' && '✓'}
           </button>
         </div>
       </PopoverContent>

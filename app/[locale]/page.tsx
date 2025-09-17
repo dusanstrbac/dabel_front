@@ -24,7 +24,7 @@ export default function Home() {
             <PoruciPonovo />
             <Najprodavanije />
           </div>
-            <Footer />
+          <Footer/>
         </main>
       </Suspense>
     </>

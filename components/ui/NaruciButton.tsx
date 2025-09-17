@@ -1,9 +1,11 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { Button } from "./button";
+import { useTranslations } from "next-intl";
 
 const NaruciButton = ({ disabled, reason }: { disabled?: boolean; reason?: string }) => {
   const router = useRouter();
+  const t = useTranslations();
 
   const handleOrderClick = () => {
     if (!disabled) {
@@ -19,7 +21,7 @@ const NaruciButton = ({ disabled, reason }: { disabled?: boolean; reason?: strin
         disabled={disabled}
         onClick={handleOrderClick}  // Dodaj handler za klik
       >
-        Naruči
+        {t('korpa.naruci')}
       </Button>
 
       {disabled && reason && (

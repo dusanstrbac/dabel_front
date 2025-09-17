@@ -3,19 +3,13 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import ArticleCard from "./ArticleCard";
 import ArtikalFilter from "./ArtikalFilter";
-import {
-  Paginacija,
-  PaginacijaSadrzaj,
-  PaginacijaStavka,
-  PaginacijaLink,
-  PaginacijaPrethodna,
-  PaginacijaSledeca,
-} from "@/components/ui/pagination";
+import { Paginacija, PaginacijaSadrzaj, PaginacijaStavka, PaginacijaLink, PaginacijaPrethodna, PaginacijaSledeca } from "@/components/ui/pagination";
 import { ArtikalType, ListaArtikalaProps } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { useTranslations } from "next-intl";
 
 const ListaArtikala = ({
-  artikli, // Ovo su svi artikli (nefiltrirani)
+  artikli,
   kategorija,
   podkategorija,
   currentPage,
@@ -27,7 +21,8 @@ const ListaArtikala = ({
   const MemoizedArticleCard = React.memo(ArticleCard);
   const [noResults, setNoResults] = useState(false);
   const [filtriraniArtikli, setFiltriraniArtikli] = useState<ArtikalType[]>(artikli);
-  
+  const t = useTranslations();
+
   // Osveži filtrirane artikle kada se promene originalni artikli
   useEffect(() => {
     setFiltriraniArtikli(artikli);
@@ -89,7 +84,7 @@ const ListaArtikala = ({
         </div>
 
         {noResults && (
-          <p className="text-center py-5 text-red-500">Nema artikala koji odgovaraju izabranim filterima.</p>
+          <p className="text-center py-5 text-red-500">{t('main.Nema artikala koji odgovaraju izabranim filterima')}</p>
         )}
 
         {brojStranica > 1 && (
