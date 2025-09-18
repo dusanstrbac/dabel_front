@@ -300,7 +300,10 @@
     "Isključi kameru za skeniranje": "Isključi kameru za skeniranje",
     "Uključi kameru za skeniranje": "Uključi kameru za skeniranje",
     "Skeniranje barkoda": "Skeniranje barkoda",
-    "Preuzmi šablon": "Preuzmi šablon"
+    "Preuzmi šablon": "Preuzmi šablon",
+    "Uvezi CSV": "Uvezi CSV",
+    "Sifra": "Šifra",
+    "Kolicina": "Količina"
   },
   "narudzbenica": {
     "Narudžbenica": "Narudžbenica",
@@ -437,5 +440,29 @@
     "greskaUlogujSeOpet": "Doslo je do greske. Molimo ulogujte se opet",
     "lozinka4karaktera": "Lozinka mora imati najmanje 4 karaktera",
     "lozinka6karaktera": "Lozinka mora imati najmanje 6 karaktera"
+  },
+  "Logovanje": {
+    "Prijava": "Prijava",
+    "Unesite svoje podatke za pristup nalogu": "Unesite svoje podatke za pristup nalogu",
+    "Korisničko ime": "Korisničko ime",
+    "Unesite korisničko ime": "Unesite korisničko ime",
+    "Lozinka": "Lozinka",
+    "Nemate nalog": "Nemate nalog?",
+    "Registrujte se besplatno": "Registrujte se besplatno",
+    "Prijavljivanje": "Prijavljivanje...",
+    "Prijavi se": "Prijavi se",
+    "Korisničko ime je obavezno" : "Korisničko ime je obavezno"
+  },
+  "Registracija": {
+    "Unesite validan email": "Unesite validan email",
+    "Maticni broj mora imati tačno 8 cifara": "Maticni broj mora imati tačno 8 cifara",
+    "Aktivirajte nalog": "Aktivirajte nalog",
+    "Unesite svoje podatke za pristup nalogu": "Unesite svoje podatke za pristup nalogu",
+    "Unesite email": "Unesite email",
+    "Unesite Matični broj": "Unesite Matični broj",
+    "Već posedujete nalog?": "Već posedujete nalog?",
+    "Prijavite se ovde": "Prijavite se ovde",
+    "Šaljem": "Šaljem...",
+    "Pošalji link za aktivaciju": "Pošalji link za aktivaciju"
   }
 }

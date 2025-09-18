@@ -45,12 +45,20 @@ export function middleware(request: NextRequest) {
   }
 
   // 2. Proverite da li korisnik ima token.
-  if (!token) {
-    // Ako nema token, preusmerite na stranicu za prijavu.
-    const loginUrl = new URL(`/${pathnameSegments[1] || defaultLocale}/login`, origin);
-    loginUrl.searchParams.set("redirectTo", pathname);
-    return NextResponse.redirect(loginUrl);
-  }
+// middleware.js
+
+if (!token) {
+  const redirectTo = pathname;
+
+  const loginUrl = new URL(`/${pathnameSegments[1] || defaultLocale}/login`, origin);
+  loginUrl.searchParams.set("redirectTo", redirectTo);
+
+  const response = NextResponse.redirect(loginUrl);
+  response.cookies.set("poslednjaRuta", redirectTo, { path: "/" });
+
+  return response;
+}
+
 
   // 3. Ako korisnik ima token, prosledite zahtev na next-intl middleware.
   // Next-intl će se pobrinuti za sve ostalo (preusmeravanje, dodavanje prefiksa, itd.).
