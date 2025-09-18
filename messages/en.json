@@ -437,5 +437,8 @@
     "greskaUlogujSeOpet": "An error occurred. Please log in again",
     "lozinka4karaktera": "Password must have at least 4 characters",
     "lozinka6karaktera": "Password must have at least 6 characters"
+  },
+  "najprodavanije": {
+    "naslov": "Best sellers"
   }
 }

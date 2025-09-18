@@ -437,5 +437,8 @@
     "greskaUlogujSeOpet": "Došlo je do greške. Molimo ulogujte se ponovo",
     "lozinka4karaktera": "Lozinka mora imati najmanje 4 karaktera",
     "lozinka6karaktera": "Lozinka mora imati najmanje 6 karaktera"
+  },
+  "najprodavanije": {
+    "naslov": "Najprodavanije"
   }
 }
