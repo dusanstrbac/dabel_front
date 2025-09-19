@@ -1,4 +1,4 @@
-import { setCookie } from 'cookies-next';
+import { useLocale } from 'next-intl';
 import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from "next/server";
 
@@ -30,7 +30,7 @@ export function middleware(request: NextRequest) {
   const normalizedPath = "/" + pathnameSegments.slice(2).join("/");
 
   // Dozvoli pristup rutama koje ne zahtevaju autentifikaciju, bez obzira na jezik
-  if (AUTH_EXEMPT_ROUTES.includes(normalizedPath) || pathname.startsWith("/api")) {
+  if (AUTH_EXEMPT_ROUTES.includes(normalizedPath) || pathname.startsWith("/api") || normalizedPath.startsWith("/register")) {
     return NextResponse.next();
   }
 
@@ -40,7 +40,6 @@ export function middleware(request: NextRequest) {
     // Postavi oba cookija na default jezik
     response.cookies.set("NEXT_LOCALE", defaultLocale);
     response.cookies.set("preferredLocale", defaultLocale);
-    
     return response;
   }
 
@@ -49,11 +48,10 @@ export function middleware(request: NextRequest) {
 
 if (!token) {
   const redirectTo = pathname;
-
   const loginUrl = new URL(`/${pathnameSegments[1] || defaultLocale}/login`, origin);
-  loginUrl.searchParams.set("redirectTo", redirectTo);
-
   const response = NextResponse.redirect(loginUrl);
+  
+  loginUrl.searchParams.set("redirectTo", redirectTo);
   response.cookies.set("poslednjaRuta", redirectTo, { path: "/" });
 
   return response;

@@ -281,7 +281,8 @@
     "header-PretragaProizvodaLabel": "Search",
     "header-PretragaProizvodaNemaRezultata": "No results.",
     "header-SkeniranjeBarkodaLabel": "Scan barcode",
-    "header-SkeniranjeBarKodaZatvoriButton": "Close"
+    "header-SkeniranjeBarKodaZatvoriButton": "Close",
+    "header-Omiljeno": "Favorite"
   },
   "narudzbenica": {
     "Narudžbenica": "Order form",

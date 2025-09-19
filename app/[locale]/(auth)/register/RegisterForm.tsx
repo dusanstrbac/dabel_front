@@ -7,7 +7,7 @@ import { useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import LanguageSelector from "@/components/LanguageSelector";
 
 
@@ -17,6 +17,7 @@ export default function PosaljiLinkZaAktivacijuForm() {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations();
+  const locale = useLocale();
 
   const emailSchema = z.object({
     email: z.string().email(t('Registracija.Unesite validan email')),
@@ -84,7 +85,7 @@ export default function PosaljiLinkZaAktivacijuForm() {
         {form.formState.errors.mb && (
           <p className="text-red-600 text-sm">{form.formState.errors.mb.message}</p>
         )}
-        <p className="text-sm float-right font-semibold">{t('Registracija.Već posedujete nalog?')} <Link href={'/login'} className="font-normal text-blue-500 hover:text-blue-300">{t('Registracija.Prijavite se ovde')}</Link></p>
+        <p className="text-sm float-right font-semibold">{t('Registracija.Već posedujete nalog?')} <Link href={`/${locale}/login`} className="font-normal text-blue-500 hover:text-blue-300">{t('Registracija.Prijavite se ovde')}</Link></p>
         <Button
           type="submit"
           disabled={loading}

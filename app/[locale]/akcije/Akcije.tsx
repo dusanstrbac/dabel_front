@@ -6,12 +6,14 @@ import ListaArtikala from '@/components/ListaArtikala';
 import SortiranjeButton from '@/components/SortiranjeButton';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 import { ArtikalFilterProp, ArtikalType } from '@/types/artikal';
+import { useTranslations } from 'next-intl';
 
 type SortKey = 'cena' | 'naziv';
 type SortOrder = 'asc' | 'desc';
 
 const Akcije = () => {
   const router = useRouter();
+  const t = useTranslations();
   const searchParams = useSearchParams();
 
   const [akcije, setAkcije] = useState<ArtikalType[]>([]);
@@ -138,7 +140,7 @@ const Akcije = () => {
       </div>
 
       {loading ? (
-        <p className="text-center mt-4">Učitavanje...</p>
+        <p className="text-center mt-4">{t('main.Učitavanje')}</p>
       ) : error ? (
         <p className="text-center text-red-600 mt-4">{error}</p>
       ) : (

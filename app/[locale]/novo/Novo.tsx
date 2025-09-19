@@ -5,6 +5,7 @@ import { ArtikalAtribut, ArtikalFilterProp, ArtikalType } from "@/types/artikal"
 import { useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { useTranslations } from "next-intl";
 
 type SortKey = 'cena' | 'naziv';
 type SortOrder = 'asc' | 'desc';
@@ -15,6 +16,7 @@ const Novopristigli = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
+  const t = useTranslations();
 
   const pageSize = 8;
 
@@ -154,7 +156,7 @@ const Novopristigli = () => {
       </div>
 
       {loading ? (
-        <p className="text-center mt-4">Učitavanje...</p>
+        <p className="text-center mt-4">{t('main.Učitavanje')}</p>
       ) : error ? (
         <p className="text-center text-red-600 mt-4">{error}</p>
       ) : (

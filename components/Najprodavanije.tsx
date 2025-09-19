@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import AddToCartButton from "./AddToCartButton";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { useTranslations } from "next-intl";
 
 type ArtikalIstorijaDTO = {
   idPartnera: string;
@@ -21,6 +22,7 @@ const Najprodavanije = () => {
   const [cart, setCart] = useState<Record<string, { kolicina: number }> | null>(null);
   const router = useRouter();
   const korisnik = dajKorisnikaIzTokena();
+  const t = useTranslations();
 
   useEffect(() => {
     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
@@ -55,7 +57,7 @@ const Najprodavanije = () => {
             <h2 className="text-3xl font-bold mb-6">Najprodavanije</h2>
 
             {loading ? (
-            <p className="text-gray-500">Učitavanje...</p>
+            <p className="text-gray-500">{t('main.Učitavanje')}</p>
             ) : artikli.length === 0 ? (
             <p className="text-gray-500">Nema prethodnih porudžbina.</p>
             ) : (

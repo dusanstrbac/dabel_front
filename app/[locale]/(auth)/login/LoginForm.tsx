@@ -13,7 +13,7 @@ import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import LanguageSelector from "@/components/LanguageSelector";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -21,6 +21,7 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations();
+  const locale = useLocale();
 
   // Validation schema
   const formSchema = z.object({
@@ -135,7 +136,7 @@ export default function LoginForm() {
               </FormItem>
             )}
           />
-          <p className="float-right text-sm font-semibold">{t('Logovanje.Nemate nalog')} <Link href={'/register'} className="font-normal text-blue-500 hover:text-blue-300">{t('Logovanje.Registrujte se besplatno')}</Link></p>
+          <p className="float-right text-sm font-semibold">{t('Logovanje.Nemate nalog')} <Link href={`/${locale}/register`} className="font-normal text-blue-500 hover:text-blue-300">{t('Logovanje.Registrujte se besplatno')}</Link></p>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <>

@@ -45,6 +45,8 @@ export default function Header({ currentLocale }: HeaderProps) {
     { text: t('header-NavBrzoNarucivanje'), href: "/BrzoNarucivanje", icon: <Smartphone className="w-5 h-5" /> },
     { text: t('header-NavKorpa'), href: "/korpa", icon: <ShoppingCart className="w-5 h-5" /> },
     { text: t('header-NavKontakt'), href: "/kontakt", icon: <Phone className="w-5 h-5" /> },
+    { text: t('header-Omiljeno'), href: "/heart", icon: <Heart className="w-5 h-5" /> },
+
   ];
 
   useEffect(() => {
