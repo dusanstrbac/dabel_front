@@ -1,6 +1,7 @@
 import { useLocale } from 'next-intl';
 import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from "next/server";
+import { Locale } from './types/locale';
 
 // Lista podržanih jezika i podrazumevani jezik
 const locales = ['sr', 'en', 'mk', 'al', 'me'];
@@ -22,8 +23,7 @@ const intlMiddleware = createMiddleware({
 export function middleware(request: NextRequest) {
   const { pathname, origin } = request.nextUrl;
   const token = request.cookies.get("AuthToken")?.value;
-  const languageCookie = request.cookies.get("NEXT_LOCALE");
-  const preferredLocaleCookie = request.cookies.get("preferredLocale");
+  const languageCookie = request.cookies.get("NEXT_JEZIK");
 
   // Normalizuj putanju bez jezika
   const pathnameSegments = pathname.split("/");
@@ -34,17 +34,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (!languageCookie || !preferredLocaleCookie) {
+  if (!languageCookie) {
     const response = NextResponse.next();
-    
-    // Postavi oba cookija na default jezik
-    response.cookies.set("NEXT_LOCALE", defaultLocale);
-    response.cookies.set("preferredLocale", defaultLocale);
+    const defaultJezik = 'sr'
+
+    // Postavi cookie na default jezik
+    response.cookies.set("NEXT_JEZIK", defaultJezik);
     return response;
   }
 
   // 2. Proverite da li korisnik ima token.
-// middleware.js
 
 if (!token) {
   const redirectTo = pathname;

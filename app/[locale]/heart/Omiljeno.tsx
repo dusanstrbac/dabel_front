@@ -23,8 +23,6 @@ const OmiljeniArtikli = () => {
   const [error, setError] = useState<string | null>(null);
   const locale = useLocale();
 
-  console.log(`Lokale u Omiljeno.tsx`, locale)
-
   const pageSize = 8;
 
   // Čitanje parametara iz URL-a sa default vrednostima
@@ -179,12 +177,6 @@ const handlePageChange = (newPage: number) => {
   };
 
   const t = useTranslations();
-
-  console.log('Artikli:', artikli);
-console.log('Sortirani artikli:', sortiraniArtikli);
-console.log('Error:', error);
-console.log('Loading:', loading);
-
 
   return (
     <div className="lg:p-4">

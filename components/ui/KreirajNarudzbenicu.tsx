@@ -74,7 +74,6 @@ import { useTranslations } from "next-intl";
                     pdv: value.pdv.toString() || "20",
                 })),
             };
-            console.log('peyload skroz ceo', payload);
 
             try {
                     const res = await fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Dokument/UpisiDokument`, {
@@ -112,7 +111,6 @@ import { useTranslations } from "next-intl";
                         //ovde dobijam posle posta da su "originalna cena" ista kao za poslednji artikal
                         //sto je veoma lose, treba da svaki artikal bude svoju cenu, a svako ima svoju posebnu koriscenu i originalnu cenu!
                         //ne znam zasto se ovo desava wtf
-                console.log('dobijeno iz DajDokumentPoBroju', dokument);
 
                     } catch (err) {
                         console.error("❌ Greška pri fetchovanju dokumenta:", err);

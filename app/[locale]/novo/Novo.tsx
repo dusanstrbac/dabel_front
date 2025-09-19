@@ -77,7 +77,6 @@ const Novopristigli = () => {
   // Sortiranje artikala memoizovano
   const sortiraniArtikli = useMemo(() => {
     const kopija = [...artikli];
-    console.log(...artikli);
     kopija.sort((a, b) => {
       let aVal: string | number = '';
       let bVal: string | number = '';

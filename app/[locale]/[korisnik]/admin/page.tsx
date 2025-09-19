@@ -363,7 +363,6 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
       
       const responseText = await response.text();
 
-      console.log('Server response:', responseText);
 
       if (!response.ok) {
         throw new Error(responseText || 'Greška pri ažuriranju dozvole');

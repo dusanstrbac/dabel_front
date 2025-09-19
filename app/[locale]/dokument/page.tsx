@@ -42,7 +42,6 @@ const DokumentPage = () => {
         if (!res.ok) throw new Error('Greška pri učitavanju dokumenta.');
 
         const data = await res.json();
-        console.log(data);
       } catch (err: any) {
         console.log(err.message);
       } finally {
@@ -78,7 +77,6 @@ const DokumentPage = () => {
 
       if (!korpaPodaciString || !docInfoString) return; 
 
-      console.log(korpaPodaciString);
 
       const korpaPodaci = JSON.parse(korpaPodaciString);
       const docInfo = JSON.parse(docInfoString);
@@ -90,9 +88,6 @@ const DokumentPage = () => {
         ...stavka,
         rabat: partner?.partnerRabat?.rabat ?? 0,
       }));
-
-      console.log(`Partner ${partner}`);
-
 
       const dokument: DokumentInfo = {
         brojDokumenta: docInfo.brojDokumenta,

@@ -137,7 +137,6 @@ const Korpa = () => {
           const data = await res.json();
           const fPartner = data[0] as KorisnikPodaciType;
           setPartner(fPartner);
-          console.log(data);
 
           if (fPartner.partnerRabat.rabat) {
             setRabatPartnera(fPartner.partnerRabat.rabat);
@@ -312,7 +311,6 @@ const Korpa = () => {
     fetchDozvole();
   }, [korisnik, apiAddress]);
 
-  console.log(nerealizovanIznos);
   const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina;
 
   

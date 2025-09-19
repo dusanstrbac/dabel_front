@@ -94,7 +94,6 @@ const Akcije = () => {
   }, [sortiraneAkcije, currentPage, pageSize]);
 
   const totalPages = Math.ceil(sortiraneAkcije.length / pageSize);
-  console.log(totalPages);
 
   // Promena stranice
   const handlePageChange = (newPage: number) => {

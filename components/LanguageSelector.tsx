@@ -11,9 +11,10 @@ const LanguageSelector = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
-  // 🔍 Izvuci locale iz URL-a (primer: /en/about -> "en")
   const segments = pathname.split('/');
   const localeFromPath = segments[1] as Locale;
+
+  console.log(`Locale from path`, localeFromPath);
 
   // Pronađi trenutno selektovani jezik
   const selectedLanguage =
@@ -64,7 +65,7 @@ const LanguageSelector = () => {
                     key={lang.code}
                     href={newPath}
                     onClick={() => {
-                      setCookie('preferredLocale', lang.code);
+                      setCookie('NEXT_JEZIK', lang.code);
                       setIsOpen(false);
                     }}
                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
