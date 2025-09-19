@@ -160,7 +160,7 @@ const DokumentPage = () => {
   return (
     <div className="mx-auto bg-white text-black p-10 print:p-0">
       <div className="flex items-center justify-between mb-5">
-        <Image src="/Dabel-logo-2.png" alt="Dabel Logo" width={150} height={150} />
+        <Image src="/Dabel-logo-2.jpg" alt="Dabel Logo" width={150} height={150} />
         <button onClick={handlePrint} className="text-blue-600 underline hover:text-blue-800 no-print">
           {t('brojDokumenta.Štampaj')}
         </button>
