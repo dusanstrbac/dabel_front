@@ -24,6 +24,7 @@ export function middleware(request: NextRequest) {
   const { pathname, origin } = request.nextUrl;
   const token = request.cookies.get("AuthToken")?.value;
   const languageCookie = request.cookies.get("NEXT_JEZIK");
+  const nextJezik = request.cookies.get("NEXT_LOCALE")
 
   // Normalizuj putanju bez jezika
   const pathnameSegments = pathname.split("/");
@@ -41,6 +42,10 @@ export function middleware(request: NextRequest) {
     // Postavi cookie na default jezik
     response.cookies.set("NEXT_JEZIK", defaultJezik);
     return response;
+  }
+
+  if(nextJezik !== languageCookie) {
+    nextJezik === languageCookie; // Ukoliko su razliciti kolacici, postavljamo ih na istu vrednost
   }
 
   // 2. Proverite da li korisnik ima token.
