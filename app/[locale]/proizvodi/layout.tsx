@@ -13,7 +13,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
   return (
     <div>
-      <Header currentLocale={locale} />
+      <Header />
       <CartProvider>
         {children}
       </CartProvider>

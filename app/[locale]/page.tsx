@@ -19,7 +19,7 @@ export default function Home() {
   return (
     <>
       <Suspense fallback={<div>{t('main.Učitavanje')}</div>}>
-        <Header currentLocale={locale} />
+        <Header />
         <main className="flex flex-col items-center gap-2">
           <HeroImage />
           <div className="w-full px-2">

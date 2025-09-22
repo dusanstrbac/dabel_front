@@ -49,6 +49,13 @@ const Akcije = () => {
           `${apiAddress}/api/Artikal/PartnerAkcije?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`
         );
 
+        if (res.status === 404) {
+          setAkcije([]); // Vraca prazan objekat
+          setError('Trenutno ne postoje akcije za vas');
+          setLoading(false);
+          return;
+        }
+
         if (!res.ok) throw new Error('Greška pri preuzimanju akcija');
 
         const data = await res.json();

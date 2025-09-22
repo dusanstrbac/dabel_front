@@ -16,7 +16,7 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
   return (
     <div>
       <div className="px-4">
-        <Header currentLocale={locale} />
+        <Header />
         {children}
       </div>
       <Footer />

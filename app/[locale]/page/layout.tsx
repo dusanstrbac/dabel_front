@@ -13,7 +13,7 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
 
   return (
     <div>
-      <Header currentLocale={locale} />
+      <Header />
       <div className="lg:px-4">
         {children}
       </div>
