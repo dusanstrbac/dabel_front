@@ -44,7 +44,7 @@ const UsloviKoriscenja = () => {
 
             <h2 className="text-xl font-semibold mt-8 mb-3">{t('usloviKoriscenja-PodaciOKompanijiNaslov')}</h2>
 
-            <Image src="/Dabel-logo-2.png" alt="Dabel logo" width={150} height={150} className="mb-[15px]"/>
+            <Image src="/Dabel-logo-2.jpg" alt="Dabel logo" width={150} height={150} className="mb-[15px]"/>
             <span className="font-semibold">{t('usloviKoriscenja-firmaDoo')} – {t('usloviKoriscenja-firmaDesk')}</span>
 
             <ul className="list-none space-y-1 mb-6">

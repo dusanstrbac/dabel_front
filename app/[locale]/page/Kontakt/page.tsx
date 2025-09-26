@@ -90,7 +90,7 @@ const Kontakt = () => {
         return;
       }
 
-      alert('Poruka je uspešno poslata!');
+      alert(t('main.Poruka je uspešno poslata'));
       setFormData({
         ime: '',
         kompanija: '',
@@ -100,10 +100,8 @@ const Kontakt = () => {
       });
     } catch (err: any) {
       console.error('Greška pri slanju:', err);
-      alert(
-        err.response?.data?.poruka ||
-          'Došlo je do greške. Pokušajte ponovo kasnije.'
-      );
+      alert(t('main.Došlo je do greške Pokušajte ponovo kasnije'));
+      //alert(err.response?.data?.poruka || 'Došlo je do greške. Pokušajte ponovo kasnije.');
     }
   };
 

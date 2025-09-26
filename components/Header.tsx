@@ -1,10 +1,9 @@
 "use client";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
-import { Search, Heart, ShoppingCart, User, Phone, Mail, Bolt, Rows2, Sofa, LinkIcon, Lightbulb, Vault, Hammer, Menu as MenuIcon, BadgePercent, Wallet, Users, BadgeDollarSign, Youtube, Key, Package, History, User as User2, LogOut, Smartphone, FileText } from "lucide-react";
+import { Heart, ShoppingCart, Phone, Mail, Bolt, Menu as MenuIcon, BadgePercent, User as User2, Smartphone } from "lucide-react";
 import Image from "next/image";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion";
 import { Separator } from "./ui/separator";
 import KorisnikMenu from "./KorisnikMenu";
@@ -15,15 +14,10 @@ import IconComponent from "./IconComponent";
 import "flag-icons/css/flag-icons.min.css";
 import LanguageSelector from "./LanguageSelector";
 import PretragaProizvoda from "./PretragaProizvoda";
-import { Locale } from "@/config/locales";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { useTranslations } from "next-intl";
 
-interface HeaderProps {
-  currentLocale: Locale;
-}
-
-export default function Header({ currentLocale }: HeaderProps) {
+export default function Header() {
   const [korisnickoIme, setKorisnickoIme] = useState<string | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -45,6 +39,8 @@ export default function Header({ currentLocale }: HeaderProps) {
     { text: t('header-NavBrzoNarucivanje'), href: "/BrzoNarucivanje", icon: <Smartphone className="w-5 h-5" /> },
     { text: t('header-NavKorpa'), href: "/korpa", icon: <ShoppingCart className="w-5 h-5" /> },
     { text: t('header-NavKontakt'), href: "/kontakt", icon: <Phone className="w-5 h-5" /> },
+    { text: t('header-Omiljeno'), href: "/heart", icon: <Heart className="w-5 h-5" /> },
+
   ];
 
   useEffect(() => {
@@ -111,7 +107,9 @@ export default function Header({ currentLocale }: HeaderProps) {
       <div>
         <div className="hidden border-b border-gray-200 lg:flex lg:flex-col lg:gap-2 h-[138px]">
         <div className="w-full h-[45%] flex items-center px-8">
-          <Link href="/"><Image src="/Dabel-logo-2.png" alt="Dabel logo" height={80} width={125} className="object-contain" priority /></Link>
+          <Link href="/">
+            <Image src="/Dabel-logo-2.jpg" alt="Dabel logo" height={80} width={125} className="object-contain" priority />
+          </Link>
           <PretragaProizvoda />
           <div className="w-[30%] flex items-center justify-center space-x-6">
             <div className="flex items-center space-x-2"><Phone className="text-gray-500 h-7 w-7"/><span className="text-sm">{WEBKontaktTelefon}</span></div>
@@ -177,7 +175,7 @@ export default function Header({ currentLocale }: HeaderProps) {
           {/* Logo */}
           <Link href="/">
             <Image
-              src="/Dabel-logo-2.png" 
+              src="/Dabel-logo-2.jpg" 
               alt="Dabel logo"
               height={50}
               width={100}

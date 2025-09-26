@@ -150,9 +150,6 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
       return [parseInt(minStr, 10), parseInt(maxStr, 10)];
   }, [filters.cena, priceRange]);
 
-
-  console.log(filterOptions);
-
   return (
     <div className="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
       <h2 className="text-lg font-semibold mb-4">{t('artikalFilter.Filteri')}</h2>

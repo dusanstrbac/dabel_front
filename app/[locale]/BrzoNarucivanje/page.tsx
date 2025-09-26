@@ -245,7 +245,7 @@ const BrzoNarucivanje = () => {
                 className="flex w-full max-w-xl items-end justify-center gap-2 transition-all duration-200"
               >
                 <div className="flex flex-col items-center">
-                  <p className={isDummy ? "opacity-50" : ""}>Šifra</p>
+                  <p className={isDummy ? "opacity-50" : ""}>{t('Sifra')}</p>
                   <Input
                     inputMode="numeric"
                     pattern="[0-9]*"
@@ -269,7 +269,7 @@ const BrzoNarucivanje = () => {
                 </div>
 
                 <div className="flex flex-col items-center">
-                  <p className={isDummy ? "opacity-40" : ""}>Količina</p>
+                  <p className={isDummy ? "opacity-40" : ""}>{t('Kolicina')}</p>
                   <Input
                     ref={(el) => { quantityRefs.current[index] = el; }}
                     inputMode="numeric"
@@ -307,7 +307,7 @@ const BrzoNarucivanje = () => {
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-1 rounded"
               onClick={() => document.getElementById("csvUpload")?.click()}
             >
-              Uvezi CSV
+              {t('Uvezi CSV')}
             </button>
             <input
               type="file"

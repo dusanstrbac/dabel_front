@@ -7,21 +7,26 @@ import { useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import LanguageSelector from "@/components/LanguageSelector";
 
-// ✅ Validacija za email i JMBG (8 cifara)
-const emailSchema = z.object({
-  email: z.string().email("Unesite validan email"),
-  mb: z.string()
-    .regex(/^\d{8}$/, "Maticni broj mora imati tačno 8 cifara"),
-});
 
-type EmailFormValues = z.infer<typeof emailSchema>;
 
 export default function PosaljiLinkZaAktivacijuForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations();
+  const locale = useLocale();
 
+  const emailSchema = z.object({
+    email: z.string().email(t('Registracija.Unesite validan email')),
+    mb: z.string()
+      .regex(/^\d{8}$/, t('Registracija.Maticni broj mora imati tačno 8 cifara')),
+  });
+
+  type EmailFormValues = z.infer<typeof emailSchema>;
+  
   const form = useForm<EmailFormValues>({
     resolver: zodResolver(emailSchema),
   });
@@ -52,8 +57,8 @@ export default function PosaljiLinkZaAktivacijuForm() {
 
   return (
     <div className="max-w-md mx-auto p-4 shadow rounded mt-10">
-      <h1 className="text-3xl font-bold mb-1 text-center">Aktivirajte nalog</h1>
-      <p className="text-muted-foreground text-center mb-4">Unesite svoje podatke za pristup nalogu</p>
+      <h1 className="text-3xl font-bold mb-1 text-center">{t('Registracija.Aktivirajte nalog')}</h1>
+      <p className="text-muted-foreground text-center mb-4">{t('Registracija.Unesite svoje podatke za pristup nalogu')}</p>
 
       {error && <div className="mb-4 text-red-600 bg-red-100 p-2 rounded">{error}</div>}
       {success && <div className="mb-4 text-green-600 bg-green-100 p-2 rounded">{success}</div>}
@@ -61,7 +66,7 @@ export default function PosaljiLinkZaAktivacijuForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <input
           type="email"
-          placeholder="Unesite email"
+          placeholder={t('Registracija.Unesite email')}
           {...form.register("email")}
           disabled={loading}
           className="w-full border p-2 rounded"
@@ -72,7 +77,7 @@ export default function PosaljiLinkZaAktivacijuForm() {
 
         <input
           type="text"
-          placeholder="Unesite Matični broj"
+          placeholder={t('Registracija.Unesite Matični broj')}
           {...form.register("mb")}
           disabled={loading}
           className="w-full border p-2 rounded"
@@ -80,14 +85,17 @@ export default function PosaljiLinkZaAktivacijuForm() {
         {form.formState.errors.mb && (
           <p className="text-red-600 text-sm">{form.formState.errors.mb.message}</p>
         )}
-        <p className="text-sm float-right font-semibold">Već posedujete nalog? <Link href={'/login'} className="font-normal text-blue-500 hover:text-blue-300">Prijavite se ovde</Link></p>
+        <p className="text-sm float-right font-semibold">{t('Registracija.Već posedujete nalog?')} <Link href={`/${locale}/login`} className="font-normal text-blue-500 hover:text-blue-300">{t('Registracija.Prijavite se ovde')}</Link></p>
         <Button
           type="submit"
           disabled={loading}
           className="w-full cursor-pointer hover:opacity-90"
         >
-          {loading ? "Šaljem..." : "Pošalji link za aktivaciju"}
+          {loading ? t('Registracija.Šaljem') : t('Registracija.Pošalji link za aktivaciju')}
         </Button>
+        <div className="flex justify-end">
+          <LanguageSelector />
+        </div>
       </form>
     </div>
   );

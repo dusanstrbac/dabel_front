@@ -216,9 +216,6 @@ export default function Proizvod() {
       ? Number(proizvod.artikalCene[0].akcija.kolicina)
       : undefined;
 
-
-  console.log(proizvod);
-
   //deo za racunanje pakovanja
 
   const getRoundedQuantity = (requested: number, packSize: number) => {

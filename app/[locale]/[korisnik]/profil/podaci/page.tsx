@@ -80,6 +80,8 @@ const ProfilPodaci = () => {
   if (error) return <div className="text-red-600">{error}</div>;
   if (!userData) return <div>{t('notFound')}</div>;
 
+  const { finKarta } = userData;
+
   return (
     <div className="lg:px-[120px] lg:mt-[40px]">
       <div className="flex flex-wrap justify-between gap-10 lg:gap-4">
@@ -106,7 +108,13 @@ const ProfilPodaci = () => {
           <p className="font-semibold">{t('allowedDebt')}: <span className="font-extrabold">{userData.finKarta?.kredit ?? 'N/A'}</span></p>
           <p className="font-semibold">{t('currentDebt')}: <span className="font-extrabold">{userData.finKarta?.nijeDospelo ?? 'N/A'}</span></p>
           <p className="font-semibold">{t('unrealizedAmount')}: <span className="font-extrabold">{userData.finKarta?.nerealizovano ?? 'N/A'}</span></p>
-          <p className="font-semibold">{t('availableBalance')}: <span className="font-extrabold">{userData.finKarta?.raspolozivoStanje ?? 'N/A'}</span></p>
+          <p className="font-semibold">
+            {t('availableBalance')}:{" "}
+            <span className="font-extrabold">
+              {finKarta?.nerealizovano !== 0 ? 0 : finKarta?.raspolozivoStanje ?? 'N/A'}
+            </span>
+          </p>
+
         </div>
       </div>
 
@@ -130,7 +138,7 @@ const ProfilPodaci = () => {
       </div>
 
       <div className='mt-[40px] lg:mt-[40px] flex gap-[20px]'>
-        <UserCircle color='grey' size={80} className='p-[20px] border border-gray-400 rounded-[25px]'/>
+        <UserCircle color='grey' size={80} className='p-[20px] border border-gray-400 rounded-[25px]' />
         <div className='flex flex-col'>
           <h1 className='font-bold text-xl'>{userData.komercijalisti.naziv}</h1>
           <div className='flex items-center gap-2'>

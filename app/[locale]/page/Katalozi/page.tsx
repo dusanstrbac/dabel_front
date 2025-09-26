@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 type Katalog = {
@@ -12,6 +13,7 @@ type Katalog = {
 const KataloziPage = () => {
   const [katalozi, setKatalozi] = useState<Katalog[]>([]);
   const [loading, setLoading] = useState(true);
+  const t = useTranslations();
 
   useEffect(() => {
     const fetchKatalozi = async () => {
@@ -35,12 +37,12 @@ const KataloziPage = () => {
   }
 
   if (katalozi.length === 0) {
-    return <div className="text-center mt-20 text-red-500">Nema dostupnih kataloga.</div>;
+    return <div className="text-center mt-20 text-red-500">{t('main.Nema dostupnih kataloga')}</div>;
   }
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Naši katalozi</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center">{t('main.Naši katalozi')}</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
       {katalozi.map(({ naziv, putanja, thumbnailPutanja, datumDodavanja }, i) => (
         <a

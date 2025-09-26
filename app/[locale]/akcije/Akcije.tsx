@@ -6,12 +6,14 @@ import ListaArtikala from '@/components/ListaArtikala';
 import SortiranjeButton from '@/components/SortiranjeButton';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 import { ArtikalFilterProp, ArtikalType } from '@/types/artikal';
+import { useTranslations } from 'next-intl';
 
 type SortKey = 'cena' | 'naziv';
 type SortOrder = 'asc' | 'desc';
 
 const Akcije = () => {
   const router = useRouter();
+  const t = useTranslations();
   const searchParams = useSearchParams();
 
   const [akcije, setAkcije] = useState<ArtikalType[]>([]);
@@ -46,6 +48,13 @@ const Akcije = () => {
         const res = await fetch(
           `${apiAddress}/api/Artikal/PartnerAkcije?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`
         );
+
+        if (res.status === 404) {
+          setAkcije([]); // Vraca prazan objekat
+          setError('Trenutno ne postoje akcije za vas');
+          setLoading(false);
+          return;
+        }
 
         if (!res.ok) throw new Error('Greška pri preuzimanju akcija');
 
@@ -92,7 +101,6 @@ const Akcije = () => {
   }, [sortiraneAkcije, currentPage, pageSize]);
 
   const totalPages = Math.ceil(sortiraneAkcije.length / pageSize);
-  console.log(totalPages);
 
   // Promena stranice
   const handlePageChange = (newPage: number) => {
@@ -138,7 +146,7 @@ const Akcije = () => {
       </div>
 
       {loading ? (
-        <p className="text-center mt-4">Učitavanje...</p>
+        <p className="text-center mt-4">{t('main.Učitavanje')}</p>
       ) : error ? (
         <p className="text-center text-red-600 mt-4">{error}</p>
       ) : (

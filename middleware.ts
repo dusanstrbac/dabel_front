@@ -1,19 +1,16 @@
-import { setCookie } from 'cookies-next';
-import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from "next/server";
+import createMiddleware from "next-intl/middleware";
 
-// Lista podržanih jezika i podrazumevani jezik
-const locales = ['sr', 'en', 'mk', 'al', 'me'];
-const defaultLocale = 'sr';
+const locales = ["sr", "en", "mk", "al", "me"];
+const defaultLocale = "sr";
 
 const AUTH_EXEMPT_ROUTES = [
-  '/login',
-  '/register',
-  '/aktivacija',
-  '/api/Auth/LoginPodaci'
+  "/login",
+  "/register",
+  "/aktivacija",
+  "/api/Auth/LoginPodaci"
 ];
 
-// 1. Kreirajte next-intl middleware.
 const intlMiddleware = createMiddleware({
   locales,
   defaultLocale,
@@ -22,43 +19,67 @@ const intlMiddleware = createMiddleware({
 export function middleware(request: NextRequest) {
   const { pathname, origin } = request.nextUrl;
   const token = request.cookies.get("AuthToken")?.value;
-  const languageCookie = request.cookies.get("NEXT_LOCALE");
-  const preferredLocaleCookie = request.cookies.get("preferredLocale");
+  const languageCookie = request.cookies.get("NEXT_LOCALE")?.value || defaultLocale;
 
-  // Normalizuj putanju bez jezika
   const pathnameSegments = pathname.split("/");
+
   const normalizedPath = "/" + pathnameSegments.slice(2).join("/");
 
-  // Dozvoli pristup rutama koje ne zahtevaju autentifikaciju, bez obzira na jezik
-  if (AUTH_EXEMPT_ROUTES.includes(normalizedPath) || pathname.startsWith("/api")) {
-    return NextResponse.next();
+  // Overwrite poslednjaRuta cookie sa trenutno izabranim jezikom
+  const poslednjaRuta = request.cookies.get("poslednjaRuta")?.value;
+  let updatedRuta = poslednjaRuta;
+
+  if (poslednjaRuta) {
+    const segments = poslednjaRuta.split("/");
+    if (!locales.includes(segments[1])) {
+      segments.splice(1, 0, languageCookie);
+    } else {
+      segments[1] = languageCookie;
+    }
+    updatedRuta = segments.join("/");
   }
 
-  if (!languageCookie || !preferredLocaleCookie) {
-    const response = NextResponse.next();
-    
-    // Postavi oba cookija na default jezik
-    response.cookies.set("NEXT_LOCALE", defaultLocale);
-    response.cookies.set("preferredLocale", defaultLocale);
-    
+  // Kreiramo jedan response objekat
+  let response = NextResponse.next();
+
+  // Ako postoji poslednjaRuta, setujemo cookie
+  if (updatedRuta) {
+    response.cookies.set("poslednjaRuta", updatedRuta, { path: "/" });
+  }
+
+  // Dozvoli rute koje ne zahtevaju autentifikaciju
+  if (
+    AUTH_EXEMPT_ROUTES.includes(normalizedPath) ||
+    pathname.startsWith("/api") ||
+    normalizedPath.startsWith("/register")
+  ) {
     return response;
   }
 
-  // 2. Proverite da li korisnik ima token.
-  if (!token) {
-    // Ako nema token, preusmerite na stranicu za prijavu.
-    const loginUrl = new URL(`/${pathnameSegments[1] || defaultLocale}/login`, origin);
-    loginUrl.searchParams.set("redirectTo", pathname);
-    return NextResponse.redirect(loginUrl);
+  // Redirect ako URL nema prefiks jezika ili je root "/"
+  if (!locales.includes(pathnameSegments[1]) || pathname === "/") {
+    const redirectUrl = new URL(
+      `/${languageCookie}${pathname === "/" ? "" : pathname}`,
+      origin
+    );
+    return NextResponse.redirect(redirectUrl, { headers: response.headers });
   }
 
-  // 3. Ako korisnik ima token, prosledite zahtev na next-intl middleware.
-  // Next-intl će se pobrinuti za sve ostalo (preusmeravanje, dodavanje prefiksa, itd.).
+  // Provera tokena i redirect na login ako nije autentifikovan
+  if (!token) {
+    const redirectTo = pathname;
+    const loginUrl = new URL(`/${languageCookie}/login`, origin);
+    loginUrl.searchParams.set("redirectTo", redirectTo);
+    const redirectResponse = NextResponse.redirect(loginUrl);
+    // Postavi poslednjaRuta cookie
+    redirectResponse.cookies.set("poslednjaRuta", updatedRuta || redirectTo, { path: "/" });
+    return redirectResponse;
+  }
+
+  // Ako je sve u redu, prosledi zahtev next-intl middleware-u
   return intlMiddleware(request);
 }
 
 export const config = {
-  // Ovo je važno - matcher sada treba da obuhvati sve rute.
-  // Vaša logika za izuzeća se nalazi unutar same funkcije.
-  matcher: ['/((?!api|_next|.*\\..*).*)'],
+  matcher: ["/((?!api|_next|.*\\..*).*)"],
 };

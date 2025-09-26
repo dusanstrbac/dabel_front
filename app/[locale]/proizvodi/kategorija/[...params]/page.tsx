@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 import { ArtikalFilterProp, ArtikalType } from '@/types/artikal';
+import { useTranslations } from 'next-intl';
 
 type SortKey = "cena" | "naziv";
 type SortOrder = 'asc' | 'desc';
@@ -18,6 +19,7 @@ export default function ProizvodiPage() {
   const router = useRouter();
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
   const idPartnera = dajKorisnikaIzTokena()?.partner;
+  const t = useTranslations();
 
   const [sviArtikli, setSviArtikli] = useState<ArtikalType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -115,12 +117,12 @@ export default function ProizvodiPage() {
 
   return (
     <div className="w-full mx-auto">
-      <div  className="flex justify-between items-center gap-6 py-2 px-8 flex-wrap">
-        <h1 className="font-bold text-2xl sm:text-3xl mb-[5px] break-words whitespace-normal w-full">
+
+      <div  className="flex justify-between items-center gap-2 py-2 px-8 -sm:py-0 -sm:px-0 flex-wrap ">
+        <h1 className="font-bold lg:text-2xl md:text-3xl break-words whitespace-normal">
           {kategorija} {podkategorija ? `/ ${podkategorija}` : ''}
         </h1>
         <SortiranjeButton
-        //ovaj button zelim da bude ispod ovog h1 u divu kao, ili mozda ne treba novi wrapper div jer vec je 
           sortKey={sortKey}
           sortOrder={sortOrder}
           onSortChange={(newSortKey, newSortOrder) => {
@@ -134,7 +136,7 @@ export default function ProizvodiPage() {
       </div>
 
         {loading ? (
-          <p className="text-center mt-4">Učitavanje...</p>
+          <p className="text-center mt-4">{t('main.Učitavanje')}</p>
         ) : error || sviArtikli.length === 0 ? (
           <p className="text-center text-xl font-medium text-red-600 mt-4">
             {sviArtikli.length === 0 ? "Partner nema asortiman za ovu kategoriju!" : error}

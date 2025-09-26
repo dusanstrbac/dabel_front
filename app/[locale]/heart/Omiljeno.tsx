@@ -7,7 +7,7 @@ import SortiranjeButton from '@/components/SortiranjeButton';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 import { ocistiImeAtributa } from '@/contexts/OcistiImeAtributa';
 import { ArtikalAtribut, ArtikalFilterProp, ArtikalType } from '@/types/artikal';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 type SortKey = 'cena' | 'naziv';
 type SortOrder = 'asc' | 'desc';
@@ -21,6 +21,7 @@ const OmiljeniArtikli = () => {
   const [atributi, setAtributi] = useState<{ [artikalId: string]: ArtikalAtribut[] }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const locale = useLocale();
 
   const pageSize = 8;
 

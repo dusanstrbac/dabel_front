@@ -9,23 +9,27 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
-import { setCookie } from "cookies-next";
+import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-
-// Validation schema
-const formSchema = z.object({
-  korisnickoIme: z.string().min(1, "Korisnicko ime je obavezno"),
-  lozinka: z.string().min(4, "Lozinka mora imati najmanje 4 karaktera"),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import LanguageSelector from "@/components/LanguageSelector";
+import { useLocale, useTranslations } from "next-intl";
 
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations();
+  const locale = useLocale();
+
+  // Validation schema
+  const formSchema = z.object({
+    korisnickoIme: z.string().min(1, t('Logovanje.Korisničko ime je obavezno')),
+    lozinka: z.string().min(4, t('promenaLozinke.lozinka6karaktera')),
+  });
+
+  type FormValues = z.infer<typeof formSchema>;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -38,7 +42,6 @@ export default function LoginForm() {
   async function onSubmit(values: FormValues) {
     setLoading(true);
     setError(null);
-    
 
     try {
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
@@ -53,8 +56,9 @@ export default function LoginForm() {
           withCredentials: true,
         }
       );
-
-      const redirectTo =  "/";
+      
+      setCookie("NEXT_LOCALE", locale, { path: "/" });
+      const redirectTo = searchParams.get("redirectTo") || await getCookie("poslednjaRuta") || '/';
 
       if (data.token) {
         setCookie("AuthToken", data.token, {
@@ -65,7 +69,7 @@ export default function LoginForm() {
 
         router.push(redirectTo);
         router.refresh();
-        
+        deleteCookie("poslednjaRuta")
       } else {
         setError(data.message || "Došlo je do greške prilikom prijave");
       }
@@ -83,8 +87,8 @@ export default function LoginForm() {
   return (
     <div className="mx-auto max-w-md space-y-6 pt-10 px-4 sm:px-6 lg:px-8">
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold">Prijava</h1>
-        <p className="text-muted-foreground">Unesite svoje podatke za pristup nalogu</p>
+        <h1 className="text-3xl font-bold">{t('Logovanje.Prijava')}</h1>
+        <p className="text-muted-foreground">{t('Logovanje.Unesite svoje podatke za pristup nalogu')}</p>
       </div>
 
       {error && (
@@ -100,10 +104,10 @@ export default function LoginForm() {
             name="korisnickoIme"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Korisničko ime</FormLabel>
+                <FormLabel>{t('Logovanje.Korisničko ime')}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Unesite korisničko ime"
+                    placeholder={t('Logovanje.Unesite korisničko ime')}
                     {...field}
                     autoComplete="username"
                     disabled={loading}
@@ -119,7 +123,7 @@ export default function LoginForm() {
             name="lozinka"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Lozinka</FormLabel>
+                <FormLabel>{t('Logovanje.Lozinka')}</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
@@ -133,17 +137,20 @@ export default function LoginForm() {
               </FormItem>
             )}
           />
-          <p className="float-right text-sm font-semibold">Nemate nalog? <Link href={'/register'} className="font-normal text-blue-500 hover:text-blue-300">Registrujte se besplatno</Link></p>
+          <p className="float-right text-sm font-semibold">{t('Logovanje.Nemate nalog')} <Link href={`/${locale}/register`} className="font-normal text-blue-500 hover:text-blue-300">{t('Logovanje.Registrujte se besplatno')}</Link></p>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Prijavljivanje...
+                {t('Logovanje.Prijavljivanje')}
               </>
             ) : (
-              "Prijavi se"
+              t('Logovanje.Prijavi se')
             )}
           </Button>
+          <div className="float-right">
+            <LanguageSelector />
+          </div>
         </form>
       </Form>
     </div>

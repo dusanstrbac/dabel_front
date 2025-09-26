@@ -4,7 +4,11 @@
     "Poslednja kupovina": "Poslednja kupovina:",
     "Planirani datum pristizanja": "Planirani datum pristizanja:",
     "Omiljeni Artikli": "Omiljeni Artikli",
-    "Učitavanje": "Učitavanje..."
+    "Učitavanje": "Učitavanje...",
+    "Nema dostupnih kataloga":"Nema dostupnih kataloga.",
+    "Naši katalozi": "Naši katalozi",
+    "Poruka je uspešno poslata": "Poruka je uspešno poslata!",
+    "Došlo je do greške Pokušajte ponovo kasnije": "Došlo je do greške. Pokušajte ponovo kasnije."
   },
   "Paginacija": {
     "Prethodna": "Prethodna",
@@ -281,7 +285,8 @@
     "header-PretragaProizvodaLabel": "Pretraga",
     "header-PretragaProizvodaNemaRezultata": "Nema rezultata.",
     "header-SkeniranjeBarkodaLabel": "Skeniranje barkoda",
-    "header-SkeniranjeBarKodaZatvoriButton": "Zatvori"
+    "header-SkeniranjeBarKodaZatvoriButton": "Zatvori",
+    "header-Omiljeno": "Omiljeno"
   },
   "brzoPorucivanje": {
     "CSV mora imati kolone Šifra i Količina": "CSV mora imati kolone Šifra i Količina",
@@ -300,7 +305,10 @@
     "Isključi kameru za skeniranje": "Isključi kameru za skeniranje",
     "Uključi kameru za skeniranje": "Uključi kameru za skeniranje",
     "Skeniranje barkoda": "Skeniranje barkoda",
-    "Preuzmi šablon": "Preuzmi šablon"
+    "Preuzmi šablon": "Preuzmi šablon",
+    "Uvezi CSV": "Uvezi CSV",
+    "Sifra": "Šifra",
+    "Kolicina": "Količina"
   },
   "narudzbenica": {
     "Narudžbenica": "Narudžbenica",
@@ -399,7 +407,6 @@
   "dokument": {
     "Vaša porudžbina je uspešno evidentirana": "Vaša porudžbina je uspešno evidentirana"
   },
-  
   "korpa":{
     "vecaKolOdDostupne": "Uneta količina je veća od dostupne na stanju.",
     "greskaUcitavanje": "Greška pri učitavanju artikala:",
@@ -440,5 +447,45 @@
   },
   "najprodavanije": {
     "naslov": "Najprodavanije"
+  },
+  "Logovanje": {
+    "Prijava": "Prijava",
+    "Unesite svoje podatke za pristup nalogu": "Unesite svoje podatke za pristup nalogu",
+    "Korisničko ime": "Korisničko ime",
+    "Unesite korisničko ime": "Unesite korisničko ime",
+    "Lozinka": "Lozinka",
+    "Nemate nalog": "Nemate nalog?",
+    "Registrujte se besplatno": "Registrujte se besplatno",
+    "Prijavljivanje": "Prijavljivanje...",
+    "Prijavi se": "Prijavi se",
+    "Korisničko ime je obavezno" : "Korisničko ime je obavezno"
+  },
+  "Registracija": {
+    "Unesite validan email": "Unesite validan email",
+    "Maticni broj mora imati tačno 8 cifara": "Maticni broj mora imati tačno 8 cifara",
+    "Aktivirajte nalog": "Aktivirajte nalog",
+    "Unesite svoje podatke za pristup nalogu": "Unesite svoje podatke za pristup nalogu",
+    "Unesite email": "Unesite email",
+    "Unesite Matični broj": "Unesite Matični broj",
+    "Već posedujete nalog?": "Već posedujete nalog?",
+    "Prijavite se ovde": "Prijavite se ovde",
+    "Šaljem": "Šaljem...",
+    "Pošalji link za aktivaciju": "Pošalji link za aktivaciju"
+  },
+  "Aktivacija": {
+    "Lozinka mora imati najmanje 4 karaktera": "Lozinka mora imati najmanje 4 karaktera.",
+    "Lozinke se ne poklapaju": "Lozinke se ne poklapaju.",
+    "Lozinka je uspešno postavljena! Možete se sada prijaviti": "Lozinka je uspešno postavljena! Možete se sada prijaviti.",
+    "Greška prilikom postavljanja lozinke": "Greška prilikom postavljanja lozinke.",
+    "Početna": "Početna",
+    "Token nije validan ili je istekao": "Token nije validan ili je istekao.",
+    "Molimo da se vratite na početnu stranu": "Molimo da se vratite na početnu stranu.",
+    "Postavite novu lozinku": "Postavite novu lozinku",
+    "Lozinka" : "Lozinka",
+    "Unesite novu lozinku": "Unesite novu lozinku",
+    "Potvrda lozinke": "Potvrda lozinke",
+    "Potvrdite lozinku": "Potvrdite lozinku",
+    "Postavljanje": "Postavljanje...",
+    "Postavi lozinku" : "Postavi lozinku"
   }
 }

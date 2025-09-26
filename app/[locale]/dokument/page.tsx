@@ -42,7 +42,6 @@ const DokumentPage = () => {
         if (!res.ok) throw new Error('Greška pri učitavanju dokumenta.');
 
         const data = await res.json();
-        console.log(data);
       } catch (err: any) {
         console.log(err.message);
       } finally {
@@ -78,7 +77,6 @@ const DokumentPage = () => {
 
       if (!korpaPodaciString || !docInfoString) return; 
 
-      console.log(korpaPodaciString);
 
       const korpaPodaci = JSON.parse(korpaPodaciString);
       const docInfo = JSON.parse(docInfoString);
@@ -90,9 +88,6 @@ const DokumentPage = () => {
         ...stavka,
         rabat: partner?.partnerRabat?.rabat ?? 0,
       }));
-
-      console.log(`Partner ${partner}`);
-
 
       const dokument: DokumentInfo = {
         brojDokumenta: docInfo.brojDokumenta,
@@ -165,7 +160,7 @@ const DokumentPage = () => {
   return (
     <div className="mx-auto bg-white text-black p-10 print:p-0">
       <div className="flex items-center justify-between mb-5">
-        <Image src="/Dabel-logo-2.png" alt="Dabel Logo" width={150} height={150} />
+        <Image src="/Dabel-logo-2.jpg" alt="Dabel Logo" width={150} height={150} />
         <button onClick={handlePrint} className="text-blue-600 underline hover:text-blue-800 no-print">
           {t('brojDokumenta.Štampaj')}
         </button>
