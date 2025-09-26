@@ -90,7 +90,7 @@ const LanguageSelector = () => {
                     key={lang.code}
                     href={newPath}
                     onClick={() => {
-                      setCookie('NEXT_JEZIK', lang.code);
+                      setCookie('NEXT_LOCALE', lang.code);
                       setIsOpen(false);
                     }}
                     className={`

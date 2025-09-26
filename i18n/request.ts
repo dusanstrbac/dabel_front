@@ -5,7 +5,7 @@ import { getCookie } from 'cookies-next';
 
 export default getRequestConfig(async () => {
 
-  const locale = getCookie('NEXT_JEZIK') || 'sr';
+  const locale = getCookie('NEXT_LOCALE') || 'sr';
 
   if (!locales.includes(locale as any)) {
     console.log('Nepoznat locale:', locale);
