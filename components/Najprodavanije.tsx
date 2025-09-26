@@ -17,7 +17,6 @@ type ArtikalIstorijaDTO = {
 };
 
 const Najprodavanije = () => {
-  const t = useTranslations();
   const [artikli, setArtikli] = useState<ArtikalIstorijaDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<Record<string, { kolicina: number }> | null>(null);

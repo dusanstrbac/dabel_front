@@ -445,10 +445,9 @@
     "lozinka4karaktera": "Password must have at least 4 characters",
     "lozinka6karaktera": "Password must have at least 6 characters"
   },
-<<<<<<< HEAD
-  "najprodavanije": {
+  "najprodavanije":{
     "naslov": "Best sellers"
-=======
+  },
   "Logovanje": {
     "Prijava": "Login",
     "Unesite svoje podatke za pristup nalogu": "Enter your details to access your account",
@@ -488,6 +487,5 @@
     "Potvrdite lozinku": "Confirm password",
     "Postavljanje": "Setting...",
     "Postavi lozinku": "Set password"
->>>>>>> 4f51b684fb5b1c1efbf44581bae7214492394b49
   }
 }
