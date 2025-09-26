@@ -101,13 +101,16 @@ const FormTable = ({ title }: myProps) => {
     currentPage * itemsPerPage
   );
 
+  //HARDCODE PDV!!!
+  //WARNING
+  //MOZE BITI GRESKA
   const ukupnaSuma = paginatedDokumenta.reduce((sum, dok) => {
-    const suma = dok.stavkeDokumenata?.reduce((s: number, st: any) => s + st.ukupnaCena, 0) ?? 0;
+    const suma = dok.stavkeDokumenata?.reduce((s: number, st: any) => s + st.ukupnaCena*1.2, 0) ?? 0;
     return sum + suma;
   }, 0);
 
   const ukupnaSumaSvihDokumenata = dokumenta.reduce((sum, dok) => {
-    const suma = dok.stavkeDokumenata?.reduce((s: number, st: any) => s + st.ukupnaCena, 0) ?? 0;
+    const suma = dok.stavkeDokumenata?.reduce((s: number, st: any) => s + st.ukupnaCena*1.2, 0) ?? 0;
     return sum + suma;
   }, 0);
 
@@ -266,7 +269,7 @@ const FormTable = ({ title }: myProps) => {
                     </TableCell>
                   )}
 
-                  <TableCell className="text-right">{ukupno.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{(ukupno*1.2).toFixed(2)}</TableCell>
                   {prikazNarudzbenica && (
                     <TableCell className="flex justify-center">
                       {dokument.status === 0 && (
