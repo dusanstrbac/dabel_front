@@ -14,6 +14,7 @@ const AUTH_EXEMPT_ROUTES = [
 const intlMiddleware = createMiddleware({
   locales,
   defaultLocale,
+  localePrefix: 'always'
 });
 
 export function middleware(request: NextRequest) {
