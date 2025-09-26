@@ -141,7 +141,7 @@ const Akcije = () => {
   return (
     <div className="lg:p-4">
       <div className="w-full mx-auto flex justify-between items-center p-2">
-        <h1 className="font-bold text-3xl">Akcije</h1>
+        <h1 className="font-bold text-3xl">{t('header.header-NavAkcije')}</h1>
         <SortiranjeButton sortKey={sortKey} sortOrder={sortOrder} onSortChange={handleSortChange} />
       </div>
 
