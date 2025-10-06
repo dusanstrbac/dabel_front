@@ -16,6 +16,8 @@ import LanguageSelector from "./LanguageSelector";
 import PretragaProizvoda from "./PretragaProizvoda";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { useTranslations } from "next-intl";
+import { usePathname } from 'next/navigation';
+
 
 export default function Header() {
   const [korisnickoIme, setKorisnickoIme] = useState<string | null>(null);
@@ -32,16 +34,18 @@ export default function Header() {
   const korisnik = dajKorisnikaIzTokena();
   const [headerMainNav, setHeaderMainNav] = useState<NavigacijaItem[]>([]);
   const t = useTranslations('header');
-
+  const pathname = usePathname();
+  const currentLocale = pathname.split('/')[1];
+  
   const dodatniLinkovi = [
-    { text: t('header-NavAkcije'), href: "/akcije", icon: <BadgePercent className="w-5 h-5" /> },
-    { text: t('header-NavNovoPristigli'), href: "/novo", icon: <Bolt className="w-5 h-5" /> },
-    { text: t('header-NavBrzoNarucivanje'), href: "/BrzoNarucivanje", icon: <Smartphone className="w-5 h-5" /> },
-    { text: t('header-NavKorpa'), href: "/korpa", icon: <ShoppingCart className="w-5 h-5" /> },
-    { text: t('header-NavKontakt'), href: "/kontakt", icon: <Phone className="w-5 h-5" /> },
-    { text: t('header-Omiljeno'), href: "/heart", icon: <Heart className="w-5 h-5" /> },
-
+    { text: t('header-NavAkcije'), href: `/${currentLocale}/akcije`, icon: <BadgePercent className="w-5 h-5" /> },
+    { text: t('header-NavNovoPristigli'), href: `/${currentLocale}/novo`, icon: <Bolt className="w-5 h-5" /> },
+    { text: t('header-NavBrzoNarucivanje'), href: `/${currentLocale}/BrzoNarucivanje`, icon: <Smartphone className="w-5 h-5" /> },
+    { text: t('header-NavKorpa'), href: `/${currentLocale}/korpa`, icon: <ShoppingCart className="w-5 h-5" /> },
+    { text: t('header-NavKontakt'), href: `/${currentLocale}/kontakt`, icon: <Phone className="w-5 h-5" /> },
+    { text: t('header-Omiljeno'), href: `/${currentLocale}/heart`, icon: <Heart className="w-5 h-5" /> },
   ];
+
 
   useEffect(() => {
     const updateCartCount = () => {
@@ -107,7 +111,7 @@ export default function Header() {
       <div>
         <div className="hidden border-b border-gray-200 lg:flex lg:flex-col lg:gap-2 h-[138px]">
         <div className="w-full h-[45%] flex items-center px-8">
-          <Link href="/">
+          <Link href={`/${currentLocale}/`}>
             <Image src="/Dabel-logo-2.jpg" alt="Dabel logo" height={80} width={125} className="object-contain" priority />
           </Link>
           <PretragaProizvoda />

@@ -8,7 +8,9 @@
     "Nema dostupnih kataloga": "Нема достапни каталози.",
     "Naši katalozi": "Нашите каталози",
     "Poruka je uspešno poslata": "Пораката е успешно испратена!",
-    "Došlo je do greške Pokušajte ponovo kasnije": "Настана грешка. Обидете се повторно подоцна."
+    "Došlo je do greške Pokušajte ponovo kasnije": "Настана грешка. Обидете се повторно подоцна.",
+    "NovopristigliArtikli": "Новопристигнати артикли",
+    "Najprodavanije": "Најпродавани"
   },
   "Paginacija": {
     "Prethodna": "Претходна",
@@ -444,9 +446,6 @@
     "greskaUlogujSeOpet": "Настана грешка. Ве молиме најавете се повторно",
     "lozinka4karaktera": "Лозинката мора да има најмалку 4 карактери",
     "lozinka6karaktera": "Лозинката мора да има најмалку 6 карактери"
-  },
-  "najprodavanije": {
-    "naslov": "Најпродавани"
   },
   "Logovanje": {
     "Prijava": "Најава",

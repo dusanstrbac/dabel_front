@@ -8,7 +8,9 @@
     "Nema dostupnih kataloga": "No catalogs available.",
     "Naši katalozi": "Our Catalogs",
     "Poruka je uspešno poslata": "Message sent successfully!",
-    "Došlo je do greške Pokušajte ponovo kasnije": "An error occurred. Please try again later."
+    "Došlo je do greške Pokušajte ponovo kasnije": "An error occurred. Please try again later.",
+    "NovopristigliArtikli": "Newly arrived items",
+    "Najprodavanije": "Bestsellers"
   },
   "Paginacija": {
     "Prethodna": "Previous",
@@ -444,9 +446,6 @@
     "greskaUlogujSeOpet": "An error occurred. Please log in again",
     "lozinka4karaktera": "Password must have at least 4 characters",
     "lozinka6karaktera": "Password must have at least 6 characters"
-  },
-  "najprodavanije":{
-    "naslov": "Best sellers"
   },
   "Logovanje": {
     "Prijava": "Login",

@@ -87,7 +87,7 @@ export default function PrikazDokumenta() {
                   <td className="py-2 px-4">{stavka.nazivArtikla}</td>
                   <td className="py-2 px-4">{stavka.kolicina}</td>
                   <td className="py-2 px-4">{stavka.cena.toFixed(2)}</td>
-                  <td className="py-2 px-4">{(stavka.ukupnaCena*1.2).toFixed(2)}</td>
+                  <td className="py-2 px-4">{stavka.ukupnaCena.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -108,7 +108,7 @@ export default function PrikazDokumenta() {
             <span className="text-lg text-gray-600 mr-2">{t('narudzbenica.Ukupno')}</span>
             <span className="text-2xl font-bold text-blue-700">
               {(
-                dokument.stavkeDokumenata?.reduce((sum: number, s: any) => sum + s.ukupnaCena*1.2, 0) +
+                dokument.stavkeDokumenata?.reduce((sum: number, s: any) => sum + s.ukupnaCena, 0) +
                 (dokument.dostava ?? 0)
               ).toLocaleString('sr-RS')}{" "}
               RSD

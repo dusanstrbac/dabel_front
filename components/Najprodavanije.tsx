@@ -54,12 +54,12 @@ const Najprodavanije = () => {
   return (
     <section className="w-full bg-muted pb-[20px]">
         <div className="px-6">
-            <h2 className="text-3xl font-bold mb-6">{t('najprodavanije.naslov')}</h2>
+            <h2 className="text-3xl font-bold mb-6">{t('main.Najprodavanije')}</h2>
 
             {loading ? (
             <p className="text-gray-500">{t('main.Učitavanje')}</p>
             ) : artikli.length === 0 ? (
-            <p className="text-gray-500">{t('poruciPonovo.nemaPrethodnih')}</p>
+            <p className="text-gray-500">Nema prethodnih porudžbina.</p>
             ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                 {artikli.slice(0, 10).map((artikal) => {
@@ -93,7 +93,7 @@ const Najprodavanije = () => {
                     <AddToCartButton
                         id={artikal.idArtikla}
                         className="w-full sm:w-auto px-6 py-2"
-                        title={t('poruciPonovo.dodajUKorpu')}
+                        title="Dodaj u korpu"
                         getKolicina={() => artikal.kolicina}
                         nazivArtikla={artikal.naziv}
                         disabled={disabled}

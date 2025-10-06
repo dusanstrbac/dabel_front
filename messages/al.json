@@ -8,7 +8,9 @@
     "Nema dostupnih kataloga": "Nuk ka katalogë të disponueshëm.",
     "Naši katalozi": "Katalogët tanë",
     "Poruka je uspešno poslata": "Mesazhi u dërgua me sukses!",
-    "Došlo je do greške Pokušajte ponovo kasnije": "Ndodhi një gabim. Ju lutem provoni përsëri më vonë."
+    "Došlo je do greške Pokušajte ponovo kasnije": "Ndodhi një gabim. Ju lutem provoni përsëri më vonë.",
+    "NovopristigliArtikli": "Artikuj të sapoardhur",
+    "Najprodavanije": "Më të shiturat"
   },
   "Paginacija": {
     "Prethodna": "E mëparshme",
@@ -444,9 +446,6 @@
     "greskaUlogujSeOpet": "Ndodhi një gabim. Ju lutem kyçuni përsëri",
     "lozinka4karaktera": "Fjalëkalimi duhet të ketë të paktën 4 karaktere",
     "lozinka6karaktera": "Fjalëkalimi duhet të ketë të paktën 6 karaktere"
-  },
-  "najprodavanije": {
-    "naslov": "Më të shiturat"
   },
   "Logovanje": {
     "Prijava": "Kyçja",
