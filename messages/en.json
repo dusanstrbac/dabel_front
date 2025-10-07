@@ -299,7 +299,7 @@
     "Ručno unošenje": "Manual entry:",
     "CSV": "CSV:",
     "Prebaci u korpu": "Move to cart:",
-    "unesi šifru, pritisni Enter i upiši količinu": "enter the code, press Enter, and enter the quantity.",
+    "unesi šifru, pritisni Enter i upiši količinu": "Enter the product code, quantity, and press TAB to add a new item.",
     "koristi Uvezi CSV dugme sa kolonama Šifra i Količina": "use the 'Import CSV' button with 'Code' and 'Quantity' columns.",
     "kada završiš, klikni na dugme": "when you're done, click the button.",
     "Zatvori": "Close",
