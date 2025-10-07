@@ -48,22 +48,22 @@ const LanguageSelector = () => {
     setIsOpen(false);
 
     const newSegments = [...segments];
-    newSegments[1] = langCode; // zameni trenutni locale segment
-    const newPath = newSegments.join('/');
+    newSegments[1] = langCode;
 
-    router.push(newPath); // idi na novi jezik
-    
-    setTimeout(() => {
-      window.location.href = newPath;
-    }, 100);
-    
+    const newPath = newSegments.join('/');
+    const searchParams = window.location.search; // npr. ?token=abc123
+
+    const finalUrl = `${newPath}${searchParams}`;
+
+    router.push(finalUrl);
   };
+
 
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
       <button
         type="button"
-        className="inline-flex justify-center items-center w-full rounded-md border border-gray-200 shadow-sm px-3 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
+        className="cursor-pointer inline-flex justify-center items-center w-full rounded-md border border-gray-200 shadow-sm px-3 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className={`fi fi-${selectedLanguage.flag} mr-2 text-lg`}></span>
@@ -93,7 +93,7 @@ const LanguageSelector = () => {
                   key={lang.code}
                   onClick={() => handleLanguageChange(lang.code)}
                   className={`
-                    w-full text-left flex items-center px-4 py-3 text-sm transition-all duration-200
+                    w-full text-left flex items-center px-4 py-3 text-sm transition-all duration-200 cursor-pointer
                     ${lang.code === selectedLanguage.code
                       ? 'bg-blue-50 text-blue-700 font-medium'
                       : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'

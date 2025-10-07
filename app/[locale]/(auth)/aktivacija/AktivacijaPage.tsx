@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { useLocale, useTranslations } from "next-intl";
+import LanguageSelector from "@/components/LanguageSelector";
 
 export default function AktivacijaNaloga() {
   const searchParams = useSearchParams();
@@ -107,6 +108,9 @@ export default function AktivacijaNaloga() {
           {loading ? t('Aktivacija.Postavljanje') : t('Aktivacija.Postavi lozinku')}
         </button>
       </form>
+      <div className="mt-2 flex justify-end">
+        <LanguageSelector />
+      </div>
     </div>
   );
 }
