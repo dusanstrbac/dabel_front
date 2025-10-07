@@ -18,6 +18,7 @@ export default function RootLayout({children}:{children:React.ReactNode}){
         <ParametriWatcher/>
         <Toaster
           toastOptions={{
+            duration:5000, // Sooner se automatski iskljucuje za 5000ms = 5s
             classNames: {
               error: "toast-error",
               success: "toast-info"
