@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 
 const BrzoNarucivanje = () => {
   const [rows, setRows] = useState([{ sifra: "", kolicina: "" }]);
-
+  const [invalidneSifre, setInvalidneSifre] = useState<string[]>([]);
   const [scannerActive, setScannerActive] = useState(false);
   const barcodeInputRef = useRef<HTMLInputElement>(null);
   const quantityRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -244,14 +244,24 @@ const BrzoNarucivanje = () => {
                 key={index}
                 className="flex w-full max-w-xl items-end justify-center gap-2 transition-all duration-200"
               >
-                <div className="flex flex-col items-center">
+                {/* Tooltip kružić za grešku */}
+                {invalidneSifre.includes(row.sifra) && (
+                  <div
+                    className="w-3 h-3 rounded-full bg-red-500 cursor-help mb-3"
+                    title="Nevalidna šifra"
+                  />
+                )}
+                <div className="flex flex-col items-center relative">
                   <p className={isDummy ? "opacity-50" : ""}>{t('Sifra')}</p>
+                  
                   <Input
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    className={`border-2 border-[#323131cc] w-full ${
-                      isDummy ? "opacity-50 cursor-pointer" : ""
-                    }`}
+                      className={`border-2 w-full ${
+                        invalidneSifre.includes(row.sifra)
+                          ? 'border-red-500'
+                          : 'border-[#323131cc]'
+                      } ${isDummy ? "opacity-50 cursor-pointer" : ""}`}
                     value={row.sifra}
                     onChange={(e) =>
                       handleChange(index, "sifra", e.target.value)
@@ -285,6 +295,7 @@ const BrzoNarucivanje = () => {
                       if (isDummy) handleAddRow();
                     }}
                   />
+                  
                 </div>
 
                 <button
@@ -318,7 +329,7 @@ const BrzoNarucivanje = () => {
             />
           </div>
 
-          <PrebaciUKorpu rows={validItems} />
+          <PrebaciUKorpu rows={validItems} onInvalidSifre={(nevalidne) => setInvalidneSifre(nevalidne)} />
         </div>
       </main>
     </div>

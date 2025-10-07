@@ -19,9 +19,11 @@ interface Artikal {
 
 interface PrebaciUKorpuProps {
   rows: RowItem[];
+  onInvalidSifre?: (nevalidne: string[]) => void;
+
 }
 
-const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
+const PrebaciUKorpu = ({ rows, onInvalidSifre }: PrebaciUKorpuProps) => {
 
   const t = useTranslations();
 
@@ -56,6 +58,13 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
       );
 
       const artikli: Artikal[] = data.artikli;
+
+      const sveSifre = rows.map(row => row.sifra);
+      const validneSifre = artikli.flatMap(a => [a.idArtikla, a.barKod]);
+      const nevalidne = sveSifre.filter(sifra => !validneSifre.includes(sifra));
+
+      // Pošalji sve šifre kao nevalidne
+        onInvalidSifre?.(nevalidne);
 
       if (!artikli || artikli.length === 0) {
         toast.error(t('PrebaciUKorpu.Greska'), {
@@ -157,3 +166,4 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
 };
 
 export default PrebaciUKorpu;
+
