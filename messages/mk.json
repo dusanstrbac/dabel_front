@@ -450,8 +450,8 @@
   "Logovanje": {
     "Prijava": "Најава",
     "Unesite svoje podatke za pristup nalogu": "Внесете ги вашите податоци за пристап до сметката",
-    "Korisničko ime": "Корисничко име",
-    "Unesite korisničko ime": "Внесете корисничко име",
+    "Korisničko ime": "Е-пошта или корисничко име",
+    "Unesite korisničko ime": "korisnik@gmail.com",
     "Lozinka": "Лозинка",
     "Nemate nalog": "Немате сметка?",
     "Registrujte se besplatno": "Регистрирајте се бесплатно",
