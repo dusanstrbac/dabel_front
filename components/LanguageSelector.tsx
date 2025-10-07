@@ -48,16 +48,16 @@ const LanguageSelector = () => {
     setIsOpen(false);
 
     const newSegments = [...segments];
-    newSegments[1] = langCode; // zameni trenutni locale segment
-    const newPath = newSegments.join('/');
+    newSegments[1] = langCode;
 
-    router.push(newPath); // idi na novi jezik
-    
-    setTimeout(() => {
-      window.location.href = newPath;
-    }, 100);
-    
+    const newPath = newSegments.join('/');
+    const searchParams = window.location.search; // npr. ?token=abc123
+
+    const finalUrl = `${newPath}${searchParams}`;
+
+    router.push(finalUrl);
   };
+
 
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
