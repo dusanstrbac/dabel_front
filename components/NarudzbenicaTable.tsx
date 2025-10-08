@@ -1,36 +1,17 @@
 'use client';
 
 import { Button } from "./ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "./ui/table";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow} from "./ui/table";
 import { useEffect, useState } from "react";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import Pagination from "./ui/pagination";
 import { usePathname, useSearchParams } from "next/navigation"; 
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 interface myProps {
   title: string;
 }
-
-
-
-// const statusPriority: Record<string, number> = {
-//   "U obradi": 1,
-//   "Obrađen": 2,
-//   "Odbijen": 3,
-//   "Greška": 4,
-//   "Opozvan": 5,
-// };
-
 
 // Uvek radimo sa brojevima, nevezano za jezik
 const statusPriority: Record<number, number> = {
@@ -43,7 +24,8 @@ const statusPriority: Record<number, number> = {
 
 const FormTable = ({ title }: myProps) => {
   const t = useTranslations('narudzbenica');
-  
+  const jezik = useLocale();
+
   const statusMap: Record<number, string> = {
     0: t('U obradi'),
     1: t('Obradjen'),
@@ -241,7 +223,7 @@ const FormTable = ({ title }: myProps) => {
                   </TableCell>
                   <TableCell>
                     <a
-                      href={`/${korisnik?.korisnickoIme}/dokument/${dokument.brojDokumenta}`}
+                      href={`/${jezik}/${korisnik?.korisnickoIme}/dokument/${dokument.brojDokumenta}`}
                       className="text-blue-500 hover:underline"
                       target="_blank"
                     >

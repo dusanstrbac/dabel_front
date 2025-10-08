@@ -19,10 +19,11 @@ interface Artikal {
 
 interface PrebaciUKorpuProps {
   rows: RowItem[];
+  onInvalidSifre?: (nevalidne: string[]) => void;
+  onNedovoljnaKolicina?: (nedovoljni: { sifra: string; trazena: number; dostupna: number }[]) => void;
 }
 
-const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
-
+const PrebaciUKorpu = ({ rows, onInvalidSifre, onNedovoljnaKolicina }: PrebaciUKorpuProps) => {
   const t = useTranslations();
 
   const handleAddToCart = async () => {
@@ -35,7 +36,6 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
     }
 
     try {
-      // Razdvajamo unete šifre na ID-ove i barKod-ove
       const ids: string[] = [];
       const barKods: string[] = [];
 
@@ -59,31 +59,29 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
 
       if (!artikli || artikli.length === 0) {
         toast.error(t('PrebaciUKorpu.Greska'), {
-        className: 'toast-error',
-        description: t('PrebaciUKorpu.NepostojeciArtikal')
-      });
+          className: 'toast-error',
+          description: t('PrebaciUKorpu.NepostojeciArtikal')
+        });
         return;
       }
 
-      // ✅ KREIRAJ MAPU ZA BRZO PRONALAŽENJE ARTIKALA PO ŠIFRI
+      const sveSifre = rows.map(row => row.sifra);
+      const validneSifre = artikli.flatMap(a => [a.idArtikla, a.barKod]);
+      const nevalidne = sveSifre.filter(sifra => !validneSifre.includes(sifra));
+      onInvalidSifre?.(nevalidne);
+
       const artikalMapa: Record<string, Artikal> = {};
       artikli.forEach(artikal => {
-        // Mapiraj po ID-u artikla
         artikalMapa[artikal.idArtikla] = artikal;
-        // Mapiraj i po barkodu
         artikalMapa[artikal.barKod] = artikal;
       });
 
-      // ✅ GRUPIŠI KOLIČINE PO STVARNOM ID-U ARTIKLA
       const kolicinePoArtiklu: Record<string, number> = {};
-
       rows.forEach(row => {
         if (!row.sifra) return;
-        
-        // Pronađi koji artikal odgovara ovoj šifri (bilo ID ili barkod)
+
         const artikal = artikalMapa[row.sifra];
         if (artikal) {
-          // Koristi idArtikla kao jedinstveni ključ
           if (kolicinePoArtiklu[artikal.idArtikla]) {
             kolicinePoArtiklu[artikal.idArtikla] += row.kolicina;
           } else {
@@ -92,17 +90,28 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
         }
       });
 
-      // ✅ Provera zaliha - sada koristi kolicinePoArtiklu
       const artikliSaNedovoljnomKolicinom = artikli.filter(artikal => {
         const trazenaKolicina = kolicinePoArtiklu[artikal.idArtikla] || 0;
         return trazenaKolicina > artikal.kolicina;
       });
 
       if (artikliSaNedovoljnomKolicinom.length > 0) {
-        const poruke = artikliSaNedovoljnomKolicinom.map((artikal) => {
-          const trazenaKolicina = kolicinePoArtiklu[artikal.idArtikla] || 0;
-          return `${t('proizvod.artikalLabel')} ${artikal.idArtikla} ${t('PrebaciUKorpu.zahteva')} ${trazenaKolicina}, ${t('PrebaciUKorpu.a dostupno je')} ${artikal.kolicina}`;
+        const nedovoljni = artikliSaNedovoljnomKolicinom.map(artikal => {
+          const trazena = kolicinePoArtiklu[artikal.idArtikla] || 0;
+          const originalSifra = rows.find(r => r.sifra === artikal.idArtikla || r.sifra === artikal.barKod)?.sifra || artikal.idArtikla;
+
+          return {
+            sifra: originalSifra,
+            trazena,
+            dostupna: artikal.kolicina
+          };
         });
+
+        onNedovoljnaKolicina?.(nedovoljni);
+
+        const poruke = nedovoljni.map((n) =>
+          `${t('proizvod.artikalLabel')} ${n.sifra} ${t('PrebaciUKorpu.zahteva')} ${n.trazena}, ${t('PrebaciUKorpu.a dostupno je')} ${n.dostupna}`
+        );
 
         toast.error(t('PrebaciUKorpu.NemaNaStanju'), {
           description: poruke.join("\n"),
@@ -110,13 +119,11 @@ const PrebaciUKorpu = ({ rows }: PrebaciUKorpuProps) => {
         return;
       }
 
-      // ✅ DODAVANJE U KORPU
       const existing = localStorage.getItem("cart");
       let cart: Record<string, { kolicina: number; barKod?: string }> = existing
         ? JSON.parse(existing)
         : {};
 
-      // Prođi kroz sve artikle i dodaj/azuriraj korpu
       artikli.forEach(artikal => {
         const trazenaKolicina = kolicinePoArtiklu[artikal.idArtikla] || 0;
         if (trazenaKolicina > 0) {
