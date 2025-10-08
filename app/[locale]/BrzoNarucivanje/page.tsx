@@ -4,45 +4,53 @@ import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import PrebaciUKorpu from "@/components/PrebaciUKorpu";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { useTranslations } from "next-intl";
 
 const BrzoNarucivanje = () => {
   const [rows, setRows] = useState([{ sifra: "", kolicina: "" }]);
-
+  const [invalidneSifre, setInvalidneSifre] = useState<string[]>([]);
+  const [invalidneKolicine, setInvalidneKolicine] = useState<number[]>([]);
   const [scannerActive, setScannerActive] = useState(false);
   const barcodeInputRef = useRef<HTMLInputElement>(null);
   const quantityRefs = useRef<Array<HTMLInputElement | null>>([]);
-  const t = useTranslations('brzoPorucivanje');
+  const t = useTranslations("brzoPorucivanje");
 
   const handleBarcodeDetected = (text: string) => {
-        const sifra = text.replace(/\D/g, "");
-        if (!sifra) return;
+    const sifra = text.replace(/\D/g, "");
+    if (!sifra) return;
 
-        setRows((prevRows) => {
-        const alreadyExists = prevRows.find((row) => row.sifra === sifra);
-        if (alreadyExists) {
-            return prevRows.map((row) =>
-            row.sifra === sifra
-                ? { ...row, kolicina: String(Number(row.kolicina) + 1) }
-                : row
-            );
+    setRows((prevRows) => {
+      const alreadyExists = prevRows.find((row) => row.sifra === sifra);
+      if (alreadyExists) {
+        return prevRows.map((row) =>
+          row.sifra === sifra
+            ? { ...row, kolicina: String(Number(row.kolicina) + 1) }
+            : row
+        );
+      } else {
+        const newRows = [...prevRows];
+        if (
+          newRows.length > 0 &&
+          newRows[newRows.length - 1].sifra === "" &&
+          newRows[newRows.length - 1].kolicina === ""
+        ) {
+          newRows[newRows.length - 1] = { sifra, kolicina: "1" };
         } else {
-            const newRows = [...prevRows];
-            if (
-                newRows.length > 0 &&
-                newRows[newRows.length - 1].sifra === "" &&
-                newRows[newRows.length - 1].kolicina === ""
-            ) {
-                newRows[newRows.length - 1] = { sifra, kolicina: "1" };
-            } else {
-                newRows.push({ sifra, kolicina: "1" });
-            }
-            return [...newRows, { sifra: "", kolicina: "" }];
+          newRows.push({ sifra, kolicina: "1" });
         }
-        });
-        setScannerActive(false);
-    };
+        return [...newRows, { sifra: "", kolicina: "" }];
+      }
+    });
+    setScannerActive(false);
+  };
 
   const handleChange = (
     index: number,
@@ -92,7 +100,7 @@ const BrzoNarucivanje = () => {
       const kolicinaIndex = headers.findIndex((h) => h === "Količina");
 
       if (sifraIndex === -1 || kolicinaIndex === -1) {
-        t('CSV mora imati kolone Šifra i Količina')
+        alert(t("CSV mora imati kolone Šifra i Količina"));
         return;
       }
 
@@ -108,7 +116,7 @@ const BrzoNarucivanje = () => {
         .filter((row) => row.sifra && row.kolicina);
 
       if (parsedRows.length === 0) {
-        t('CSV fajl nema validne podatke')
+        alert(t("CSV fajl nema validne podatke"));
         return;
       }
 
@@ -130,17 +138,33 @@ const BrzoNarucivanje = () => {
     document.body.removeChild(link);
   };
 
+  // Sabiranje količina po šifri
+  const kolicinePoSifri: Record<string, number> = {};
+  rows.forEach((row) => {
+    if (row.sifra) {
+      kolicinePoSifri[row.sifra] =
+        (kolicinePoSifri[row.sifra] || 0) + Number(row.kolicina);
+    }
+  });
 
   return (
     <div className="flex min-h-screen">
       <aside className="hidden md:flex md:flex-col md:w-1/3 bg-gray-50 p-6 border-r border-gray-200 overflow-auto">
         {/* Uputstva - levi panel */}
-        <h2 className="text-2xl font-bold mb-4">{t('KakoKoristiti')}</h2>
+        <h2 className="text-2xl font-bold mb-4">{t("KakoKoristiti")}</h2>
         <ul className="list-disc ml-5 text-gray-700 flex flex-col gap-4">
-          <li><strong>{t('Uključi kameru:')}</strong> {t('klikni dugme i usmeri kameru na barkod')}</li>
-          <li><strong>{t('Ručno unošenje')}</strong> {t('unesi šifru, pritisni Enter i upiši količinu')}</li>
-          <li><strong>{t('CSV')}</strong> {t('koristi Uvezi CSV dugme sa kolonama Šifra i Količina')}</li>
-          <li><strong>{t('Prebaci u korpu')}</strong> {t('kada završiš, klikni na dugme')}</li>
+          <li>
+            <strong>{t("Uključi kameru:")}</strong> {t("klikni dugme i usmeri kameru na barkod")}
+          </li>
+          <li>
+            <strong>{t("Ručno unošenje")}</strong> {t("unesi šifru, pritisni Enter i upiši količinu")}
+          </li>
+          <li>
+            <strong>{t("CSV")}</strong> {t("koristi Uvezi CSV dugme sa kolonama Šifra i Količina")}
+          </li>
+          <li>
+            <strong>{t("Prebaci u korpu")}</strong> {t("kada završiš, klikni na dugme")}
+          </li>
         </ul>
       </aside>
 
@@ -157,27 +181,32 @@ const BrzoNarucivanje = () => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-sm">
             <DialogHeader>
-              <DialogTitle>{t('KakoKoristiti')}</DialogTitle>
+              <DialogTitle>{t("KakoKoristiti")}</DialogTitle>
             </DialogHeader>
             {/* isti sadržaj kao u aside */}
             <ul className="list-disc ml-5 text-gray-700 flex flex-col gap-3">
-              <li><strong>{t('Uključi kameru:')}</strong> {t('klikni dugme i usmeri kameru na barkod')}</li>
-              <li><strong>{t('Ručno unošenje')}</strong> {t('unesi šifru, pritisni Enter i upiši količinu')}</li>
-              <li><strong>{t('CSV')}</strong> {t('koristi Uvezi CSV dugme sa kolonama Šifra i Količina')}</li>
-              <li><strong>{t('Prebaci u korpu')}</strong> {t('kada završiš, klikni na dugme')}</li>
+              <li>
+                <strong>{t("Uključi kameru:")}</strong> {t("klikni dugme i usmeri kameru na barkod")}
+              </li>
+              <li>
+                <strong>{t("Ručno unošenje")}</strong> {t("unesi šifru, pritisni Enter i upiši količinu")}
+              </li>
+              <li>
+                <strong>{t("CSV")}</strong> {t("koristi Uvezi CSV dugme sa kolonama Šifra i Količina")}
+              </li>
+              <li>
+                <strong>{t("Prebaci u korpu")}</strong> {t("kada završiš, klikni na dugme")}
+              </li>
             </ul>
             <DialogClose className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-              {t('Zatvori')}
+              {t("Zatvori")}
             </DialogClose>
           </DialogContent>
         </Dialog>
 
-        <h1 className="font-bold text-3xl text-center lg:text-4xl mb-4">
-          {t('Brzo naručivanje')}
-        </h1>
+        <h1 className="font-bold text-3xl text-center lg:text-4xl mb-4">{t("Brzo naručivanje")}</h1>
 
         <div className="flex justify-center mb-6">
-          
           <Dialog open={scannerActive} onOpenChange={setScannerActive}>
             <DialogTrigger asChild>
               <button
@@ -186,17 +215,16 @@ const BrzoNarucivanje = () => {
                 }`}
               >
                 {scannerActive
-                  ? t('Isključi kameru za skeniranje')
-                  : t('Uključi kameru za skeniranje')}
+                  ? t("Isključi kameru za skeniranje")
+                  : t("Uključi kameru za skeniranje")}
               </button>
             </DialogTrigger>
 
-              {/* max-w-[300px] w-[400px] md:max-w-full p-4 */}
             <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6">
               <DialogHeader>
-                <DialogTitle className="text-center text-lg mb-2">{t('Skeniranje barkoda')}</DialogTitle>
+                <DialogTitle className="text-center text-lg mb-2">{t("Skeniranje barkoda")}</DialogTitle>
               </DialogHeader>
-              
+
               <div className="flex justify-center">
                 <BarcodeScannerComponent
                   width={360}
@@ -210,12 +238,11 @@ const BrzoNarucivanje = () => {
               </div>
 
               <DialogClose className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                {t('Zatvori')}
+                {t("Zatvori")}
               </DialogClose>
             </DialogContent>
           </Dialog>
         </div>
-
 
         <input
           ref={barcodeInputRef}
@@ -230,7 +257,7 @@ const BrzoNarucivanje = () => {
             onClick={handleDownloadTemplate}
             title="Preuzmi CSV šablon za unos"
           >
-            📄 {t('Preuzmi šablon')}
+            📄 {t("Preuzmi šablon")}
           </button>
         </div>
 
@@ -244,18 +271,26 @@ const BrzoNarucivanje = () => {
                 key={index}
                 className="flex w-full max-w-xl items-end justify-center gap-2 transition-all duration-200"
               >
-                <div className="flex flex-col items-center">
-                  <p className={isDummy ? "opacity-50" : ""}>{t('Sifra')}</p>
+                {/* Tooltip kružić za grešku */}
+                {invalidneSifre.includes(row.sifra) && (
+                  <div
+                    className="w-3 h-3 rounded-full bg-red-500 cursor-help mb-3"
+                    title="Nevalidna šifra"
+                  />
+                )}
+                <div className="flex flex-col items-center relative">
+                  <p className={isDummy ? "opacity-50" : ""}>{t("Sifra")}</p>
+
                   <Input
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    className={`border-2 border-[#323131cc] w-full ${
-                      isDummy ? "opacity-50 cursor-pointer" : ""
-                    }`}
+                    className={`border-2 w-full ${
+                      invalidneSifre.includes(row.sifra)
+                        ? "border-red-500"
+                        : "border-[#323131cc]"
+                    } ${isDummy ? "opacity-50 cursor-pointer" : ""}`}
                     value={row.sifra}
-                    onChange={(e) =>
-                      handleChange(index, "sifra", e.target.value)
-                    }
+                    onChange={(e) => handleChange(index, "sifra", e.target.value)}
                     onFocus={() => {
                       if (isDummy) handleAddRow();
                     }}
@@ -269,18 +304,18 @@ const BrzoNarucivanje = () => {
                 </div>
 
                 <div className="flex flex-col items-center">
-                  <p className={isDummy ? "opacity-40" : ""}>{t('Kolicina')}</p>
+                  <p className={isDummy ? "opacity-40" : ""}>{t("Kolicina")}</p>
                   <Input
-                    ref={(el) => { quantityRefs.current[index] = el; }}
+                    ref={(el) => {
+                      quantityRefs.current[index] = el;
+                    }}
                     inputMode="numeric"
                     pattern="[0-9]*"
                     className={`border-2 border-[#323131cc] w-full max-w-[50] ${
                       isDummy ? "opacity-40 cursor-pointer" : ""
                     }`}
                     value={row.kolicina}
-                    onChange={(e) =>
-                      handleChange(index, "kolicina", e.target.value)
-                    }
+                    onChange={(e) => handleChange(index, "kolicina", e.target.value)}
                     onFocus={() => {
                       if (isDummy) handleAddRow();
                     }}
@@ -307,7 +342,7 @@ const BrzoNarucivanje = () => {
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-1 rounded"
               onClick={() => document.getElementById("csvUpload")?.click()}
             >
-              {t('Uvezi CSV')}
+              {t("Uvezi CSV")}
             </button>
             <input
               type="file"
@@ -318,7 +353,10 @@ const BrzoNarucivanje = () => {
             />
           </div>
 
-          <PrebaciUKorpu rows={validItems} />
+          <PrebaciUKorpu
+            rows={validItems}
+            onInvalidSifre={(nevalidne) => setInvalidneSifre(nevalidne)}
+          />
         </div>
       </main>
     </div>
