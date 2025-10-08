@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 const BrzoNarucivanje = () => {
   const [rows, setRows] = useState([{ sifra: "", kolicina: "" }]);
   const [invalidneSifre, setInvalidneSifre] = useState<string[]>([]);
+  const [invalidneKolicine, setInvalidneKolicine] = useState<string[]>([]);
   const [scannerActive, setScannerActive] = useState(false);
   const barcodeInputRef = useRef<HTMLInputElement>(null);
   const quantityRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -244,7 +245,7 @@ const BrzoNarucivanje = () => {
                 key={index}
                 className="flex w-full max-w-xl items-end justify-center gap-2 transition-all duration-200"
               >
-                {/* Tooltip kružić za grešku */}
+                {/* Tooltip kružić za grešku šifre*/}
                 {invalidneSifre.includes(row.sifra) && (
                   <div
                     className="w-3 h-3 rounded-full bg-red-500 cursor-help mb-3"
@@ -278,8 +279,16 @@ const BrzoNarucivanje = () => {
                   />
                 </div>
 
+                {/* Tooltip kružić za grešku količine */}
+                {invalidneKolicine.includes(row.sifra) && (
+                  <div
+                    className="w-3 h-3 rounded-full bg-red-500 cursor-help mb-3"
+                    title="Uneta količina veća od dostupne"
+                  />
+                )}
                 <div className="flex flex-col items-center">
                   <p className={isDummy ? "opacity-40" : ""}>{t('Kolicina')}</p>
+
                   <Input
                     ref={(el) => { quantityRefs.current[index] = el; }}
                     inputMode="numeric"
@@ -329,7 +338,7 @@ const BrzoNarucivanje = () => {
             />
           </div>
 
-          <PrebaciUKorpu rows={validItems} onInvalidSifre={(nevalidne) => setInvalidneSifre(nevalidne)} />
+          <PrebaciUKorpu rows={validItems} onInvalidSifre={(nevalidne) => setInvalidneSifre(nevalidne) } onInvalidKolicine={(nevalidneKol) => setInvalidneKolicine(nevalidneKol)}/>
         </div>
       </main>
     </div>
