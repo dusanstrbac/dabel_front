@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 export default function PrikazDokumenta() {
   const t = useTranslations();
   const params = useParams();
   const brojDokumenta = params.brojDokumenta as string;
   const router = useRouter();
+  const jezik = useLocale();
 
   const [dokument, setDokument] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,7 +41,7 @@ export default function PrikazDokumenta() {
 
   const handleStampanje = () => {
     if (!dokument?.brojDokumenta) return;
-      router.push(`/${korisnik?.korisnickoIme}/dokument/stampaj/${dokument.brojDokumenta}`)
+      router.push(`/${jezik}/${korisnik?.korisnickoIme}/dokument/stampaj/${dokument.brojDokumenta}`)
   };
 
   if (loading) return <p className="text-center py-8">{t('brojDokumenta.Učitavanje dokumenta')}</p>;

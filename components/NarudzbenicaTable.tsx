@@ -34,7 +34,6 @@ const FormTable = ({ title }: myProps) => {
     4: t('Opozvan'),
   };
 
-
   const [error, setError] = useState("");
   const [dokumenta, setDokumenta] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
