@@ -284,7 +284,7 @@ const BrzoNarucivanje = () => {
                     ref={(el) => { quantityRefs.current[index] = el; }}
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    className={`border-2 border-[#323131cc] w-full max-w-[50] ${
+                    className={`border-2 border-[#323131cc] w-full ${
                       isDummy ? "opacity-40 cursor-pointer" : ""
                     }`}
                     value={row.kolicina}
