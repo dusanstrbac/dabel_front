@@ -8,7 +8,9 @@
     "Nema dostupnih kataloga":"Nema dostupnih kataloga.",
     "Naši katalozi": "Naši katalozi",
     "Poruka je uspešno poslata": "Poruka je uspešno poslata!",
-    "Došlo je do greške Pokušajte ponovo kasnije": "Došlo je do greške. Pokušajte ponovo kasnije."
+    "Došlo je do greške Pokušajte ponovo kasnije": "Došlo je do greške. Pokušajte ponovo kasnije.",
+    "NovopristigliArtikli": "Novopristigli artikli",
+    "Najprodavanije": "Najprodavanije"
   },
   "Paginacija": {
     "Prethodna": "Prethodna",
@@ -484,8 +486,5 @@
     "Potvrdite lozinku": "Potvrdite lozinku",
     "Postavljanje": "Postavljanje...",
     "Postavi lozinku" : "Postavi lozinku"
-  },
-  "najprodavanije": {
-    "naslov": "Najprodavanije"
   }
 }

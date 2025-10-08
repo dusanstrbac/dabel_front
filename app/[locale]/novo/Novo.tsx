@@ -146,7 +146,7 @@ const Novopristigli = () => {
   return (
     <div className="lg:p-4">
       <div className="w-full mx-auto flex justify-between items-center p-2">
-        <h1 className="font-bold text-3xl">Novopristigli artikli</h1>
+        <h1 className="font-bold text-3xl">{t('main.NovopristigliArtikli')}</h1>
         <SortiranjeButton
           sortKey={sortKey}
           sortOrder={sortOrder}
