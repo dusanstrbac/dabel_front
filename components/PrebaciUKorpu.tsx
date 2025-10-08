@@ -20,7 +20,6 @@ interface Artikal {
 interface PrebaciUKorpuProps {
   rows: RowItem[];
   onInvalidSifre?: (nevalidne: string[]) => void;
-
 }
 
 const PrebaciUKorpu = ({ rows, onInvalidSifre }: PrebaciUKorpuProps) => {
