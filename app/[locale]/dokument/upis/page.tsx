@@ -17,9 +17,9 @@ import { useTranslations } from "next-intl";
         const imageUrl = '/images';
 
         const [mestoIsporuke, setMestoIsporuke] = useState("");
+        const [sifraIsporuke, setSifraIsporuke] = useState("");
         const [napomena, setNapomena] = useState("");
         const [ukupnaCenaSaPDV, setUkupnaCenaSaPDV] = useState<number>(0);
-
 
         useEffect(() => {
             const local = localStorage.getItem("webparametri");
@@ -57,6 +57,7 @@ import { useTranslations } from "next-intl";
         }
     }, []);
 
+
     useEffect(() => {
         if (ukupnaCenaSaPDV === 0) return;
 
@@ -85,6 +86,7 @@ import { useTranslations } from "next-intl";
                                     dostavaList={partner?.partnerDostava ?? []}
                                     onSelectOption={(adresa) => {
                                         setMestoIsporuke(adresa.adresa);
+                                        setSifraIsporuke(adresa.sifra);
                                     }}
                                     defaultValue={mestoIsporuke}
                                 />
@@ -213,7 +215,7 @@ import { useTranslations } from "next-intl";
                     <KreirajNarudzbenicu
                         artikli={artikli}
                         partner={partner}
-                        mestoIsporuke={mestoIsporuke}
+                        mestoIsporuke={sifraIsporuke}
                         napomena={napomena}
                         dostava={pravaDostava}
                         disabled={mestoIsporuke.trim() === ""}

@@ -30,7 +30,8 @@ interface KorisnikDostavaType {
     opstina: string,
     kontaktOsoba: string,
     telefon: string,
-    email: string
+    email: string,
+    sifra: string
 }
 
 interface KorisnikRabatType {
