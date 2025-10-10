@@ -107,8 +107,18 @@ const PrebaciUKorpu = ({ rows, onInvalidSifre, onInvalidKolicine }: PrebaciUKorp
         return trazenaKolicina > artikal.kolicina;
       });
 
-      const nevalidneKol = artikliSaNedovoljnomKolicinom.map(a => a.idArtikla);
+      // 🔹 vraćamo korisničke šifre koje su unesene u rows, a koje imaju manju zalihu
+      const nevalidneKol = rows
+        .filter(r => {
+          const artikal = artikli.find(
+            a => a.idArtikla === r.sifra || a.barKod === r.sifra
+          );
+          return artikal && r.kolicina > artikal.kolicina;
+        })
+        .map(r => r.sifra);
+
       onInvalidKolicine?.(nevalidneKol);
+
 
       if (artikliSaNedovoljnomKolicinom.length > 0) {
         const poruke = artikliSaNedovoljnomKolicinom.map((artikal) => {
