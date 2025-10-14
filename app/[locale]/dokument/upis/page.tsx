@@ -80,7 +80,6 @@ import { useTranslations } from "next-intl";
                         <div className="flex flex-col items-center">
                             <div className="flex justify-center items-center gap-2 w-full">
                                 <LocationEdit className="w-6 h-6 shrink-0"/>
-                                {/* ovaj LocationEdit, samo kada se dovoljno smanji ekran samo nestane, zasto je to tako?? */}
                                 <ComboboxAdrese
                                     dostavaList={partner?.partnerDostava ?? []}
                                     onSelectOption={(adresa) => {

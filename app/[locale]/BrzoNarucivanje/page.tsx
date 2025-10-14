@@ -294,7 +294,11 @@ const BrzoNarucivanje = () => {
                     inputMode="numeric"
                     pattern="[0-9]*"
                     className={`border-2 border-[#323131cc] w-full ${
-                      isDummy ? "opacity-40 cursor-pointer" : ""
+                        invalidneKolicine.includes(row.sifra)
+                          ? 'border-red-500'
+                          : 'border-[#323131cc]'
+                      }
+                        ${isDummy ? "opacity-40 cursor-pointer" : ""
                     }`}
                     value={row.kolicina}
                     onChange={(e) =>
