@@ -1,20 +1,20 @@
-    import { Button } from "@/components/ui/button";
-    import { useRouter } from "next/navigation";
-    import { AritkalKorpaType } from "@/types/artikal";
-    import { cn } from "@/lib/utils";
-    import { DokumentInfo } from "@/types/dokument";
-    import { useState } from "react";
-    import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { AritkalKorpaType } from "@/types/artikal";
+import { cn } from "@/lib/utils";
+import { DokumentInfo } from "@/types/dokument";
+import { useState } from "react";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { useTranslations } from "next-intl";
 
-    interface KreirajNarudzbenicuProps {
+interface KreirajNarudzbenicuProps {
     artikli: AritkalKorpaType[];
     partner: KorisnikPodaciType;
     mestoIsporuke: string;
     napomena: string;
     dostava: number;
     disabled: boolean;
-    }
+}
 
 
     const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabled, dostava }: KreirajNarudzbenicuProps) => {
@@ -47,6 +47,8 @@ import { useTranslations } from "next-intl";
         //     }
         // }, []);
 
+        const sifraIsporuke = partner?.partnerDostava[0].sifra;
+
         const handleClick = async () => {
             setIsLoading(true);
 
@@ -61,7 +63,7 @@ import { useTranslations } from "next-intl";
                 idKomercijaliste: partner.komercijalisti.id,
                 datumDokumenta: now,
                 datumVazenja: datumVazenja.toISOString(),
-                lokacija: mestoIsporuke, 
+                lokacija: sifraIsporuke, 
                 napomena: napomena,
                 dostava: dostava,
                 stavkeDokumenata: artikli.map((value) => ({
