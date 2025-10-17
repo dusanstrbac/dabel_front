@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation'; // koristi navigation za app dir
+import { usePathname, useRouter } from 'next/navigation';
 import { setCookie } from 'cookies-next';
 import { locales, Locale } from '@/config/locales';
 
@@ -22,6 +22,7 @@ const LanguageSelector = () => {
       flag: '',
     };
 
+  // Zatvaranje dropdowna kad klikneš van
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -32,6 +33,7 @@ const LanguageSelector = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Detekcija mobilnog ekrana
   useEffect(() => {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -51,13 +53,10 @@ const LanguageSelector = () => {
     newSegments[1] = langCode;
 
     const newPath = newSegments.join('/');
-    const searchParams = window.location.search; // npr. ?token=abc123
+    const searchParams = window.location.search;
 
-    const finalUrl = `${newPath}${searchParams}`;
-
-    router.push(finalUrl);
+    router.push(`${newPath}${searchParams}`);
   };
-
 
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
@@ -68,10 +67,10 @@ const LanguageSelector = () => {
       >
         <span className={`fi fi-${selectedLanguage.flag} mr-2 text-lg`}></span>
         <span className="hidden sm:block">{selectedLanguage.label}</span>
-        <svg 
+        <svg
           className={`ml-2 h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-          fill="none" 
-          stroke="currentColor" 
+          fill="none"
+          stroke="currentColor"
           viewBox="0 0 24 24"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -79,13 +78,18 @@ const LanguageSelector = () => {
       </button>
 
       {isOpen && (
-        <div className={`
-          origin-top-right absolute z-50
-          ${isMobile ? 'left-0 top-0 mt-2 w-64 max-w-[90vw]' : 'right-0 mt-2 w-56'}
-          rounded-lg shadow-xl bg-white border border-gray-200
-          animate-in fade-in-80 zoom-in-95
-        `}>
-          <div className="py-2">
+        <div
+          className={`
+            absolute z-50 origin-top-right 
+            mt-2 rounded-lg shadow-xl bg-white border border-gray-200 
+            animate-in fade-in-80 zoom-in-95
+            ${isMobile
+              ? 'left-1/2 -translate-x-1/2 w-[90vw] max-w-xs'
+              : 'right-0 w-56'}
+          `}
+          style={{ transformOrigin: isMobile ? 'top center' : 'top right' }}
+        >
+          <div className="py-2 max-h-[70vh] overflow-y-auto">
             {[...locales]
               .sort((a, b) => a.label.localeCompare(b.label))
               .map((lang) => (
@@ -96,17 +100,16 @@ const LanguageSelector = () => {
                     w-full text-left flex items-center px-4 py-3 text-sm transition-all duration-200 cursor-pointer
                     ${lang.code === selectedLanguage.code
                       ? 'bg-blue-50 text-blue-700 font-medium'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                    }
+                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}
                   `}
                 >
                   <span className={`fi fi-${lang.flag} mr-3 text-lg shrink-0`}></span>
                   <span className="truncate">{lang.label}</span>
                   {lang.code === selectedLanguage.code && (
-                    <svg 
-                      className="ml-auto h-4 w-4 text-blue-600" 
-                      fill="none" 
-                      stroke="currentColor" 
+                    <svg
+                      className="ml-auto h-4 w-4 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

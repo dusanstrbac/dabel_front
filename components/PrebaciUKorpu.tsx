@@ -152,6 +152,7 @@ const PrebaciUKorpu = ({ rows, onInvalidSifre, onInvalidKolicine }: PrebaciUKorp
           }
         }
       });
+      
 
       localStorage.setItem("cart", JSON.stringify(cart));
       window.dispatchEvent(new Event("storage"));
