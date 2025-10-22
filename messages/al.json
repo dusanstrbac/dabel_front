@@ -41,8 +41,15 @@
   },
   "kreirajNarudzbenicu": {
     "Kreiranje": "Duke krijuar...",
-    "Postoje neplaćene fakture": "Ka fatura të papaguara",
-    "Kreiraj Narudžbenicu": "Krijo Porosi"
+    "Postoje neplaćene fakture": "Ekzistojnë fatura të papaguara",
+    "Kreiraj Narudžbenicu": "Krijo Porosi",
+    "⏳ Kreiranje narudžbenice je u toku": "⏳ Krijimi i porosisë është në proces...",
+    "❌ Greška: server nije prihvatio zahtev": "❌ Gabim: serveri nuk e pranoi kërkesën.",
+    "❌ Neuspešan POST": "❌ POST i pasuksesshëm:",
+    "✅ Narudžbenica uspešno poslata!": "✅ Porosia u dërgua me sukses!",
+    "📄 Dokument je uspešno sačuvan u sistemu": "📄 Dokumenti u ruajt me sukses në sistem.",
+    "❌ Greška pri učitavanju dokumenta": "❌ Gabim gjatë ngarkimit të dokumentit",
+    "⚠️ Došlo je do greške pri slanju narudžbenice": "⚠️ Ndodhi një gabim gjatë dërgimit të porosisë."
   },
   "uplateTable": {
     "Greška pri učitavanju uplata": "Gabim gjatë ngarkimit të pagesave.",

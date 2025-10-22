@@ -20,6 +20,7 @@ interface KreirajNarudzbenicuProps {
 
     const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabled, dostava }: KreirajNarudzbenicuProps) => {
         const router = useRouter();
+        const t = useTranslations();
         const [korisnikUdugu, setKorisnikUdugu] = useState(false);
         const [isLoading, setIsLoading] = useState(false);
 
@@ -48,9 +49,10 @@ interface KreirajNarudzbenicuProps {
         //     }
         // }, []);
 
+        t('kreirajNarudzbenicu.Kreiranje')
         const handleClick = async () => {
             setIsLoading(true);
-            toast.info("⏳ Kreiranje narudžbenice je u toku...");
+            toast.info(t('kreirajNarudzbenicu.⏳ Kreiranje narudžbenice je u toku'));
 
             const now = new Date().toISOString();
             // Datum važenja +7 dana
@@ -88,13 +90,13 @@ interface KreirajNarudzbenicuProps {
 
 
                 if (!res.ok) {
-                    toast.error("❌ Greška: server nije prihvatio zahtev.");
-                    console.error("❌ Neuspešan POST:", res.status);
+                    toast.error(t('kreirajNarudzbenicu.❌ Greška: server nije prihvatio zahtev'));
+                    console.error(t('kreirajNarudzbenicu.❌ Neuspešan POST'), res.status);
                     return;
                 }
 
                 if (res.ok) {
-                    toast.success("✅ Narudžbenica uspešno poslata!");
+                    toast.success(t('kreirajNarudzbenicu.✅ Narudžbenica uspešno poslata!'));
 
                     // Nakon uspešnog upisa dokumenta, fetchuj najnoviji dokument
                     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
@@ -114,7 +116,7 @@ interface KreirajNarudzbenicuProps {
                             dostava: dokument.dostava
                         }));
 
-                        toast.success("📄 Dokument je uspešno sačuvan u sistemu.");
+                        toast.success(t('kreirajNarudzbenicu.📄 Dokument je uspešno sačuvan u sistemu'));
 
                     } catch (err) {
                         toast.error("❌ Greška pri učitavanju dokumenta");
@@ -143,7 +145,7 @@ interface KreirajNarudzbenicuProps {
                     setIsLoading(false);
                 }
             };
-            const t = useTranslations();
+            
 
         return (
             <div className="space-y-2">
