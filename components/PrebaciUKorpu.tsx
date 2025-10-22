@@ -20,9 +20,10 @@ interface Artikal {
 interface PrebaciUKorpuProps {
   rows: RowItem[];
   onInvalidSifre?: (nevalidne: string[]) => void;
+  onInvalidKolicine?: (nevalidneKol: string[]) => void;
 }
 
-const PrebaciUKorpu = ({ rows, onInvalidSifre }: PrebaciUKorpuProps) => {
+const PrebaciUKorpu = ({ rows, onInvalidSifre, onInvalidKolicine }: PrebaciUKorpuProps) => {
 
   const t = useTranslations();
 
@@ -60,7 +61,7 @@ const PrebaciUKorpu = ({ rows, onInvalidSifre }: PrebaciUKorpuProps) => {
 
       const sveSifre = rows.map(row => row.sifra);
       const validneSifre = artikli.flatMap(a => [a.idArtikla, a.barKod]);
-      const nevalidne = sveSifre.filter(sifra => !validneSifre.includes(sifra));
+      const nevalidne = sveSifre.filter(sifra => !validneSifre.includes(sifra));      
 
       // Pošalji sve šifre kao nevalidne
         onInvalidSifre?.(nevalidne);
@@ -105,6 +106,19 @@ const PrebaciUKorpu = ({ rows, onInvalidSifre }: PrebaciUKorpuProps) => {
         const trazenaKolicina = kolicinePoArtiklu[artikal.idArtikla] || 0;
         return trazenaKolicina > artikal.kolicina;
       });
+
+      // 🔹 vraćamo korisničke šifre koje su unesene u rows, a koje imaju manju zalihu
+      const nevalidneKol = rows
+        .filter(r => {
+          const artikal = artikli.find(
+            a => a.idArtikla === r.sifra || a.barKod === r.sifra
+          );
+          return artikal && r.kolicina > artikal.kolicina;
+        })
+        .map(r => r.sifra);
+
+      onInvalidKolicine?.(nevalidneKol);
+
 
       if (artikliSaNedovoljnomKolicinom.length > 0) {
         const poruke = artikliSaNedovoljnomKolicinom.map((artikal) => {
