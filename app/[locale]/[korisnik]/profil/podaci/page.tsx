@@ -24,7 +24,6 @@ interface KorisnikPodaciType {
   telefon: string;
   maticniBroj: string;
   pib: string;
-  delatnost: string;
   komercijalisti: KomercijalistaType;
   finKarta: FinKartaType;
 }
@@ -120,7 +119,6 @@ const ProfilPodaci = () => {
 
       <div className="mt-[50px] flex gap-10 lg:gap-[150px]">
         <div className="flex flex-col gap-2">
-          <h1>{t('activity')}: <span>{userData.delatnost || t('noActivityCode')}</span></h1>
           <p>{t('mb')}: <span>{userData.maticniBroj}</span></p>
           <p>{t('pib')}: <span>{userData.pib}</span></p>
         </div>

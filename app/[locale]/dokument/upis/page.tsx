@@ -121,7 +121,6 @@ import { useTranslations } from "next-intl";
                                     <p><strong>{t('dokumentUpis.Adresa')}</strong> {partner?.adresa}</p>
                                     <p><strong>{t('dokumentUpis.Grad')}</strong> {partner?.grad}</p>
                                     <p><strong>{t('dokumentUpis.ZIP')}</strong> {partner?.zip}</p>
-                                    <p><strong>{t('dokumentUpis.Delatnost')}</strong> {partner?.delatnost}</p>
                                     <p><strong>{t('dokumentUpis.Telefon')}</strong> {partner?.telefon}</p>
                                 </div>
                             </div>

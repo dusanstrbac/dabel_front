@@ -57,7 +57,6 @@ export default function LoginForm() {
         }
       );
       
-      setCookie("NEXT_LOCALE", locale, { path: "/" });
       const redirectTo = searchParams.get("redirectTo") || await getCookie("poslednjaRuta") || '/';
 
       if (data.token) {
