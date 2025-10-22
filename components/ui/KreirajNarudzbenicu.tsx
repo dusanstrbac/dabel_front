@@ -1,20 +1,21 @@
-    import { Button } from "@/components/ui/button";
-    import { useRouter } from "next/navigation";
-    import { AritkalKorpaType } from "@/types/artikal";
-    import { cn } from "@/lib/utils";
-    import { DokumentInfo } from "@/types/dokument";
-    import { useState } from "react";
-    import { dajKorisnikaIzTokena } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { AritkalKorpaType } from "@/types/artikal";
+import { cn } from "@/lib/utils";
+import { DokumentInfo } from "@/types/dokument";
+import { useState } from "react";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
-    interface KreirajNarudzbenicuProps {
+interface KreirajNarudzbenicuProps {
     artikli: AritkalKorpaType[];
     partner: KorisnikPodaciType;
     mestoIsporuke: string;
     napomena: string;
     dostava: number;
     disabled: boolean;
-    }
+}
 
 
     const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabled, dostava }: KreirajNarudzbenicuProps) => {
@@ -49,6 +50,7 @@ import { useTranslations } from "next-intl";
 
         const handleClick = async () => {
             setIsLoading(true);
+            toast.info("⏳ Kreiranje narudžbenice je u toku...");
 
             const now = new Date().toISOString();
             // Datum važenja +7 dana
@@ -86,11 +88,14 @@ import { useTranslations } from "next-intl";
 
 
                 if (!res.ok) {
+                    toast.error("❌ Greška: server nije prihvatio zahtev.");
                     console.error("❌ Neuspešan POST:", res.status);
                     return;
                 }
 
                 if (res.ok) {
+                    toast.success("✅ Narudžbenica uspešno poslata!");
+
                     // Nakon uspešnog upisa dokumenta, fetchuj najnoviji dokument
                     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
                     const korisnik = dajKorisnikaIzTokena();
@@ -108,17 +113,15 @@ import { useTranslations } from "next-intl";
                             napomena: dokument.napomena,
                             dostava: dokument.dostava
                         }));
-                        //ovde dobijam posle posta da su "originalna cena" ista kao za poslednji artikal
-                        //sto je veoma lose, treba da svaki artikal bude svoju cenu, a svako ima svoju posebnu koriscenu i originalnu cenu!
-                        //ne znam zasto se ovo desava wtf
+
+                        toast.success("📄 Dokument je uspešno sačuvan u sistemu.");
 
                     } catch (err) {
+                        toast.error("❌ Greška pri učitavanju dokumenta");
                         console.error("❌ Greška pri fetchovanju dokumenta:", err);
                     }
                 }
-                
                 window.open("/dokument", "_blank");
-                
 
                 // ZA BRISANJE IZ SESSION STORAGE NAKON POSTAVLJENE NARUDzBENICE
                 const kanal = new BroadcastChannel("dokument-kanal");
@@ -133,14 +136,13 @@ import { useTranslations } from "next-intl";
                         router.push("/");
                     }
                 };
-
                 } catch (err) {
+                    toast.error("⚠️ Došlo je do greške pri slanju narudžbenice.");
                     console.error("❌ Greška pri slanju POST zahteva:", err);
                 } finally {
                     setIsLoading(false);
                 }
             };
-
             const t = useTranslations();
 
         return (
