@@ -17,9 +17,9 @@ import { useTranslations } from "next-intl";
         const imageUrl = '/images';
 
         const [mestoIsporuke, setMestoIsporuke] = useState("");
+        const [sifraIsporuke, setSifraIsporuke] = useState("");
         const [napomena, setNapomena] = useState("");
         const [ukupnaCenaSaPDV, setUkupnaCenaSaPDV] = useState<number>(0);
-
 
         useEffect(() => {
             const local = localStorage.getItem("webparametri");
@@ -57,6 +57,7 @@ import { useTranslations } from "next-intl";
         }
     }, []);
 
+
     useEffect(() => {
         if (ukupnaCenaSaPDV === 0) return;
 
@@ -84,6 +85,7 @@ import { useTranslations } from "next-intl";
                                     dostavaList={partner?.partnerDostava ?? []}
                                     onSelectOption={(adresa) => {
                                         setMestoIsporuke(adresa.adresa);
+                                        setSifraIsporuke(adresa.sifra);
                                     }}
                                     defaultValue={mestoIsporuke}
                                 />
@@ -118,7 +120,6 @@ import { useTranslations } from "next-intl";
                                     <p><strong>{t('dokumentUpis.Adresa')}</strong> {partner?.adresa}</p>
                                     <p><strong>{t('dokumentUpis.Grad')}</strong> {partner?.grad}</p>
                                     <p><strong>{t('dokumentUpis.ZIP')}</strong> {partner?.zip}</p>
-                                    <p><strong>{t('dokumentUpis.Delatnost')}</strong> {partner?.delatnost}</p>
                                     <p><strong>{t('dokumentUpis.Telefon')}</strong> {partner?.telefon}</p>
                                 </div>
                             </div>
@@ -212,7 +213,7 @@ import { useTranslations } from "next-intl";
                     <KreirajNarudzbenicu
                         artikli={artikli}
                         partner={partner}
-                        mestoIsporuke={mestoIsporuke}
+                        mestoIsporuke={sifraIsporuke}
                         napomena={napomena}
                         dostava={pravaDostava}
                         disabled={mestoIsporuke.trim() === ""}

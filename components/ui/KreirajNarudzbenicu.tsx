@@ -49,7 +49,12 @@ interface KreirajNarudzbenicuProps {
         //     }
         // }, []);
 
+<<<<<<< HEAD
         t('kreirajNarudzbenicu.Kreiranje')
+=======
+        const sifraIsporuke = partner?.partnerDostava[0].sifra;
+
+>>>>>>> 251c921075e53f6954a182ca5e9c9944d4e3f177
         const handleClick = async () => {
             setIsLoading(true);
             toast.info(t('kreirajNarudzbenicu.⏳ Kreiranje narudžbenice je u toku'));
@@ -65,7 +70,7 @@ interface KreirajNarudzbenicuProps {
                 idKomercijaliste: partner.komercijalisti.id,
                 datumDokumenta: now,
                 datumVazenja: datumVazenja.toISOString(),
-                lokacija: mestoIsporuke, 
+                lokacija: sifraIsporuke, 
                 napomena: napomena,
                 dostava: dostava,
                 stavkeDokumenata: artikli.map((value) => ({

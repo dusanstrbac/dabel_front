@@ -52,9 +52,16 @@ const BrzoNarucivanje = () => {
   ) => {
     const numericValue = value.replace(/\D/g, "");
     const newRows = [...rows];
+    const prevSifra = newRows[index].sifra;
+
     newRows[index][field] = numericValue;
     setRows(newRows);
+
+    // 🔹 Kad korisnik menja bilo koje polje, ukloni stare markere greške za tu šifru
+    setInvalidneSifre(prev => prev.filter(s => s !== prevSifra && s !== numericValue));
+    setInvalidneKolicine(prev => prev.filter(s => s !== prevSifra && s !== numericValue));
   };
+
 
   const handleAddRow = () => {
     setRows([...rows, { sifra: "", kolicina: "" }]);
@@ -62,9 +69,17 @@ const BrzoNarucivanje = () => {
 
   const handleRemoveRow = (index: number) => {
     const newRows = [...rows];
+    const removed = newRows[index];
     newRows.splice(index, 1);
     setRows(newRows);
+
+    // 🔹 Ukloni eventualne stare greške za tu šifru
+    if (removed?.sifra) {
+      setInvalidneSifre(prev => prev.filter(s => s !== removed.sifra));
+      setInvalidneKolicine(prev => prev.filter(s => s !== removed.sifra));
+    }
   };
+
 
   const validItems = rows
     .filter((row) => row.sifra && row.kolicina)

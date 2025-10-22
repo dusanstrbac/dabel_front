@@ -99,7 +99,7 @@ export default function KorisnikMenu() {
       { icon: <User2 className="h-4 w-4" />, text: t('header-MojiPodaci'), href: `/${currentLocale}/${username}/profil/podaci` },
       { icon: <FileText className="h-4 w-4" />, text: t('header-Narudzbenica'), href: `/${currentLocale}/${username}/profil/narudzbenica` },
       { icon: <Wallet className="h-4 w-4" />, text: t('header-MojeUplate'), href: `/${currentLocale}/${username}/profil/uplate` },
-      { icon: <Package className="h-4 w-4" />, text: t('header-PoslataRoba'), href: `/${currentLocale}/${username}/profil/roba` },
+      //{ icon: <Package className="h-4 w-4" />, text: t('header-PoslataRoba'), href: `/${currentLocale}/${username}/profil/roba` },
       { icon: <BadgeDollarSign className="h-4 w-4" />, text: t('header-Cenovnik'), onClick: preuzmiCenovnik },
       //{ icon: <Youtube className="h-4 w-4" />, text: 'Video uputstva', href: '/video' },
     ] : []),
