@@ -77,9 +77,6 @@ export default function LoginForm() {
         }
       );
       
-<<<<<<< HEAD
-      const redirectTo = searchParams.get("redirectTo") || await getCookie("poslednjaRuta") || '/';
-=======
       // Postavi NEXT_LOCALE cookie PRE redirect-a
       setCookie("NEXT_LOCALE", locale, { 
         path: "/",
@@ -114,7 +111,6 @@ export default function LoginForm() {
       if (!redirectTo.startsWith('/')) {
         redirectTo = '/' + redirectTo;
       }
->>>>>>> f257fa4a3d70713705765a217e4d1d4fa2a74b65
 
       if (data.token) {
         setCookie("AuthToken", data.token, {
