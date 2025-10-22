@@ -1,3 +1,4 @@
+// middleware.ts
 import { NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 
@@ -73,6 +74,11 @@ export function middleware(request: NextRequest) {
     response.cookies.set("poslednjaRuta", updatedRuta, { path: "/" });
   }
 
+  // KLJUČNA PROMENA: Za API Auth rutu - dozvoli direktan pristup
+  if (pathname.includes("/api/Auth/LoginPodaci")) {
+    return response;
+  }
+
   // Da li je ruta izuzeta
   const isExempt = AUTH_EXEMPT_ROUTES.some(route =>
     pathname.startsWith(route) || normalizedPath.startsWith(route)
@@ -82,27 +88,56 @@ export function middleware(request: NextRequest) {
   if (isExempt && !hasLocalePrefix) {
     const redirectUrl = new URL(request.url);
     redirectUrl.pathname = `/${languageCookie}${pathname}`;
-    // Query parametri su već uključeni u `request.url`
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Ako je javna ruta – pusti je
+  // Ako je javna ruta – propusti kroz intlMiddleware ali sačuvaj jezik
   if (isExempt || pathname.startsWith("/api")) {
-    return response;
+    const intlResponse = intlMiddleware(request);
+    
+    // Očuvaj NEXT_LOCALE cookie
+    if (languageCookie) {
+      intlResponse.cookies.set("NEXT_LOCALE", languageCookie, { 
+        path: "/",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 365 // 1 godina
+      });
+    }
+    
+    return intlResponse;
   }
 
-  // Ako nema tokena – redirect na login
+  // Ako nema tokena – redirect na login SA OČUVANJEM JEZIKA
   if (!token) {
     const redirectTo = pathname;
     const loginUrl = new URL(`/${languageCookie}/login`, origin);
     loginUrl.searchParams.set("redirectTo", redirectTo);
     const redirectResponse = NextResponse.redirect(loginUrl);
     redirectResponse.cookies.set("poslednjaRuta", updatedRuta || redirectTo, { path: "/" });
+    
+    // Očuvaj NEXT_LOCALE cookie
+    if (languageCookie) {
+      redirectResponse.cookies.set("NEXT_LOCALE", languageCookie, { 
+        path: "/",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 365
+      });
+    }
+    
     return redirectResponse;
   }
 
-  // Prosledi intlMiddleware-u ako je sve u redu
-  return intlMiddleware(request);
+  // Za autentifikovane korisnike – propusti kroz intlMiddleware sa očuvanim jezikom
+  const intlResponse = intlMiddleware(request);
+  if (languageCookie) {
+    intlResponse.cookies.set("NEXT_LOCALE", languageCookie, { 
+      path: "/",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 365
+    });
+  }
+  
+  return intlResponse;
 }
 
 export const config = {

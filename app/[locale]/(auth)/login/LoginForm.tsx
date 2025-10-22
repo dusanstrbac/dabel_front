@@ -1,3 +1,4 @@
+// components/LoginForm.tsx
 'use client';
 
 import { useForm } from "react-hook-form";
@@ -15,13 +16,32 @@ import Link from "next/link";
 import LanguageSelector from "@/components/LanguageSelector";
 import { useLocale, useTranslations } from "next-intl";
 
+const locales = ["sr", "en", "mk", "al", "me"];
+
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [poslednjaRuta, setPoslednjaRuta] = useState<string>('');
   const t = useTranslations();
   const locale = useLocale();
+
+  // Učitaj poslednju rutu kada se komponenta mount-uje
+  useEffect(() => {
+    const loadPoslednjaRuta = async () => {
+      try {
+        const ruta = await getCookie("poslednjaRuta");
+        if (ruta) {
+          setPoslednjaRuta(ruta as string);
+        }
+      } catch (err) {
+        console.error("Greška pri učitavanju poslednje rute:", err);
+      }
+    };
+
+    loadPoslednjaRuta();
+  }, []);
 
   // Validation schema
   const formSchema = z.object({
@@ -57,7 +77,44 @@ export default function LoginForm() {
         }
       );
       
+<<<<<<< HEAD
       const redirectTo = searchParams.get("redirectTo") || await getCookie("poslednjaRuta") || '/';
+=======
+      // Postavi NEXT_LOCALE cookie PRE redirect-a
+      setCookie("NEXT_LOCALE", locale, { 
+        path: "/",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 365
+      });
+
+      // Dobijanje redirect URL-a sa tačnim jezikom
+      let redirectTo = searchParams.get("redirectTo") || poslednjaRuta || `/${locale}`;
+      
+      // Osiguraj da redirect URL uključuje tačan jezik
+      if (redirectTo && redirectTo !== '/') {
+        const redirectSegments = redirectTo.split('/');
+        const firstSegment = redirectSegments[1]; // Prvi segment nakon /
+        
+        // Proveri da li je prvi segment jedan od locale vrednosti
+        const hasLocaleInRedirect = locales.includes(firstSegment as any);
+        
+        if (hasLocaleInRedirect) {
+          // Zameni postojeći locale sa trenutnim
+          redirectSegments[1] = locale;
+        } else {
+          // Dodaj locale na početak
+          redirectSegments.splice(1, 0, locale);
+        }
+        redirectTo = redirectSegments.join('/');
+      } else {
+        redirectTo = `/${locale}`;
+      }
+
+      // Osiguraj da redirectTo počinje sa /
+      if (!redirectTo.startsWith('/')) {
+        redirectTo = '/' + redirectTo;
+      }
+>>>>>>> f257fa4a3d70713705765a217e4d1d4fa2a74b65
 
       if (data.token) {
         setCookie("AuthToken", data.token, {
@@ -66,9 +123,11 @@ export default function LoginForm() {
           encode: (value) => value,
         });
 
-        router.push(redirectTo);
-        router.refresh();
-        deleteCookie("poslednjaRuta")
+        // Obriši poslednju rutu nakon uspešnog logina
+        deleteCookie("poslednjaRuta");
+
+        // Koristi window.location za redirect
+        window.location.href = redirectTo;
       } else {
         setError(data.message || "Došlo je do greške prilikom prijave");
       }

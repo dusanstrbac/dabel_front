@@ -51,7 +51,7 @@ const Akcije = () => {
 
         if (res.status === 404) {
           setAkcije([]); // Vraca prazan objekat
-          setError('Trenutno ne postoje akcije za vas');
+          setError('Trenutno ne postoji akcija');
           setLoading(false);
           return;
         }
