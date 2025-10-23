@@ -42,7 +42,6 @@ export default function KorisnikMenu() {
     
     deleteCookie('AuthToken');
     router.push('/login');
-    window.location.reload();
   };
 
   const preuzmiCenovnik = async () => {

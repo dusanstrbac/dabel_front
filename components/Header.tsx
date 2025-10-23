@@ -102,7 +102,6 @@ export default function Header() {
     deleteCookie("AuthToken");
     setIsLoggedIn(false);
     router.push('/login');
-    window.location.reload();
   };
 
   return (
