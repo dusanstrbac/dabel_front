@@ -49,12 +49,7 @@ interface KreirajNarudzbenicuProps {
         //     }
         // }, []);
 
-<<<<<<< HEAD
         t('kreirajNarudzbenicu.Kreiranje')
-=======
-        const sifraIsporuke = partner?.partnerDostava[0].sifra;
-
->>>>>>> 251c921075e53f6954a182ca5e9c9944d4e3f177
         const handleClick = async () => {
             setIsLoading(true);
             toast.info(t('kreirajNarudzbenicu.⏳ Kreiranje narudžbenice je u toku'));
@@ -70,7 +65,7 @@ interface KreirajNarudzbenicuProps {
                 idKomercijaliste: partner.komercijalisti.id,
                 datumDokumenta: now,
                 datumVazenja: datumVazenja.toISOString(),
-                lokacija: sifraIsporuke, 
+                lokacija: mestoIsporuke, 
                 napomena: napomena,
                 dostava: dostava,
                 stavkeDokumenata: artikli.map((value) => ({
@@ -124,7 +119,7 @@ interface KreirajNarudzbenicuProps {
                         toast.success(t('kreirajNarudzbenicu.📄 Dokument je uspešno sačuvan u sistemu'));
 
                     } catch (err) {
-                        toast.error("❌ Greška pri učitavanju dokumenta");
+                        toast.error(t('kreirajNarudzbenicu.❌ Greška pri učitavanju dokumenta'));
                         console.error("❌ Greška pri fetchovanju dokumenta:", err);
                     }
                 }
@@ -144,7 +139,7 @@ interface KreirajNarudzbenicuProps {
                     }
                 };
                 } catch (err) {
-                    toast.error("⚠️ Došlo je do greške pri slanju narudžbenice.");
+                    toast.error(t('kreirajNarudzbenicu.⚠️ Došlo je do greške pri slanju narudžbenice'));
                     console.error("❌ Greška pri slanju POST zahteva:", err);
                 } finally {
                     setIsLoading(false);
