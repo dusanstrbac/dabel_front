@@ -24,35 +24,6 @@ interface KreirajNarudzbenicuProps {
         const [korisnikUdugu, setKorisnikUdugu] = useState(false);
         const [isLoading, setIsLoading] = useState(false);
 
-<<<<<<< HEAD
-        // useEffect(() => {
-        //     const korisnik = dajKorisnikaIzTokena();
-
-        //     if (korisnik?.finKarta) {
-        //     const { nerealizovano } = korisnik.finKarta;
-        //     if (nerealizovano > 0) {
-        //         setKorisnikUdugu(true);
-        //         toast.error("Ne možete kreirati narudžbenicu, jer imate neplaćene fakture.");
-        //     }
-        //     }
-        // }, []);
-
-
-        // useEffect(() => {
-        //     const korisnik = dajKorisnikaIzTokena();
-
-        //     if (korisnik?.finKarta) {
-        //         const { nerealizovano } = korisnik.finKarta;
-        //         if (nerealizovano > 0) {
-        //             setKorisnikUdugu(true);
-        //             toast.error("Ne možete kreirati narudžbenicu, jer imate neplaćene fakture.");
-        //         }
-        //     }
-        // }, []);
-
-        t('kreirajNarudzbenicu.Kreiranje')
-=======
->>>>>>> 7e178d51938fd787f33b21c4f3f424282c9a9d66
         const handleClick = async () => {
             setIsLoading(true);
             toast.info(t('kreirajNarudzbenicu.⏳ Kreiranje narudžbenice je u toku'));

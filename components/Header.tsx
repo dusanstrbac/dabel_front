@@ -105,7 +105,7 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full fixed top-0 left-0 z-[100] bg-white border-b border-gray-200">
+    <header className="w-full top-0 left-0 z-[100] sticky bg-white border-b border-gray-200">
 
       {/* Desktop navigacija */}
       <div>
@@ -120,6 +120,7 @@ export default function Header() {
             <div className="flex items-center space-x-2"><Mail className="text-gray-500 h-7 w-7"/><Link href={`mailto:${WebKontaktEmail}`} className="text-sm">{WebKontaktEmail}</Link></div>
           </div>
           <div className="flex justify-center items-center space-x-6">
+            {/* evo ovde treba da dodamo da je iznad headera */}
             <Link href="/heart"><Heart className="h-6 w-6 text-gray-500 hover:text-gray-700"/></Link>
             <Link href="/korpa" className="relative inline-block"><ShoppingCart className="h-6 w-6 text-gray-500 hover:text-gray-700"/>{brojRazlicitihArtikala > 0 && <span className="absolute -top-2.5 -right-2.5 px-2 py-1 text-xs font-bold text-white bg-red-600 rounded-full min-w-[20px] h-5 flex justify-center items-center">{brojRazlicitihArtikala}</span>}</Link>
             <KorisnikMenu />
@@ -210,7 +211,7 @@ export default function Header() {
               <SheetTrigger className="p-1">
                 <MenuIcon className="w-6 h-6" color="gray"/>
               </SheetTrigger>
-              <SheetContent className="w-full overflow-y-auto">
+              <SheetContent className="w-full overflow-y-auto z-[101]">
                 <SheetHeader>
                   <SheetTitle>Meni</SheetTitle>
                   <Separator />
