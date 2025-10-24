@@ -4,17 +4,25 @@ import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import PrebaciUKorpu from "@/components/PrebaciUKorpu";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { useTranslations } from "next-intl";
 
 const BrzoNarucivanje = () => {
-  const [rows, setRows] = useState<{ sifra: string; kolicina: string }[]>([{ sifra: "", kolicina: "" }]);
+  const [rows, setRows] = useState([{ sifra: "", kolicina: "" }]);
   const [invalidneSifre, setInvalidneSifre] = useState<string[]>([]);
   const [invalidneKolicine, setInvalidneKolicine] = useState<string[]>([]);
   const [scannerActive, setScannerActive] = useState(false);
+  const [poruke, setPoruke] = useState<string[]>([]);
   const barcodeInputRef = useRef<HTMLInputElement>(null);
   const quantityRefs = useRef<Array<HTMLInputElement | null>>([]);
-  const sifraRefs = useRef<Array<HTMLInputElement | null>>([]); // <-- NOVO: refs za sifre
+  const sifraRefs = useRef<Array<HTMLInputElement | null>>([]);
   const t = useTranslations("brzoPorucivanje");
 
   const handleBarcodeDetected = (text: string) => {
@@ -25,7 +33,9 @@ const BrzoNarucivanje = () => {
       const alreadyExists = prevRows.find((row) => row.sifra === sifra);
       if (alreadyExists) {
         return prevRows.map((row) =>
-          row.sifra === sifra ? { ...row, kolicina: String(Number(row.kolicina || 0) + 1) } : row
+          row.sifra === sifra
+            ? { ...row, kolicina: String(Number(row.kolicina) + 1) }
+            : row
         );
       } else {
         const newRows = [...prevRows];
@@ -41,23 +51,26 @@ const BrzoNarucivanje = () => {
         return [...newRows, { sifra: "", kolicina: "" }];
       }
     });
-
-    setInvalidneSifre((prev) => prev.filter((s) => s !== sifra));
-    setInvalidneKolicine((prev) => prev.filter((s) => s !== sifra));
     setScannerActive(false);
   };
 
-  const handleChange = (index: number, field: "sifra" | "kolicina", value: string) => {
+  const handleChange = (
+    index: number,
+    field: "sifra" | "kolicina",
+    value: string
+  ) => {
     const numericValue = value.replace(/\D/g, "");
-    setRows((prevRows) => {
-      const newRows = [...prevRows];
-      const prevSifra = newRows[index]?.sifra;
-      newRows[index] = { ...newRows[index], [field]: numericValue };
-      // ukloni stare markere za prethodnu i novu sifru
-      setInvalidneSifre((prev) => prev.filter((s) => s !== prevSifra && s !== numericValue));
-      setInvalidneKolicine((prev) => prev.filter((s) => s !== prevSifra && s !== numericValue));
-      return newRows;
-    });
+    const newRows = [...rows];
+    const prevSifra = newRows[index].sifra;
+    newRows[index][field] = numericValue;
+    setRows(newRows);
+
+    setInvalidneSifre((prev) =>
+      prev.filter((s) => s !== prevSifra && s !== numericValue)
+    );
+    setInvalidneKolicine((prev) =>
+      prev.filter((s) => s !== prevSifra && s !== numericValue)
+    );
   };
 
   const handleAddRow = () => {
@@ -65,22 +78,24 @@ const BrzoNarucivanje = () => {
   };
 
   const handleRemoveRow = (index: number) => {
-    setRows((prevRows) => {
-      const newRows = [...prevRows];
-      const removed = newRows[index];
-      newRows.splice(index, 1);
+    const newRows = [...rows];
+    const removed = newRows[index];
+    newRows.splice(index, 1);
+    setRows(newRows);
 
-      // ukloni ref-ove na mestu
-      sifraRefs.current.splice(index, 1);
-      quantityRefs.current.splice(index, 1);
-
-      if (removed?.sifra) {
-        setInvalidneSifre((prev) => prev.filter((s) => s !== removed.sifra));
-        setInvalidneKolicine((prev) => prev.filter((s) => s !== removed.sifra));
-      }
-      return newRows.length ? newRows : [{ sifra: "", kolicina: "" }];
-    });
+    if (removed?.sifra) {
+      setInvalidneSifre((prev) => prev.filter((s) => s !== removed.sifra));
+      setInvalidneKolicine((prev) => prev.filter((s) => s !== removed.sifra));
+    }
   };
+
+  // Kad PrebaciUKorpu prijavi nepostojeće šifre
+  const handleInvalidSifre = (nevalidne: string[]) => {
+    if (nevalidne.length === 0) return;
+    setRows((prev) => prev.filter((r) => !nevalidne.includes(r.sifra)));
+    setInvalidneSifre([]);
+  };
+
 
   const validItems = rows
     .filter((row) => row.sifra && row.kolicina)
@@ -92,12 +107,10 @@ const BrzoNarucivanje = () => {
   const handleCSVUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result;
       if (typeof text !== "string") return;
-
       const lines = text.trim().split(/\r?\n/);
       if (lines.length < 2) {
         alert("CSV fajl je prazan ili nema dovoljno podataka");
@@ -109,7 +122,7 @@ const BrzoNarucivanje = () => {
       const kolicinaIndex = headers.findIndex((h) => h === "Količina");
 
       if (sifraIndex === -1 || kolicinaIndex === -1) {
-        alert(t("CSV mora imati kolone Šifra i Količina"));
+        alert("CSV mora imati kolone Šifra i Količina");
         return;
       }
 
@@ -125,13 +138,10 @@ const BrzoNarucivanje = () => {
         .filter((row) => row.sifra && row.kolicina);
 
       if (parsedRows.length === 0) {
-        alert(t("CSV fajl nema validne podatke"));
+        alert("CSV fajl nema validne podatke");
         return;
       }
 
-      // reset refs because we replace rows
-      sifraRefs.current = [];
-      quantityRefs.current = [];
       setRows([...parsedRows, { sifra: "", kolicina: "" }]);
     };
 
@@ -153,7 +163,6 @@ const BrzoNarucivanje = () => {
   return (
     <div className="flex min-h-screen">
       <aside className="hidden md:flex md:flex-col md:w-1/3 bg-gray-50 p-6 border-r border-gray-200 overflow-auto">
-        {/* Uputstva - levi panel */}
         <h2 className="text-2xl font-bold mb-4">{t("KakoKoristiti")}</h2>
         <ul className="list-disc ml-5 text-gray-700 flex flex-col gap-4">
           <li>
@@ -172,58 +181,29 @@ const BrzoNarucivanje = () => {
       </aside>
 
       <main className="flex-1 p-6 flex flex-col max-h-screen">
-        <Dialog>
-          <DialogTrigger asChild>
-            <button
-              aria-label="Informacije"
-              className="fixed bottom-6 left-6 z-50 md:hidden w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-lg hover:bg-blue-700 transition"
-              type="button"
-            >
-              i
-            </button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-sm">
-            <DialogHeader>
-              <DialogTitle>{t("KakoKoristiti")}</DialogTitle>
-            </DialogHeader>
-            {/* isti sadržaj kao u aside */}
-            <ul className="list-disc ml-5 text-gray-700 flex flex-col gap-3">
-              <li>
-                <strong>{t("Uključi kameru:")}</strong> {t("klikni dugme i usmeri kameru na barkod")}
-              </li>
-              <li>
-                <strong>{t("Ručno unošenje")}</strong> {t("unesi šifru, pritisni Enter i upiši količinu")}
-              </li>
-              <li>
-                <strong>{t("CSV")}</strong> {t("koristi Uvezi CSV dugme sa kolonama Šifra i Količina")}
-              </li>
-              <li>
-                <strong>{t("Prebaci u korpu")}</strong> {t("kada završiš, klikni na dugme")}
-              </li>
-            </ul>
-            <DialogClose className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-              {t("Zatvori")}
-            </DialogClose>
-          </DialogContent>
-        </Dialog>
-
-        <h1 className="font-bold text-3xl text-center lg:text-4xl mb-4">{t("Brzo naručivanje")}</h1>
+        <h1 className="font-bold text-3xl text-center lg:text-4xl mb-4">
+          {t("Brzo naručivanje")}
+        </h1>
 
         <div className="flex justify-center mb-6">
           <Dialog open={scannerActive} onOpenChange={setScannerActive}>
             <DialogTrigger asChild>
               <button
                 className={`px-6 py-2 rounded-md font-semibold transition-colors duration-300 cursor-pointer ${
-                  scannerActive ? "bg-red-600 text-white" : "bg-blue-600 text-white"
-                }`}
+                  scannerActive ? "bg-red-600" : "bg-blue-600"
+                } text-white`}
               >
-                {scannerActive ? t("Isključi kameru za skeniranje") : t("Uključi kameru za skeniranje")}
+                {scannerActive
+                  ? t("Isključi kameru za skeniranje")
+                  : t("Uključi kameru za skeniranje")}
               </button>
             </DialogTrigger>
 
             <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6">
               <DialogHeader>
-                <DialogTitle className="text-center text-lg mb-2">{t("Skeniranje barkoda")}</DialogTitle>
+                <DialogTitle className="text-center text-lg mb-2">
+                  {t("Skeniranje barkoda")}
+                </DialogTitle>
               </DialogHeader>
 
               <div className="flex justify-center">
@@ -231,9 +211,7 @@ const BrzoNarucivanje = () => {
                   width={360}
                   height={280}
                   onUpdate={(err, result) => {
-                    if (result) {
-                      handleBarcodeDetected(result.getText());
-                    }
+                    if (result) handleBarcodeDetected(result.getText());
                   }}
                 />
               </div>
@@ -245,97 +223,83 @@ const BrzoNarucivanje = () => {
           </Dialog>
         </div>
 
-        <input ref={barcodeInputRef} type="text" autoFocus className="absolute opacity-0 pointer-events-none h-0 w-0" />
-
         <div className="mb-6 text-center">
           <button
             className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 rounded shadow border cursor-pointer"
             onClick={handleDownloadTemplate}
-            title="Preuzmi CSV šablon za unos"
           >
             📄 {t("Preuzmi šablon")}
           </button>
         </div>
 
-        <div className="flex flex-col items-center mb-6 max-h-[60vh] overflow-auto w-full space-y-3">
+        {/* Glavni deo sa unosom */}
+        <div className="flex flex-col items-center mb-6 max-h-[60vh] overflow-auto w-full">
           {rows.map((row, index) => {
-            const isDummy = index === rows.length - 1 && row.sifra === "" && row.kolicina === "";
+            const isDummy =
+              index === rows.length - 1 &&
+              row.sifra === "" &&
+              row.kolicina === "";
 
             return (
-              <div key={index} className="flex w-full max-w-xl items-end justify-center gap-2 transition-all duration-200">
-                {/* Tooltip kružić za grešku šifre*/}
-                {invalidneSifre.includes(row.sifra) && (
-                  <div className="w-3 h-3 rounded-full bg-red-500 cursor-help mb-3" title="Nevalidna šifra" />
-                )}
-
+              <div
+                key={index}
+                className="flex w-full max-w-xl items-end justify-center gap-2"
+              >
                 <div className="flex flex-col items-center relative">
                   <p className={isDummy ? "opacity-50" : ""}>{t("Sifra")}</p>
-
                   <Input
-                    ref={(el) => {
-                      sifraRefs.current[index] = el;
-                    }}
+                    ref={(el) => { sifraRefs.current[index] = el; }}
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    className={`border-2 w-full ${invalidneSifre.includes(row.sifra) ? "border-red-500" : "border-[#323131cc]"} ${isDummy ? "opacity-50 cursor-pointer" : ""}`}
+                    className={`border-2 w-full ${
+                      invalidneSifre.includes(row.sifra)
+                        ? "border-red-500"
+                        : "border-[#323131cc]"
+                    } ${isDummy ? "opacity-50 cursor-pointer" : ""}`}
                     value={row.sifra}
-                    onChange={(e) => handleChange(index, "sifra", e.target.value)}
+                    onChange={(e) =>
+                      handleChange(index, "sifra", e.target.value)
+                    }
                     onFocus={() => {
                       if (isDummy) handleAddRow();
                     }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
-                        // fokusiraj kolicinu istog reda
                         quantityRefs.current[index]?.focus();
                       }
                     }}
                   />
                 </div>
 
-                {/* Tooltip kružić za grešku količine */}
-                {invalidneKolicine.includes(row.sifra) && (
-                  <div className="w-3 h-3 rounded-full bg-red-500 cursor-help mb-3" title="Uneta količina veća od dostupne" />
-                )}
-
                 <div className="flex flex-col items-center">
-                  <p className={isDummy ? "opacity-40" : ""}>{t("Kolicina")}</p>
-
+                  <p className={isDummy ? "opacity-40" : ""}>
+                    {t("Kolicina")}
+                  </p>
                   <Input
-                    ref={(el) => {
-                      quantityRefs.current[index] = el;
-                    }}
+                    ref={(el) => { quantityRefs.current[index] = el; }}
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    className={`border-2 border-[#323131cc] w-full ${invalidneKolicine.includes(row.sifra) ? "border-red-500" : "border-[#323131cc]"} ${isDummy ? "opacity-40 cursor-pointer" : ""}`}
+                    className={`border-2 w-full ${
+                      invalidneKolicine.includes(row.sifra)
+                        ? "border-red-500"
+                        : "border-[#323131cc]"
+                    } ${isDummy ? "opacity-40 cursor-pointer" : ""}`}
                     value={row.kolicina}
-                    onChange={(e) => handleChange(index, "kolicina", e.target.value)}
+                    onChange={(e) =>
+                      handleChange(index, "kolicina", e.target.value)
+                    }
                     onFocus={() => {
                       if (isDummy) handleAddRow();
                     }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
-
-                        // Ako smo na dummy redu i još uvek nemamo sledeći red, dodaj ga
-                        if (isDummy) {
-                          handleAddRow();
-                          // wait next tick da se ref postavi
-                          setTimeout(() => {
-                            // fokusiraj sifru sledećeg reda
-                            sifraRefs.current[index + 1]?.focus();
-                          }, 0);
-                        } else {
-                          // normalan slučaj: fokusiraj sifru sledećeg reda (ako postoji), inače dodaj novi red i fokusiraj
-                          if (sifraRefs.current[index + 1]) {
-                            sifraRefs.current[index + 1]?.focus();
-                          } else {
-                            handleAddRow();
-                            setTimeout(() => {
-                              sifraRefs.current[index + 1]?.focus();
-                            }, 0);
-                          }
-                        }
+                        const nextIndex = index + 1;
+                        if (nextIndex === rows.length - 1) handleAddRow();
+                        setTimeout(() => {
+                          sifraRefs.current[nextIndex]?.focus();
+                        }, 0);
                       }
                     }}
                   />
@@ -343,7 +307,9 @@ const BrzoNarucivanje = () => {
 
                 <button
                   onClick={() => handleRemoveRow(index)}
-                  className={`mb-1 text-red-500 font-bold text-xl px-2 hover:text-red-700 ${isDummy ? "invisible" : ""}`}
+                  className={`mb-1 text-red-500 font-bold text-xl px-2 hover:text-red-700 ${
+                    isDummy ? "invisible" : ""
+                  }`}
                   title="Ukloni red"
                 >
                   ×
@@ -353,6 +319,7 @@ const BrzoNarucivanje = () => {
           })}
         </div>
 
+        {/* Dugme + prikaz poruka */}
         <div className="flex flex-col items-center justify-center gap-4">
           <div className="flex flex-wrap gap-4 justify-center">
             <button
@@ -361,14 +328,31 @@ const BrzoNarucivanje = () => {
             >
               {t("Uvezi CSV")}
             </button>
-            <input type="file" id="csvUpload" accept=".csv,text/csv" onChange={handleCSVUpload} className="hidden" />
+            <input
+              type="file"
+              id="csvUpload"
+              accept=".csv,text/csv"
+              onChange={handleCSVUpload}
+              className="hidden"
+            />
           </div>
 
           <PrebaciUKorpu
             rows={validItems}
-            onInvalidSifre={(nevalidne) => setInvalidneSifre(nevalidne)}
-            onInvalidKolicine={(nevalidneKol) => setInvalidneKolicine(nevalidneKol)}
+            onInvalidSifre={handleInvalidSifre}
+            onInvalidKolicine={(nevalidneKol) =>
+              setInvalidneKolicine(nevalidneKol)
+            }
+            onMessagesChange={setPoruke}
           />
+
+          {poruke.length > 0 && (
+            <div className="mt-3 text-sm text-red-600 space-y-1 text-center">
+              {poruke.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>
