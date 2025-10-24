@@ -102,7 +102,6 @@ export default function Header() {
     deleteCookie("AuthToken");
     setIsLoggedIn(false);
     router.push('/login');
-    window.location.reload();
   };
 
   return (
@@ -187,6 +186,10 @@ export default function Header() {
               priority
             />
           </Link>
+
+          <div className="px-2">
+            <PretragaProizvoda />
+          </div>
           
           <div className="flex items-center gap-4">
             {/* Korisnik menu */}
@@ -215,18 +218,7 @@ export default function Header() {
                   <Separator />
                 </SheetHeader>
 
-                <div className="pl-2 flex flex-col gap-2 mt-4">
-                  {/* Pretraga */}
-                  {/* <div className="relative mb-4">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
-                    <Input
-                      placeholder="Pretraga"
-                      className="pl-10 border border-gray-300 rounded-md"
-                    />
-                  </div> */}
-                  {/* valjda je samo ovo i to je to */}
-                  <PretragaProizvoda/>
-
+                <div className="pl-2 flex flex-col gap-2">
                   {/* Kategorije */}
                   <Accordion type="single" collapsible className="flex flex-col gap-2">
                     {headerMainNav.map((item, index) => (

@@ -42,7 +42,14 @@
   "kreirajNarudzbenicu": {
     "Kreiranje": "Creating...",
     "Postoje neplaćene fakture": "There are unpaid invoices",
-    "Kreiraj Narudžbenicu": "Create Order"
+    "Kreiraj Narudžbenicu": "Create Order",
+    "⏳ Kreiranje narudžbenice je u toku": "⏳ Creating purchase order in progress...",
+    "❌ Greška: server nije prihvatio zahtev": "❌ Error: server did not accept the request.",
+    "❌ Neuspešan POST": "❌ Unsuccessful POST:",
+    "✅ Narudžbenica uspešno poslata!": "✅ Purchase order successfully sent!",
+    "📄 Dokument je uspešno sačuvan u sistemu": "📄 Document successfully saved in the system.",
+    "❌ Greška pri učitavanju dokumenta": "❌ Error while loading the document",
+    "⚠️ Došlo je do greške pri slanju narudžbenice": "⚠️ An error occurred while sending the purchase order."
   },
   "uplateTable": {
     "Greška pri učitavanju uplata": "Error loading payments.",

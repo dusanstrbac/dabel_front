@@ -77,7 +77,6 @@ const DokumentPage = () => {
 
       if (!korpaPodaciString || !docInfoString) return; 
 
-
       const korpaPodaci = JSON.parse(korpaPodaciString);
       const docInfo = JSON.parse(docInfoString);
       const dostavaValue = dostavaString ? parseFloat(dostavaString) : 0;

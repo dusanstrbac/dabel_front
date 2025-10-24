@@ -6,6 +6,7 @@ import { DokumentInfo } from "@/types/dokument";
 import { useState } from "react";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 interface KreirajNarudzbenicuProps {
     artikli: AritkalKorpaType[];
@@ -19,38 +20,13 @@ interface KreirajNarudzbenicuProps {
 
     const KreirajNarudzbenicu = ({ artikli, partner, mestoIsporuke, napomena, disabled, dostava }: KreirajNarudzbenicuProps) => {
         const router = useRouter();
+        const t = useTranslations();
         const [korisnikUdugu, setKorisnikUdugu] = useState(false);
         const [isLoading, setIsLoading] = useState(false);
 
-        // useEffect(() => {
-        //     const korisnik = dajKorisnikaIzTokena();
-
-        //     if (korisnik?.finKarta) {
-        //     const { nerealizovano } = korisnik.finKarta;
-        //     if (nerealizovano > 0) {
-        //         setKorisnikUdugu(true);
-        //         toast.error("Ne možete kreirati narudžbenicu, jer imate neplaćene fakture.");
-        //     }
-        //     }
-        // }, []);
-
-
-        // useEffect(() => {
-        //     const korisnik = dajKorisnikaIzTokena();
-
-        //     if (korisnik?.finKarta) {
-        //         const { nerealizovano } = korisnik.finKarta;
-        //         if (nerealizovano > 0) {
-        //             setKorisnikUdugu(true);
-        //             toast.error("Ne možete kreirati narudžbenicu, jer imate neplaćene fakture.");
-        //         }
-        //     }
-        // }, []);
-
-        const sifraIsporuke = partner?.partnerDostava[0].sifra;
-
         const handleClick = async () => {
             setIsLoading(true);
+            toast.info(t('kreirajNarudzbenicu.⏳ Kreiranje narudžbenice je u toku'));
 
             const now = new Date().toISOString();
             // Datum važenja +7 dana
@@ -63,7 +39,7 @@ interface KreirajNarudzbenicuProps {
                 idKomercijaliste: partner.komercijalisti.id,
                 datumDokumenta: now,
                 datumVazenja: datumVazenja.toISOString(),
-                lokacija: sifraIsporuke, 
+                lokacija: mestoIsporuke, 
                 napomena: napomena,
                 dostava: dostava,
                 stavkeDokumenata: artikli.map((value) => ({
@@ -88,11 +64,14 @@ interface KreirajNarudzbenicuProps {
 
 
                 if (!res.ok) {
-                    console.error("❌ Neuspešan POST:", res.status);
+                    toast.error(t('kreirajNarudzbenicu.❌ Greška: server nije prihvatio zahtev'));
+                    console.error(t('kreirajNarudzbenicu.❌ Neuspešan POST'), res.status);
                     return;
                 }
 
                 if (res.ok) {
+                    toast.success(t('kreirajNarudzbenicu.✅ Narudžbenica uspešno poslata!'));
+
                     // Nakon uspešnog upisa dokumenta, fetchuj najnoviji dokument
                     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
                     const korisnik = dajKorisnikaIzTokena();
@@ -110,17 +89,15 @@ interface KreirajNarudzbenicuProps {
                             napomena: dokument.napomena,
                             dostava: dokument.dostava
                         }));
-                        //ovde dobijam posle posta da su "originalna cena" ista kao za poslednji artikal
-                        //sto je veoma lose, treba da svaki artikal bude svoju cenu, a svako ima svoju posebnu koriscenu i originalnu cenu!
-                        //ne znam zasto se ovo desava wtf
+
+                        toast.success(t('kreirajNarudzbenicu.📄 Dokument je uspešno sačuvan u sistemu'));
 
                     } catch (err) {
+                        toast.error("❌ Greška pri učitavanju dokumenta");
                         console.error("❌ Greška pri fetchovanju dokumenta:", err);
                     }
                 }
-                
                 window.open("/dokument", "_blank");
-                
 
                 // ZA BRISANJE IZ SESSION STORAGE NAKON POSTAVLJENE NARUDzBENICE
                 const kanal = new BroadcastChannel("dokument-kanal");
@@ -135,15 +112,14 @@ interface KreirajNarudzbenicuProps {
                         router.push("/");
                     }
                 };
-
                 } catch (err) {
+                    toast.error("⚠️ Došlo je do greške pri slanju narudžbenice.");
                     console.error("❌ Greška pri slanju POST zahteva:", err);
                 } finally {
                     setIsLoading(false);
                 }
             };
-
-            const t = useTranslations();
+            
 
         return (
             <div className="space-y-2">

@@ -42,7 +42,14 @@
   "kreirajNarudzbenicu": {
     "Kreiranje": "Kreiranje...",
     "Postoje neplaćene fakture": "Postoje neplaćene fakture",
-    "Kreiraj Narudžbenicu": "Kreiraj narudžbenicu"
+    "Kreiraj Narudžbenicu": "Kreiraj Narudžbenicu",
+    "⏳ Kreiranje narudžbenice je u toku": "⏳ Kreiranje narudžbenice je u toku...",
+    "❌ Greška: server nije prihvatio zahtev": "❌ Greška: server nije prihvatio zahtjev.",
+    "❌ Neuspešan POST": "❌ Neuspješan POST:",
+    "✅ Narudžbenica uspešno poslata!": "✅ Narudžbenica uspješno poslata!",
+    "📄 Dokument je uspešno sačuvan u sistemu": "📄 Dokument je uspješno sačuvan u sistemu.",
+    "❌ Greška pri učitavanju dokumenta": "❌ Greška pri učitavanju dokumenta",
+    "⚠️ Došlo je do greške pri slanju narudžbenice": "⚠️ Došlo je do greške pri slanju narudžbenice."
   },
   "uplateTable": {
     "Greška pri učitavanju uplata": "Greška pri učitavanju uplata.",

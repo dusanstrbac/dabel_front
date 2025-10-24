@@ -35,28 +35,19 @@ export const ComboboxAdrese: React.FC<Props> = ({
   const [selected, setSelected] = React.useState<KorisnikDostavaType | null>(null);
   const [inputValue, setInputValue] = React.useState("");
 
-  // Dodajemo useEffect za automatsko selektovanje prve adrese
   React.useEffect(() => {
-    if (dostavaList.length > 0 && !selected) {
-      // Ako postoji defaultValue, pokušajmo da nađemo odgovarajuću adresu
-      if (defaultValue) {
-        const defaultAdresa = dostavaList.find(item => 
-          item.adresa === defaultValue ||
-          `${item.adresa}, ${item.postBroj} ${item.grad}` === defaultValue
-        );
-        if (defaultAdresa) {
-          setSelected(defaultAdresa);
-          onSelectOption(defaultAdresa);
-          return;
-        }
-      }
-      
-      // Ako nema defaultValue ili nije pronađen, selektuj prvu adresu
-      const firstAdresa = dostavaList[0];
-      setSelected(firstAdresa);
-      onSelectOption(firstAdresa);
+    if (dostavaList.length === 1) {
+      // Samo ako postoji JEDNA adresa — automatski je selektuj
+      const jedinaAdresa = dostavaList[0];
+      setSelected(jedinaAdresa);
+      onSelectOption(jedinaAdresa);
+    } else if (dostavaList.length > 1) {
+      // Ako ih ima više — ne selektuj ništa, samo placeholder
+      setSelected(null);
+      onSelectOption({ adresa: "", postBroj: "", grad: "", drzava: "" } as KorisnikDostavaType);
     }
-  }, [dostavaList, defaultValue]);
+  }, [dostavaList]);
+
 
   const filtered = React.useMemo(() => {
     const search = inputValue.toLowerCase();
