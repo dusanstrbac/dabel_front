@@ -186,6 +186,10 @@ export default function Header() {
               priority
             />
           </Link>
+
+          {/* <div className="border-2 border-amber-300 w-38"> */}
+          <PretragaProizvoda/>
+          {/* </div> */}
           
           <div className="flex items-center gap-4">
             {/* Korisnik menu */}
@@ -224,7 +228,6 @@ export default function Header() {
                     />
                   </div> */}
                   {/* valjda je samo ovo i to je to */}
-                  <PretragaProizvoda/>
 
                   {/* Kategorije */}
                   <Accordion type="single" collapsible className="flex flex-col gap-2">

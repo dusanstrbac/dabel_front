@@ -97,11 +97,11 @@ const PretragaProizvoda = () => {
   const t = useTranslations('header');
 
   return (
-    <div className="w-full lg:w-[40%] relative lg:ml-16 mr-2">
+    <div className="w-50% ml-1 lg:w-[40%] relative lg:ml-16 mr-2">
       <div className='relative'>
         <Input
           placeholder={t('header-PretragaProizvodaLabel')}
-          className="pl-4 pr-10 py-2 border border-black rounded-md"
+          className="pl-0.5 lg:pl-4 pr-10 py-2 border border-black rounded-md"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.length >= 2 && setShowDropdown(true)}
