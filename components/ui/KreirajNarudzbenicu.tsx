@@ -23,6 +23,7 @@ interface KreirajNarudzbenicuProps {
         const t = useTranslations();
         const [korisnikUdugu, setKorisnikUdugu] = useState(false);
         const [isLoading, setIsLoading] = useState(false);
+        const korisnik = dajKorisnikaIzTokena()?.idKorisnika;
 
         const handleClick = async () => {
             setIsLoading(true);
@@ -36,6 +37,7 @@ interface KreirajNarudzbenicuProps {
             const payload = {
                 tip: "narudzbenica",
                 idPartnera: partner.idPartnera,
+                IdKorisnika: korisnik,
                 idKomercijaliste: partner.komercijalisti.id,
                 datumDokumenta: now,
                 datumVazenja: datumVazenja.toISOString(),
