@@ -105,7 +105,8 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full z-[20] relative border-b border-gray-200">
+    <header className="w-full fixed top-0 left-0 z-[100] bg-white border-b border-gray-200">
+
       {/* Desktop navigacija */}
       <div>
         <div className="hidden border-b border-gray-200 lg:flex lg:flex-col lg:gap-2 h-[138px]">
