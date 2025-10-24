@@ -104,6 +104,23 @@ export default function Header() {
     router.push('/login');
   };
 
+
+  //DYNAMIC CSS
+  const adjustSubmenuPosition = (e: React.MouseEvent<HTMLLIElement>) => {
+    const submenu = e.currentTarget.querySelector("ul");
+    if (!submenu) return;
+    
+    const rect = submenu.getBoundingClientRect();
+    const overflowBottom = rect.bottom - window.innerHeight;
+    
+    if (overflowBottom > 0) {
+      submenu.style.top = `-${overflowBottom + 10}px`;
+    } else {
+      submenu.style.top = "0";
+    }
+  };
+
+
   return (
     <header className="w-full top-0 left-0 z-[100] sticky bg-white border-b border-gray-200">
 
@@ -120,7 +137,6 @@ export default function Header() {
             <div className="flex items-center space-x-2"><Mail className="text-gray-500 h-7 w-7"/><Link href={`mailto:${WebKontaktEmail}`} className="text-sm">{WebKontaktEmail}</Link></div>
           </div>
           <div className="flex justify-center items-center space-x-6">
-            {/* evo ovde treba da dodamo da je iznad headera */}
             <Link href="/heart"><Heart className="h-6 w-6 text-gray-500 hover:text-gray-700"/></Link>
             <Link href="/korpa" className="relative inline-block"><ShoppingCart className="h-6 w-6 text-gray-500 hover:text-gray-700"/>{brojRazlicitihArtikala > 0 && <span className="absolute -top-2.5 -right-2.5 px-2 py-1 text-xs font-bold text-white bg-red-600 rounded-full min-w-[20px] h-5 flex justify-center items-center">{brojRazlicitihArtikala}</span>}</Link>
             <KorisnikMenu />
@@ -147,10 +163,17 @@ export default function Header() {
                               </span>
                             </Link>
                           </NavigationMenuLink>
+                          {/* PODMENI */}
                           {item.subMenuItems && (
-                            <ul className="absolute top-0 left-full ml-2 w-60 max-w-xs bg-white border border-gray-200 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60]">
+                            
+                            <ul className="absolute top-0 left-full ml-2 w-60 max-w-xs bg-white border border-gray-200 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60] max-h-[calc(100vh-298px)] overflow-y-auto">
+                            {/* Dodato: max-h-[80vh] i overflow-y-auto */}
                               {item.subMenuItems.map((sub, sidx) => (
-                                <li key={sidx}>
+                                <li
+                                  key={sidx}
+                                  // className="relative group"
+                                  // onMouseEnter={adjustSubmenuPosition}
+                                >
                                   <Link href={sub.href} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600 break-words whitespace-normal">
                                     {sub.text}
                                   </Link>
