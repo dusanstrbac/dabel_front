@@ -24,6 +24,7 @@ interface KreirajNarudzbenicuProps {
         const [korisnikUdugu, setKorisnikUdugu] = useState(false);
         const [isLoading, setIsLoading] = useState(false);
 
+<<<<<<< HEAD
         // useEffect(() => {
         //     const korisnik = dajKorisnikaIzTokena();
 
@@ -50,6 +51,8 @@ interface KreirajNarudzbenicuProps {
         // }, []);
 
         t('kreirajNarudzbenicu.Kreiranje')
+=======
+>>>>>>> 7e178d51938fd787f33b21c4f3f424282c9a9d66
         const handleClick = async () => {
             setIsLoading(true);
             toast.info(t('kreirajNarudzbenicu.⏳ Kreiranje narudžbenice je u toku'));
