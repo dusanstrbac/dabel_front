@@ -101,7 +101,7 @@ const PretragaProizvoda = () => {
       <div className='relative'>
         <Input
           placeholder={t('header-PretragaProizvodaLabel')}
-          className="pl-4 pr-10 py-2 border border-black rounded-md"
+          className="pl-4 pr-10 py-2 border border-black rounded-md w-full"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.length >= 2 && setShowDropdown(true)}
