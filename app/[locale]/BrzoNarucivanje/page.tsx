@@ -340,6 +340,7 @@ const BrzoNarucivanje = () => {
           })}
         </div>
 
+        {/* PREBACI U KORPU */}
         <div className="flex flex-col items-center justify-center gap-4">
           <div className="flex flex-wrap gap-4 justify-center">
             <button
@@ -358,6 +359,26 @@ const BrzoNarucivanje = () => {
           </div>
 
           <PrebaciUKorpu rows={validItems} onInvalidSifre={(nevalidne) => setInvalidneSifre(nevalidne) } onInvalidKolicine={(nevalidneKol) => setInvalidneKolicine(nevalidneKol)}/>
+        </div>
+
+
+        {/* PORUKE O NEVALIDNIM ARTIKLIMA */}
+        <div>
+          {/* NEVALIDNE SIFRE */}
+          <div>
+            {/* {rows.map((row, index) => {
+            {invalidneSifre.includes(row.sifra) && (
+              <div
+                className="w-3 h-3 rounded-full bg-red-500 cursor-help mb-3"
+                title="Nevalidna šifra"
+              />
+            )} */}
+          </div>
+
+          {/* NEVALIDNE KOLICINE */}
+          <div>
+            
+          </div>
         </div>
       </main>
     </div>
