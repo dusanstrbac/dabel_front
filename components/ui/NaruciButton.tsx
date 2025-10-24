@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { Button } from "./button";
 import { useTranslations } from "next-intl";
+import { Button } from "./button";
 
 const NaruciButton = ({ disabled, reason }: { disabled?: boolean; reason?: string }) => {
   const router = useRouter();
