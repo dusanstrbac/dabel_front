@@ -116,7 +116,7 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
         <Button variant="outline" className="cursor-pointer">{t('promenaPodatakaKorisnika.Promena')}</Button>
       </DialogTrigger>
 
-      <DialogContent className="w-full max-w-3xl h-auto max-h-[95vh] overflow-y-auto px-4">
+      <DialogContent className="w-full max-w-3xl h-auto max-h-[95vh] overflow-y-auto px-4 z-[200]">
         <DialogHeader>
           <DialogTitle className="font-bold text-xl">{t('promenaPodatakaKorisnika.Izmena podataka korisnika')}</DialogTitle>
           <DialogDescription>{t('promenaPodatakaKorisnika.Ažurirajte informacije o korisniku')}</DialogDescription>

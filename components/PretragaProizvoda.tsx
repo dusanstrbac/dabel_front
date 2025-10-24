@@ -118,7 +118,7 @@ const PretragaProizvoda = () => {
               <Camera className="cursor-pointer text-gray-500 hover:text-black h-5 w-5"/>
             </DialogTrigger>
 
-            <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6">
+            <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6 z-[200]">
               <DialogHeader>
                 <DialogTitle className="text-center text-lg mb-2">{t('header-SkeniranjeBarkodaLabel')}</DialogTitle>
               </DialogHeader>

@@ -4,6 +4,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import Header from "@/components/Header";
 import { Locale } from '@/config/locales';
 import { useParams } from "next/navigation";
+import Footer from "@/components/Footer";
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) 
 {
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <CartProvider>
         {children}
       </CartProvider>
+      <Footer />
     </div>
   );
 }

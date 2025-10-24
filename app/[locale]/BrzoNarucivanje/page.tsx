@@ -208,7 +208,7 @@ const BrzoNarucivanje = () => {
             </DialogTrigger>
 
               {/* max-w-[300px] w-[400px] md:max-w-full p-4 */}
-            <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6">
+            <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6 z-[200]">
               <DialogHeader>
                 <DialogTitle className="text-center text-lg mb-2">{t('Skeniranje barkoda')}</DialogTitle>
               </DialogHeader>
