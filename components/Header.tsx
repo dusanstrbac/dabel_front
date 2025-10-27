@@ -299,8 +299,8 @@ export default function Header() {
                     ))}
                   </div>
                 </div>
-                <div className="px-2">
-                  <div className="border-t py-2 border-gray-300 px-2">
+                <div className="px-2 flex justify-end">
+                  <div className="border-t py-2 border-gray-300 px-2 flex justify-end">
                     <LanguageSelector />
                   </div>
                 </div>
