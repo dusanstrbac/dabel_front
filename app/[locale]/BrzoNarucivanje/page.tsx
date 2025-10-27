@@ -181,6 +181,33 @@ const BrzoNarucivanje = () => {
       </aside>
 
       <main className="flex-1 p-6 flex flex-col max-h-screen">
+        <Dialog>
+          <DialogTrigger asChild>
+            <button
+              aria-label="Informacije"
+              className="fixed bottom-6 left-6 z-50 md:hidden w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-lg hover:bg-blue-700 transition"
+              type="button"
+            >
+              i
+            </button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-sm z-[200]">
+            <DialogHeader>
+              <DialogTitle>{t('KakoKoristiti')}</DialogTitle>
+            </DialogHeader>
+            {/* isti sadržaj kao u aside */}
+            <ul className="list-disc ml-5 text-gray-700 flex flex-col gap-3">
+              <li><strong>{t('Uključi kameru:')}</strong> {t('klikni dugme i usmeri kameru na barkod')}</li>
+              <li><strong>{t('Ručno unošenje')}</strong> {t('unesi šifru, pritisni Enter i upiši količinu')}</li>
+              <li><strong>{t('CSV')}</strong> {t('koristi Uvezi CSV dugme sa kolonama Šifra i Količina')}</li>
+              <li><strong>{t('Prebaci u korpu')}</strong> {t('kada završiš, klikni na dugme')}</li>
+            </ul>
+            <DialogClose className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+              {t('Zatvori')}
+            </DialogClose>
+          </DialogContent>
+        </Dialog>
+
         <h1 className="font-bold text-3xl text-center lg:text-4xl mb-4">
           {t("Brzo naručivanje")}
         </h1>
