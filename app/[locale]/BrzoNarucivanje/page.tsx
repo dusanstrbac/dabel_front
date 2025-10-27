@@ -199,7 +199,12 @@ const BrzoNarucivanje = () => {
               </button>
             </DialogTrigger>
 
+<<<<<<< HEAD
             <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6">
+=======
+              {/* max-w-[300px] w-[400px] md:max-w-full p-4 */}
+            <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6 z-[200]">
+>>>>>>> 01073c421bd8d6708a67e999736a9396aedf701e
               <DialogHeader>
                 <DialogTitle className="text-center text-lg mb-2">
                   {t("Skeniranje barkoda")}
@@ -319,7 +324,11 @@ const BrzoNarucivanje = () => {
           })}
         </div>
 
+<<<<<<< HEAD
         {/* Dugme + prikaz poruka */}
+=======
+        {/* PREBACI U KORPU */}
+>>>>>>> 01073c421bd8d6708a67e999736a9396aedf701e
         <div className="flex flex-col items-center justify-center gap-4">
           <div className="flex flex-wrap gap-4 justify-center">
             <button
@@ -353,6 +362,26 @@ const BrzoNarucivanje = () => {
               ))}
             </div>
           )}
+        </div>
+
+
+        {/* PORUKE O NEVALIDNIM ARTIKLIMA */}
+        <div>
+          {/* NEVALIDNE SIFRE */}
+          <div>
+            {/* {rows.map((row, index) => {
+            {invalidneSifre.includes(row.sifra) && (
+              <div
+                className="w-3 h-3 rounded-full bg-red-500 cursor-help mb-3"
+                title="Nevalidna šifra"
+              />
+            )} */}
+          </div>
+
+          {/* NEVALIDNE KOLICINE */}
+          <div>
+            
+          </div>
         </div>
       </main>
     </div>

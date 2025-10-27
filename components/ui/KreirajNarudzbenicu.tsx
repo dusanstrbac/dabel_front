@@ -95,7 +95,7 @@ interface KreirajNarudzbenicuProps {
                         toast.success(t('kreirajNarudzbenicu.📄 Dokument je uspešno sačuvan u sistemu'));
 
                     } catch (err) {
-                        toast.error("❌ Greška pri učitavanju dokumenta");
+                        toast.error(t('kreirajNarudzbenicu.❌ Greška pri učitavanju dokumenta'));
                         console.error("❌ Greška pri fetchovanju dokumenta:", err);
                     }
                 }
@@ -115,7 +115,7 @@ interface KreirajNarudzbenicuProps {
                     }
                 };
                 } catch (err) {
-                    toast.error("⚠️ Došlo je do greške pri slanju narudžbenice.");
+                    toast.error(t('kreirajNarudzbenicu.⚠️ Došlo je do greške pri slanju narudžbenice'));
                     console.error("❌ Greška pri slanju POST zahteva:", err);
                 } finally {
                     setIsLoading(false);

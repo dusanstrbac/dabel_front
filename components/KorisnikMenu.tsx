@@ -119,7 +119,7 @@ export default function KorisnikMenu() {
           <DropdownMenuTrigger asChild>
             <User className="h-6 w-6 text-gray-500 hover:text-gray-700 cursor-pointer" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 rounded-md border border-gray-200 bg-white p-1 shadow-lg" align="end">
+          <DropdownMenuContent className="z-[101] w-56 rounded-md border border-gray-200 bg-white p-1 shadow-lg" align="end">
             <DropdownMenuLabel className="px-2 py-1.5 text-sm font-normal text-gray-600">
               {korisnickoIme || t('header-Korisnik')}
             </DropdownMenuLabel>
@@ -181,11 +181,11 @@ export default function KorisnikMenu() {
 
       {/* Mobilni meni */}
       <div className="lg:hidden">
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen} modal={true}>
           <SheetTrigger asChild>
             <User className="h-6 w-6 text-gray-500 hover:text-gray-700 cursor-pointer" />
           </SheetTrigger>
-          <SheetContent className="w-full">
+          <SheetContent className="w-full top-0 left-0 z-[101] bg-white">
             <SheetHeader>
               <SheetTitle className="text-left text-lg font-semibold">
                 {korisnickoIme}

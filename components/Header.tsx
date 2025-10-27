@@ -104,8 +104,26 @@ export default function Header() {
     router.push('/login');
   };
 
+
+  //DYNAMIC CSS
+  const adjustSubmenuPosition = (e: React.MouseEvent<HTMLLIElement>) => {
+    const submenu = e.currentTarget.querySelector("ul");
+    if (!submenu) return;
+    
+    const rect = submenu.getBoundingClientRect();
+    const overflowBottom = rect.bottom - window.innerHeight;
+    
+    if (overflowBottom > 0) {
+      submenu.style.top = `-${overflowBottom + 10}px`;
+    } else {
+      submenu.style.top = "0";
+    }
+  };
+
+
   return (
-    <header className="w-full z-[20] relative border-b border-gray-200">
+    <header className="w-full top-0 left-0 z-[100] sticky bg-white border-b border-gray-200">
+
       {/* Desktop navigacija */}
       <div>
         <div className="hidden border-b border-gray-200 lg:flex lg:flex-col lg:gap-2 h-[138px]">
@@ -145,10 +163,17 @@ export default function Header() {
                               </span>
                             </Link>
                           </NavigationMenuLink>
+                          {/* PODMENI */}
                           {item.subMenuItems && (
-                            <ul className="absolute top-0 left-full ml-2 w-60 max-w-xs bg-white border border-gray-200 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60]">
+                            
+                            <ul className="absolute top-0 left-full ml-2 w-60 max-w-xs bg-white border border-gray-200 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60] max-h-[calc(100vh-298px)] overflow-y-auto">
+                            {/* Dodato: max-h-[80vh] i overflow-y-auto */}
                               {item.subMenuItems.map((sub, sidx) => (
-                                <li key={sidx}>
+                                <li
+                                  key={sidx}
+                                  // className="relative group"
+                                  // onMouseEnter={adjustSubmenuPosition}
+                                >
                                   <Link href={sub.href} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600 break-words whitespace-normal">
                                     {sub.text}
                                   </Link>
@@ -173,7 +198,7 @@ export default function Header() {
       </div>
       
       {/* Mobile navigacija */}
-      <div className="lg:hidden px-3">
+      <div className="flex flex-col lg:hidden px-3">
         <div className="flex items-center justify-between py-3">
           {/* Logo */}
           <Link href="/">
@@ -187,9 +212,6 @@ export default function Header() {
             />
           </Link>
 
-          <div className="px-2">
-            <PretragaProizvoda />
-          </div>
           
           <div className="flex items-center gap-4">
             {/* Korisnik menu */}
@@ -212,7 +234,7 @@ export default function Header() {
               <SheetTrigger className="p-1">
                 <MenuIcon className="w-6 h-6" color="gray"/>
               </SheetTrigger>
-              <SheetContent className="w-full overflow-y-auto">
+              <SheetContent className="w-full overflow-y-auto z-[101]">
                 <SheetHeader>
                   <SheetTitle>Meni</SheetTitle>
                   <Separator />
@@ -285,8 +307,13 @@ export default function Header() {
 
               </SheetContent>
             </Sheet>
+
+
           </div>
+
         </div>
+
+        <PretragaProizvoda/>
       </div>
     </header>
   );
