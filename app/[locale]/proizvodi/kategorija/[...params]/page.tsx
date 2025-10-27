@@ -113,8 +113,6 @@ export default function ProizvodiPage() {
 //    router.push(`${window.location.pathname}?${query.toString()}`);
   };
 
-
-
   return (
     <div className="w-full mx-auto">
 

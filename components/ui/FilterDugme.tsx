@@ -58,71 +58,71 @@ const FilterDugme = ({
 
     return(
         <div className="flex items-center lg:hidden p-2">
-                        <Sheet>
-                            <SheetTrigger>
-                                <button className="text-sm font-semibold px-3 py-1 border rounded-md">
-                                    Filtriraj proizvode
-                                </button>
-                            </SheetTrigger>
-                            <SheetContent className="w-full overflow-scroll">
-                                <SheetHeader>
-                                    <SheetTitle className="text-red-500 font-bold">Filtriraj proizvode</SheetTitle>
-                                    <Separator />
-                                </SheetHeader>
-                                <div className="pl-2 flex flex-col gap-2">
-                                    <BrisiFilter
-                                        jediniceFilter={jediniceFilter}
-                                        resetJediniceFilter={resetJediniceFilter}
-                                        priceRange={priceRange}
-                                        resetPriceFilter={resetPriceFilter}
-                                        defaultMin={defaultMin}
-                                        defaultMax={defaultMax}
-                                    />
-                                    <Accordion 
-                                        type="single"
-                                        collapsible
-                                        className="flex flex-col gap-4"
-                                        // value={accordionValue}       //ovo mi je on rekao da mozda najbolje staticki da bude
-                                        // onValueChange={setAccordionValue}
-                                    >
-                                        {filterNav.map((item, index) => (
-                                        <AccordionItem key={index} value={`item-${index}`}>
-                                            <AccordionTrigger className="flex items-center gap-3 pl-2">
-                                                <span className="text-[18px]">{item.text}</span>
-                                            </AccordionTrigger>
+        <Sheet>
+            <SheetTrigger>
+                <button className="text-sm font-semibold px-3 py-1 border rounded-md">
+                    Filtriraj proizvode
+                </button>
+            </SheetTrigger>
+            <SheetContent className="w-full overflow-scroll">
+                <SheetHeader>
+                    <SheetTitle className="text-red-500 font-bold">Filtriraj proizvode</SheetTitle>
+                    <Separator />
+                </SheetHeader>
+                <div className="pl-2 flex flex-col gap-2">
+                    <BrisiFilter
+                        jediniceFilter={jediniceFilter}
+                        resetJediniceFilter={resetJediniceFilter}
+                        priceRange={priceRange}
+                        resetPriceFilter={resetPriceFilter}
+                        defaultMin={defaultMin}
+                        defaultMax={defaultMax}
+                    />
+                    <Accordion 
+                        type="single"
+                        collapsible
+                        className="flex flex-col gap-4"
+                        // value={accordionValue}       //ovo mi je on rekao da mozda najbolje staticki da bude
+                        // onValueChange={setAccordionValue}
+                    >
+                        {filterNav.map((item, index) => (
+                        <AccordionItem key={index} value={`item-${index}`}>
+                            <AccordionTrigger className="flex items-center gap-3 pl-2">
+                                <span className="text-[18px]">{item.text}</span>
+                            </AccordionTrigger>
 
-                                            <AccordionContent className="pl-5">
-                                                {item.key === "cena" && (
-                                                    <MultiRangeSlider
-                                                        minValue={priceRange.min}
-                                                        maxValue={priceRange.max}
-                                                        // min={priceRange.min}
-                                                        // max={priceRange.max}
-                                                        onChange={({ min, max }) => setPriceRange({ min, max })}
-                                                    />
-                                                )}
-                                            {item.key === "jm" && item.subMenuItems ? (
-                                                <ul className="flex flex-col gap-1">
-                                                {item.subMenuItems.map((subItem, subIndex) => (
-                                                    <li className="flex gap-1 items-center" key={subIndex}>
-                                                        <MaliCheckbox
-                                                            checked={jediniceFilter[subItem.text]}
-                                                            onChange={(newVal)=>
-                                                                setJediniceFilter(prev => ({ ...prev, [subItem.text]: newVal }))
-                                                            }
-                                                        />
-                                                        {subItem.text}
-                                                    </li>
-                                                ))}
-                                                </ul>
-                                            ):null}
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                        ))}
-                                    </Accordion>
-                                </div>
-                            </SheetContent>
-                        </Sheet>
+                            <AccordionContent className="pl-5">
+                                {item.key === "cena" && (
+                                    <MultiRangeSlider
+                                        minValue={priceRange.min}
+                                        maxValue={priceRange.max}
+                                        // min={priceRange.min}
+                                        // max={priceRange.max}
+                                        onChange={({ min, max }) => setPriceRange({ min, max })}
+                                    />
+                                )}
+                            {item.key === "jm" && item.subMenuItems ? (
+                                <ul className="flex flex-col gap-1">
+                                {item.subMenuItems.map((subItem, subIndex) => (
+                                    <li className="flex gap-1 items-center" key={subIndex}>
+                                        <MaliCheckbox
+                                            checked={jediniceFilter[subItem.text]}
+                                            onChange={(newVal)=>
+                                                setJediniceFilter(prev => ({ ...prev, [subItem.text]: newVal }))
+                                            }
+                                        />
+                                        {subItem.text}
+                                    </li>
+                                ))}
+                                </ul>
+                            ):null}
+                            </AccordionContent>
+                        </AccordionItem>
+                        ))}
+                    </Accordion>
+                </div>
+            </SheetContent>
+        </Sheet>
         </div>
     );
 }
