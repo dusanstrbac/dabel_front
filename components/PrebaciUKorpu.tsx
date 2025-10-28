@@ -4,6 +4,7 @@ import { ShoppingCartIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import axios from "axios";
 import { useTranslations } from "next-intl";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 interface RowItem {
   sifra: string;
@@ -48,7 +49,10 @@ const PrebaciUKorpu = ({
         else ids.push(r.sifra);
       });
 
-      const payload = { Ids: ids, BarKod: barKods };
+      const korisnik = dajKorisnikaIzTokena();
+      const idPartnera = korisnik?.idKorisnika;
+
+      const payload = { Ids: ids, BarKod: barKods, partner: idPartnera };
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
       const { data } = await axios.post(
         `${apiAddress}/api/Artikal/ProveriValidnost`,
@@ -66,7 +70,7 @@ const PrebaciUKorpu = ({
       // 🟥 Nepostojeće šifre — odmah obriši
       if (nevalidne.length > 0) {
         poruke = nevalidne.map(
-          (sifra) => `U bazi podataka ne postoji artikal sa šifrom ${sifra}.`
+          (sifra) => `Taj artikal nije u vašem asortimanu ${sifra}.`
         );
         onMessagesChange?.(poruke);
         return;
