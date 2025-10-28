@@ -43,19 +43,37 @@ export const ComboboxAdrese: React.FC<Props> = ({
       onSelectOption(jedinaAdresa);
     } else if (dostavaList.length > 1) {
       // Ako ih ima više — ne selektuj ništa, samo placeholder
+      dostavaList.sort();
       setSelected(null);
       onSelectOption({ adresa: "", postBroj: "", grad: "", drzava: "" } as KorisnikDostavaType);
     }
   }, [dostavaList]);
 
+  //const sortiranaAdresa = React.useMemo(()=>return[...dostavaList].sort((a,b)=>
+  //`$(a.adresa)$(a.grad)`.localeCompare(`$(b.adresa)$(b.grad)`, 'sr'),{sensitivity}));
+
+  const sortedList = React.useMemo(() => {
+    return [...dostavaList].sort((a, b) =>
+      `${a.adresa} ${a.grad}`.localeCompare(`${b.adresa} ${b.grad}`, "sr", { sensitivity: "base" })
+    );
+  }, [dostavaList]);
 
   const filtered = React.useMemo(() => {
     const search = inputValue.toLowerCase();
-    return dostavaList.filter((item) => {
+    return sortedList.filter((item) => {
       const combined = `${item.adresa} ${item.grad} ${item.postBroj} ${item.drzava}`.toLowerCase();
       return combined.includes(search);
     });
-  }, [inputValue, dostavaList]);
+  }, [inputValue, sortedList]);
+
+
+  // const filtered = React.useMemo(() => {
+  //   const search = inputValue.toLowerCase();
+  //   return dostavaList.filter((item) => {
+  //     const combined = `${item.adresa} ${item.grad} ${item.postBroj} ${item.drzava}`.toLowerCase();
+  //     return combined.includes(search);
+  //   });
+  // }, [inputValue, dostavaList]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
