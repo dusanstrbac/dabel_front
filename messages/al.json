@@ -387,7 +387,11 @@
     "Količina": "Sasia",
     "Cena": "Çmimi",
     "Dostava:": "Dërgesa:",
-    "Besplatna dostava": "Dërgesë falas"
+    "Besplatna dostava": "Dërgesë falas",
+    "PoručiPonovo": "Porosit përsëri",
+    "NemaStavkiUOvojNarudžbenici": "Nuk ka artikuj në këtë porosi.",
+    "SviArtikliSuDodatiUKorpu": "Të gjithë artikujt janë shtuar në shportë.",
+    "GreškaPriDodavanjuUKorpu": "Gabim gjatë shtimit në shportë."
   },
   "stampaj": {
     "Nema dostupnih podataka za prikaz dokumenta": "Nuk ka të dhëna të disponueshme për të shfaqur dokumentin.",
