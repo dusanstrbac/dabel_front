@@ -387,7 +387,11 @@
     "Količina": "Количина",
     "Cena": "Цена",
     "Dostava:": "Испорака:",
-    "Besplatna dostava": "Бесплатна испорака"
+    "Besplatna dostava": "Бесплатна испорака",
+    "PoručiPonovo": "Нарачај повторно",
+    "NemaStavkiUOvojNarudžbenici": "Нема ставки во оваа нарачка.",
+    "SviArtikliSuDodatiUKorpu": "Сите артикли се додадени во кошничката.",
+    "GreškaPriDodavanjuUKorpu": "Грешка при додавање во кошничката."
   },
   "stampaj": {
     "Nema dostupnih podataka za prikaz dokumenta": "Нема достапни податоци за приказ на документот.",

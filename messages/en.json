@@ -387,7 +387,11 @@
     "Količina": "Quantity",
     "Cena": "Price",
     "Dostava:": "Delivery:",
-    "Besplatna dostava": "Free shipping"
+    "Besplatna dostava": "Free shipping",
+    "PoručiPonovo": "Order again",
+    "NemaStavkiUOvojNarudžbenici": "There are no items in this order.",
+    "SviArtikliSuDodatiUKorpu": "All items have been added to the cart.",
+    "GreškaPriDodavanjuUKorpu": "Error while adding to the cart."
   },
   "stampaj": {
     "Nema dostupnih podataka za prikaz dokumenta": "No data available to display the document.",

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { useLocale, useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
 export default function PrikazDokumenta() {
   const t = useTranslations();
@@ -24,7 +25,9 @@ export default function PrikazDokumenta() {
     const fetchDokument = async () => {
       try {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const res = await fetch(`${apiAddress}/api/Dokument/DajDokumentPoBroju?brojDokumenta=${brojDokumenta}&idPartnera=${korisnik?.partner}&idKorisnika=${korisnik?.idKorisnika}`);
+        const res = await fetch(
+          `${apiAddress}/api/Dokument/DajDokumentPoBroju?brojDokumenta=${brojDokumenta}&idPartnera=${korisnik?.partner}&idKorisnika=${korisnik?.idKorisnika}`
+        );
         if (!res.ok) throw new Error('Greška pri učitavanju dokumenta.');
 
         const data = await res.json();
@@ -41,28 +44,98 @@ export default function PrikazDokumenta() {
 
   const handleStampanje = () => {
     if (!dokument?.brojDokumenta) return;
-      router.push(`/${jezik}/${korisnik?.korisnickoIme}/dokument/stampaj/${dokument.brojDokumenta}`)
+    router.push(
+      `/${jezik}/${korisnik?.korisnickoIme}/dokument/stampaj/${dokument.brojDokumenta}`
+    );
   };
 
-  if (loading) return <p className="text-center py-8">{t('brojDokumenta.Učitavanje dokumenta')}</p>;
-  if (error) return <p className="text-red-500 text-center py-8">{t('narudzbenica.Greska:')} {error}</p>;
-  if (!dokument) return <p className="text-center py-8">{t('brojDokumenta.Dokument nije pronađen')}</p>;
+  const handlePoruciPonovo = () => {
+    try {
+      if (!dokument?.stavkeDokumenata?.length) {
+        toast.error(t('brojDokumenta.NemaStavkiUOvojNarudžbenici'));
+        return;
+      }
+
+      // ✅ OBRIŠI POSTOJEĆU KORPU
+      localStorage.removeItem('cart');
+
+      // ✅ Napravi novu korpu
+      let cart: Record<string, { kolicina: number; barKod?: string }> = {};
+
+      // ✅ Dodaj artikle iz dokumenta
+      dokument.stavkeDokumenata.forEach((stavka: any) => {
+        const idArtikla = stavka.idArtikla || stavka.sifra || stavka.barKod;
+        if (!idArtikla) return;
+
+        const kolicina = Number(stavka.kolicina) || 0;
+        const barKod = stavka.barKod || undefined;
+
+        cart[idArtikla] = { kolicina, barKod };
+      });
+
+      // ✅ Sačuvaj novu korpu
+      localStorage.setItem('cart', JSON.stringify(cart));
+
+      // ✅ Obavesti ostatak aplikacije
+      window.dispatchEvent(new Event('storage'));
+
+      toast.success(t('brojDokumenta.SviArtikliSuDodatiUKorpu'));
+      router.push(`/${jezik}/korpa`);
+    } catch (err) {
+      console.error('❌ Greška pri ponavljanju narudžbenice:', err);
+      toast.error(t('brojDokumenta.GreškaPriDodavanjuUKorpu'));
+    }
+  };
+
+  if (loading)
+    return (
+      <p className="text-center py-8">
+        {t('brojDokumenta.Učitavanje dokumenta')}
+      </p>
+    );
+  if (error)
+    return (
+      <p className="text-red-500 text-center py-8">
+        {t('narudzbenica.Greska:')} {error}
+      </p>
+    );
+  if (!dokument)
+    return (
+      <p className="text-center py-8">
+        {t('brojDokumenta.Dokument nije pronađen')}
+      </p>
+    );
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
       <div className="max-w-4xl w-full py-10 px-6 bg-white shadow-lg rounded-lg">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-blue-700">{t('narudzbenica.Dokument')} #{dokument.brojDokumenta}</h1>
-          <Button className="cursor-pointer bg-blue-700 hover:bg-blue-500 py-5 px-8" onClick={handleStampanje}>
-            {t('brojDokumenta.Štampaj')}
-          </Button>
+        <div className="flex items-center justify-center md:justify-between mb-6 flex-wrap gap-6">
+          <h1 className="text-3xl font-bold text-blue-700 text-center ">
+            {t('narudzbenica.Dokument')} #{dokument.brojDokumenta}
+          </h1>
+          <div className="flex gap-1 items-center lg:gap-3">
+            <Button
+              className="cursor-pointer bg-blue-700 hover:bg-blue-500 py-5 px-8"
+              onClick={handleStampanje}
+            >
+              {t('brojDokumenta.Štampaj')}
+            </Button>
+            <Button
+              className="cursor-pointer bg-white border border-blue-700 py-5 px-8 text-blue-700"
+              onClick={handlePoruciPonovo}
+            >
+              {t('brojDokumenta.PoručiPonovo')}
+            </Button>
+          </div>
         </div>
 
         {/* Osnovne informacije */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div>
             <p className="text-gray-500">{t('narudzbenica.Datum')}</p>
-            <p className="font-semibold text-lg">{new Date(dokument.datumDokumenta).toLocaleDateString('sr-RS')}</p>
+            <p className="font-semibold text-lg">
+              {new Date(dokument.datumDokumenta).toLocaleDateString('sr-RS')}
+            </p>
           </div>
           <div>
             <p className="text-gray-500">{t('brojDokumenta.Partner')}</p>
@@ -71,7 +144,9 @@ export default function PrikazDokumenta() {
         </div>
 
         {/* Tabela stavki */}
-        <h2 className="text-2xl font-semibold mb-4">{t('brojDokumenta.Stavke')}</h2>
+        <h2 className="text-2xl font-semibold mb-4">
+          {t('brojDokumenta.Stavke')}
+        </h2>
         <div className="overflow-x-auto">
           <table className="w-full text-left border border-gray-200 rounded-md overflow-hidden">
             <thead className="bg-gray-100">
@@ -94,10 +169,13 @@ export default function PrikazDokumenta() {
             </tbody>
           </table>
         </div>
+
         {/* Ukupna cena i dostava */}
         <div className="mt-6 text-right space-y-1">
           <div>
-            <span className="text-lg text-gray-600 mr-2">{t('brojDokumenta.Dostava:')}</span>
+            <span className="text-lg text-gray-600 mr-2">
+              {t('brojDokumenta.Dostava:')}
+            </span>
             <span className="text-lg font-semibold text-blue-700">
               {dokument.dostava == null || dokument.dostava === 0
                 ? t('brojDokumenta.Besplatna dostava')
@@ -106,12 +184,16 @@ export default function PrikazDokumenta() {
           </div>
 
           <div>
-            <span className="text-lg text-gray-600 mr-2">{t('narudzbenica.Ukupno')}</span>
+            <span className="text-lg text-gray-600 mr-2">
+              {t('narudzbenica.Ukupno')}
+            </span>
             <span className="text-2xl font-bold text-blue-700">
               {(
-                dokument.stavkeDokumenata?.reduce((sum: number, s: any) => sum + s.ukupnaCena, 0) +
-                (dokument.dostava ?? 0)
-              ).toLocaleString('sr-RS')}{" "}
+                dokument.stavkeDokumenata?.reduce(
+                  (sum: number, s: any) => sum + s.ukupnaCena,
+                  0
+                ) + (dokument.dostava ?? 0)
+              ).toLocaleString('sr-RS')}{' '}
               RSD
             </span>
           </div>
