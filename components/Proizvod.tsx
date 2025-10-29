@@ -55,6 +55,29 @@ export default function Proizvod() {
   const t = useTranslations('proizvod');
 
   const korisnik = dajKorisnikaIzTokena();
+  const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+  const [partner, setPartner] = useState<KorisnikPodaciType | null>(null);
+
+  useEffect(() => {
+    const fetchPartner = async () => {
+      const idPartnera = korisnik?.partner;
+      const idKorisnika = korisnik?.idKorisnika;
+      try{
+        const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}&idKorisnika=${idKorisnika}`);
+        const data = await res.json();
+        const fPartner = data[0] as KorisnikPodaciType;
+        setPartner(fPartner);
+      }
+      catch (err) {
+        console.error(t('greskaFetchPartnera'), err);
+      }
+      
+    };
+    fetchPartner();
+  }, []);
+  
+  const rabat = partner?.partnerRabat.rabat ?? 0;
+  console.log("RABAT IZ PROIZVODA: ", rabat);
 
   useEffect(() => {
     const productId = Array.isArray(id) ? id[0] : id;
@@ -199,14 +222,16 @@ export default function Proizvod() {
 
   const cena =
     proizvod?.artikalCene && proizvod.artikalCene.length > 0
-      ? proizvod.artikalCene[0].cena
+      ? Number.isInteger(proizvod.artikalCene[0].cena * (1 - rabat / 100))? proizvod.artikalCene[0].cena * (1 - rabat / 100)
+      :(proizvod.artikalCene[0].cena * (1 - rabat / 100)).toFixed(2)
       : 0;
 
   const akcijskaCena =
     proizvod?.artikalCene &&
     proizvod.artikalCene.length > 0 &&
     proizvod.artikalCene[0].akcija?.cena !== 0
-      ? Number(proizvod.artikalCene[0].akcija.cena)
+      ? Number.isInteger(proizvod.artikalCene[0].akcija.cena * (1 - rabat / 100))?proizvod.artikalCene[0].akcija.cena * (1 - rabat / 100)
+      :(proizvod.artikalCene[0].akcija.cena * (1 - rabat / 100)).toFixed(2)
       : undefined;
 
   const akcijskaKolicina = 

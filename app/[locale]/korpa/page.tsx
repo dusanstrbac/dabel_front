@@ -388,14 +388,14 @@ const Korpa = () => {
                     {imaAkciju ? (
                       <div className="flex flex-col items-center">
                         <span className="text-gray-500 line-through text-sm">
-                          {formatCena(originalnaCena)} RSD
+                          {formatCena(originalnaCena * (1 - rabatPartnera / 100))} RSD
                         </span>
                         <span className="text-red-500 font-semibold">
-                          {formatCena(cena)} RSD
+                          {formatCena(cena * (1 - rabatPartnera / 100))} RSD
                         </span>
                       </div>
                     ) : (
-                      <span>{formatCena(originalnaCena)} RSD</span>
+                      <span>{formatCena(originalnaCena * (1 - rabatPartnera / 100))} RSD</span>
                     )}
                   </TableCell>
                   <TableCell className="text-center">{pakovanje}</TableCell>
