@@ -70,7 +70,7 @@ const PrebaciUKorpu = ({
       // 🟥 Nepostojeće šifre — odmah obriši
       if (nevalidne.length > 0) {
         poruke = nevalidne.map(
-          (sifra) => `Taj artikal nije u vašem asortimanu ${sifra}.`
+          (sifra) => `Artikal - ${sifra}, nije na stanju.`
         );
         onMessagesChange?.(poruke);
         return;
