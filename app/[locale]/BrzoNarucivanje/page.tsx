@@ -154,7 +154,7 @@ const BrzoNarucivanje = () => {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex lg:min-h-screen">
       <aside className="hidden md:flex md:flex-col md:w-1/3 bg-gray-50 p-6 border-r border-gray-200 overflow-auto">
         <h2 className="text-2xl font-bold mb-4">{t("KakoKoristiti")}</h2>
         <ul className="list-disc ml-5 text-gray-700 flex flex-col gap-4">
@@ -173,7 +173,7 @@ const BrzoNarucivanje = () => {
         </ul>
       </aside>
 
-      <main className="flex-1 p-6 flex flex-col max-h-screen">
+      <main className="flex-1 p-6 flex flex-col">
         <Dialog>
           <DialogTrigger asChild>
             <button
