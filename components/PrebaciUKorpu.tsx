@@ -112,6 +112,7 @@ const PrebaciUKorpu = ({
             `U korpi se već nalazi maksimalna količina (${dostupno}) artikla sa šifrom ${a.idArtikla}, ne možeš dodati više.`
           );
           sifreZaBrisanje.push(a.idArtikla);
+          if (a.barKod) sifreZaBrisanje.push(a.barKod);
           continue;
         }
 
@@ -129,6 +130,7 @@ const PrebaciUKorpu = ({
             `U korpu je dodat maksimalan broj (${dostupno}) artikla sa šifrom ${a.idArtikla}, dok ${nijeDodat} od ${trazena} nije dodat zato što ih nema na stanju.`
           );
           sifreZaBrisanje.push(a.idArtikla);
+          if(a.barKod) sifreZaBrisanje.push(a.barKod);
         } else {
           // sve može da se doda
           cart[a.idArtikla] = {
@@ -136,6 +138,7 @@ const PrebaciUKorpu = ({
             barKod: a.barKod,
           };
           sifreZaBrisanje.push(a.idArtikla);
+          if(a.barKod) sifreZaBrisanje.push(a.barKod);
         }
       }
 
