@@ -47,10 +47,9 @@ const Korpa = () => {
   const [imaDozvoluZaPakovanje, setImaDozvoluZaPakovanje] = useState(false);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const debounceVreme = 700;
-
   const t = useTranslations('korpa');
-  
 
+  // Provera validnosti količina
   useEffect(() => {
     const postojiPrekoracenje = articleList.some((article, index) => {
       const kolicinaNaStanju = Number(article.kolicina) || 0;
@@ -67,8 +66,38 @@ const Korpa = () => {
     }
   }, [validnaKolicina]);
 
-  
+  // Automatska korekcija količina kada se artikli učitaju
+  useEffect(() => {
+    if (articleList.length === 0 || quantities.length === 0) return;
 
+    const updatedQuantities = quantities.map((qty, index) => {
+      const article = articleList[index];
+      const pakovanje = article.kolZaIzdavanje || article.pakovanje || 1;
+      const maxAllowed = getMaxAllowedQuantity(article.kolicina, pakovanje);
+      const currentRounded = getRoundedQuantity(qty, pakovanje);
+      
+      if (currentRounded > maxAllowed) {
+        return imaDozvoluZaPakovanje 
+          ? Math.max(1, maxAllowed) 
+          : Math.max(pakovanje, Math.floor(maxAllowed / pakovanje) * pakovanje);
+      }
+      
+      return qty;
+    });
+
+    if (JSON.stringify(updatedQuantities) !== JSON.stringify(quantities)) {
+      setQuantities(updatedQuantities);
+      
+      const cart = JSON.parse(localStorage.getItem("cart") || "{}");
+      updatedQuantities.forEach((newQty, index) => {
+        const articleId = articleList[index].id;
+        cart[articleId] = { kolicina: newQty };
+      });
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+  }, [articleList, quantities, imaDozvoluZaPakovanje]);
+
+  // Učitavanje artikala i podataka
   useEffect(() => {
     setIsClient(true);
 
@@ -80,7 +109,6 @@ const Korpa = () => {
     const queryString = storedIds.map(id => `ids=${id}`).join("&");
     const url = `${apiAddress}/api/Artikal/DajArtikalPoId?idPartnera=${korisnik?.idKorisnika}&${queryString}`;
 
-    
     const fetchArticles = async () => {
       try {
         setIsLoading(true);
@@ -96,14 +124,12 @@ const Korpa = () => {
 
         setArticleList(transformed);
         
-        // Prvo proveri da li korisnik ima dozvolu za pakovanje
         const dozvoleResponse = await fetch(
           `${apiAddress}/api/Web/DajDozvoleKorisnika?idKorisnika=${korisnik?.idKorisnika}&idDozvole=1`
         );
         const dozvoleData = await dozvoleResponse.json();
         const imaDozvolu = dozvoleData.some((dozvola: DozvoleInfo) => dozvola.status === 1);
         
-        // Sada postavi količine sa pravim zaokruživanjem
         const initialQuantities = transformed.map((a: any) => {
           const savedQty = cart[a.id]?.kolicina;
           const pakovanje = a.kolZaIzdavanje || a.pakovanje || 1;
@@ -120,7 +146,7 @@ const Korpa = () => {
       } catch (error) {
         console.error(t('greskaUcitavanje'), error);
       } finally {
-        setIsLoading(false); // Dodaj ovo
+        setIsLoading(false);
       }
     };
 
@@ -157,15 +183,37 @@ const Korpa = () => {
     fetchArticles();
   }, []);
 
+  // Dozvole
+  useEffect(() => {
+    const fetchDozvole = async () => {
+      if (!korisnik) {
+        console.warn(t('nemaKorisnika'));
+        return;
+      }
+      
+      try {
+        const res = await fetch(
+          `${apiAddress}/api/Web/DajDozvoleKorisnika?idKorisnika=${korisnik.idKorisnika}&idDozvole=1`
+        );
+        const data: DozvoleInfo[] = await res.json();
+        
+        const imaDozvolu = data.some(dozvola => dozvola.status === 1);
+        setImaDozvoluZaPakovanje(imaDozvolu);
+      } catch (error) {
+        console.error(t('greskaDobavljanjeDozvola'), error);
+        setImaDozvoluZaPakovanje(false);
+      }
+    };
+
+    fetchDozvole();
+  }, [korisnik, apiAddress]);
+
   const isprazniKorpu = () => {
     setArticleList([]);
     setQuantities([]);
     localStorage.removeItem("cart");
     window.dispatchEvent(new Event("storage"));
   };
-
-
-
 
   const removeArticle = (index: number) => {
     const updatedArticles = [...articleList];
@@ -184,22 +232,28 @@ const Korpa = () => {
   };
 
   const updateQuantity = (index: number, newQuantity: number) => {
+    const article = articleList[index];
+    const pakovanje = article.kolZaIzdavanje || article.pakovanje || 1;
+    const maxAllowed = getMaxAllowedQuantity(article.kolicina, pakovanje);
+    
+    let finalQuantity = newQuantity;
+    const roundedQuantity = getRoundedQuantity(newQuantity, pakovanje);
+    
+    if (roundedQuantity > maxAllowed) {
+      finalQuantity = imaDozvoluZaPakovanje 
+        ? Math.max(1, maxAllowed) 
+        : Math.max(pakovanje, Math.floor(maxAllowed / pakovanje) * pakovanje);
+    }
+
     const updatedQuantities = [...quantities];
-    updatedQuantities[index] = newQuantity;
+    updatedQuantities[index] = finalQuantity;
     setQuantities(updatedQuantities);
 
     const cart = JSON.parse(localStorage.getItem("cart") || "{}");
     const articleId = articleList[index].id;
-    cart[articleId] = { kolicina: newQuantity };
+    cart[articleId] = { kolicina: finalQuantity };
     localStorage.setItem("cart", JSON.stringify(cart));
   };
-
-  // const getRoundedQuantity = (requested: number, packSize: number) => {
-  //   if (requested <= 0 || isNaN(requested)) return 0;
-  //   return requested <= packSize
-  //     ? packSize
-  //     : Math.ceil(requested / packSize) * packSize;
-  // };
 
   const getRoundedQuantity = (requested: number, packSize: number) => {
     if (requested <= 0 || isNaN(requested)) {
@@ -213,7 +267,11 @@ const Korpa = () => {
 
   const getMaxAllowedQuantity = (kolicina: string, pakovanje: number) => {
     const maxKolicina = Number(kolicina) || 0;
-    return Math.floor(maxKolicina / pakovanje) * pakovanje;
+    if (maxKolicina <= 0) return 0;
+    
+    return imaDozvoluZaPakovanje 
+      ? maxKolicina 
+      : Math.floor(maxKolicina / pakovanje) * pakovanje;
   };
 
   const getCenaZaArtikal = (artikal: Artikal) => {
@@ -231,7 +289,6 @@ const Korpa = () => {
     return Number(cena).toFixed(2);
   };
 
-
   const totalAmount = articleList.reduce((sum, artikal, index) => {
     const packSize = artikal.pakovanje || 1;
     const rounded = getRoundedQuantity(quantities[index], packSize);
@@ -239,7 +296,7 @@ const Korpa = () => {
     const rabat = partner?.partnerRabat.rabat ?? 0;
     const cenaSaRabat = cena * (1 - rabat / 100);
     return sum + rounded * cenaSaRabat;
-}, 0);
+  }, 0);
 
   const totalAmountWithPDV = totalAmount * 1.2;
 
@@ -247,7 +304,6 @@ const Korpa = () => {
     const baseUrl = '/images';
     return `${baseUrl}/s${idArtikla}.jpg`;    
   };
-    
 
   useEffect(() => {
     if (!isClient || articleList.length === 0 || !partner) return;
@@ -284,42 +340,13 @@ const Korpa = () => {
     sessionStorage.setItem("korpaPodaci", JSON.stringify(payload));
   }, [articleList, quantities, partner, totalAmount, totalAmountWithPDV, isClient]);
 
-
-
-  //LOGIKA ZA FETCH ZA DOZVOLE
-  useEffect(() => {
-    const fetchDozvole = async () => {
-      if (!korisnik) {
-        console.warn(t('nemaKorisnika'));
-        return;
-      }
-      
-      try {
-        const res = await fetch(
-          `${apiAddress}/api/Web/DajDozvoleKorisnika?idKorisnika=${korisnik.idKorisnika}&idDozvole=1`
-        );
-        const data: DozvoleInfo[] = await res.json();
-        
-        const imaDozvolu = data.some(dozvola => dozvola.status === 1);
-        setImaDozvoluZaPakovanje(imaDozvolu);
-      } catch (error) {
-        console.error(t('greskaDobavljanjeDozvola'), error);
-        setImaDozvoluZaPakovanje(false);
-      }
-    };
-
-    fetchDozvole();
-  }, [korisnik, apiAddress]);
-
   const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina;
 
-  
   const razlogZabraneNarucivanja = narucivanjeDisabled
-    ? "Imate  neizmirene dugove."
+    ? "Imate neizmirene dugove."
     : undefined;
 
-
-    if (!isClient) return null;
+  if (!isClient) return null;
 
   return (
     <div className="flex flex-col p-2 md:p-5">
@@ -388,14 +415,14 @@ const Korpa = () => {
                     {imaAkciju ? (
                       <div className="flex flex-col items-center">
                         <span className="text-gray-500 line-through text-sm">
-                          {formatCena(originalnaCena)} RSD
+                          {formatCena(originalnaCena * (1 - rabatPartnera / 100))} RSD
                         </span>
                         <span className="text-red-500 font-semibold">
-                          {formatCena(cena)} RSD
+                          {formatCena(cena * (1 - rabatPartnera / 100))} RSD
                         </span>
                       </div>
                     ) : (
-                      <span>{formatCena(originalnaCena)} RSD</span>
+                      <span>{formatCena(originalnaCena * (1 - rabatPartnera / 100))} RSD</span>
                     )}
                   </TableCell>
                   <TableCell className="text-center">{pakovanje}</TableCell>
@@ -425,7 +452,6 @@ const Korpa = () => {
                               enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanjeValue;
                             }
 
-                            // Ako korisnik nema dozvolu, zaokružujemo na pakovanje
                             const roundedValue = imaDozvoluZaPakovanje 
                               ? enteredValue 
                               : Math.ceil(enteredValue / pakovanjeValue) * pakovanjeValue;
@@ -435,7 +461,6 @@ const Korpa = () => {
                           }, debounceVreme)
                         }} 
                         onBlur={(e) => {
-                          // Kada izgubi fokus, ako je vrednost 0, postavi na minimalnu dozvoljenu
                           if (Number(e.target.value) <= 0) {
                             const pakovanjeValue = article.kolZaIzdavanje || 1;
                             const minValue = imaDozvoluZaPakovanje ? 1 : pakovanjeValue;
@@ -541,7 +566,6 @@ const Korpa = () => {
                               enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanjeValue;
                             }
 
-                            // Ako korisnik nema dozvolu, zaokružujemo na pakovanje
                             const roundedValue = imaDozvoluZaPakovanje 
                               ? enteredValue 
                               : Math.ceil(enteredValue / pakovanjeValue) * pakovanjeValue;

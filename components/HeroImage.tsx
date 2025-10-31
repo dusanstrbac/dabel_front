@@ -24,13 +24,14 @@ const HeroImage = () => {
 
   return (
     <div className="relative w-full mx-auto z-[-1]">
-      <div className="w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px] rounded-lg overflow-hidden relative">
+      <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] md:aspect-[3/1] lg:aspect-[21/7] rounded-lg overflow-hidden">
         {WebHeroImage && (
           <Image
             src={WebHeroImage}
             alt="Main Photo"
             fill
-            className="object-cover object-center static"
+            sizes="100vw"
+            className="object-contain sm:object-cover object-center"
             priority
           />
         )}

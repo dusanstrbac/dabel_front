@@ -64,7 +64,6 @@ interface KreirajNarudzbenicuProps {
                     body: JSON.stringify(payload),
                 });
 
-
                 if (!res.ok) {
                     toast.error(t('kreirajNarudzbenicu.❌ Greška: server nije prihvatio zahtev'));
                     console.error(t('kreirajNarudzbenicu.❌ Neuspešan POST'), res.status);

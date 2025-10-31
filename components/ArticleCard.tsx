@@ -3,6 +3,8 @@ import '@/app/globals.css';
 import AddToCartButton from './AddToCartButton';
 import { ArtikalType } from '@/types/artikal';
 import { useLocale, useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
+import { dajKorisnikaIzTokena } from '@/lib/auth';
 
 interface ArticleCardProps extends ArtikalType {
   idPartnera: string;
@@ -19,6 +21,30 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
   const locale = useLocale();
   const imageUrl = '/images';
   const fotografijaProizvoda = `${imageUrl}/s${idArtikla}.jpg`;
+  
+  const korisnik = dajKorisnikaIzTokena();
+  const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+  const [partner, setPartner] = useState<KorisnikPodaciType | null>(null);
+
+  useEffect(() => {
+      const fetchPartner = async () => {
+        const idPartnera = korisnik?.partner;
+        const idKorisnika = korisnik?.idKorisnika;
+        try{
+          const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}&idKorisnika=${idKorisnika}`);
+          const data = await res.json();
+          const fPartner = data[0] as KorisnikPodaciType;
+          setPartner(fPartner);
+        }
+        catch (err) {
+          console.error(t('greskaFetchPartnera'), err);
+        }
+        
+      };
+      fetchPartner();
+  }, []);
+
+  const rabat = partner?.partnerRabat.rabat ?? 0;
 
   const handleCardClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -36,8 +62,12 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
     router.push(`/proizvodi/${idArtikla}`);
   };
 
-  const cenaArtikla = artikalCene?.[0]?.cena ?? 0;
-  const novaCena = artikalCene?.[0]?.akcija?.cena ?? null;
+  const cenaBezRabata = artikalCene?.[0]?.cena ?? 0;
+  const cenaArtikla = Number.isInteger(cenaBezRabata * (1 - rabat / 100))?cenaBezRabata * (1 - rabat / 100)
+  :(cenaBezRabata * (1 - rabat / 100)).toFixed(2);
+  const novaCenaBezRabata = artikalCene?.[0]?.akcija?.cena ?? null;
+  const novaCena = Number.isInteger(novaCenaBezRabata * (1 - rabat / 100))?novaCenaBezRabata * (1 - rabat / 100)
+  :(novaCenaBezRabata * (1 - rabat / 100)).toFixed(2);
 
   const formatDate = (dateInput: string | Date | undefined) => {
     if (!dateInput) return "";
@@ -112,7 +142,7 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
         <div className="flex justify-between items-end mt-auto">
           {/* Cena */}
           <div className="flex flex-col items-start gap-1">
-            {novaCena && novaCena > 0 ? (
+            {novaCena && Number(novaCena) > 0 ? (
               <>
                 <p className="text-sm font-semibold text-gray-500 line-through opacity-60 relative">
                   {cenaArtikla}

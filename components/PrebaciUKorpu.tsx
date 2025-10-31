@@ -4,6 +4,7 @@ import { ShoppingCartIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import axios from "axios";
 import { useTranslations } from "next-intl";
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 
 interface RowItem {
   sifra: string;
@@ -48,7 +49,10 @@ const PrebaciUKorpu = ({
         else ids.push(r.sifra);
       });
 
-      const payload = { Ids: ids, BarKod: barKods };
+      const korisnik = dajKorisnikaIzTokena();
+      const idPartnera = korisnik?.idKorisnika;
+
+      const payload = { Ids: ids, BarKod: barKods, partner: idPartnera };
       const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
       const { data } = await axios.post(
         `${apiAddress}/api/Artikal/ProveriValidnost`,
@@ -66,7 +70,7 @@ const PrebaciUKorpu = ({
       // 🟥 Nepostojeće šifre — odmah obriši
       if (nevalidne.length > 0) {
         poruke = nevalidne.map(
-          (sifra) => `U bazi podataka ne postoji artikal sa šifrom ${sifra}.`
+          (sifra) => `Artikal - ${sifra}, nije na stanju.`
         );
         onMessagesChange?.(poruke);
         return;
@@ -102,14 +106,31 @@ const PrebaciUKorpu = ({
         const dostupno = a.kolicina;
         const ukupnoMoguce = Math.max(dostupno - uKorpi, 0);
 
+        // Ako je kolicina 0
+        if(dostupno === 0) {
+          poruke.push(
+            `Artikal id: ${a.idArtikla}, barkod: ${a.barKod} nije dostupan na stanju.`
+          )
+          sifreZaBrisanje.push(a.idArtikla)
+          if(a.barKod) sifreZaBrisanje.push(a.barKod);
+          continue;
+        }
+
         // ako je sve već dodato ranije
         if (uKorpi >= dostupno) {
           poruke.push(
             `U korpi se već nalazi maksimalna količina (${dostupno}) artikla sa šifrom ${a.idArtikla}, ne možeš dodati više.`
           );
           sifreZaBrisanje.push(a.idArtikla);
+          if (a.barKod) sifreZaBrisanje.push(a.barKod);
           continue;
         }
+
+        // Ako je trazena kolicina dobra, ali pakovanje pravi problem (npr 1337 u magacinu on trazi 1338, samo ce se zakucati na 1340 jer je pakovanje 5)
+        if(trazena > ukupnoMoguce) {
+          
+        }
+
 
         // ako je tražena količina veća od preostalog broja na stanju
         if (trazena > ukupnoMoguce) {
@@ -125,6 +146,7 @@ const PrebaciUKorpu = ({
             `U korpu je dodat maksimalan broj (${dostupno}) artikla sa šifrom ${a.idArtikla}, dok ${nijeDodat} od ${trazena} nije dodat zato što ih nema na stanju.`
           );
           sifreZaBrisanje.push(a.idArtikla);
+          if(a.barKod) sifreZaBrisanje.push(a.barKod);
         } else {
           // sve može da se doda
           cart[a.idArtikla] = {
@@ -132,6 +154,7 @@ const PrebaciUKorpu = ({
             barKod: a.barKod,
           };
           sifreZaBrisanje.push(a.idArtikla);
+          if(a.barKod) sifreZaBrisanje.push(a.barKod);
         }
       }
 

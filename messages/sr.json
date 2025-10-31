@@ -387,7 +387,11 @@
     "Količina": "Količina",
     "Cena": "Cena",
     "Dostava:": "Dostava:",
-    "Besplatna dostava": "Besplatna dostava"
+    "Besplatna dostava": "Besplatna dostava",
+    "PoručiPonovo": "Poruči ponovo",
+    "NemaStavkiUOvojNarudžbenici": "Nema stavki u ovoj narudžbenici.",
+    "SviArtikliSuDodatiUKorpu": "Svi artikli su dodati u korpu.",
+    "GreškaPriDodavanjuUKorpu": "Greška pri dodavanju u korpu."
   },
   "stampaj": {
     "Nema dostupnih podataka za prikaz dokumenta": "Nema dostupnih podataka za prikaz dokumenta.",
@@ -441,7 +445,7 @@
     "ukupno": "Ukupno:",
     "pdv": "sa PDV",
     "bezPDV": "bez PDV",
-    "naruci": "Naruči"
+    "naruci": "Sledeći korak"
   },
   "promenaLozinke":{
     "naslov": "Promena lozinke",

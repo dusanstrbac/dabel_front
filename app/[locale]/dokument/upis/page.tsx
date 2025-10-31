@@ -72,7 +72,6 @@ import { useTranslations } from "next-intl";
         <div className="flex flex-col gap-5 p-4 min-w-[320px]">
             <div className="flex flex-col gap-5">
 
-
                 {/* PODACI O LJUDIMA */}
                 <div className="mb-4 space-y-1 w-full">
                     <div className="flex flex-col max-w-[1200px] mx-auto">
@@ -104,7 +103,6 @@ import { useTranslations } from "next-intl";
                             </div>
                         </div>
 
-
                         <div className="flex flex-col w-full mt-8">
                             <h1 className="text-center font-light text-2xl border-b pb-2">{t('dokumentUpis.Podaci o partneru')}</h1>
                             {/* PARTNER */}
@@ -124,88 +122,9 @@ import { useTranslations } from "next-intl";
                                 </div>
                             </div>
                         </div>
-
-                    </div>
-                </div>
-
-                {/* Artikli */}
-                <div className="flex flex-col w-full gap-4">
-                    {artikli.length === 0 ? (
-                        <p className="italic">{t('dokumentUpis.Nema artikala u korpi')}</p>
-                    ) : (
-                        <div className="flex flex-col max-h-[550px] overflow-y-auto pr-2 gap-5 ">
-                        {artikli.map((artikal) => {
-                            const fotografijaProizvoda = `${imageUrl}/s${artikal.idArtikla}.jpg`;
-                            return (
-                                <div
-                                    key={artikal.idArtikla}
-                                    className="w-full flex items-center gap-4 border-1 p-2 rounded-lg shadow-sm max-h-[500px]"
-                                >
-                                    <img
-                                        src={fotografijaProizvoda}
-                                        alt={artikal.naziv}
-                                        className="w-16 h-16 object-cover"
-                                    />
-                                    <div className="flex flex-col lg:flex-col w-full">
-                                            <p className="flex font-semibold text-lg">{artikal.naziv}</p>
-                                            {/* <p className="text-red-500 text-xl whitespace-nowrap md:hidden lg:hidden block">{(artikal.pravaCena).toLocaleString("sr-RS")} RSD</p> */}
-                                            {artikal.IznosSaPDV !== undefined && (
-                                                <p className="text-red-500 text-xl whitespace-nowrap md:hidden lg:hidden block">
-                                                    {artikal.IznosSaPDV.toLocaleString("sr-RS")} RSD
-                                                </p>
-                                            )}
-
-                                        <div className="flex flex-col lg:flex-row gap-1 justify-between text-gray-400 max-w-[400px] text-sm">
-                                            <p>{t('dokumentUpis.Šifra')} {artikal.idArtikla}</p>
-                                            <p>{t('dokumentUpis.Količina')} {artikal.kolicina}</p> 
-                                            {artikal.koriscenaCena !== undefined && (
-                                                <p>{t('dokumentUpis.Cena')} {artikal.koriscenaCena.toLocaleString("sr-RS")} RSD</p>
-                                            )}
-                                            
-                                            <p>{t('dokumentUpis.PDV')} 20%</p>
-                                            {/* <p>Pakovanje: {artikal.pakovanje}</p> */}
-                                        </div>
-                                    </div>
-                                    {artikal.IznosSaPDV !== undefined && ( 
-                                        <p className="text-red-500 text-xl whitespace-nowrap hidden md:block lg:block">{(artikal.IznosSaPDV).toLocaleString("sr-RS")} RSD</p>
-                                    )}
-                                </div>
-                            );
-                            })}
-                        </div>
-                    )}
-                    <div className="flex flex-col w-full min-h-[40px] items-end p-2">
-                        <div className="max-w-[400px] w-full">
-                            <div className="flex items-center justify-between">
-                                <p className="font-medium">{pravaDostava > 0
-                                                            ? t('dokumentUpis.Ukupno')
-                                                            : ""}
-                                </p>
-                                <p className="text-gray-500">
-                                    {pravaDostava > 0
-                                        ? `${ukupnaCenaSaPDV.toLocaleString("sr-RS")} RSD`
-                                        : ""}
-                                </p>
-                            </div>
-                            
-                            <div className="flex items-center justify-between text-base">
-                                <p className="font-medium">{t('dokumentUpis.Dostava')}</p>
-                                <p className="text-right text-gray-500">
-                                    {pravaDostava > 0
-                                                ? `${pravaDostava.toLocaleString("sr-RS")} RSD`
-                                                : t('dokumentUpis.Besplatna dostava')}
-                                </p>
-                            </div>
-                            
-                            <div className="flex items-center justify-between text-lg font-bold mt-2">
-                                <p>{t('dokumentUpis.Ukupno')}</p>
-                                <p className="text-2xl">{ukupnoSaDostavom.toLocaleString("sr-RS")} RSD</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
-
 
             {/* NARUCI DUGME */}
             <div className="pt-5 flex justify-end">
