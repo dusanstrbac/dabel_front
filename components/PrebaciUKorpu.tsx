@@ -67,13 +67,13 @@ const PrebaciUKorpu = ({
 
       let poruke: string[] = [];
 
-      // 🟥 Nepostojeće šifre — odmah obriši
+      // 🟥 Nepostojeće šifre — obriši ih, ali ipak nastavi sa validnima
       if (nevalidne.length > 0) {
-        poruke = nevalidne.map(
-          (sifra) => `Artikal - ${sifra}, nije na stanju.`
+        poruke.push(
+          ...nevalidne.map((sifra) => `Artikal - ${sifra}, nije pronađen ili nije na stanju.`)
         );
-        onMessagesChange?.(poruke);
-        return;
+        // obavesti roditelja da obriše redove sa nevalidnim šiframa
+        onInvalidSifre?.(nevalidne);
       }
 
       // mapa artikala
