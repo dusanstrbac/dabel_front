@@ -77,7 +77,6 @@ export default function Proizvod() {
   }, []);
   
   const rabat = partner?.partnerRabat.rabat ?? 0;
-  console.log("RABAT IZ PROIZVODA: ", rabat);
 
   useEffect(() => {
     const productId = Array.isArray(id) ? id[0] : id;

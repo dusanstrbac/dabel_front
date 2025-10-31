@@ -139,7 +139,7 @@ export default function ProizvodiPage() {
           <p className="text-center mt-4">{t('main.Učitavanje')}</p>
         ) : error || sviArtikli.length === 0 ? (
           <p className="text-center text-xl font-medium text-red-600 mt-4">
-            {sviArtikli.length === 0 ? "Partner nema asortiman za ovu kategoriju!" : error}
+            {sviArtikli.length === 0 ? "Trenutno nema artikala za ovu kategoriju!" : error}
           </p>
         ) : (
           <>

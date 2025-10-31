@@ -106,6 +106,16 @@ const PrebaciUKorpu = ({
         const dostupno = a.kolicina;
         const ukupnoMoguce = Math.max(dostupno - uKorpi, 0);
 
+        // Ako je kolicina 0
+        if(dostupno === 0) {
+          poruke.push(
+            `Artikal id: ${a.idArtikla}, barkod: ${a.barKod} nije dostupan na stanju.`
+          )
+          sifreZaBrisanje.push(a.idArtikla)
+          if(a.barKod) sifreZaBrisanje.push(a.barKod);
+          continue;
+        }
+
         // ako je sve već dodato ranije
         if (uKorpi >= dostupno) {
           poruke.push(
@@ -115,6 +125,12 @@ const PrebaciUKorpu = ({
           if (a.barKod) sifreZaBrisanje.push(a.barKod);
           continue;
         }
+
+        // Ako je trazena kolicina dobra, ali pakovanje pravi problem (npr 1337 u magacinu on trazi 1338, samo ce se zakucati na 1340 jer je pakovanje 5)
+        if(trazena > ukupnoMoguce) {
+          
+        }
+
 
         // ako je tražena količina veća od preostalog broja na stanju
         if (trazena > ukupnoMoguce) {
