@@ -40,6 +40,7 @@ const FormTable = ({ title }: myProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortKey, setSortKey] = useState<'datum' | 'cena' | 'status'>('datum');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [minCenaZaBesplatnuDostavu, setMinCenaZaBesplatnuDostavu] = useState<number | null>(null);
 
   const pathname = usePathname();
   const prikazNarudzbenica = pathname.includes(`/narudzbenica`);
@@ -126,6 +127,22 @@ const FormTable = ({ title }: myProps) => {
     };
     izvuciDokumenta();
   }, [prikazPoslataRoba]);
+
+  useEffect(() => {
+    try {
+      const parametriString = localStorage.getItem('webparametri');
+      if (!parametriString) return;
+
+      const parametri = JSON.parse(parametriString);
+      const minCenaObj = parametri.find((p: any) => p.naziv === "MinCenaZaBesplatnuDostavu");
+      if (minCenaObj && !isNaN(Number(minCenaObj.vrednost))) {
+        setMinCenaZaBesplatnuDostavu(Number(minCenaObj.vrednost));
+      }
+    } catch (err) {
+      console.error("Greška pri čitanju iz localStorage-a:", err);
+    }
+  }, []);
+
 
 
   const handleOpoziv = async (brojDokumenta: number) => {
@@ -246,8 +263,14 @@ const FormTable = ({ title }: myProps) => {
                       <span className="text-sm">{statusText}</span>
                     </TableCell>
                   )}
-
-                  <TableCell className="text-right">{ukupno.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">
+                    {minCenaZaBesplatnuDostavu !== null
+                      ? ukupno < minCenaZaBesplatnuDostavu
+                        ? (ukupno + 1000).toFixed(2)
+                        : ukupno.toFixed(2)
+                      : ukupno.toFixed(2)
+                    }
+                  </TableCell>
                   {prikazNarudzbenica && (
                     <TableCell className="flex justify-center">
                       {dokument.status === 0 && (
