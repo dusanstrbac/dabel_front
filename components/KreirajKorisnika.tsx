@@ -19,7 +19,7 @@ import { useTranslations } from "next-intl";
 const KreirajKorisnika = () => {
   const t = useTranslations();
   const [korisnickoIme, setKorisnickoIme] = useState('');
-  const [lozinka, setLozinka] = useState('');
+  //const [lozinka, setLozinka] = useState('');
   const [email, setEmail] = useState('');
   const [telefon, setTelefon] = useState('');
   const [open, setOpen] = useState(false); // State za otvaranje/zatvaranje dijaloga
@@ -35,20 +35,20 @@ const KreirajKorisnika = () => {
     const partner = dajKorisnikaIzTokena();
 
     // Validacija unosa
-    if (!korisnickoIme || !lozinka || !email || !telefon) {
-      toast.error(t('kreirajKorisnika.Sva polja moraju biti popunjena!'));
-      return;
-    }
+    // if (!korisnickoIme || !lozinka || !email || !telefon) {
+    //   toast.error(t('kreirajKorisnika.Sva polja moraju biti popunjena!'));
+    //   return;
+    // }
 
     if (!validateEmail(email)) {
       toast.error(t('kreirajKorisnika.Email nije u validnom formatu!'));
       return;
     }
 
-    if(lozinka.length < 6 ) {
-      toast.error(t('kreirajKorisnika.Lozinka mora imati najmanje 6 karaktera!'));
-      return;
-    }
+    // if(lozinka.length < 6 ) {
+    //   toast.error(t('kreirajKorisnika.Lozinka mora imati najmanje 6 karaktera!'));
+    //   return;
+    // }
 
     if (!/^(\+381|0)[6-9][0-9]{7,8}$/.test(telefon)) {
       toast.error(t('promenaPodatakaKorisnika.Telefon nije u validnom formatu (Na primer: +38160XXXXXXX)'));
@@ -57,7 +57,7 @@ const KreirajKorisnika = () => {
 
     const payload = {
       korisnickoIme,
-      lozinka,
+      //lozinka,
       email,
       telefon,
       partner: partner?.idKorisnika,
@@ -131,7 +131,7 @@ const KreirajKorisnika = () => {
                 className="border-2 border-gray-300"
               />
             </div>
-            <div className="flex flex-col gap-2">
+            {/* <div className="flex flex-col gap-2">
               <Label htmlFor="lozinka" className="font-bold">{t('promenaPodatakaKorisnika.Lozinka')}</Label>
               <Input
                 type="password"
@@ -140,7 +140,7 @@ const KreirajKorisnika = () => {
                 onChange={(e) => setLozinka(e.target.value)}
                 className="border-2 border-gray-300"
               />
-            </div>
+            </div> */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="telefon" className="font-bold">{t('korisnici.Telefon')}</Label>
               <Input
