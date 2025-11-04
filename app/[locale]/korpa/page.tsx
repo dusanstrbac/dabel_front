@@ -290,11 +290,12 @@ const Korpa = () => {
   };
 
   const totalAmount = articleList.reduce((sum, artikal, index) => {
+    const imaAkciju = articleList[0].artikalCene[0].akcija?.cena ? 1 : 0;
     const packSize = artikal.pakovanje || 1;
     const rounded = getRoundedQuantity(quantities[index], packSize);
     const cena = getCenaZaArtikal(artikal);
     const rabat = partner?.partnerRabat.rabat ?? 0;
-    const cenaSaRabat = cena * (1 - rabat / 100);
+    const cenaSaRabat = cena * (1 - rabat*imaAkciju / 100);
     return sum + rounded * cenaSaRabat;
   }, 0);
 
