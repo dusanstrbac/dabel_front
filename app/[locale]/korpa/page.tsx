@@ -282,7 +282,7 @@ const Korpa = () => {
   };
 
   const getOriginalnaCena = (artikal: Artikal) => {
-    return Number(artikal.artikalCene[0].cena) || 0;
+    return Number(artikal.artikalCene[0]?.cena) || 0;
   };
 
   const formatCena = (cena: number) => {
@@ -290,12 +290,12 @@ const Korpa = () => {
   };
 
   const totalAmount = articleList.reduce((sum, artikal, index) => {
-    const imaAkciju = articleList[0].artikalCene[0].akcija?.cena ? 1 : 0;
+    const imaAkciju = artikal.artikalCene[0].akcija?.cena ? true : false;
     const packSize = artikal.pakovanje || 1;
     const rounded = getRoundedQuantity(quantities[index], packSize);
     const cena = getCenaZaArtikal(artikal);
     const rabat = partner?.partnerRabat.rabat ?? 0;
-    const cenaSaRabat = imaAkciju ? cena : cena * (1- rabat/100);
+    const cenaSaRabat = imaAkciju ? cena : cena * (1 - rabat / 100);
     return sum + rounded * cenaSaRabat;
   }, 0);
 
@@ -316,10 +316,7 @@ const Korpa = () => {
       const kolicina = getRoundedQuantity(quantities[index], pakovanje);
       const originalnaCena = getOriginalnaCena(article);
       const koriscenaCena = getCenaZaArtikal(article);
-      const imaAkciju = article.artikalCene[0]?.akcija?.cena > 0;
-      
-      //ovde mi kaze gresku za imaAkciju
-      //na ovoj liniji je greska
+      const imaAkciju =article.artikalCene[0].akcija?.cena ? true : false;
 
       // Rabat se primenjuje SAMO ako nema akcije
       const cenaPosleRabat = imaAkciju ? koriscenaCena : koriscenaCena * (1 - rabatPartnera / 100);
@@ -345,7 +342,7 @@ const Korpa = () => {
     };
 
     sessionStorage.setItem("korpaPodaci", JSON.stringify(payload));
-  }, [articleList, quantities, partner, totalAmount, totalAmountWithPDV, isClient]);
+  }, [articleList, quantities, partner, totalAmount, totalAmountWithPDV, isClient, rabatPartnera]);
 
   const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina;
 
@@ -394,7 +391,7 @@ const Korpa = () => {
               const kolicina = getRoundedQuantity(quantities[index], pakovanje);
               const cena = getCenaZaArtikal(article);
               const originalnaCena = getOriginalnaCena(article);
-              const cenaPosleRabat = cena;
+              const cenaPosleRabat = imaAkciju ? cena : cena * (1 - rabatPartnera / 100);
               const iznos = kolicina * cenaPosleRabat;
               const iznosSaPDV = iznos * 1.2;
 
