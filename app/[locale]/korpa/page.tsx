@@ -295,7 +295,7 @@ const Korpa = () => {
     const rounded = getRoundedQuantity(quantities[index], packSize);
     const cena = getCenaZaArtikal(artikal);
     const rabat = partner?.partnerRabat.rabat ?? 0;
-    const cenaSaRabat = cena * (1 - rabat*imaAkciju / 100);
+    const cenaSaRabat = imaAkciju ? cena : cena * (1- rabat/100);
     return sum + rounded * cenaSaRabat;
   }, 0);
 
@@ -316,7 +316,13 @@ const Korpa = () => {
       const kolicina = getRoundedQuantity(quantities[index], pakovanje);
       const originalnaCena = getOriginalnaCena(article);
       const koriscenaCena = getCenaZaArtikal(article);
-      const cenaPosleRabat = koriscenaCena * (1 - rabatPartnera / 100);
+      const imaAkciju = article.artikalCene[0]?.akcija?.cena > 0;
+      
+      //ovde mi kaze gresku za imaAkciju
+      //na ovoj liniji je greska
+
+      // Rabat se primenjuje SAMO ako nema akcije
+      const cenaPosleRabat = imaAkciju ? koriscenaCena : koriscenaCena * (1 - rabatPartnera / 100);
       const iznosSaPDV = cenaPosleRabat * kolicina * (1 + PDV);
 
       return {
@@ -388,7 +394,7 @@ const Korpa = () => {
               const kolicina = getRoundedQuantity(quantities[index], pakovanje);
               const cena = getCenaZaArtikal(article);
               const originalnaCena = getOriginalnaCena(article);
-              const cenaPosleRabat = cena * (1 - rabatPartnera / 100);
+              const cenaPosleRabat = cena;
               const iznos = kolicina * cenaPosleRabat;
               const iznosSaPDV = iznos * 1.2;
 
@@ -416,14 +422,14 @@ const Korpa = () => {
                     {imaAkciju ? (
                       <div className="flex flex-col items-center">
                         <span className="text-gray-500 line-through text-sm">
-                          {formatCena(originalnaCena * (1 - rabatPartnera / 100))} RSD
+                          {formatCena(originalnaCena)} RSD
                         </span>
                         <span className="text-red-500 font-semibold">
-                          {formatCena(cena * (1 - rabatPartnera / 100))} RSD
+                          {formatCena(cena)} RSD
                         </span>
                       </div>
                     ) : (
-                      <span>{formatCena(originalnaCena * (1 - rabatPartnera / 100))} RSD</span>
+                      <span>{formatCena(originalnaCena)} RSD</span>
                     )}
                   </TableCell>
                   <TableCell className="text-center">{pakovanje}</TableCell>
@@ -505,7 +511,7 @@ const Korpa = () => {
           const kolicina = getRoundedQuantity(quantities[index], pakovanje);
           const cena = getCenaZaArtikal(article);
           const originalnaCena = getOriginalnaCena(article);
-          const cenaPosleRabat = cena * (1 - rabatPartnera / 100);
+          const cenaPosleRabat = imaAkciju ? cena : cena * (1 - rabatPartnera / 100);
           const iznos = kolicina * cenaPosleRabat;
           const iznosSaPDV = iznos * 1.2;
 

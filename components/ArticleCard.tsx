@@ -63,11 +63,14 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
   };
 
   const cenaBezRabata = artikalCene?.[0]?.cena ?? 0;
-  const cenaArtikla = Number.isInteger(cenaBezRabata * (1 - rabat / 100))?cenaBezRabata * (1 - rabat / 100)
-  :(cenaBezRabata * (1 - rabat / 100)).toFixed(2);
+  const cenaArtikla = cenaBezRabata.toFixed(2);
   const novaCenaBezRabata = artikalCene?.[0]?.akcija?.cena ?? null;
-  const novaCena = Number.isInteger(novaCenaBezRabata * (1 - rabat / 100))?novaCenaBezRabata * (1 - rabat / 100)
-  :(novaCenaBezRabata * (1 - rabat / 100)).toFixed(2);
+  // const AkCena = Number.isInteger(novaCenaBezRabata).toFixed(2);
+  // const AkCena = novaCenaBezRabata.toFixed(2);
+  const AkCena = novaCenaBezRabata != null
+                                  ? Number(novaCenaBezRabata).toFixed(2)
+                                  : null;
+
 
   const formatDate = (dateInput: string | Date | undefined) => {
     if (!dateInput) return "";
@@ -142,14 +145,14 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
         <div className="flex justify-between items-end mt-auto">
           {/* Cena */}
           <div className="flex flex-col items-start gap-1">
-            {novaCena && Number(novaCena) > 0 ? (
+            {AkCena && Number(AkCena) > 0 ? (
               <>
                 <p className="text-sm font-semibold text-gray-500 line-through opacity-60 relative">
                   {cenaArtikla}
                   <span className="absolute -right-5 text-[10px]">RSD</span>
                 </p>
                 <p className="text-[22px] lg:text-xl font-bold text-red-500 relative">
-                  {novaCena}
+                  {AkCena}
                   <span className="absolute -right-8 text-sm">RSD</span>
                 </p>
               </>
