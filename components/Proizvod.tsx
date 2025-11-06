@@ -221,17 +221,17 @@ export default function Proizvod() {
 
   const cena =
     proizvod?.artikalCene && proizvod.artikalCene.length > 0
-      ? Number.isInteger(proizvod.artikalCene[0].cena * (1 - rabat / 100))? proizvod.artikalCene[0].cena * (1 - rabat / 100)
-      :(proizvod.artikalCene[0].cena * (1 - rabat / 100)).toFixed(2)
-      : 0;
+      ? Number.isInteger(proizvod.artikalCene[0].cena) ? proizvod.artikalCene[0].cena
+                                                      :(proizvod.artikalCene[0].cena).toFixed(2)
+                                                      : 0;
 
   const akcijskaCena =
     proizvod?.artikalCene &&
     proizvod.artikalCene.length > 0 &&
     proizvod.artikalCene[0].akcija?.cena !== 0
-      ? Number.isInteger(proizvod.artikalCene[0].akcija.cena * (1 - rabat / 100))?proizvod.artikalCene[0].akcija.cena * (1 - rabat / 100)
-      :(proizvod.artikalCene[0].akcija.cena * (1 - rabat / 100)).toFixed(2)
-      : undefined;
+      ? Number.isInteger(proizvod.artikalCene[0].akcija.cena) ? proizvod.artikalCene[0].akcija.cena
+                                                              :(proizvod.artikalCene[0].akcija.cena).toFixed(2)
+                                                              : undefined;
 
   const akcijskaKolicina = 
     proizvod?.artikalCene &&
