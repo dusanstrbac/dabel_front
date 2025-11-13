@@ -10,7 +10,8 @@
     "Poruka je uspešno poslata": "Message sent successfully!",
     "Došlo je do greške Pokušajte ponovo kasnije": "An error occurred. Please try again later.",
     "NovopristigliArtikli": "Newly arrived items",
-    "Najprodavanije": "Bestsellers"
+    "Najprodavanije": "Bestsellers",
+    "Nema rezultata": "No results"
   },
   "Paginacija": {
     "Prethodna": "Previous",
