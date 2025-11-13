@@ -106,6 +106,9 @@ export default function PrikazDokumenta() {
       </p>
     );
 
+    const cennnna = dokument?.stavkeDokumenata[0]?.cena;
+    console.log(cennnna);
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
       <div className="max-w-4xl w-full py-10 px-6 bg-white shadow-lg rounded-lg">
@@ -161,8 +164,9 @@ export default function PrikazDokumenta() {
               {dokument.stavkeDokumenata?.map((stavka: any, idx: number) => (
                 <tr key={idx} className="border-t">
                   <td className="py-2 px-4">{stavka.nazivArtikla}</td>
-                  <td className="py-2 px-4">{stavka.kolicina}</td>
+                  <td className="py-2 px-4">{cennnna}</td>
                   <td className="py-2 px-4">{stavka.cena.toFixed(2)}</td>
+                  {/* pozdrav, ovde ukupna cena i obicna cena nisu dobre, nego mi stize neka cena koja nije dobra, odakle je ova cena stigla tu posto je ona smanjena za rabat, tacnije smanjena je za *(1-rabat/100) i sad ja ne zelim da to bude tako, kako da vidim odakle mi dolazi ova cena */}
                   <td className="py-2 px-4">{stavka.ukupnaCena.toFixed(2)}</td>
                 </tr>
               ))}

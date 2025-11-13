@@ -98,9 +98,16 @@ const DokumentPage = () => {
   const handlePrint = () => window.print();
 
   const izracunajStavku = (stavka: StavkaDokumenta) => {
+    // Ako je cena > 0 (akcijska cena), NE primenjuj rabat
+    // Ako je cena <= 0, koristi originalnu cenu i primeni rabat
     const artikalCena = stavka.cena > 0 ? stavka.cena : stavka.originalnaCena;
     const rabat = Number(partnerInfo?.partnerRabat.rabat ?? 0);
-    const cenaPosleRabata = artikalCena * (1 - rabat / 100);
+    
+    // Primena rabata samo ako NIJE akcijska cena
+    const cenaPosleRabata = stavka.cena > 0 
+      ? artikalCena  // Ne primenjuj rabat za akcijske cene
+      : artikalCena * (1 - rabat / 100); // Primeni rabat za regularne cene
+    
     const cenaBezPDV = cenaPosleRabata;
     const cenaSaPDV = cenaBezPDV * (1 + Number(stavka.pdv) / 100);
     const vrednost = cenaSaPDV * Number(stavka.kolicina);
@@ -110,7 +117,7 @@ const DokumentPage = () => {
 
   const ukupno = stavke.reduce(
     (acc, stavka) => {
-      const { cenaBezPDV, cenaSaPDV } = izracunajStavku(stavka);
+      const { cenaBezPDV, cenaSaPDV, vrednost } = izracunajStavku(stavka);
       acc.ukupnoBezPDV += cenaBezPDV * Number(stavka.kolicina);
       acc.ukupnoSaPDV += cenaSaPDV * Number(stavka.kolicina);
       return acc;
@@ -213,24 +220,29 @@ const DokumentPage = () => {
             </tr>
           </thead>
           <tbody>
-            {stavke.map((stavka, index) => (
-              <tr key={index} className="text-center border-t border-black">
-                <td className="border-r border-black px-2 py-1">{index + 1}</td>
-                <td className="border-r border-black px-2 py-1 text-left">{stavka.nazivArtikla || t('stampaj.Nepoznato')}</td>
-                <td className="border-r border-black px-2 py-1">{stavka.jm}</td>
-                <td className="border-r border-black px-2 py-1">{stavka.kolicina}</td>
-                <td className="border-r border-black px-2 py-1">{stavka.cena.toFixed(2)}</td>
-                <td className="border-r border-black px-2 py-1">{partnerInfo?.partnerRabat.rabat ?? 0}%</td>
-                <td className="border-r border-black px-2 py-1">
-                  {(stavka.cena * (1 - Number(partnerInfo.partnerRabat.rabat) / 100) * Number(stavka.kolicina)).toFixed(2)}
-                </td>
-                <td className="border-r border-black px-2 py-1">{stavka.pdv} %</td>
-                <td className="border-r border-black px-2 py-1">
-                  {(stavka.cena * (1 - Number(partnerInfo.partnerRabat.rabat) / 100) * (1 + Number(stavka.pdv) / 100) * Number(stavka.kolicina)).toFixed(2)}
-                </td>
-                <td className="px-2 py-1">{stavka.ukupnaCena.toFixed(2)}</td>
-              </tr>
-            ))}
+            {stavke.map((stavka, index) => {
+              const { cenaBezPDV, cenaSaPDV, vrednost } = izracunajStavku(stavka);
+              const rabat = stavka.cena > 0 ? 0 : Number(partnerInfo?.partnerRabat.rabat ?? 0);
+              
+              return (
+                <tr key={index} className="text-center border-t border-black">
+                  <td className="border-r border-black px-2 py-1">{index + 1}</td>
+                  <td className="border-r border-black px-2 py-1 text-left">{stavka.nazivArtikla || t('stampaj.Nepoznato')}</td>
+                  <td className="border-r border-black px-2 py-1">{stavka.jm}</td>
+                  <td className="border-r border-black px-2 py-1">{stavka.kolicina}</td>
+                  <td className="border-r border-black px-2 py-1">{stavka.originalnaCena.toFixed(2)}</td>
+                  <td className="border-r border-black px-2 py-1">{rabat}%</td>
+                  <td className="border-r border-black px-2 py-1">
+                    {cenaBezPDV.toFixed(2)}
+                  </td>
+                  <td className="border-r border-black px-2 py-1">{stavka.pdv} %</td>
+                  <td className="border-r border-black px-2 py-1">
+                    {cenaSaPDV.toFixed(2)}
+                  </td>
+                  <td className="px-2 py-1">{vrednost.toFixed(2)}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -254,7 +266,7 @@ const DokumentPage = () => {
         <div className="flex gap-4 w-full text-[16px] font-bold justify-end">
           <span>{t('narudzbenica.Ukupno')}</span>
           <span>
-            {(ukupno.ukupnoSaPDV + (ukupno.ukupnoSaPDV < minCena ? (dostava ?? 0) : 0)).toFixed(2)} RSD
+            {ukupnoSaDostavom.toFixed(2)} RSD
           </span>
         </div>
       </div>
