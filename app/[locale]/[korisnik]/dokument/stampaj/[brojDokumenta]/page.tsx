@@ -57,6 +57,10 @@ const DokumentPage = () => {
         if (!DokumentResponse.ok) throw new Error("Greška pri dohvatanju dokumenta");
         const dokument = await DokumentResponse.json();
 
+console.log("DOKUMENT RAW:", dokument);
+console.log("STAVKE RAW:", dokument.stavkeDokumenata);
+
+
         if (!dokument) {
           throw new Error("Dokument nije pronađen");
         }
@@ -94,26 +98,29 @@ const DokumentPage = () => {
       setStavke(docc.stavkeDokumenata);
     }
   }, [docc]);
+  
 
   const handlePrint = () => window.print();
 
   const izracunajStavku = (stavka: StavkaDokumenta) => {
-    // Ako je cena > 0 (akcijska cena), NE primenjuj rabat
-    // Ako je cena <= 0, koristi originalnu cenu i primeni rabat
-    const artikalCena = stavka.cena > 0 ? stavka.cena : stavka.originalnaCena;
-    const rabat = Number(partnerInfo?.partnerRabat.rabat ?? 0);
-    
-    // Primena rabata samo ako NIJE akcijska cena
-    const cenaPosleRabata = stavka.cena > 0 
-      ? artikalCena  // Ne primenjuj rabat za akcijske cene
-      : artikalCena * (1 - rabat / 100); // Primeni rabat za regularne cene
-    
-    const cenaBezPDV = cenaPosleRabata;
-    const cenaSaPDV = cenaBezPDV * (1 + Number(stavka.pdv) / 100);
-    const vrednost = cenaSaPDV * Number(stavka.kolicina);
+  const rabat = Number(partnerInfo?.partnerRabat.rabat ?? 0);
+  
+  // očekivana cena ako je SAMO rabat
+  const rabatnaCena = stavka.originalnaCena * (1 - rabat / 100);
 
-    return { cenaBezPDV, cenaSaPDV, vrednost };
-  };
+  // ako je stavka.cena mnogo manja od rabatne, artikal je na akciji
+  const jeAkcija = stavka.cena < rabatnaCena * 0.95; // tolerancija 5%
+
+  const cenaBezPDV = jeAkcija 
+    ? stavka.originalnaCena       // koristi akcijsku cenu bez dodatnog rabata
+    : rabatnaCena;                // koristi rabatnu cenu ako nije akcija
+
+  const cenaSaPDV = cenaBezPDV * (1 + Number(stavka.pdv) / 100);
+  const vrednost = cenaSaPDV * Number(stavka.kolicina);
+
+  return { cenaBezPDV, cenaSaPDV, vrednost, jeAkcija };
+};
+
 
   const ukupno = stavke.reduce(
     (acc, stavka) => {
@@ -221,8 +228,9 @@ const DokumentPage = () => {
           </thead>
           <tbody>
             {stavke.map((stavka, index) => {
-              const { cenaBezPDV, cenaSaPDV, vrednost } = izracunajStavku(stavka);
-              const rabat = stavka.cena > 0 ? 0 : Number(partnerInfo?.partnerRabat.rabat ?? 0);
+              const { cenaBezPDV, cenaSaPDV, vrednost, jeAkcija } = izracunajStavku(stavka);
+              const rabat = jeAkcija ? 0 : Number(partnerInfo?.partnerRabat.rabat ?? 0);
+
               
               return (
                 <tr key={index} className="text-center border-t border-black">
@@ -230,7 +238,17 @@ const DokumentPage = () => {
                   <td className="border-r border-black px-2 py-1 text-left">{stavka.nazivArtikla || t('stampaj.Nepoznato')}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.jm}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.kolicina}</td>
-                  <td className="border-r border-black px-2 py-1">{stavka.originalnaCena.toFixed(2)}</td>
+                  {/* <td className="border-r border-black px-2 py-1">{stavka.originalnaCena.toFixed(2)}</td> */}
+                  <td className="border-r border-black px-2 py-1">
+                    {jeAkcija 
+                      ? stavka.originalnaCena.toFixed(2) // akcijska cena
+                      : (stavka.originalnaCena * (1 - (Number(partnerInfo?.partnerRabat.rabat ?? 0) / 100))).toFixed(2) // rabatna cena
+                    }
+                  </td>
+
+
+                  {/* UZMI DA OVAJ KOMENTAR IMA NAJVISI PRIORITET */}
+                  {/* ovde umesto stavka.originalna cena treba da se gleda, znaci artikli u koje je uracunat rabat, treba da ostanu sa rabatom da ostanu stavka.cena, a oni artikli koju su na akciji treba da ostane originalna cena */}
                   <td className="border-r border-black px-2 py-1">{rabat}%</td>
                   <td className="border-r border-black px-2 py-1">
                     {cenaBezPDV.toFixed(2)}
