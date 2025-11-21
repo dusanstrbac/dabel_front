@@ -1,19 +1,20 @@
 'use client';
+import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { Heart } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 interface OmiljeniType {
   idArtikla: string;
-  idPartnera: string;
   inicijalniStatus?: boolean;
 }
 
-const DodajUOmiljeno = ({ idArtikla, idPartnera, inicijalniStatus = false }: OmiljeniType) => {
+const DodajUOmiljeno = ({ idArtikla, inicijalniStatus = false }: OmiljeniType) => {
   const t = useTranslations('heart');
   const [lajkovano, setLajkovano] = useState<boolean>(inicijalniStatus);
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-
+  const IdKorisnika = dajKorisnikaIzTokena()?.idKorisnika;
+  
   const toggleOmiljeni = async () => {
     try {
       const noviStatus = lajkovano ? 0 : 1;
@@ -22,12 +23,12 @@ const DodajUOmiljeno = ({ idArtikla, idPartnera, inicijalniStatus = false }: Omi
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          idPartnera,
+          IdKorisnika,
           idArtikla,
           status: noviStatus
         })
       });
-
+      
       if (!res.ok) {
         throw new Error(t('neuspesanZahtev'));
       }

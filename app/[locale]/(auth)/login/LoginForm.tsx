@@ -1,4 +1,3 @@
-// components/LoginForm.tsx
 'use client';
 
 import { useForm } from "react-hook-form";
@@ -15,6 +14,7 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import LanguageSelector from "@/components/LanguageSelector";
 import { useLocale, useTranslations } from "next-intl";
+import ZaboravljenaLozinka from "@/components/ZaboravljenaLozinka";
 
 const locales = ["sr", "en", "mk", "al", "me"];
 
@@ -202,7 +202,8 @@ export default function LoginForm() {
               t('Logovanje.Prijavi se')
             )}
           </Button>
-          <div className="float-right">
+          <div className="flex flex-col items-end gap-2">
+            <ZaboravljenaLozinka />
             <LanguageSelector />
           </div>
         </form>
