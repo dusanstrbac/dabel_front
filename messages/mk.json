@@ -469,7 +469,8 @@
     "Registrujte se besplatno": "Регистрирајте се бесплатно",
     "Prijavljivanje": "Најавување...",
     "Prijavi se": "Најави се",
-    "Korisničko ime je obavezno": "Корисничкото име е задолжително"
+    "Korisničko ime je obavezno": "Корисничкото име е задолжително",
+    "Zaboravili ste lozinku" : "Ја заборавивте лозинката?"
   },
   "Registracija": {
     "Unesite validan email": "Внесете валидна е-пошта",
@@ -498,5 +499,13 @@
     "Potvrdite lozinku": "Потврдете ја лозинката",
     "Postavljanje": "Поставување...",
     "Postavi lozinku": "Постави лозинка"
+  },
+  "PovratLozinke": {
+    "Vracanje naloga": "Враќање на сметката",
+    "Unesite trazene podatke da biste vratili nalog": "Внесете ги потребните податоци за да ја вратите сметката",
+    "Posalji zahtev": "Испрати барање",
+    "Uspesno ste poslali zahtev": "Успешно го испративте барањето",
+    "Greska prilikom slanja zahteva": "Настана грешка при испраќањето на барањето"
   }
+
 }

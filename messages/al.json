@@ -469,7 +469,8 @@
     "Registrujte se besplatno": "Regjistrohuni falas",
     "Prijavljivanje": "Duke u kyçur...",
     "Prijavi se": "Kyçu",
-    "Korisničko ime je obavezno": "Emri i përdoruesit është i detyrueshëm"
+    "Korisničko ime je obavezno": "Emri i përdoruesit është i detyrueshëm",
+    "Zaboravili ste lozinku" : "E keni harruar fjalëkalimin?"
   },
   "Registracija": {
     "Unesite validan email": "Futni një email të vlefshëm",
@@ -498,5 +499,13 @@
     "Potvrdite lozinku": "Konfirmoni fjalëkalimin",
     "Postavljanje": "Duke vendosur...",
     "Postavi lozinku": "Vendos fjalëkalimin"
+  },
+  "PovratLozinke": {
+    "Vracanje naloga": "Rikthimi i llogarisë",
+    "Unesite trazene podatke da biste vratili nalog": "Vendosni të dhënat e kërkuara për të rikthyer llogarinë",
+    "Posalji zahtev": "Dërgo kërkesën",
+    "Uspesno ste poslali zahtev": "Kërkesa u dërgua me sukses",
+    "Greska prilikom slanja zahteva": "Ndodhi një gabim gjatë dërgimit të kërkesës"
   }
+
 }

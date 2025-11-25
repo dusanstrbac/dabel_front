@@ -469,7 +469,8 @@
     "Registrujte se besplatno": "Register for free",
     "Prijavljivanje": "Logging in...",
     "Prijavi se": "Log in",
-    "Korisničko ime je obavezno": "Username is required"
+    "Korisničko ime je obavezno": "Username is required",
+    "Zaboravili ste lozinku" : "Forgot your password?"
   },
   "Registracija": {
     "Unesite validan email": "Enter a valid email",
@@ -498,5 +499,12 @@
     "Potvrdite lozinku": "Confirm password",
     "Postavljanje": "Setting...",
     "Postavi lozinku": "Set password"
+  },
+  "PovratLozinke": {
+    "Vracanje naloga": "Account recovery",
+    "Unesite trazene podatke da biste vratili nalog": "Enter the required information to recover your account",
+    "Posalji zahtev": "Submit request",
+    "Uspesno ste poslali zahtev": "Your request has been successfully submitted",
+    "Greska prilikom slanja zahteva": "An error occurred while submitting the request"
   }
 }

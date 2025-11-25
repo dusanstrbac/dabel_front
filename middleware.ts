@@ -6,7 +6,7 @@ const locales = ["sr", "en", "mk", "al", "me"];
 const defaultLocale = "sr";
 
 // BAZNE rute koje su javne
-const baseExemptRoutes = ["/login", "/register", "/aktivacija", "/api/Auth/LoginPodaci"];
+const baseExemptRoutes = ["/login", "/register", "/aktivacija", "/api/Auth/LoginPodaci", "/resetlozinke"];
 
 // Dodaj sve lokalizovane varijante
 const AUTH_EXEMPT_ROUTES = [
