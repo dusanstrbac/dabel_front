@@ -7,6 +7,7 @@ import { useState } from "react";
 interface OmiljeniType {
   idArtikla: string;
   inicijalniStatus?: boolean;
+  idPartnera: string;
 }
 
 const DodajUOmiljeno = ({ idArtikla, inicijalniStatus = false }: OmiljeniType) => {
