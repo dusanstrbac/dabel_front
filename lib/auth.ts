@@ -9,10 +9,10 @@ type DekodiranToken = {
   exp: number;
   iat: number;
   idPartnera?: string;
-  nerealizovano?: string;
+  pristigloNaNaplatu?: string;
   raspolozivoStanje?: string;
-  kredit?: string;
-  nijeDospelo?: string;
+  dozvoljenoZaduzenje?: string;
+  trenutnoZaduzenje?: string;
   drzava?: string;
   partner?: string;
 };
@@ -26,10 +26,10 @@ export function dajKorisnikaIzTokena(): {
   partner: string;
   finKarta?: {
     idPartnera: string;
-    nerealizovano: number;
+    pristigloNaNaplatu: number;
     raspolozivoStanje: number;
-    kredit: number;
-    nijeDospelo: number;
+    dozvoljenoZaduzenje: number;
+    trenutnoZaduzenje: number;
   };
 } | null {
   const token = getCookie("AuthToken");
@@ -49,10 +49,10 @@ export function dajKorisnikaIzTokena(): {
       finKarta: decoded.idPartnera
         ? {
             idPartnera: decoded.idPartnera,
-            nerealizovano: parseFloat(decoded.nerealizovano || "0"),
+            pristigloNaNaplatu: parseFloat(decoded.pristigloNaNaplatu || "0"),
             raspolozivoStanje: parseFloat(decoded.raspolozivoStanje || "0"),
-            kredit: parseFloat(decoded.kredit || "0"),
-            nijeDospelo: parseFloat(decoded.nijeDospelo || "0"),
+            dozvoljenoZaduzenje: parseFloat(decoded.dozvoljenoZaduzenje || "0"),
+            trenutnoZaduzenje: parseFloat(decoded.trenutnoZaduzenje || "0"),
           }
         : undefined,
         
