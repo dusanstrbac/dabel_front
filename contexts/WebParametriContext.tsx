@@ -85,12 +85,6 @@ export function WebParametriProvider({ children }: { children: React.ReactNode }
     // 2. Proveri da li treba fetch u pozadini
     fetchData();
 
-    // 3. Postavi interval
-    const interval = setInterval(() => {
-      fetchData();
-    }, sixHoursInMs);
-
-    return () => clearInterval(interval);
   }, [fetchData]);
 
   // Helper za lako dobijanje vrednosti (npr. daj mi 'email')
