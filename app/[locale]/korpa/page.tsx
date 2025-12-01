@@ -167,9 +167,9 @@ const Korpa = () => {
           if (fPartner.partnerRabat.rabat) {
             setRabatPartnera(fPartner.partnerRabat.rabat);
           }
-          if (fPartner.finKarta?.nerealizovano) {
-            setNerealizovanIznos(parseFloat(fPartner.finKarta.nerealizovano)); 
-            if (parseFloat(fPartner.finKarta.nerealizovano) > 0) {
+          if (fPartner.finKarta?.pristigloNaNaplatu) {
+            setNerealizovanIznos(parseFloat(fPartner.finKarta.pristigloNaNaplatu)); 
+            if (parseFloat(fPartner.finKarta.pristigloNaNaplatu) > 0) {
               toast.error(t('neplaceneFakture'));
               return;
             }

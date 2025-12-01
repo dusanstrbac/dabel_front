@@ -48,8 +48,8 @@ interface KorisnikPodaciKomercijalistaType {
 
 interface FinKartaType {
     idPartnera: string;
-    nerealizovano: string;
+    pristigloNaNaplatu: string;
     raspolozivoStanje: string;
-    kredit: string;
-    nijeDospelo: string;
+    dozvoljenoZaduzenje: string;
+    trenutnoZaduzenje: string;
 }

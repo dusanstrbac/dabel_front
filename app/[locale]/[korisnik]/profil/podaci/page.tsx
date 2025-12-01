@@ -6,9 +6,9 @@ import { useTranslations } from 'next-intl';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 
 interface FinKartaType {
-  kredit: number;
-  nijeDospelo: number;
-  nerealizovano: number;
+  dozvoljenoZaduzenje: number;
+  trenutnoZaduzenje: number;
+  pristigloNaNaplatu: number;
   raspolozivoStanje: number;
 }
 
@@ -104,13 +104,13 @@ const ProfilPodaci = () => {
 
         <div className="flex flex-col lg:gap-3 text-left lg:text-right">
           <p className="text-gray-600">{getTodayDate()}</p>
-          <p className="font-semibold">{t('allowedDebt')}: <span className="font-extrabold">{userData.finKarta?.kredit ?? 'N/A'}</span></p>
-          <p className="font-semibold">{t('currentDebt')}: <span className="font-extrabold">{userData.finKarta?.nijeDospelo ?? 'N/A'}</span></p>
-          <p className="font-semibold">{t('unrealizedAmount')}: <span className="font-extrabold">{userData.finKarta?.nerealizovano ?? 'N/A'}</span></p>
+          <p className="font-semibold">{t('allowedDebt')}: <span className="font-extrabold">{userData.finKarta?.dozvoljenoZaduzenje ?? 'N/A'}</span></p>
+          <p className="font-semibold">{t('currentDebt')}: <span className="font-extrabold">{userData.finKarta?.trenutnoZaduzenje ?? 'N/A'}</span></p>
+          <p className="font-semibold">{t('unrealizedAmount')}: <span className="font-extrabold">{userData.finKarta?.pristigloNaNaplatu ?? 'N/A'}</span></p>
           <p className="font-semibold">
             {t('availableBalance')}:{" "}
             <span className="font-extrabold">
-              {finKarta?.nerealizovano !== 0 ? 0 : finKarta?.raspolozivoStanje ?? 'N/A'}
+              {finKarta?.pristigloNaNaplatu !== 0 ? 0 : finKarta?.raspolozivoStanje ?? 'N/A'}
             </span>
           </p>
 
