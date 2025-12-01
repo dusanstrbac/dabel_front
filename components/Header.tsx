@@ -18,21 +18,29 @@ import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { useTranslations } from "next-intl";
 import { usePathname } from 'next/navigation';
 
+// IZMENA 1: Uvozimo hook iz Context-a koji smo napravili
+import { useWebParametri } from "@/contexts/WebParametriContext"; 
 
 export default function Header() {
   const [korisnickoIme, setKorisnickoIme] = useState<string | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [brojRazlicitihArtikala, setBrojRazlicitihArtikala] = useState(0);
-  const [parametri, setParametri] = useState<any[]>([]);
-  const [WEBKontaktTelefon, setWEBKontaktTelefon] = useState<string>('N/A');
-  const [WebKontaktEmail, setWebKontaktEmail] = useState<string>('N/A');
+
+  // IZMENA 2: Umesto useState, koristimo podatke direktno iz Context-a
+  // Ovo obezbeđuje da čim se podaci učitaju u pozadini, ove promenljive dobiju vrednost
+  const { getParametar } = useWebParametri(); 
+  
+  const WEBKontaktTelefon = getParametar('WEBKontaktTelefon') || 'N/A';
+  const WebKontaktEmail = getParametar('WebKontaktEmail') || 'N/A';
+
+  // Obrisali smo [parametri, setParametri] jer nam više ne trebaju ovde lokalno
+
   const korisnik = dajKorisnikaIzTokena();
-  const [headerMainNav, setHeaderMainNav] = useState<NavigacijaItem[]>([]);
+  const [headerMainNav, setHeaderMainNav] = useState<any[]>([]); // Stavio sam any[] da ne puca ako nemas tip
   const t = useTranslations('header');
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1];
@@ -46,16 +54,12 @@ export default function Header() {
     { text: t('header-Omiljeno'), href: `/${currentLocale}/heart`, icon: <Heart className="w-5 h-5" /> },
   ];
 
-
   useEffect(() => {
     const updateCartCount = () => {
+      // IZMENA 3: Ovde smo ostavili SAMO logiku za korpu.
+      // Logiku za parametre smo izbacili jer je sada rešava "useWebParametri" iznad.
       const existing = localStorage.getItem("cart");
       setBrojRazlicitihArtikala(existing ? Object.keys(JSON.parse(existing)).length : 0);
-
-      const parami = JSON.parse(localStorage.getItem('webparametri') || '[]');
-      setParametri(parami);
-      setWEBKontaktTelefon(parami.find((p: any) => p.naziv === 'WEBKontaktTelefon')?.vrednost || 'N/A');
-      setWebKontaktEmail(parami.find((p: any) => p.naziv === 'WebKontaktEmail')?.vrednost || 'N/A');
     };
     updateCartCount();
     window.addEventListener("storage", updateCartCount);
@@ -104,7 +108,6 @@ export default function Header() {
     router.push('/login');
   };
 
-
   //DYNAMIC CSS
   const adjustSubmenuPosition = (e: React.MouseEvent<HTMLLIElement>) => {
     const submenu = e.currentTarget.querySelector("ul");
@@ -120,7 +123,6 @@ export default function Header() {
     }
   };
 
-
   return (
     <header className="w-full top-0 left-0 z-[100] sticky bg-white border-b border-gray-200">
 
@@ -133,8 +135,11 @@ export default function Header() {
           </Link>
           <PretragaProizvoda />
           <div className="w-[30%] flex items-center justify-center space-x-6">
+            
+            {/* OVE PROMENLJIVE SE SADA AUTOMATSKI POPUNJAVAJU IZ CONTEXTA */}
             <div className="flex items-center space-x-2"><Phone className="text-gray-500 h-7 w-7"/><span className="text-sm">{WEBKontaktTelefon}</span></div>
             <div className="flex items-center space-x-2"><Mail className="text-gray-500 h-7 w-7"/><Link href={`mailto:${WebKontaktEmail}`} className="text-sm">{WebKontaktEmail}</Link></div>
+          
           </div>
           <div className="flex justify-center items-center space-x-6">
             <Link href="/heart"><Heart className="h-6 w-6 text-gray-500 hover:text-gray-700"/></Link>
@@ -165,15 +170,9 @@ export default function Header() {
                           </NavigationMenuLink>
                           {/* PODMENI */}
                           {item.subMenuItems && (
-                            
                             <ul className="absolute top-0 left-full ml-2 w-60 max-w-xs bg-white border border-gray-200 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60] max-h-[calc(100vh-298px)] overflow-y-auto">
-                            {/* Dodato: max-h-[80vh] i overflow-y-auto */}
-                              {item.subMenuItems.map((sub, sidx) => (
-                                <li
-                                  key={sidx}
-                                  // className="relative group"
-                                  // onMouseEnter={adjustSubmenuPosition}
-                                >
+                              {item.subMenuItems.map((sub: any, sidx: number) => (
+                                <li key={sidx}>
                                   <Link href={sub.href} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600 break-words whitespace-normal">
                                     {sub.text}
                                   </Link>
@@ -252,7 +251,7 @@ export default function Header() {
                           </AccordionTrigger>
                           <AccordionContent className="pl-10">
                             <ul className="flex flex-col gap-1 py-2">
-                              {item.subMenuItems.map((subItem, subIndex) => (
+                              {item.subMenuItems.map((subItem: any, subIndex: number) => (
                                 <li key={subIndex}>
                                   <Link
                                     href={subItem.href}
@@ -307,7 +306,6 @@ export default function Header() {
 
               </SheetContent>
             </Sheet>
-
 
           </div>
 

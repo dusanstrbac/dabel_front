@@ -1,26 +1,25 @@
 'use client';
 import Image from "next/image";
 import { useEffect, useState } from "react";
+// IZMENA 1: Uvozimo useWebParametri hook
+import { useWebParametri } from "@/contexts/WebParametriContext"; 
 
 const HeroImage = () => {
-  const [WebHeroImage, setWebHeroImage] = useState<string | null>(null);
+  // IZMENA 2: Uklanjamo lokalni state (useState) i useEffect.
 
-  useEffect(() => {
-    try {
-      const parametriIzLocalStorage = JSON.parse(localStorage.getItem('webparametri') || '[]');
-      const urlFotografija = parametriIzLocalStorage.find(
-        (param: any) => param.naziv === 'HeroSekcija'
-      )?.vrednost;
+  // IZMENA 3: Koristimo getParametar direktno iz Context-a.
+  // Context je već osigurao da je vrednost HeroSekcija ažurna.
+  const { getParametar } = useWebParametri();
+  
+  // Dohvatamo URL slike. Ako je null, biće string 'N/A' ili slično, ali provera dole to rešava.
+  const rawUrl = getParametar('HeroSekcija');
 
-      if (urlFotografija && typeof urlFotografija === 'string' && urlFotografija.startsWith('http')) {
-        setWebHeroImage(urlFotografija);
-      } else {
-        console.warn('❌ Hero image URL nije validan:', urlFotografija);
-      }
-    } catch (err) {
-      console.error('❌ Greška pri čitanju localStorage:', err);
-    }
-  }, []);
+  // Obezbeđujemo da je to validan string URL pre nego što ga prosledimo komponenti Image.
+  const WebHeroImage = 
+    (typeof rawUrl === 'string' && rawUrl.startsWith('http')) 
+    ? rawUrl 
+    : null;
+
 
   return (
     <div className="relative w-full mx-auto z-[-1]">
