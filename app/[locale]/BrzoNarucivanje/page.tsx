@@ -205,7 +205,7 @@ const BrzoNarucivanje = () => {
           {t("Brzo naručivanje")}
         </h1>
 
-        <div className="flex justify-center mb-6">
+        <div>
           <Dialog open={scannerActive} onOpenChange={setScannerActive}>
             {/* <DialogTrigger asChild>
               <button
@@ -244,138 +244,144 @@ const BrzoNarucivanje = () => {
           </Dialog>
         </div>
 
-        {/* PREUZMI SABLON */}
-        <div className="mb-6 text-center">
-          <button
-            className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 rounded shadow border cursor-pointer"
-            onClick={handleDownloadTemplate}
-          >
-            📄 {t("Preuzmi šablon")}
-          </button>
-        </div>
+          {/* Glavni deo sa unosom */}
+          <div className="flex flex-col items-center mb-6 max-h-[60vh] overflow-auto w-full gap-5">
+            {rows.map((row, index) => {
+              const isDummy =
+                index === rows.length - 1 &&
+                row.sifra === "" &&
+                row.kolicina === "";
 
-        {/* Glavni deo sa unosom */}
-        <div className="flex flex-col items-center mb-6 max-h-[60vh] overflow-auto w-full">
-          {rows.map((row, index) => {
-            const isDummy =
-              index === rows.length - 1 &&
-              row.sifra === "" &&
-              row.kolicina === "";
-
-            return (
-              <div
-                key={index}
-                className="flex w-full max-w-xl items-end justify-center gap-2"
-              >
-                <div className="flex flex-col items-center relative">
-                  <p className={isDummy ? "opacity-50" : ""}>{t("Sifra")}</p>
-                  <Input
-                    ref={(el) => { sifraRefs.current[index] = el; }}
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    className={`border-2 w-full ${
-                      invalidneSifre.includes(row.sifra)
-                        ? "border-red-500"
-                        : "border-[#323131cc]"
-                    } ${isDummy ? "opacity-50 cursor-pointer" : ""}`}
-                    value={row.sifra}
-                    onChange={(e) =>
-                      handleChange(index, "sifra", e.target.value)
-                    }
-                    onFocus={() => {
-                      if (isDummy) handleAddRow();
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        quantityRefs.current[index]?.focus();
-                      }
-                    }}
-                  />
-                </div>
-
-                <div className="flex flex-col items-center">
-                  <p className={isDummy ? "opacity-40" : ""}>
-                    {t("Kolicina")}
-                  </p>
-                  <Input
-                    ref={(el) => { quantityRefs.current[index] = el; }}
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    className={`border-2 w-full ${
-                      invalidneKolicine.includes(row.sifra)
-                        ? "border-red-500"
-                        : "border-[#323131cc]"
-                    } ${isDummy ? "opacity-40 cursor-pointer" : ""}`}
-                    value={row.kolicina}
-                    onChange={(e) =>
-                      handleChange(index, "kolicina", e.target.value)
-                    }
-                    onFocus={() => {
-                      if (isDummy) handleAddRow();
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        const nextIndex = index + 1;
-                        if (nextIndex === rows.length - 1) handleAddRow();
-                        setTimeout(() => {
-                          sifraRefs.current[nextIndex]?.focus();
-                        }, 0);
-                      }
-                    }}
-                  />
-                </div>
-
-                <button
-                  onClick={() => handleRemoveRow(index)}
-                  className={`mb-1 text-red-500 font-bold text-xl px-2 hover:text-red-700 ${
-                    isDummy ? "invisible" : ""
-                  }`}
-                  title="Ukloni red"
+              return (
+                <div
+                  key={index}
+                  className="flex w-full max-w-xl items-end justify-center gap-2"
                 >
-                  ×
-                </button>
-              </div>
-            );
-          })}
-        </div>
+                  <div className="flex flex-col items-center relative">
+                    <p className={isDummy ? "opacity-50" : ""}>{t("Sifra")}</p>
+                    <Input
+                      ref={(el) => { sifraRefs.current[index] = el; }}
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      className={`border-2 w-full ${
+                        invalidneSifre.includes(row.sifra)
+                          ? "border-red-500"
+                          : "border-[#323131cc]"
+                      } ${isDummy ? "opacity-50 cursor-pointer" : ""}`}
+                      value={row.sifra}
+                      onChange={(e) =>
+                        handleChange(index, "sifra", e.target.value)
+                      }
+                      onFocus={() => {
+                        if (isDummy) handleAddRow();
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          quantityRefs.current[index]?.focus();
+                        }
+                      }}
+                    />
+                  </div>
 
-        {/* PREBACI U KORPU */}
-        <div className="flex flex-col items-center justify-center gap-4">
-          <div className="flex flex-wrap gap-4 justify-center">
-            <button
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-1 rounded"
-              onClick={() => document.getElementById("csvUpload")?.click()}
-            >
-              {t("Uvezi CSV")}
-            </button>
-            <input
-              type="file"
-              id="csvUpload"
-              accept=".csv,text/csv"
-              onChange={handleCSVUpload}
-              className="hidden"
+                  <div className="flex flex-col items-center">
+                    <p className={isDummy ? "opacity-40" : ""}>
+                      {t("Kolicina")}
+                    </p>
+                    <Input
+                      ref={(el) => { quantityRefs.current[index] = el; }}
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      className={`border-2 w-full ${
+                        invalidneKolicine.includes(row.sifra)
+                          ? "border-red-500"
+                          : "border-[#323131cc]"
+                      } ${isDummy ? "opacity-40 cursor-pointer" : ""}`}
+                      value={row.kolicina}
+                      onChange={(e) =>
+                        handleChange(index, "kolicina", e.target.value)
+                      }
+                      onFocus={() => {
+                        if (isDummy) handleAddRow();
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          const nextIndex = index + 1;
+                          if (nextIndex === rows.length - 1) handleAddRow();
+                          setTimeout(() => {
+                            sifraRefs.current[nextIndex]?.focus();
+                          }, 0);
+                        }
+                      }}
+                    />
+                  </div>
+
+                  <button
+                    onClick={() => handleRemoveRow(index)}
+                    className={`mb-1 text-red-500 font-bold text-xl px-2 hover:text-red-700 ${
+                      isDummy ? "invisible" : ""
+                    }`}
+                    title="Ukloni red"
+                  >
+                    ×
+                  </button>
+                </div>
+
+              );
+            })}
+
+            <PrebaciUKorpu
+              rows={validItems}
+              onInvalidSifre={handleInvalidSifre}
+              onInvalidKolicine={(nevalidneKol) =>
+                setInvalidneKolicine(nevalidneKol)
+              }
+              onMessagesChange={setPoruke}
             />
+
+            {/* PREUZMI SABLON & UVEZI CSV*/}
+            <div className="flex mb-6 justify-center text-center gap-3">
+              <button
+                className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 rounded shadow border cursor-pointer"
+                onClick={handleDownloadTemplate}
+              >
+                📄 {t("Preuzmi šablon")}
+              </button>
+
+              <div className="flex flex-wrap gap-4 justify-center">
+                <button
+                  className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 rounded shadow border cursor-pointer"
+                  onClick={() => document.getElementById("csvUpload")?.click()}
+                >
+                  {t("Uvezi CSV")}
+                </button>
+                <input
+                  type="file"
+                  id="csvUpload"
+                  accept=".csv,text/csv"
+                  onChange={handleCSVUpload}
+                  className="hidden"
+                />
+              </div>
+            </div>
+
+            {/* PORUKICE O ARTIKLIMA */}
+            <div className="flex flex-col items-center justify-center gap-4">
+
+              {poruke.length > 0 && (
+                <div className="mt-3 text-sm text-red-600 space-y-1 text-center">
+                  {poruke.map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          <PrebaciUKorpu
-            rows={validItems}
-            onInvalidSifre={handleInvalidSifre}
-            onInvalidKolicine={(nevalidneKol) =>
-              setInvalidneKolicine(nevalidneKol)
-            }
-            onMessagesChange={setPoruke}
-          />
 
-          {poruke.length > 0 && (
-            <div className="mt-3 text-sm text-red-600 space-y-1 text-center">
-              {poruke.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
-          )}
-        </div>
+
+
       </main>
     </div>
   );
