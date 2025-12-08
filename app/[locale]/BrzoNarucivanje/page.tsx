@@ -18,34 +18,34 @@ const BrzoNarucivanje = () => {
   const sifraRefs = useRef<Array<HTMLInputElement | null>>([]);
   const t = useTranslations("brzoPorucivanje");
 
-  const handleBarcodeDetected = (text: string) => {
-    const sifra = text.replace(/\D/g, "");
-    if (!sifra) return;
+  // const handleBarcodeDetected = (text: string) => {
+  //   const sifra = text.replace(/\D/g, "");
+  //   if (!sifra) return;
 
-    setRows((prevRows) => {
-      const alreadyExists = prevRows.find((row) => row.sifra === sifra);
-      if (alreadyExists) {
-        return prevRows.map((row) =>
-          row.sifra === sifra
-            ? { ...row, kolicina: String(Number(row.kolicina) + 1) }
-            : row
-        );
-      } else {
-        const newRows = [...prevRows];
-        if (
-          newRows.length > 0 &&
-          newRows[newRows.length - 1].sifra === "" &&
-          newRows[newRows.length - 1].kolicina === ""
-        ) {
-          newRows[newRows.length - 1] = { sifra, kolicina: "1" };
-        } else {
-          newRows.push({ sifra, kolicina: "1" });
-        }
-        return [...newRows, { sifra: "", kolicina: "" }];
-      }
-    });
-    setScannerActive(false);
-  };
+  //   setRows((prevRows) => {
+  //     const alreadyExists = prevRows.find((row) => row.sifra === sifra);
+  //     if (alreadyExists) {
+  //       return prevRows.map((row) =>
+  //         row.sifra === sifra
+  //           ? { ...row, kolicina: String(Number(row.kolicina) + 1) }
+  //           : row
+  //       );
+  //     } else {
+  //       const newRows = [...prevRows];
+  //       if (
+  //         newRows.length > 0 &&
+  //         newRows[newRows.length - 1].sifra === "" &&
+  //         newRows[newRows.length - 1].kolicina === ""
+  //       ) {
+  //         newRows[newRows.length - 1] = { sifra, kolicina: "1" };
+  //       } else {
+  //         newRows.push({ sifra, kolicina: "1" });
+  //       }
+  //       return [...newRows, { sifra: "", kolicina: "" }];
+  //     }
+  //   });
+  //   setScannerActive(false);
+  // };
 
   const handleChange = (
     index: number,
@@ -207,7 +207,7 @@ const BrzoNarucivanje = () => {
 
         <div className="flex justify-center mb-6">
           <Dialog open={scannerActive} onOpenChange={setScannerActive}>
-            <DialogTrigger asChild>
+            {/* <DialogTrigger asChild>
               <button
                 className={`px-6 py-2 rounded-md font-semibold transition-colors duration-300 cursor-pointer ${
                   scannerActive ? "bg-red-600" : "bg-blue-600"
@@ -217,10 +217,10 @@ const BrzoNarucivanje = () => {
                   ? t("Isključi kameru za skeniranje")
                   : t("Uključi kameru za skeniranje")}
               </button>
-            </DialogTrigger>
+            </DialogTrigger> */}
 
               {/* max-w-[300px] w-[400px] md:max-w-full p-4 */}
-            <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6 z-[200]">
+            {/* <DialogContent className="max-w-[calc(100%-30px)] w-full sm:max-w-[500px] p-6 z-[200]">
               <DialogHeader>
                 <DialogTitle className="text-center text-lg mb-2">
                   {t("Skeniranje barkoda")}
@@ -240,10 +240,11 @@ const BrzoNarucivanje = () => {
               <DialogClose className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
                 {t("Zatvori")}
               </DialogClose>
-            </DialogContent>
+            </DialogContent> */}
           </Dialog>
         </div>
 
+        {/* PREUZMI SABLON */}
         <div className="mb-6 text-center">
           <button
             className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 rounded shadow border cursor-pointer"

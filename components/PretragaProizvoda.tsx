@@ -7,11 +7,11 @@ import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { ArtikalType } from '@/types/artikal';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
-import dynamic from 'next/dynamic';
+// import dynamic from 'next/dynamic';
 
-const BarcodeScannerComponent = dynamic(() => import("react-qr-barcode-scanner"), {
-  ssr: false
-});
+// const BarcodeScannerComponent = dynamic(() => import("react-qr-barcode-scanner"), {
+//   ssr: false
+// });
 
 import {
   Dialog,
@@ -26,7 +26,7 @@ const PretragaProizvoda = () => {
   const [query, setQuery] = useState('');
   const [rezultati, setRezultati] = useState<ArtikalType[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [scannerActive, setScannerActive] = useState(false);
+  // const [scannerActive, setScannerActive] = useState(false);
   const router = useRouter();
   const locale = useLocale(); // ✅ mora biti poziv funkcije
   const korisnik = dajKorisnikaIzTokena();
@@ -80,15 +80,15 @@ const PretragaProizvoda = () => {
     }
   };
 
-  const handleBarcodeRedirect = (barkod: string) => {
-    if (barkod) {
-      const idArtikla = extractIdFromUrl(barkod);
-      router.push(`/${locale}/proizvodi/${idArtikla}`);
-    } else {
-      console.error("Barkod nije prepoznat");
-    }
-    setScannerActive(false);
-  };
+  // const handleBarcodeRedirect = (barkod: string) => {
+  //   if (barkod) {
+  //     const idArtikla = extractIdFromUrl(barkod);
+  //     router.push(`/${locale}/proizvodi/${idArtikla}`);
+  //   } else {
+  //     console.error("Barkod nije prepoznat");
+  //   }
+  //   setScannerActive(false);
+  // };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim() !== '') {
@@ -112,7 +112,7 @@ const PretragaProizvoda = () => {
         
         <div className="absolute inset-y-0 right-2 flex items-center gap-2">
           <Search className="cursor-pointer text-gray-500 hover:text-black h-5 w-5" />
-
+{/*           
           <Dialog open={scannerActive} onOpenChange={setScannerActive}>
             <DialogTrigger asChild>
               <Camera className="cursor-pointer text-gray-500 hover:text-black h-5 w-5"/>
@@ -142,7 +142,7 @@ const PretragaProizvoda = () => {
                 {t('header-SkeniranjeBarKodaZatvoriButton')}
               </DialogClose>
             </DialogContent>
-          </Dialog>
+          </Dialog> */}
         </div>
       </div>
       
