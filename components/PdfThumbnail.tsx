@@ -1,7 +1,6 @@
-import React, { useEffect, useRef } from 'react';
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
+'use client';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+import React, { useEffect, useRef } from 'react';
 
 interface PdfThumbnailProps {
   file: File;
@@ -14,14 +13,26 @@ const PdfThumbnail: React.FC<PdfThumbnailProps> = ({ file, width = 200 }) => {
   useEffect(() => {
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = function () {
-      if (!reader.result) return;
+    let cancelled = false;
 
-      const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(reader.result as ArrayBuffer) });
+    const loadPdf = async () => {
+      const pdfjsLib = await import('pdfjs-dist/build/pdf');
 
-      loadingTask.promise.then((pdf: { getPage: (arg0: number) => Promise<any>; }) => {
-        pdf.getPage(1).then(page => {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        if (!reader.result || cancelled) return;
+
+        const loadingTask = pdfjsLib.getDocument({
+          data: new Uint8Array(reader.result as ArrayBuffer),
+        });
+
+        try {
+          const pdf = await loadingTask.promise;
+          const page = await pdf.getPage(1);
+
           const viewport = page.getViewport({ scale: 1 });
           const scale = width / viewport.width;
           const scaledViewport = page.getViewport({ scale });
@@ -31,25 +42,34 @@ const PdfThumbnail: React.FC<PdfThumbnailProps> = ({ file, width = 200 }) => {
           const context = canvas.getContext('2d');
           if (!context) return;
 
-          canvas.height = scaledViewport.height;
           canvas.width = scaledViewport.width;
+          canvas.height = scaledViewport.height;
 
-          const renderContext = {
+          await page.render({
             canvasContext: context,
             viewport: scaledViewport,
-          };
+          }).promise;
+        } catch (err) {
+          console.error('Error loading PDF:', err);
+        }
+      };
 
-          page.render(renderContext);
-        });
-      }).catch((err: any) => {
-        console.error('Error loading PDF: ', err);
-      });
+      reader.readAsArrayBuffer(file);
     };
 
-    reader.readAsArrayBuffer(file);
+    loadPdf();
+
+    return () => {
+      cancelled = true;
+    };
   }, [file, width]);
 
-  return <canvas ref={canvasRef} style={{ border: '1px solid #ccc', borderRadius: 4 }} />;
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ border: '1px solid #ccc', borderRadius: 4 }}
+    />
+  );
 };
 
 export default PdfThumbnail;
