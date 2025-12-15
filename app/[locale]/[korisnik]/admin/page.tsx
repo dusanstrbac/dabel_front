@@ -540,7 +540,7 @@ const handleKatalogSave = async (event: React.MouseEvent<HTMLButtonElement>) => 
             </Paginacija>
           </Tabs.Content>
 
-          {/* TAB: Otvaranje pakovanja */}
+          {/* TAB: Otvaranje pakovanja// DOZVOLE */}
           <Tabs.Content value="tab3" className="mx-5">
             <div className="mb-4">
               <Input 
