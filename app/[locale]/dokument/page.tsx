@@ -256,17 +256,17 @@ const DokumentPage = () => {
       <div className="text-[15px] mt-4 flex flex-col gap-1 items-end">
         <div className="flex gap-4 w-full justify-end">
           <span>{t('stampaj.Ukupno sa PDV:')}</span>
-          <span>{ukupno.ukupnoSaPDV.toFixed(2)} RSD</span>
+          <span>{ukupno.ukupnoSaPDV.toFixed(2)} {partnerInfo?.valutaNovca}</span>
         </div>
         {ukupno.ukupnoSaPDV < minCena && (
           <div className="flex gap-[32px] w-full justify-end">
             <span>{t('brojDokumenta.Dostava:')}</span>
-            <span>{dostava.toLocaleString("sr-RS")} RSD</span>
+            <span>{dostava.toLocaleString("sr-RS")} {partnerInfo?.valutaNovca}</span>
           </div>
         )}
         <div className="flex gap-4 w-full text-[16px] font-bold justify-end">
           <span>{t('narudzbenica.Ukupno')}</span>
-          <span>{ukupnoSaDostavom.toFixed(2)} RSD</span>
+          <span>{ukupnoSaDostavom.toFixed(2)} {partnerInfo?.valutaNovca}</span>
         </div>
       </div>
 

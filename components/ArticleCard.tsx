@@ -149,17 +149,17 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
               <>
                 <p className="text-sm font-semibold text-gray-500 line-through opacity-60 relative">
                   {cenaArtikla}
-                  <span className="absolute -right-5 text-[10px]">RSD</span>
+                  <span className="absolute -right-5 text-[10px]">{partner?.valutaNovca}</span>
                 </p>
                 <p className="text-[22px] lg:text-xl font-bold text-red-500 relative">
                   {AkCena}
-                  <span className="absolute -right-8 text-sm">RSD</span>
+                  <span className="absolute -right-8 text-sm">{partner?.valutaNovca}</span>
                 </p>
               </>
             ) : (
               <p className="text-[22px] lg:text-xl font-bold text-red-500 relative">
                 {cenaArtikla}
-                <span className="absolute -right-8 text-sm">RSD</span>
+                <span className="absolute -right-8 text-sm">{partner?.valutaNovca}</span>
               </p>
             )}
           </div>

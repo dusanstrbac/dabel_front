@@ -419,14 +419,14 @@ const Korpa = () => {
                     {imaAkciju ? (
                       <div className="flex flex-col items-center">
                         <span className="text-gray-500 line-through text-sm">
-                          {formatCena(originalnaCena)} RSD
+                          {formatCena(originalnaCena)} {partner?.valutaNovca}
                         </span>
                         <span className="text-red-500 font-semibold">
-                          {formatCena(cena)} RSD
+                          {formatCena(cena)} {partner?.valutaNovca}
                         </span>
                       </div>
                     ) : (
-                      <span>{formatCena(originalnaCena)} RSD</span>
+                      <span>{formatCena(originalnaCena)} {partner?.valutaNovca}</span>
                     )}
                   </TableCell>
                   <TableCell className="text-center">{pakovanje}</TableCell>
@@ -475,8 +475,8 @@ const Korpa = () => {
                   </TableCell>
                   <TableCell className="text-center">{kolicina}</TableCell>
                   <TableCell className="text-center">{rabatPartnera}</TableCell>
-                  <TableCell className="text-center">{formatCena(iznos)} RSD</TableCell>
-                  <TableCell className="text-center">{formatCena(iznosSaPDV)} RSD</TableCell>
+                  <TableCell className="text-center">{formatCena(iznos)} {partner?.valutaNovca}</TableCell>
+                  <TableCell className="text-center">{formatCena(iznosSaPDV)} {partner?.valutaNovca}</TableCell>
                   <TableCell>
                     <Button onClick={() => removeArticle(index)}>{t('ukloni')}</Button>
                   </TableCell>
@@ -488,8 +488,8 @@ const Korpa = () => {
             <TableRow>
               <TableCell className="font-bold text-center">{t('ukupno')}</TableCell>
               <TableCell colSpan={7}></TableCell>
-              <TableCell className="text-center font-bold">{formatCena(totalAmount)} RSD</TableCell>
-              <TableCell className="text-center font-bold">{formatCena(totalAmountWithPDV)} RSD</TableCell>
+              <TableCell className="text-center font-bold">{formatCena(totalAmount)} {partner?.valutaNovca}</TableCell>
+              <TableCell className="text-center font-bold">{formatCena(totalAmountWithPDV)} {partner?.valutaNovca}</TableCell>
               <TableCell />
             </TableRow>
           </TableFooter>
@@ -531,12 +531,12 @@ const Korpa = () => {
                     {imaAkciju ? (
                       <>
                         <span className="line-through text-gray-500 text-sm mr-2">
-                          {formatCena(originalnaCena)} RSD
+                          {formatCena(originalnaCena)} {partner?.valutaNovca}
                         </span>
-                        <span className="text-red-600">{formatCena(cena)} RSD</span>
+                        <span className="text-red-600">{formatCena(cena)} {partner?.valutaNovca}</span>
                       </>
                     ) : (
-                      <span className="text-red-600">{formatCena(originalnaCena)} RSD</span>
+                      <span className="text-red-600">{formatCena(originalnaCena)} {partner?.valutaNovca}</span>
                     )}
                   </p>
                 </div>
@@ -588,8 +588,8 @@ const Korpa = () => {
                   </div>
                   <p>{t('pakovanje')} {pakovanje}</p>
                   <p>{t('kolicina')} {kolicina}</p>
-                  <p>{t('iznos')} {formatCena(iznos)} RSD</p>
-                  <p className="font-bold">{t('pdv')}: {formatCena(iznosSaPDV)} RSD</p>
+                  <p>{t('iznos')} {formatCena(iznos)} {partner?.valutaNovca}</p>
+                  <p className="font-bold">{t('pdv')}: {formatCena(iznosSaPDV)} {partner?.valutaNovca}</p>
                   <div className="mt-2">
                     <Button onClick={() => removeArticle(index)}>{t('ukloni')}</Button>
                   </div>
@@ -601,12 +601,12 @@ const Korpa = () => {
         })}
         <div className="flex justify-between font-semibold py-5">
           <span>{t('ukupno')} ({t('bezPDV')}):</span>
-          <span>{formatCena(totalAmount)} RSD</span>
+          <span>{formatCena(totalAmount)} {partner?.valutaNovca}</span>
         </div>
         
         <div className="flex justify-between font-semibold text-red-600">
           <span>{t('ukupno')} ({t('pdv')}):</span>
-          <span>{formatCena(totalAmountWithPDV)} RSD</span>
+          <span>{formatCena(totalAmountWithPDV)} {partner?.valutaNovca}</span>
         </div>
         
         <div className="flex gap-2 items-center justify-center pt-4">

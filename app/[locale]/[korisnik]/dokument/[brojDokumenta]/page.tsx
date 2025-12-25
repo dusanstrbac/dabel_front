@@ -184,6 +184,7 @@ export default function PrikazDokumenta() {
               {dokument.dostava == null || dokument.dostava === 0
                 ? t('brojDokumenta.Besplatna dostava')
                 : `${dokument.dostava.toLocaleString('sr-RS')} RSD`}
+                {/* {partner?.valutaNovca} */}
             </span>
           </div>
 

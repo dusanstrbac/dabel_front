@@ -15,6 +15,7 @@ interface KorisnikPodaciType {
     komercijalisti: KorisnikPodaciKomercijalistaType,
     partnerRabat: KorisnikRabatType,
     partnerDostava: KorisnikDostavaType[],
+    valutaNovca: string
 }
 
 interface LokacijePartnera{

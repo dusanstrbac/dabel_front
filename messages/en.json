@@ -86,7 +86,7 @@
     "Prebaci u korpu": "Move to cart"
   },
   "artikalFilter": {
-    "cenaNaslov": "Price (RSD)",
+    "cenaNaslov": "Price",
     "Filteri": "Filters",
     "Prikaži artikle na stanju": "Show items in stock",
     "Resetuj filtere": "Reset filters",

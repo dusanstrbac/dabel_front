@@ -301,11 +301,11 @@ export default function Proizvod() {
               {Number(proizvod.kolicina) > 0 ? (
                 akcijskaCena ? (
                   <>
-                    <span className="line-through text-gray-400">{cena} RSD</span>
-                    <span className="pl-[5px]">{akcijskaCena} RSD</span>
+                    <span className="line-through text-gray-400">{cena} {partner?.valutaNovca}</span>
+                    <span className="pl-[5px]">{akcijskaCena} {partner?.valutaNovca}</span>
                   </>
                 ) : (
-                  `${cena} RSD`
+                  `${cena} ${partner?.valutaNovca}`
                 )
               ) : (
                 <span className="text-red-500">{t('nijeDostupno')}</span>
