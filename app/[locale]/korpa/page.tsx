@@ -299,17 +299,20 @@ const Korpa = () => {
     return sum + rounded * cenaSaRabat;
   }, 0);
 
-  const totalAmountWithPDV = totalAmount * 1.2;
+  const totalAmountWithPDV = totalAmount * (1 + Number(partner?.stopaPoreza)/100);
+
 
   const getSlikaArtikla = (idArtikla: string) => {
     const baseUrl = '/images';
     return `${baseUrl}/s${idArtikla}.jpg`;    
   };
 
+
+
   useEffect(() => {
     if (!isClient || articleList.length === 0 || !partner) return;
 
-    const PDV = 0.2;
+    const PDV = partner.stopaPoreza/100;
 
     const artikliZaSlanje = articleList.map((article, index) => {
       const pakovanje = article.pakovanje || 1;
@@ -330,7 +333,7 @@ const Korpa = () => {
         koriscenaCena: Number(koriscenaCena.toFixed(2)),
         kolicina,
         IznosSaPDV: Number(iznosSaPDV.toFixed(2)),
-        pdv: 20,
+        pdv: partner.stopaPoreza,
       };
     });
 
@@ -393,7 +396,7 @@ const Korpa = () => {
               const originalnaCena = getOriginalnaCena(article);
               const cenaPosleRabat = imaAkciju ? cena : cena * (1 - rabatPartnera / 100);
               const iznos = kolicina * cenaPosleRabat;
-              const iznosSaPDV = iznos * 1.2;
+              const iznosSaPDV = iznos * (1 - Number(partner?.stopaPoreza)/100);
 
               return (
                 <TableRow key={index}>
@@ -510,7 +513,7 @@ const Korpa = () => {
           const originalnaCena = getOriginalnaCena(article);
           const cenaPosleRabat = imaAkciju ? cena : cena * (1 - rabatPartnera / 100);
           const iznos = kolicina * cenaPosleRabat;
-          const iznosSaPDV = iznos * 1.2;
+          const iznosSaPDV = iznos * (1 - Number(partner?.stopaPoreza)/100);
 
           return (
             <Card key={index} className="p-3 shadow-md flex flex-col sm:flex-row gap-2 items-center mb-4">

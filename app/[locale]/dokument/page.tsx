@@ -98,6 +98,7 @@ const DokumentPage = () => {
         idKomercijaliste: "",
         datumVazenja: docInfo.datumDokumenta + 7,
         status: 0,
+        valuta: docInfo.valuta,
         dostava: docInfo.dostava,
         stavkeDokumenata: [],
       };
@@ -242,7 +243,7 @@ const DokumentPage = () => {
                   <td className="border-r border-black px-2 py-1">{stavka.koriscenaCena}</td> 
                   <td className="border-r border-black px-2 py-1">{stavka.rabat ?? 0}%</td>
                   <td className="border-r border-black px-2 py-1">{(stavka.koriscenaCena * (1 - stavka.rabat/100) * stavka.kolicina).toFixed(2)}</td>
-                  <td className="border-r border-black px-2 py-1">{stavka.pdv} %</td>
+                  <td className="border-r border-black px-2 py-1">{partnerInfo?.stopaPoreza} %</td>
                   <td className="border-r border-black px-2 py-1">{(stavka.koriscenaCena * (1 - stavka.rabat/100) * (1 + stavka.pdv/100) * stavka.kolicina).toFixed(2)}</td>
                   <td className="px-2 py-1">{stavka.IznosSaPDV.toFixed(2)}</td>
                 </tr>

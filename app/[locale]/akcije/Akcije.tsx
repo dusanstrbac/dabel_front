@@ -49,6 +49,9 @@ const Akcije = () => {
           `${apiAddress}/api/Artikal/PartnerAkcije?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`
         );
 
+        console.log("akcije koje mi stizu")
+        console.log(res);
+
         if (res.status === 404) {
           setAkcije([]); // Vraca prazan objekat
           setError('Trenutno ne postoji akcija');

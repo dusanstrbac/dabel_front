@@ -10,6 +10,7 @@ export type DokumentInfo = {
   napomena: string,
   dostava: string,
   status: number,
+  valuta: string,
   stavkeDokumenata: StavkaDokumenta[];
 }
 

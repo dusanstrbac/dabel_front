@@ -39,7 +39,7 @@ const RezervisiButton = ({ ukupnaCena }: { ukupnaCena: number }) => {
       const stavkeDokumenata = artikli.map((a: any) => {
         const kolicina = cart[a.idArtikla].kolicina;
         const cena = a.artikalCene?.[0]?.akcija?.cena || a.artikalCene?.[0]?.cena || 0;
-        const pdvStopa = parseFloat(a.pdv) || 20; // ili postavi statički ako ne dolazi iz API-ja
+        const pdvStopa = parseFloat(a.pdv); // ili postavi statički ako ne dolazi iz API-ja
         const pdv = (cena * pdvStopa) / 100;
         const ukupnaCena = kolicina * (cena + pdv);
 

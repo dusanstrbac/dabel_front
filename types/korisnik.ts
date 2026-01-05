@@ -11,6 +11,7 @@ interface KorisnikPodaciType {
     pib: string,
     telefon: string,
     uloga?: string,
+    stopaPoreza: number,
     finKarta: FinKartaType,
     komercijalisti: KorisnikPodaciKomercijalistaType,
     partnerRabat: KorisnikRabatType,

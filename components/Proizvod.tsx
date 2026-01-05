@@ -315,6 +315,7 @@ export default function Proizvod() {
             {Number(akcijskaKolicina) > 0 && (
               <span className="text-red-500 text-base">
                 {t('preostalaKolicina')}: {akcijskaKolicina}
+                {/* akcijska kolicina izmeniiiiiiiiiiiiiiiiiiiiiiiiiiiiiii */}
               </span>
             )}
             {Number(proizvod.kolicina) === 0 && datumPonovnogStanja && (

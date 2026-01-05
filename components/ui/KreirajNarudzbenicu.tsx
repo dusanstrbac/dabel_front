@@ -44,6 +44,7 @@ interface KreirajNarudzbenicuProps {
                 lokacija: mestoIsporuke, 
                 napomena: napomena,
                 dostava: dostava,
+                valuta: partner.valutaNovca,
                 stavkeDokumenata: artikli.map((value) => ({
                     idArtikla: value.idArtikla.toString() || "",
                     nazivArtikla: value.naziv || "",
@@ -51,7 +52,7 @@ interface KreirajNarudzbenicuProps {
                     cena: value.koriscenaCena.toString() || "0",
                     originalnaCena: value.originalnaCena.toString() || value.koriscenaCena.toString(),                    
                     kolicina: value.kolicina.toString() || "0",
-                    pdv: value.pdv.toString() || "20",
+                    pdv: partner.stopaPoreza.toString() || "20",
                 })),
             };
 

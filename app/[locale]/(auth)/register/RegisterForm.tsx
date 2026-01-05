@@ -22,7 +22,7 @@ export default function PosaljiLinkZaAktivacijuForm() {
   const emailSchema = z.object({
     email: z.string().email(t('Registracija.Unesite validan email')),
     mb: z.string()
-      .regex(/^\d{8}$/, t('Registracija.Maticni broj mora imati tačno 8 cifara')),
+      // .regex(/^\d{8}$/, t('Registracija.Maticni broj mora imati tačno 8 cifara')),
   });
 
   type EmailFormValues = z.infer<typeof emailSchema>;
