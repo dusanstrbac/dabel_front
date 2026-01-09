@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import ArticleCard from "./ArticleCard";
 import ArtikalFilter from "./ArtikalFilter";
 import { Paginacija, PaginacijaSadrzaj, PaginacijaStavka, PaginacijaLink, PaginacijaPrethodna, PaginacijaSledeca } from "@/components/ui/pagination";
-import { ArtikalType, ListaArtikalaProps } from "@/types/artikal";
+import { ArtikalType, ListaArtikalaProps, NoviArtikalType } from "@/types/artikal";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { useTranslations } from "next-intl";
 
@@ -20,7 +20,8 @@ const ListaArtikala = ({
   const korisnik = dajKorisnikaIzTokena();
   const MemoizedArticleCard = React.memo(ArticleCard);
   const [noResults, setNoResults] = useState(false);
-  const [filtriraniArtikli, setFiltriraniArtikli] = useState<ArtikalType[]>(artikli);
+  const [filtriraniArtikli, setFiltriraniArtikli] = useState<NoviArtikalType[]>([]);
+  const [TestArtikli, setTestArtikli] = useState<ArtikalType[]>([]);
   const t = useTranslations();
 
   // Osveži filtrirane artikle kada se promene originalni artikli
@@ -53,7 +54,7 @@ const ListaArtikala = ({
 
   // Dodaj memoizaciju callback funkcija
   const stableOnFilterChange = useCallback((filtered: ArtikalType[]) => {
-    setFiltriraniArtikli(filtered);
+    // setFiltriraniArtikli(filtered);
     onPageChange(1);
   }, [onPageChange]);
 
@@ -61,7 +62,7 @@ const ListaArtikala = ({
     <div className="flex flex-col md:flex-row w-full px-1 gap-4">
       <div className="w-full md:w-1/4">
         <ArtikalFilter
-          artikli={artikli}
+          artikli={TestArtikli}
           kategorija={kategorija || ''}
           podkategorija={podkategorija || ''}
           onFilterChange={stableOnFilterChange}
@@ -73,11 +74,28 @@ const ListaArtikala = ({
           <div className={`grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 align-middle transition-opacity duration-300 ${
             loading ? 'opacity-50 pointer-events-none' : ''
           }`}>
-            {prikazaniArtikli.map((artikal, idx) => (
+            {/* {prikazaniArtikli.map((artikal, idx) => (
               <MemoizedArticleCard
                 idPartnera={korisnik?.partner ?? ""} 
-                key={artikal.idArtikla ?? idx}
+                key={artikal.Artikal ?? idx}
                 {...artikal}
+              />
+            ))} */}
+            {prikazaniArtikli.map((artikal, idx) => (
+              <MemoizedArticleCard
+                key={artikal.Artikal ?? idx}
+                idPartnera={korisnik?.partner ?? ""}
+                
+                // Ručno mapiranje naziva polja
+                Artikal={artikal.Artikal ?? idx}
+                Naziv={artikal.Naziv}
+                KolicinaZaIzdavanje={artikal.KolicinaZaIzdavanje}
+                KolicinaNaStanju={artikal.KolicinaZaIzdavanje}
+                Cena={artikal.Cena}
+                AkcijskaCena={artikal.AkcijskaCena}
+                AkcijskaKolicina={artikal.AkcijskaKolicina}
+                datumPristizanja={artikal.DatumPristizanja}
+                datumPoslednjeKupovine="njimik" 
               />
             ))}
           </div>

@@ -4,7 +4,7 @@ export type ArtikalType = {
   naziv: string;
   barkod: string;
   jm: string;
-  kolicina: string;
+  kolicina: number;
   kategorijaId: string;
   status?: string;
   kolZaIzdavanje?: number;
@@ -13,6 +13,35 @@ export type ArtikalType = {
   artikalAtributi: ArtikalAtribut[];
   artikalIstorija: artikalIstorija[];
   artikalPristizanje: artikalPristizanje[];
+};
+
+export type NoviArtikalType = {
+  Artikal: string,
+  Naziv: string,
+  Barkod: string,
+  RobnaMarka: string,
+  Model: string,
+  KolicinaNaStanju: number,
+  DrzavaPorekla: string,
+  Deklaracija: string,
+  Materijal: string,
+  ZavrsnaObrada: string,
+  JM: string,
+  Kategorija: string,
+  Podkategorija: string
+  KolicinaZaIzdavanje: number,
+  Pakovanje: string,
+  NetoTezina: number,
+  BrutoTezinaProcenat: number,
+  Namena: string,
+  URLSlikeS: string,
+  URLSlikeT: string,
+  URLSlikeK: string,
+  Marketing: string,
+  Cena: number,
+  AkcijskaCena: number,
+  AkcijskaKolicina: number,
+  DatumPristizanja: Date,
 };
 
 export type artikalPristizanje = {
@@ -75,7 +104,7 @@ export type ArtikalAtribut = {
 };
 
 export interface ListaArtikalaProps {
-  artikli: ArtikalType[];
+  artikli: NoviArtikalType[];
   kategorija?: string;
   podkategorija?: string | null;
   totalCount: number;

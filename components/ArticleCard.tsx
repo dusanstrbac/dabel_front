@@ -1,26 +1,39 @@
 import { useRouter } from 'next/navigation';
 import '@/app/globals.css';
 import AddToCartButton from './AddToCartButton';
-import { ArtikalType } from '@/types/artikal';
+import { NoviArtikalType } from '@/types/artikal';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 
-interface ArticleCardProps extends ArtikalType {
+interface ArticleCardProps {
   idPartnera: string;
   lastPurchaseDate?: string;
   datumPoslednjeKupovine?: string;
   kolicinaKupovine?: number;
-  datumPristizanja?: string;
   kolicinaPristizanja?: number;
 }
 
-const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, datumPoslednjeKupovine, datumPristizanja }: ArticleCardProps) => {
+// Izbaci ono "extends NoviArtikalType"
+interface ArticleCardProps {
+  idPartnera: string;
+  Artikal: string;
+  Naziv: string;
+  Cena: number;
+  AkcijskaCena: number;
+  AkcijskaKolicina?: number;
+  KolicinaNaStanju: number;
+  KolicinaZaIzdavanje: number;
+  datumPristizanja?: Date;
+  datumPoslednjeKupovine?: string;
+}
+
+const ArticleCard = ({Naziv, Artikal, Cena, AkcijskaCena, AkcijskaKolicina, KolicinaZaIzdavanje, datumPoslednjeKupovine, datumPristizanja }: ArticleCardProps) => {
   const router = useRouter();
   const t = useTranslations();
   const locale = useLocale();
   const imageUrl = '/images';
-  const fotografijaProizvoda = `${imageUrl}/s${idArtikla}.jpg`;
+  const fotografijaProizvoda = `${imageUrl}/s${Artikal}.jpg`;
   
   const korisnik = dajKorisnikaIzTokena();
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
@@ -53,18 +66,18 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
       return;
     }
 
-    if (!idArtikla) {
+    if (!Artikal) {
       console.error("ID artikla nije definisan");
       return;
     }
 
     sessionStorage.setItem("prethodnaRuta", window.location.href);
-    router.push(`/proizvodi/${idArtikla}`);
+    router.push(`/proizvodi/${Artikal}`);
   };
 
-  const cenaBezRabata = artikalCene?.[0]?.cena ?? 0;
+  const cenaBezRabata = Cena ?? 0;
   const cenaArtikla = cenaBezRabata.toFixed(2);
-  const novaCenaBezRabata = artikalCene?.[0]?.akcija?.cena ?? null;
+  const novaCenaBezRabata = AkcijskaCena ?? null;
   // const AkCena = Number.isInteger(novaCenaBezRabata).toFixed(2);
   // const AkCena = novaCenaBezRabata.toFixed(2);
   const AkCena = novaCenaBezRabata != null
@@ -95,7 +108,7 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
       className={`articleSize relative w-full sm:max-w-[280px] md:max-w-[300px] lg:max-w-[320px] 
         rounded-2xl flex flex-col justify-between bg-white shadow-sm 
         hover:shadow-2xl transition-shadow duration-300
-        ${Number(kolicina) <= 0 ? 'opacity-50' : ''}`}
+        ${Number(KolicinaZaIzdavanje) <= 0 ? 'opacity-50' : ''}`}
       onClickCapture={handleCardClick}
     >
       {/* Sloj preko slike */}
@@ -105,7 +118,7 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
       <div className="w-full aspect-[4/3] flex justify-center items-center overflow-hidden rounded-t-2xl bg-white">
         <img
           src={fotografijaProizvoda}
-          alt={naziv}
+          alt={Naziv}
           className="max-w-full max-h-full object-contain"
         />
       </div>
@@ -113,7 +126,7 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
       {/* Detalji */}
       <div className="flex flex-col justify-between px-3 py-4 gap-3 flex-grow">
         <h2 className="text-md lg:text-lg font-semibold text-center break-words leading-tight line-clamp-3">
-          {naziv}
+          {Naziv}
         </h2>
 
         <p
@@ -125,16 +138,16 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
         </p>
 
         {/* Datum pristizanja artikla */}
-        {Number(kolicina) <= 0 && datumPristizanja && (
+        {Number(KolicinaZaIzdavanje) <= 0 && datumPristizanja && (
           <p className="text-xs text-center text-gray-600 italic transition-all duration-200">
             {`${t('main.Planirani datum pristizanja')} ${formatDate(datumPristizanja)}`}
           </p>
         )}
 
-        {typeof artikalCene[0]?.akcija?.kolicina === 'number' &&
-        artikalCene[0]?.akcija?.cena > 0 && (
+        {typeof AkcijskaKolicina === 'number' &&
+        AkcijskaCena > 0 && (
           <p className="text-xs text-center text-gray-600 italic transition-all duration-200">
-            {`Akcijska količina: ${artikalCene[0].akcija.kolicina} kom${artikalCene[0].akcija.kolicina === 1 ? 'ad' : 'ada'}`}
+            {`Akcijska količina: ${AkcijskaKolicina} kom${AkcijskaKolicina === 1 ? 'ad' : 'ada'}`}
           </p>
         )}
 
@@ -167,12 +180,12 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
           {/* Dugme */}
           <div className="pointer-events-auto">
             <AddToCartButton
-              id={idArtikla}
-              getKolicina={() => kolZaIzdavanje || 1} 
-              kolZaIzdavanje={kolZaIzdavanje}
-              nazivArtikla={naziv}
-              disabled={Number(kolicina) <= 0}
-              ukupnaKolicina={Number(kolicina)}
+              id={Artikal}
+              getKolicina={() => KolicinaZaIzdavanje || 1} 
+              kolZaIzdavanje={KolicinaZaIzdavanje}
+              nazivArtikla={Naziv}
+              disabled={Number(KolicinaZaIzdavanje) <= 0}
+              ukupnaKolicina={Number(KolicinaZaIzdavanje)}
             />
           </div>
         </div>
