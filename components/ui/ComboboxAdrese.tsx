@@ -77,7 +77,7 @@ export const ComboboxAdrese: React.FC<Props> = ({
           <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full sm:max-w-[280px] sm:min-w-[570px] p-2">
+      <PopoverContent className="w-full sm:max-w-[280px] sm:min-w-[450px] p-2 z-[201]">
         <Command>
           <CommandList>
             <CommandEmpty>Nema rezultata za pretragu.</CommandEmpty>

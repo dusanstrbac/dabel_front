@@ -350,6 +350,7 @@
     "Korisničko ime": "Username",
     "E-mail": "E-mail",
     "Telefon": "Phone",
+    "Lokacija": "Location",
     "Nema registrovanih korisnika": "No registered users"
   },
   "promenaPodatakaKorisnika": {
