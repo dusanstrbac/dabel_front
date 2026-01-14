@@ -106,6 +106,13 @@ const KorisniciTable = ({ title }: myProps) => {
         // }
     }, []);
 
+    const getAdresa = (lokacijaSifra: string) => {
+        return partner?.partnerDostava?.find(
+            (d) => d.sifra === lokacijaSifra
+        )?.adresa;
+    };
+
+
 
     const filtriraniKorisnici = tabelaStavke.filter((korisnik) =>
         korisnik.korisnickoIme.toLowerCase().includes(pretraga.toLowerCase()) ||
@@ -163,7 +170,10 @@ const KorisniciTable = ({ title }: myProps) => {
                                     <TableCell>{stavka.korisnickoIme}</TableCell>
                                     <TableCell>{stavka.email}</TableCell>
                                     <TableCell>{stavka.telefon}</TableCell>
-                                    <TableCell>{stavka.lokacija}</TableCell>
+                                    <TableCell>
+                                        {getAdresa(stavka.lokacija) || "-"}
+                                    </TableCell>
+
                                 </TableRow>
                             ))
                         )}

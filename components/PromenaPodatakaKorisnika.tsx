@@ -45,6 +45,7 @@ const PromenaPodatakaKorisnika = ({ korisnik, partner }: PromenaPodatakaKorisnik
       korisnickoIme,
       email,
       telefon,
+      lokacija
     };
 
     // Ako je lozinka promenjena, dodajemo je u payload

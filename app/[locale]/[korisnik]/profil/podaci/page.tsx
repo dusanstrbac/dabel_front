@@ -17,7 +17,7 @@ interface KomercijalistaType {
   telefon: string;
 }
 
-interface KorisnikPodaciType {
+interface PodaciOKorisnikuType {
   ime: string;
   adresa: string;
   grad: string;
@@ -25,12 +25,13 @@ interface KorisnikPodaciType {
   maticniBroj: string;
   pib: string;
   komercijalisti: KomercijalistaType;
+  korisnik: KorisnikPodaciType;
   finKarta: FinKartaType;
 }
 
 const ProfilPodaci = () => {
   const t = useTranslations('profile'); // Koristi namespace 'profile'
-  const [userData, setUserData] = useState<KorisnikPodaciType | null>(null);
+  const [userData, setUserData] = useState<PodaciOKorisnikuType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -98,6 +99,10 @@ const ProfilPodaci = () => {
             <div className="flex items-center gap-2">
               <Map />
               <p>{userData.grad}</p>
+            </div>
+
+            <div>
+              <p>Mesto isporuke: {userData.korisnik?.partnerDostava[0]?.adresa || ""}</p>
             </div>
           </div>
         </div>

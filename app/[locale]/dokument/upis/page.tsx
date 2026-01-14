@@ -80,15 +80,15 @@ import { useTranslations } from "next-intl";
                         <div className="flex flex-col items-center">
                             <div className="flex justify-center items-center gap-2 w-full">
                                 <LocationEdit className="w-6 h-6 shrink-0"/>
-                                <ComboboxAdrese
+                                {/* <ComboboxAdrese
                                     dostavaList={partner?.partnerDostava ?? []}
                                     onSelectOption={(adresa) => {
                                         setMestoIsporuke(adresa.adresa);
                                         setSifraIsporuke(adresa.sifra);
                                     }}
                                     defaultValue={mestoIsporuke}
-                                />
-                                
+                                /> */}
+                                <p className="font-medium">{mestoIsporuke}</p>
                             </div>
 
                             <div className="flex flex-col md:col-span-2 w-full max-w-[600px] mt-5">
