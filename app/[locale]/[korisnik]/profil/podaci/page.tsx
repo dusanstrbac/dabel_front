@@ -5,33 +5,36 @@ import { CircleUser, Map, MapPinned, Phone, PhoneCall, UserCircle } from 'lucide
 import { useTranslations } from 'next-intl';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 
-interface FinKartaType {
-  dozvoljenoZaduzenje: number;
-  trenutnoZaduzenje: number;
-  pristigloNaNaplatu: number;
-  raspolozivoStanje: number;
-}
+// interface FinKartaType {
+//   dozvoljenoZaduzenje: number;
+//   trenutnoZaduzenje: number;
+//   pristigloNaNaplatu: number;
+//   raspolozivoStanje: number;
+// }
 
-interface KomercijalistaType {
-  naziv: string;
-  telefon: string;
-}
+// interface KomercijalistaType {
+//   naziv: string;
+//   telefon: string;
+// }
 
-interface PodaciOKorisnikuType {
-  ime: string;
-  adresa: string;
-  grad: string;
-  telefon: string;
-  maticniBroj: string;
-  pib: string;
-  komercijalisti: KomercijalistaType;
-  korisnik: KorisnikPodaciType;
-  finKarta: FinKartaType;
-}
+// interface PodaciOKorisnikuType {
+//   ime: string;
+//   adresa: string;
+//   grad: string;
+//   telefon: string;
+//   maticniBroj: string;
+//   lokacija: string;
+//   pib: string;
+//   komercijalisti: KomercijalistaType;
+//   // korisnik: KorisnikPodaciType;
+//   finKarta: FinKartaType;
+// }
+
+
 
 const ProfilPodaci = () => {
   const t = useTranslations('profile'); // Koristi namespace 'profile'
-  const [userData, setUserData] = useState<PodaciOKorisnikuType | null>(null);
+  const [userData, setUserData] = useState<KorisnikPodaciType>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,11 +55,11 @@ const ProfilPodaci = () => {
         const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`);
         const data = await response.json();
 
-        if (data && Array.isArray(data) && data.length > 0) {
+        // if (data && Array.isArray(data) && data.length > 0) {
           setUserData(data[0]);
-        } else {
-          setError(t('notFound'));
-        }
+        // } else {
+          // setError(t('notFound'));
+        // }
       } catch (err) {
         console.error(err);
         setError(t('error'));
@@ -67,6 +70,8 @@ const ProfilPodaci = () => {
 
     fetchKorisnikData();
   }, [t]);
+  
+  
 
   const getTodayDate = () => {
     const today = new Date();
@@ -74,6 +79,12 @@ const ProfilPodaci = () => {
     const month = (today.getMonth() + 1).toString().padStart(2, '0');
     const day = today.getDate().toString().padStart(2, '0');
     return `${day}.${month}.${year}`;
+  };
+
+  const getAdresa = (lokacijaSifra: string) => {
+      return userData?.partnerDostava?.find(
+          (d) => d.sifra === lokacijaSifra
+      )?.adresa;
   };
 
   if (loading) return <div>{t('loading')}</div>;
@@ -102,7 +113,7 @@ const ProfilPodaci = () => {
             </div>
 
             <div>
-              <p>Mesto isporuke: {userData.korisnik?.partnerDostava[0]?.adresa || ""}</p>
+              <p>Mesto dostave: {getAdresa(userData.lokacija) || ""} </p>
             </div>
           </div>
         </div>
@@ -115,7 +126,7 @@ const ProfilPodaci = () => {
           <p className="font-semibold">
             {t('availableBalance')}:{" "}
             <span className="font-extrabold">
-              {finKarta?.pristigloNaNaplatu !== 0 ? 0 : finKarta?.raspolozivoStanje ?? 'N/A'}
+              {Number(finKarta?.pristigloNaNaplatu) !== 0 ? 0 : finKarta?.raspolozivoStanje ?? 'N/A'}
             </span>
           </p>
 
@@ -143,10 +154,10 @@ const ProfilPodaci = () => {
       <div className='mt-[40px] lg:mt-[40px] flex gap-[20px]'>
         <UserCircle color='grey' size={80} className='p-[20px] border border-gray-400 rounded-[25px]' />
         <div className='flex flex-col'>
-          <h1 className='font-bold text-xl'>{userData.komercijalisti.naziv}</h1>
+          <h1 className='font-bold text-xl'>{userData.komercijalisti?.naziv}</h1>
           <div className='flex items-center gap-2'>
             <Phone color='grey' />
-            <p className='text-lg'>{userData.komercijalisti.telefon}</p>
+            <p className='text-lg'>{userData.komercijalisti?.telefon}</p>
           </div>
         </div>
       </div>

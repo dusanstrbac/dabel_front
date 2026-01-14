@@ -11,12 +11,13 @@ interface KorisnikPodaciType {
     pib: string,
     telefon: string,
     uloga?: string,
+    lokacija: string,
     stopaPoreza: number,
     finKarta: FinKartaType,
     komercijalisti: KorisnikPodaciKomercijalistaType,
     partnerRabat: KorisnikRabatType,
     partnerDostava: KorisnikDostavaType[],
-    valutaNovca: string
+    valutaNovca: string,
 }
 
 interface LokacijePartnera{
