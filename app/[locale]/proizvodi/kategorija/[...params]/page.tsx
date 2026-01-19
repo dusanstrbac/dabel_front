@@ -7,7 +7,7 @@ import SortiranjeButton from '@/components/SortiranjeButton';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
-import { ArtikalFilterProp, ArtikalType, NoviArtikalType } from '@/types/artikal';
+import { ArtikalFilterProp, ArtikalType } from '@/types/artikal';
 import { useTranslations } from 'next-intl';
 
 type SortKey = "cena" | "naziv";
@@ -21,9 +21,7 @@ export default function ProizvodiPage() {
   const idPartnera = dajKorisnikaIzTokena()?.partner;
   const t = useTranslations();
 
-  // const [sviArtikli, setSviArtikli] = useState<ArtikalType[]>([]);
-  const [sviArtikli, setSviArtikli] = useState<NoviArtikalType[]>([]);
-  
+  const [sviArtikli, setSviArtikli] = useState<ArtikalType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,8 +76,8 @@ export default function ProizvodiPage() {
     const result = [...sviArtikli];
     
     result.sort((a, b) => {
-      const aValue = sortKey === 'cena' ? (a.AkcijskaCena || 0) : a.Naziv;
-      const bValue = sortKey === 'cena' ? (b.AkcijskaCena || 0) : b.Naziv;
+      const aValue = sortKey === 'cena' ? (a.artikalCene?.[0]?.cena || 0) : a.naziv;
+      const bValue = sortKey === 'cena' ? (b.artikalCene?.[0]?.cena || 0) : b.naziv;
       
       if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
       if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;

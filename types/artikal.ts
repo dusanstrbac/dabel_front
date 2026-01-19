@@ -104,7 +104,7 @@ export type ArtikalAtribut = {
 };
 
 export interface ListaArtikalaProps {
-  artikli: NoviArtikalType[];
+  artikli: ArtikalType[];
   kategorija?: string;
   podkategorija?: string | null;
   totalCount: number;
