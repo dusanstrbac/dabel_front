@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 
 interface ArticleCardProps extends ArtikalType {
+  partner: KorisnikPodaciType | undefined;
   idPartnera: string;
   lastPurchaseDate?: string;
   datumPoslednjeKupovine?: string;
@@ -25,24 +26,6 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
   const korisnik = dajKorisnikaIzTokena();
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
   const [partner, setPartner] = useState<KorisnikPodaciType | null>(null);
-
-  useEffect(() => {
-      const fetchPartner = async () => {
-        const idPartnera = korisnik?.partner;
-        const idKorisnika = korisnik?.idKorisnika;
-        try{
-          const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}&idKorisnika=${idKorisnika}`);
-          const data = await res.json();
-          const fPartner = data[0] as KorisnikPodaciType;
-          setPartner(fPartner);
-        }
-        catch (err) {
-          console.error(t('greskaFetchPartnera'), err);
-        }
-        
-      };
-      fetchPartner();
-  }, []);
 
   const rabat = partner?.partnerRabat.rabat ?? 0;
 
@@ -149,17 +132,17 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
               <>
                 <p className="text-sm font-semibold text-gray-500 line-through opacity-60 relative">
                   {cenaArtikla}
-                  <span className="absolute -right-5 text-[10px]">RSD</span>
+                  <span className="absolute -right-5 text-[10px]">{partner?.valutaNovca}</span>
                 </p>
                 <p className="text-[22px] lg:text-xl font-bold text-red-500 relative">
                   {AkCena}
-                  <span className="absolute -right-8 text-sm">RSD</span>
+                  <span className="absolute -right-8 text-sm">{partner?.valutaNovca}</span>
                 </p>
               </>
             ) : (
               <p className="text-[22px] lg:text-xl font-bold text-red-500 relative">
                 {cenaArtikla}
-                <span className="absolute -right-8 text-sm">RSD</span>
+                <span className="absolute -right-8 text-sm">{partner?.valutaNovca}</span>
               </p>
             )}
           </div>
