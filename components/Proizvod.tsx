@@ -87,7 +87,7 @@ export default function Proizvod() {
       setError(null);
       try {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const res = await fetch(`${apiAddress}/api/Artikal/DajArtikalPoId?idPartnera=${korisnik?.idKorisnika}&ids=${productId}`);
+        const res = await fetch(`${apiAddress}/api/Artikal/DajArtikalPoId?idKorisnika=${korisnik?.idKorisnika}&ids=${productId}`);
         if (!res.ok) throw new Error(t('greskaUcitavanjeProizvoda'));
 
         const data = await res.json();
@@ -305,7 +305,7 @@ export default function Proizvod() {
                     <span className="pl-[5px]">{akcijskaCena} {partner?.valutaNovca}</span>
                   </>
                 ) : (
-                  `${cena} {partner?.valutaNovca}`
+                  `${cena} ${partner?.valutaNovca}`
                 )
               ) : (
                 <span className="text-red-500">{t('nijeDostupno')}</span>

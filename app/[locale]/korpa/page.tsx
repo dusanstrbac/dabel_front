@@ -107,7 +107,7 @@ const Korpa = () => {
       return;
     }
     const queryString = storedIds.map(id => `ids=${id}`).join("&");
-    const url = `${apiAddress}/api/Artikal/DajArtikalPoId?idPartnera=${korisnik?.idKorisnika}&${queryString}`;
+    const url = `${apiAddress}/api/Artikal/DajArtikalPoId?idKorisnika=${korisnik?.idKorisnika}&${queryString}`;
 
     const fetchArticles = async () => {
       try {

@@ -24,7 +24,8 @@ const ListaArtikala = ({
   const t = useTranslations();
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
 
-  const [partner, setPartner] = useState<KorisnikPodaciType>();
+  const [partner, setPartner] = useState<KorisnikPodaciType | null>(null);
+
 
 
   useEffect(() => {
@@ -34,8 +35,7 @@ const ListaArtikala = ({
         try{
           const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}&idKorisnika=${idKorisnika}`);
           const data = await res.json();
-          const fPartner = data[0] as KorisnikPodaciType;
-          setPartner(fPartner);
+          setPartner((data?.[0] as KorisnikPodaciType) ?? null);
         }
         catch (err) {
           console.error(t('greskaFetchPartnera'), err);
@@ -100,7 +100,7 @@ const ListaArtikala = ({
                 idPartnera={korisnik?.partner ?? ""} 
                 key={artikal.idArtikla ?? idx}
                 {...artikal}
-                partner = {partner}
+                partner={partner}
               />
             ))}
           </div>

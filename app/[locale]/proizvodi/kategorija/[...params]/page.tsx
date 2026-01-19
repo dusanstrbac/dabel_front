@@ -52,6 +52,7 @@ export default function ProizvodiPage() {
       try {
         const query = new URLSearchParams();
         query.append('idPartnera', idPartnera!);
+        query.append('idKorisnika', dajKorisnikaIzTokena()?.idKorisnika!);
         query.append('pageSize', '1000');
         query.append('Kategorija', kategorija);
 
