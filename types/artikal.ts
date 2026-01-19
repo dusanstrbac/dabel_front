@@ -4,7 +4,7 @@ export type ArtikalType = {
   naziv: string;
   barkod: string;
   jm: string;
-  kolicina: number;
+  kolicina: string;
   kategorijaId: string;
   status?: string;
   kolZaIzdavanje?: number;

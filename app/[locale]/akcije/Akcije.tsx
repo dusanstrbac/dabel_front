@@ -46,7 +46,7 @@ const Akcije = () => {
         }
 
         const res = await fetch(
-          `${apiAddress}/api/Artikal/PartnerAkcije?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`
+          `${apiAddress}/api/Artikal/PartnerAkcijeNovo?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`
         );
 
         console.log("akcije koje mi stizu")

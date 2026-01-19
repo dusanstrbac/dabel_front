@@ -55,6 +55,11 @@ const KorisniciTable = ({ title }: myProps) => {
                 if (!res.ok) throw new Error("Failed to fetch partner");
                 const data = await res.json();
                 setTabelaStavke(data);
+
+
+                const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`);
+                const partner_data = await response.json();
+                setPartner(partner_data[0]);
             } catch (err) {
                 console.error(err);
             }
@@ -92,19 +97,6 @@ const KorisniciTable = ({ title }: myProps) => {
     //     fetchPartner();
     // }, []);
 
-    useEffect(() => {
-
-        const korpaPodaciString = sessionStorage.getItem("korpaPodaci");
-        if (!korpaPodaciString) return;
-
-        const korpaPodaci = JSON.parse(korpaPodaciString);
-        setPartner(korpaPodaci.partner);
-
-        // // Postavi prvu adresu kao početnu vrednost ako postoje adrese
-        // if (korpaPodaci.partner?.partnerDostava?.length > 0) {
-        //     setMestoIsporuke(korpaPodaci.partner.partnerDostava[0].adresa);
-        // }
-    }, []);
 
     const getAdresa = (lokacijaSifra: string) => {
         return partner?.partnerDostava?.find(
@@ -171,7 +163,7 @@ const KorisniciTable = ({ title }: myProps) => {
                                     <TableCell>{stavka.email}</TableCell>
                                     <TableCell>{stavka.telefon}</TableCell>
                                     <TableCell>
-                                        {getAdresa(stavka.lokacija) || "-"}
+                                        {getAdresa(stavka.lokacija) || "Sve lokacije"}
                                     </TableCell>
 
                                 </TableRow>

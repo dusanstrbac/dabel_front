@@ -31,6 +31,8 @@ interface PromenaPodatakaKorisnikaProps {
 }
 
 
+
+
 const PromenaPodatakaKorisnika = ({ korisnik, partner }: PromenaPodatakaKorisnikaProps) => {
   const t = useTranslations();
   const [korisnickoIme, setKorisnickoIme] = useState(korisnik.korisnickoIme);
@@ -39,6 +41,20 @@ const PromenaPodatakaKorisnika = ({ korisnik, partner }: PromenaPodatakaKorisnik
   const [email, setEmail] = useState(korisnik.email);
   const [telefon, setTelefon] = useState(korisnik.telefon);
   const [open, setOpen] = useState(false);
+
+ const sveLokacijeOption: KorisnikDostavaType = {
+    idPartnera: partner.idPartnera ?? "",
+    adresa: "Sve lokacije",
+    grad: "",
+    drzava: "",
+    postBroj: "",
+    opstina: "",
+    kontaktOsoba: "",
+    telefon: "",
+    email: "",
+    sifra: ""
+  };
+  const [listaZaPrikaz, setListaZaPrikaz] = useState(partner?.partnerDostava.concat(sveLokacijeOption) || []);
 
   const handleSubmit = async () => {
     const payload: any = {
@@ -119,6 +135,23 @@ const PromenaPodatakaKorisnika = ({ korisnik, partner }: PromenaPodatakaKorisnik
     setOpen(openStatus);
   };
 
+
+ 
+
+  const adreseSaDefault: KorisnikDostavaType[] = [
+    sveLokacijeOption,
+    ...(partner?.partnerDostava ?? [])
+  ] as KorisnikDostavaType[];
+
+  // const adreseSaDefault: KorisnikDostavaType[] = [
+  //   {
+  //     ...sveLokacijeOption,
+  //     adresa: "Sve lokacije" // ako se u comboboxu prikazuje `adresa`
+  //   },
+  //   ...(partner?.partnerDostava ?? [])
+  // ];
+
+
   console.log("dobijeni partner u promeni podataka korisnika:", partner);
   console.log("dobijene adrese u promeni podataka korisnika:", partner.partnerDostava);
   //ovo za adrese mi je undefined, kako onda to radi?
@@ -164,7 +197,7 @@ const PromenaPodatakaKorisnika = ({ korisnik, partner }: PromenaPodatakaKorisnik
           <div>
             <Label htmlFor="email" className="font-bold mb-2">{t('korisnici.Lokacija')}</Label>
             <ComboboxAdrese
-                dostavaList={partner?.partnerDostava ?? []}
+                dostavaList={listaZaPrikaz}
                 onSelectOption={(adresa) => {
                     setLokacija(adresa.sifra);
                 }}

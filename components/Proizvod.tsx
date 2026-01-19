@@ -7,7 +7,7 @@ import DodajUOmiljeno from "@/components/DodajUOmiljeno";
 import AddToCartButton from "./AddToCartButton";
 import ClientLightbox from "./ui/ClientLightbox";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
-import { ArtikalAtribut, ArtikalType, NoviArtikalType } from "@/types/artikal";
+import { ArtikalAtribut, ArtikalType } from "@/types/artikal";
 import { CircleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "./ui/input";
@@ -33,7 +33,7 @@ const prikazaniAtributi = [
 
 export default function Proizvod() {
   const { id } = useParams();
-  const [proizvod, setProizvod] = useState<NoviArtikalType | null>(null);
+  const [proizvod, setProizvod] = useState<ArtikalType | null>(null);
   const [atributi, setAtributi] = useState<ArtikalAtribut[]>([]);
   const [lastPurchaseDate, setLastPurchaseDate] = useState<string | null>(null);
   const debounceVreme = 700;
@@ -92,17 +92,17 @@ export default function Proizvod() {
 
         const data = await res.json();
         if (!data || data.length === 0) throw new Error(t('nijePronadjen'));
-        const osnovni: NoviArtikalType = data[0];
+        const osnovni: ArtikalType = data[0];
         setProizvod(osnovni);
 
-        // if (osnovni?.artikalAtributi) {
-        //   const filtriraniAtributi = osnovni.artikalAtributi.filter(attr =>
-        //     prikazaniAtributi.includes(attr.imeAtributa)
-        //   );
-        //   setAtributi(filtriraniAtributi);
-        // }
+        if (osnovni?.artikalAtributi) {
+          const filtriraniAtributi = osnovni.artikalAtributi.filter(attr =>
+            prikazaniAtributi.includes(attr.imeAtributa)
+          );
+          setAtributi(filtriraniAtributi);
+        }
 
-        // setLajkovano(osnovni?.status === "1");
+        setLajkovano(osnovni?.status === "1");
       } catch (e) {
         setError((e as Error).message || t('greskaUcitavanjeProizvoda'));
         setProizvod(null);
@@ -152,7 +152,7 @@ export default function Proizvod() {
     const fetchDatumPonovnogStanja = async () => {
       try {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const url = `${apiAddress}/api/Artikal/PristizanjeArtikla?idArtikla=${proizvod.Artikal}`;
+        const url = `${apiAddress}/api/Artikal/PristizanjeArtikla?idArtikla=${proizvod.idArtikla}`;
 
         const response = await fetch(url);
 
@@ -179,7 +179,7 @@ export default function Proizvod() {
 
   const fetchDatumPoslednjeKupovine = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Artikal/ArtikalDatumKupovine?idPartnera=${korisnik.idKorisnika}&idArtikla=${proizvod.Artikal}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/api/Artikal/ArtikalDatumKupovine?idPartnera=${korisnik.idKorisnika}&idArtikla=${proizvod.idArtikla}`);
       if (response.ok) {
         const data = await response.json();
         setLastPurchaseDate(data.datumPoslednjeKupovine || null);
@@ -199,10 +199,10 @@ export default function Proizvod() {
     const lokalnaKorpa = localStorage.getItem("korpa");
     const korpa = lokalnaKorpa ? JSON.parse(lokalnaKorpa) : [];
 
-    const stavka = korpa.find((item: { id: number }) => item.id === Number(proizvod.Artikal));
+    const stavka = korpa.find((item: { id: number }) => item.id === Number(proizvod.idArtikla));
     const vecUKorpi = stavka ? stavka.kolicina : 0;
 
-    const dozvoljeno = Math.max(Number(proizvod.KolicinaNaStanju) - vecUKorpi, 0);
+    const dozvoljeno = Math.max(Number(proizvod.kolicina) - vecUKorpi, 0);
     setPreostalo(dozvoljeno);
   }, [proizvod]);
 
@@ -214,35 +214,31 @@ export default function Proizvod() {
 
   const imageUrl = '/images';
   const images = [
-    { src: `${imageUrl}/s${proizvod?.Artikal}.jpg`, alt: "Glavna slika" },
-    { src: `${imageUrl}/t${proizvod?.Artikal}.jpg`, alt: "Slika proizvoda" },
-    { src: `${imageUrl}/k${proizvod?.Artikal}.jpg`, alt: "Upotreba" },
+    { src: `${imageUrl}/s${proizvod?.idArtikla}.jpg`, alt: "Glavna slika" },
+    { src: `${imageUrl}/t${proizvod?.idArtikla}.jpg`, alt: "Slika proizvoda" },
+    { src: `${imageUrl}/k${proizvod?.idArtikla}.jpg`, alt: "Upotreba" },
   ];
 
-  // const cena =
-  //   proizvod?.artikalCene && proizvod.artikalCene.length > 0
-  //     ? Number.isInteger(proizvod.Cena) ? proizvod.Cena
-  //                                                     :(proizvod.Cena).toFixed(2)
-  //                                                     : 0;
+  const cena =
+    proizvod?.artikalCene && proizvod.artikalCene.length > 0
+      ? Number.isInteger(proizvod.artikalCene[0].cena) ? proizvod.artikalCene[0].cena
+                                                      :(proizvod.artikalCene[0].cena).toFixed(2)
+                                                      : 0;
 
-  const cena = proizvod?.Cena ? (proizvod.Cena).toFixed(2) : 0;                                    
-  const akcijskaCena = proizvod?.AkcijskaCena ? (proizvod.AkcijskaCena).toFixed(2) : 0;
-                                      
+  const akcijskaCena =
+    proizvod?.artikalCene &&
+    proizvod.artikalCene.length > 0 &&
+    proizvod.artikalCene[0].akcija?.cena !== 0
+      ? Number.isInteger(proizvod.artikalCene[0].akcija.cena) ? proizvod.artikalCene[0].akcija.cena
+                                                              :(proizvod.artikalCene[0].akcija.cena).toFixed(2)
+                                                              : undefined;
 
-  // const akcijskaCena =
-  //   proizvod?.artikalCene &&
-  //   proizvod.artikalCene.length > 0 &&
-  //   proizvod.artikalCene[0].akcija?.cena !== 0
-  //     ? Number.isInteger(proizvod.AkcijskaCena) ? proizvod.AkcijskaCena
-  //                                                             :(proizvod.AkcijskaCena).toFixed(2)
-  //                                                             : undefined;
-
-  // const akcijskaKolicina = 
-  //   proizvod?.artikalCene &&
-  //   proizvod.artikalCene.length > 0 &&
-  //   proizvod.artikalCene[0].akcija.kolicina !== 0
-  //     ? Number(proizvod.AkcijskaKolicina)
-  //     : undefined;
+  const akcijskaKolicina = 
+    proizvod?.artikalCene &&
+    proizvod.artikalCene.length > 0 &&
+    proizvod.artikalCene[0].akcija.kolicina !== 0
+      ? Number(proizvod.artikalCene[0].akcija.kolicina)
+      : undefined;
 
   //deo za racunanje pakovanja
 
@@ -256,7 +252,7 @@ export default function Proizvod() {
       : Math.ceil(requested / packSize) * packSize;
   };
 
-  const getMaxAllowedQuantity = (kolicina: number, pakovanje: number) => {
+  const getMaxAllowedQuantity = (kolicina: string, pakovanje: number) => {
     const maxKolicina = Number(kolicina) || 0;
     return Math.floor(maxKolicina / pakovanje) * pakovanje;
   };
@@ -300,29 +296,28 @@ export default function Proizvod() {
           </div>
 
           <div className="flex flex-col gap-2 w-full">
-            <h1 className="text-xl md:text-2xl font-bold">{proizvod.Naziv}</h1>
+            <h1 className="text-xl md:text-2xl font-bold">{proizvod.naziv}</h1>
             <span className="text-red-500 text-lg md:text-xl font-bold">
-              {Number(proizvod.KolicinaNaStanju) > 0 ? (
+              {Number(proizvod.kolicina) > 0 ? (
                 akcijskaCena ? (
                   <>
                     <span className="line-through text-gray-400">{cena} {partner?.valutaNovca}</span>
                     <span className="pl-[5px]">{akcijskaCena} {partner?.valutaNovca}</span>
                   </>
                 ) : (
-                  `${cena} ${partner?.valutaNovca}`
+                  `${cena} {partner?.valutaNovca}`
                 )
               ) : (
                 <span className="text-red-500">{t('nijeDostupno')}</span>
               )}
             </span>
             {/* Prikaz akcijske količine ako postoji */}
-            {Number(proizvod.AkcijskaKolicina) > 0 && (
+            {Number(akcijskaKolicina) > 0 && (
               <span className="text-red-500 text-base">
-                {t('preostalaKolicina')}: {proizvod.AkcijskaKolicina}
-                {/* akcijska kolicina izmeniiiiiiiiiiiiiiiiiiiiiiiiiiiiiii */}
+                {t('preostalaKolicina')}: {akcijskaKolicina}
               </span>
             )}
-            {Number(proizvod.KolicinaNaStanju) === 0 && datumPonovnogStanja && (
+            {Number(proizvod.kolicina) === 0 && datumPonovnogStanja && (
               <span className="text-red-500">
                 {t('opetDostupan')}: {new Date(datumPonovnogStanja).toLocaleDateString('sr-RS', {
                   year: 'numeric',
@@ -334,16 +329,16 @@ export default function Proizvod() {
             )}
             <ul className="text-sm md:text-base space-y-1">
               <li>
-                <span className="font-semibold">{t('sifraProizvoda')}:</span> {proizvod.Artikal}
+                <span className="font-semibold">{t('sifraProizvoda')}:</span> {proizvod.idArtikla}
               </li>
               <li>
-                <span className="font-semibold">{t('barkod')}:</span> {proizvod.Barkod}
+                <span className="font-semibold">{t('barkod')}:</span> {proizvod.barkod}
               </li>
               <li>
-                <span className="font-semibold">{t('jedinicaMere')}:</span> {proizvod.JM}
+                <span className="font-semibold">{t('jedinicaMere')}:</span> {proizvod.jm}
               </li>
               <li>
-                <span className="font-semibold">{t('kolicinaZaIzdavanje')}:</span> {proizvod.KolicinaZaIzdavanje}
+                <span className="font-semibold">{t('kolicinaZaIzdavanje')}:</span> {proizvod.kolZaIzdavanje}
               </li>
             </ul>
             <ul className="text-sm md:text-base space-y-1 mt-2">
@@ -363,8 +358,8 @@ export default function Proizvod() {
         <div className="flex flex-col gap-4 w-full lg:w-1/3 items-start justify-end lg:items-end">
           {korisnik?.idKorisnika && (
             <DodajUOmiljeno
-              // inicijalniStatus={proizvod.status === "1"}
-              idArtikla={proizvod.Artikal}
+              inicijalniStatus={proizvod.status === "1"}
+              idArtikla={proizvod.idArtikla}
               idPartnera={korisnik.idKorisnika}
             />
           )}
@@ -379,12 +374,12 @@ export default function Proizvod() {
           ) : null}
           <div className="flex gap-2 w-full sm:w-auto flex-wrap">
             <div className="flex items-center gap-1">
-              {Number(proizvod.KolicinaNaStanju) <= 10 && (
+              {Number(proizvod.kolicina) <= 10 && (
                 <div className="relative">
                   <div className="group cursor-pointer">
                     <CircleAlert width={18} height={18} color="red" />
                     <div className="absolute left-6 top-1/2 -translate-y-1/2 bg-white text-red-500 border border-red-300 text-sm px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 whitespace-nowrap pointer-events-none">
-                      {t('preostalaKolicinaArtikla')}: {proizvod.KolicinaNaStanju}
+                      {t('preostalaKolicinaArtikla')}: {proizvod.kolicina}
                     </div>
                   </div>
                 </div>
@@ -393,18 +388,18 @@ export default function Proizvod() {
                 <Input
                   type="number"
                   className="min-w-10 w-full max-w-21"
-                  step={imaDozvoluZaPakovanje ? 1 : (proizvod.KolicinaZaIzdavanje || 1)}
+                  step={imaDozvoluZaPakovanje ? 1 : (proizvod.kolZaIzdavanje || 1)}
                   min={0}
-                  defaultValue={imaDozvoluZaPakovanje ? 1 : (proizvod.KolicinaZaIzdavanje || 1)}
+                  defaultValue={imaDozvoluZaPakovanje ? 1 : (proizvod.kolZaIzdavanje || 1)}
                   onChange={(e) => {
                     if (debounceTimeout.current) {
                       clearTimeout(debounceTimeout.current);
                     }
 
                     debounceTimeout.current = setTimeout(() => {
-                      const pakovanje = proizvod.KolicinaZaIzdavanje || 1;
+                      const pakovanje = proizvod.kolZaIzdavanje || 1;
                       let enteredValue = Number(e.target.value);
-                      const maxAllowed = getMaxAllowedQuantity(proizvod.KolicinaNaStanju, pakovanje);
+                      const maxAllowed = getMaxAllowedQuantity(proizvod.kolicina, pakovanje);
 
                       if (isNaN(enteredValue)) {
                         enteredValue = imaDozvoluZaPakovanje ? 1 : pakovanje;
@@ -423,19 +418,19 @@ export default function Proizvod() {
                   ref={inputRef}
                 />
                 <AddToCartButton
-                  id={proizvod.Artikal}
+                  id={proizvod.idArtikla}
                   className="w-full sm:w-auto px-6 py-2"
                   title={t('dodajUKorpu')}
                   getKolicina={() => {
-                    const pakovanje = proizvod.KolicinaZaIzdavanje || 1;
+                    const pakovanje = proizvod.kolZaIzdavanje || 1;
                     const rawValue = Number(inputRef.current?.value || (imaDozvoluZaPakovanje ? 1 : pakovanje));
                     return getRoundedQuantity(rawValue, pakovanje);
                   }}
-                  nazivArtikla={proizvod.Naziv}
-                  disabled={Number(proizvod.KolicinaNaStanju) <= 0 || preostalo === 0}
+                  nazivArtikla={proizvod.naziv}
+                  disabled={Number(proizvod.kolicina) <= 0 || preostalo === 0}
                   ukupnaKolicina={preostalo}
                   onPreAdd={() => {
-                    const pakovanje = proizvod.KolicinaZaIzdavanje || 1;
+                    const pakovanje = proizvod.kolZaIzdavanje || 1;
                     const rawValue = Number(inputRef.current?.value || (imaDozvoluZaPakovanje ? 1 : pakovanje));
                     const uneta = getRoundedQuantity(rawValue, pakovanje);
                     
