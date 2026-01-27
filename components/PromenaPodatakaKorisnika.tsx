@@ -42,6 +42,8 @@ const PromenaPodatakaKorisnika = ({ korisnik, partner }: PromenaPodatakaKorisnik
   const [telefon, setTelefon] = useState(korisnik.telefon);
   const [open, setOpen] = useState(false);
 
+  // if (!partner) return null; // ili disabled UI
+
  const sveLokacijeOption: KorisnikDostavaType = {
     idPartnera: partner.idPartnera ?? "",
     adresa: "Sve lokacije",

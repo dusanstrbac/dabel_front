@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 
 const Page = () => {
 
-    const defaultMin = 9;
+    const defaultMin = 1;
     const defaultMax = 300000;
 
     const [showPriceFilter, setShowPriceFilter] = useState(true);

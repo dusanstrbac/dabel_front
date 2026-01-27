@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import ListaArtikala from '@/components/ListaArtikala';
 import SortiranjeButton from '@/components/SortiranjeButton';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
-import { ArtikalFilterProp, ArtikalType, NoviArtikalType } from '@/types/artikal';
+import { ArtikalFilterProp, ArtikalType } from '@/types/artikal';
 import { useTranslations } from 'next-intl';
 
 type SortKey = 'cena' | 'naziv';
@@ -16,7 +16,7 @@ const Akcije = () => {
   const t = useTranslations();
   const searchParams = useSearchParams();
 
-  const [akcije, setAkcije] = useState<NoviArtikalType[]>([]);
+  const [akcije, setAkcije] = useState<ArtikalType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,7 +63,7 @@ const Akcije = () => {
 
         const data = await res.json();
 
-        setAkcije(data.akcije ?? []);
+        setAkcije(data ?? []);
       } catch (e) {
         setError('Došlo je do greške pri učitavanju akcija');
       } finally {
@@ -82,11 +82,11 @@ const Akcije = () => {
       let bVal: string | number = '';
 
       if (sortKey === 'cena') {
-        aVal = a.AkcijskaCena ?? a.Cena ?? 0;
-        bVal = b.AkcijskaCena ?? b.Cena ?? 0;
+        aVal = a.artikalCene?.[0]?.akcija?.cena ?? a.artikalCene?.[0]?.cena ?? 0;
+        bVal = b.artikalCene?.[0]?.akcija?.cena ?? b.artikalCene?.[0]?.cena ?? 0;
       } else {
-        aVal = (a.Naziv ?? '').toLowerCase();
-        bVal = (b.Naziv ?? '').toLowerCase();
+        aVal = (a.naziv ?? '').toLowerCase();
+        bVal = (b.naziv ?? '').toLowerCase();
       }
 
       if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;

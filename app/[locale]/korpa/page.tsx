@@ -39,10 +39,17 @@ const Korpa = () => {
   const [partner, setPartner] = useState<KorisnikPodaciType | null>(null);
   const [rabatPartnera, setRabatPartnera] = useState<number>(0);
   const [nerealizovanIznos, setNerealizovanIznos] = useState<number>(0);
+  const [raspolozivoStanje, setRaspolozivoStanje] = useState<number>(0);
   const [validnaKolicina, setValidnaKolicina] = useState(true);
   const korisnik = dajKorisnikaIzTokena();
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
   const [isLoading, setIsLoading] = useState(true);
+  //sonner stanja
+  const [shown, setShown] = useState({
+    vecaKol: false,
+    neplacene: false,
+    nemaStanja: false,
+  });
 
   const [imaDozvoluZaPakovanje, setImaDozvoluZaPakovanje] = useState(false);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -97,6 +104,8 @@ const Korpa = () => {
     }
   }, [articleList, quantities, imaDozvoluZaPakovanje]);
 
+  
+
   // Učitavanje artikala i podataka
   useEffect(() => {
     setIsClient(true);
@@ -109,6 +118,7 @@ const Korpa = () => {
     const queryString = storedIds.map(id => `ids=${id}`).join("&");
     const url = `${apiAddress}/api/Artikal/DajArtikalPoId?idKorisnika=${korisnik?.idKorisnika}&${queryString}`;
 
+    
     const fetchArticles = async () => {
       try {
         setIsLoading(true);
@@ -168,11 +178,16 @@ const Korpa = () => {
             setRabatPartnera(fPartner.partnerRabat.rabat);
           }
           if (fPartner.finKarta?.pristigloNaNaplatu) {
+            setRaspolozivoStanje(parseFloat(fPartner.finKarta.raspolozivoStanje));
             setNerealizovanIznos(parseFloat(fPartner.finKarta.pristigloNaNaplatu)); 
-            if (parseFloat(fPartner.finKarta.pristigloNaNaplatu) > 0) {
-              toast.error(t('neplaceneFakture'));
-              return;
-            }
+            // if (parseFloat(fPartner.finKarta.pristigloNaNaplatu) > 0) {
+            //   toast.error(t('neplaceneFakture'));
+            //   return;
+            // }
+            // if (parseFloat(fPartner.finKarta.raspolozivoStanje) < totalAmountWithPDV) {
+            //   toast.error(t('raspolozivoStanje'));
+            //   return;
+            // }
           }
       } catch (err) {
           console.error(t('greskaFetchPartnera'), err);
@@ -281,6 +296,18 @@ const Korpa = () => {
     return Number(cena) || 0;
   };
 
+  const totalAmount = articleList.reduce((sum, artikal, index) => {
+      const imaAkciju = artikal.artikalCene[0].akcija?.cena ? true : false;
+      const packSize = artikal.pakovanje || 1;
+      const rounded = getRoundedQuantity(quantities[index], packSize);
+      const cena = getCenaZaArtikal(artikal);
+      const rabat = partner?.partnerRabat.rabat ?? 0;
+      const cenaSaRabat = imaAkciju ? cena : cena * (1 - rabat / 100);
+      return sum + rounded * cenaSaRabat;
+    }, 0);
+
+  const totalAmountWithPDV = totalAmount * (1 + Number(partner?.stopaPoreza)/100);
+
   const getOriginalnaCena = (artikal: Artikal) => {
     return Number(artikal.artikalCene[0]?.cena) || 0;
   };
@@ -289,18 +316,7 @@ const Korpa = () => {
     return Number(cena).toFixed(2);
   };
 
-  const totalAmount = articleList.reduce((sum, artikal, index) => {
-    const imaAkciju = artikal.artikalCene[0].akcija?.cena ? true : false;
-    const packSize = artikal.pakovanje || 1;
-    const rounded = getRoundedQuantity(quantities[index], packSize);
-    const cena = getCenaZaArtikal(artikal);
-    const rabat = partner?.partnerRabat.rabat ?? 0;
-    const cenaSaRabat = imaAkciju ? cena : cena * (1 - rabat / 100);
-    return sum + rounded * cenaSaRabat;
-  }, 0);
-
-  const totalAmountWithPDV = totalAmount * (1 + Number(partner?.stopaPoreza)/100);
-
+  
 
   const getSlikaArtikla = (idArtikla: string) => {
     const baseUrl = '/images';
@@ -308,6 +324,7 @@ const Korpa = () => {
   };
 
 
+  
 
   useEffect(() => {
     if (!isClient || articleList.length === 0 || !partner) return;
@@ -347,13 +364,52 @@ const Korpa = () => {
     sessionStorage.setItem("korpaPodaci", JSON.stringify(payload));
   }, [articleList, quantities, partner, totalAmount, totalAmountWithPDV, isClient, rabatPartnera]);
 
-  const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina;
+  const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina || !raspolozivoStanje;
 
   const razlogZabraneNarucivanja = narucivanjeDisabled
     ? "Imate neizmirene dugove."
     : undefined;
 
+  // SONNERI
+  useEffect(() => {
+    if (!partner?.finKarta) return;
+
+    const dug = Number(partner.finKarta.pristigloNaNaplatu) || 0;
+    const stanje = Number(partner.finKarta.raspolozivoStanje) || 0;
+
+    if (dug > 0 && !shown.neplacene) {
+      toast.error(t('neplaceneFakture'));
+      setShown(s => ({ ...s, neplacene: true }));
+    }
+
+    if (stanje < totalAmountWithPDV && !shown.nemaStanja) {
+      toast.error(t('raspolozivoStanje'));
+      setShown(s => ({ ...s, nemaStanja: true }));
+    }
+
+    // opcionalno: resetuj flagove kad se uslovi vrate u normalu
+    if (dug <= 0 && shown.neplacene) {
+      setShown(s => ({ ...s, neplacene: false }));
+    }
+    if (stanje >= totalAmountWithPDV && shown.nemaStanja) {
+      setShown(s => ({ ...s, nemaStanja: false }));
+    }
+  }, [partner, totalAmountWithPDV, t, shown.neplacene, shown.nemaStanja]);
+
+
+  //validna kolicina provera
+  useEffect(() => {
+    if (!validnaKolicina && !shown.vecaKol) {
+      toast.error(t('vecaKolOdDostupne'));
+      setShown(s => ({ ...s, vecaKol: true }));
+    }
+    if (validnaKolicina && shown.vecaKol) {
+      setShown(s => ({ ...s, vecaKol: false }));
+    }
+  }, [validnaKolicina, t, shown.vecaKol]);
+
   if (!isClient) return null;
+
 
   return (
     <div className="flex flex-col p-2 md:p-5">
@@ -362,6 +418,8 @@ const Korpa = () => {
         <Button onClick={isprazniKorpu} variant={"outline"} className="cursor-pointer">{t('isprazniKorpu')}</Button>
       </div>
 
+      {/* SONNERI */}
+      
       {/* DESKTOP VERZIJA */}
       <div className="flex-col flex-wrap py-3 hidden lg:block">
         <Table>
@@ -396,7 +454,7 @@ const Korpa = () => {
               const originalnaCena = getOriginalnaCena(article);
               const cenaPosleRabat = imaAkciju ? cena : cena * (1 - rabatPartnera / 100);
               const iznos = kolicina * cenaPosleRabat;
-              const iznosSaPDV = iznos * (1 - Number(partner?.stopaPoreza)/100);
+              const iznosSaPDV = iznos * (1 + Number(partner?.stopaPoreza)/100);
 
               return (
                 <TableRow key={index}>
@@ -513,7 +571,7 @@ const Korpa = () => {
           const originalnaCena = getOriginalnaCena(article);
           const cenaPosleRabat = imaAkciju ? cena : cena * (1 - rabatPartnera / 100);
           const iznos = kolicina * cenaPosleRabat;
-          const iznosSaPDV = iznos * (1 - Number(partner?.stopaPoreza)/100);
+          const iznosSaPDV = iznos * (1 + Number(partner?.stopaPoreza)/100);
 
           return (
             <Card key={index} className="p-3 shadow-md flex flex-col sm:flex-row gap-2 items-center mb-4">

@@ -55,11 +55,12 @@ const ProfilPodaci = () => {
         const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`);
         const data = await response.json();
 
-        // if (data && Array.isArray(data) && data.length > 0) {
+        if (data && Array.isArray(data) && data.length > 0) {
           setUserData(data[0]);
-        // } else {
-          // setError(t('notFound'));
-        // }
+          console.log('Fetched user data:', data[0]);
+        } else {
+          setError(t('notFound'));
+        }
       } catch (err) {
         console.error(err);
         setError(t('error'));
