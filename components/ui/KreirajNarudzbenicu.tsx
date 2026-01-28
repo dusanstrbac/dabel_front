@@ -93,13 +93,16 @@ interface KreirajNarudzbenicuProps {
                         }));
 
                         toast.success(t('kreirajNarudzbenicu.📄 Dokument je uspešno sačuvan u sistemu'));
+                        
 
+                        window.open("/dokument", "_blank");
                     } catch (err) {
                         toast.error(t('kreirajNarudzbenicu.❌ Greška pri učitavanju dokumenta'));
                         console.error("❌ Greška pri fetchovanju dokumenta:", err);
                     }
                 }
-                window.open("/dokument", "_blank");
+                // OTVORI DOKUMENT U NOVOM TABU
+                // window.open("/dokument", "_blank");
 
                 // ZA BRISANJE IZ SESSION STORAGE NAKON POSTAVLJENE NARUDzBENICE
                 const kanal = new BroadcastChannel("dokument-kanal");
