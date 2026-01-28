@@ -14,31 +14,97 @@ interface myProps {
 
 const KorisniciTable = ({ title }: myProps) => {
     const t = useTranslations('korisnici');
-    const [tabelaStavke, setTabelaStavke] = useState<any[]>([]); // Ovdje inicijalizujemo kao prazan niz
+    const [tabelaStavke, setTabelaStavke] = useState<any[]>([]);
     const [pretraga, setPretraga] = useState("");
     const [trenutnaStrana, setTrenutnaStrana] = useState(1);
     const korisnikaPoStrani = 10;
-    const [partner, setPartner] = useState('');
+    const [partner, setPartner] = useState<KorisnikPodaciType>();
+    const [idPartner, setIdPartner] = useState<string>();
 
+    // useEffect(() => {
+    //     const korisnik = dajKorisnikaIzTokena();
+    //     setPartner(korisnik);
+    //     if (!partner) return;
+
+    //     const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
+    //     const fetchPartneri = async () => {
+    //         try {
+    //             const res = await fetch(`${apiAddress}/api/Partner/DajPartnerKorisnike?Partner=${partner}`);
+    //             const data = await res.json();
+    //             setTabelaStavke(data);
+    //         } catch (err) {
+    //             console.error("Greška pri dobijanju podataka:", err);
+    //         }
+    //     };
+
+    //     fetchPartneri();
+    // }, [partner]);
+
+    // ...existing code...
     useEffect(() => {
         const korisnik = dajKorisnikaIzTokena();
-        setPartner(String(korisnik?.idKorisnika));
-        if (!partner) return;
+        if (!korisnik) return; // avoids passing null
 
-        const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+        setIdPartner(String(korisnik.idKorisnika));
 
-        const fetchPartneri = async () => {
+        const fetchPartner = async () => {
             try {
-                const res = await fetch(`${apiAddress}/api/Partner/DajPartnerKorisnike?Partner=${partner}`);
+                const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+                const res = await fetch(`${apiAddress}/api/Partner/DajPartnerKorisnike?Partner=${korisnik.partner}`);
+                if (!res.ok) throw new Error("Failed to fetch partner");
                 const data = await res.json();
                 setTabelaStavke(data);
+
+
+                const response = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`);
+                const partner_data = await response.json();
+                setPartner(partner_data[0]);
             } catch (err) {
-                console.error("Greška pri dobijanju podataka:", err);
+                console.error(err);
             }
         };
 
-        fetchPartneri();
-    }, [partner]);
+        fetchPartner();
+    }, []); // run once
+// ...existing code...
+
+
+
+    // useEffect(() => {
+    //     const korisnik = dajKorisnikaIzTokena();
+    //     if (!korisnik) return;
+
+    //     setIdPartner(String(korisnik.idKorisnika));
+
+    //     const fetchPartner = async () => {
+    //         try {
+    //             const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+    //             const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`);
+    //             if (!res.ok) {
+    //                 console.error("Failed to fetch partner");
+    //                 return;
+    //             }
+    //             const data = await res.json();
+    //             const fullPartner = Array.isArray(data) ? data[0] : data;
+    //             // fullPartner should match KorisnikPodaciType
+    //             setPartner(fullPartner);
+    //         } catch (err) {
+    //             console.error("Greška pri dobijanju partnera:", err);
+    //         }
+    //     };
+
+    //     fetchPartner();
+    // }, []);
+
+
+    const getAdresa = (lokacijaSifra: string) => {
+        return partner?.partnerDostava?.find(
+            (d) => d.sifra === lokacijaSifra
+        )?.adresa;
+    };
+
+
 
     const filtriraniKorisnici = tabelaStavke.filter((korisnik) =>
         korisnik.korisnickoIme.toLowerCase().includes(pretraga.toLowerCase()) ||
@@ -63,7 +129,7 @@ const KorisniciTable = ({ title }: myProps) => {
                         value={pretraga}
                         onChange={(e) => setPretraga(e.target.value)}
                     />
-                    <KreirajKorisnika />
+                    <KreirajKorisnika partner={partner} />
                 </div>
             </div>
 
@@ -75,12 +141,13 @@ const KorisniciTable = ({ title }: myProps) => {
                             <TableHead className="text-xl">{t('Korisničko ime')}</TableHead>
                             <TableHead className="text-xl">{t('E-mail')}</TableHead>
                             <TableHead className="text-xl">{t('Telefon')}</TableHead>
+                            <TableHead className="text-xl">{t('Lokacija')}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {trenutniBrojKorisnika.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={4} className="text-center">
+                                <TableCell colSpan={5} className="text-center">
                                     {t('Nema registrovanih korisnika')}
                                 </TableCell>
                             </TableRow>
@@ -88,11 +155,17 @@ const KorisniciTable = ({ title }: myProps) => {
                             trenutniBrojKorisnika.map((stavka) => (
                                 <TableRow key={stavka.idKorisnika}>
                                     <TableCell>
-                                        <PromenaPodatakaKorisnika korisnik={stavka} />
+                                        {partner &&
+                                        <PromenaPodatakaKorisnika korisnik={stavka} partner={partner} />
+                                        }
                                     </TableCell>
                                     <TableCell>{stavka.korisnickoIme}</TableCell>
                                     <TableCell>{stavka.email}</TableCell>
                                     <TableCell>{stavka.telefon}</TableCell>
+                                    <TableCell>
+                                        {getAdresa(stavka.lokacija) || "Sve lokacije"}
+                                    </TableCell>
+
                                 </TableRow>
                             ))
                         )}

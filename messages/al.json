@@ -350,6 +350,7 @@
     "Korisničko ime": "Emri i përdoruesit",
     "E-mail": "E-mail",
     "Telefon": "Telefoni",
+    "Lokacija": "Lokacioni",
     "Nema registrovanih korisnika": "Nuk ka përdorues të regjistruar"
   },
   "promenaPodatakaKorisnika": {
@@ -426,6 +427,7 @@
     "greskaUcitavanje": "Gabim gjatë ngarkimit të artikujve:",
     "nemaKorisnika": "Nuk ka përdorues nga token-i.",
     "neplaceneFakture": "Keni fatura të papaguara, prandaj porositja juaj është e ndaluar",
+    "raspolozivoStanje": "Porositja nuk lejohet për shkak të gjendjes së pamjaftueshme të disponueshme.",
     "greskaFetchPartnera": "Gabim gjatë marrjes së partnerit:",
     "greskaDobavljanjeDozvola": "Gabim gjatë marrjes së lejeve:",
     "pregledKorpe": "Pasqyra e shportës",

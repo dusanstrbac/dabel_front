@@ -22,6 +22,28 @@ const ListaArtikala = ({
   const [noResults, setNoResults] = useState(false);
   const [filtriraniArtikli, setFiltriraniArtikli] = useState<ArtikalType[]>(artikli);
   const t = useTranslations();
+  const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
+
+  const [partner, setPartner] = useState<KorisnikPodaciType | null>(null);
+
+
+
+  useEffect(() => {
+      const fetchPartner = async () => {
+        const idPartnera = korisnik?.partner;
+        const idKorisnika = korisnik?.idKorisnika;
+        try{
+          const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}&idKorisnika=${idKorisnika}`);
+          const data = await res.json();
+          setPartner((data?.[0] as KorisnikPodaciType) ?? null);
+        }
+        catch (err) {
+          console.error(t('greskaFetchPartnera'), err);
+        }
+        
+      };
+      fetchPartner();
+  }, []);
 
   // Osveži filtrirane artikle kada se promene originalni artikli
   useEffect(() => {
@@ -78,6 +100,7 @@ const ListaArtikala = ({
                 idPartnera={korisnik?.partner ?? ""} 
                 key={artikal.idArtikla ?? idx}
                 {...artikal}
+                partner={partner}
               />
             ))}
           </div>

@@ -44,7 +44,8 @@ const MultiRangeSlider = (props: Props, ref: React.ForwardedRef<HTMLDivElement>)
 	let stepOnly = props.stepOnly === undefined || props.stepOnly === null ? false : props.stepOnly;
 	let preventWheel = props.preventWheel === undefined || props.preventWheel === null ? false : props.preventWheel;
 	let refBar = useRef<HTMLDivElement>(null);
-	let min = +(props.min || 10);
+	let min = +(props.min || 1);
+	// let min = 1;
 	let max = +(props.max || 300000);
 	let step = Math.abs(+(props.step || 5));
 	let fixed = 0;

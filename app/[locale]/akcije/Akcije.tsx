@@ -46,7 +46,7 @@ const Akcije = () => {
         }
 
         const res = await fetch(
-          `${apiAddress}/api/Artikal/PartnerAkcije?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`
+          `${apiAddress}/api/Artikal/PartnerAkcijeNovo?idPartnera=${korisnik.partner}&idKorisnika=${korisnik.idKorisnika}`
         );
 
         console.log("akcije koje mi stizu")
@@ -63,7 +63,7 @@ const Akcije = () => {
 
         const data = await res.json();
 
-        setAkcije(data.akcije ?? []);
+        setAkcije(data ?? []);
       } catch (e) {
         setError('Došlo je do greške pri učitavanju akcija');
       } finally {

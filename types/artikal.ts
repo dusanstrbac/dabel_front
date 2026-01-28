@@ -15,6 +15,35 @@ export type ArtikalType = {
   artikalPristizanje: artikalPristizanje[];
 };
 
+export type NoviArtikalType = {
+  Artikal: string,
+  Naziv: string,
+  Barkod: string,
+  RobnaMarka: string,
+  Model: string,
+  KolicinaNaStanju: number,
+  DrzavaPorekla: string,
+  Deklaracija: string,
+  Materijal: string,
+  ZavrsnaObrada: string,
+  JM: string,
+  Kategorija: string,
+  Podkategorija: string
+  KolicinaZaIzdavanje: number,
+  Pakovanje: string,
+  NetoTezina: number,
+  BrutoTezinaProcenat: number,
+  Namena: string,
+  URLSlikeS: string,
+  URLSlikeT: string,
+  URLSlikeK: string,
+  Marketing: string,
+  Cena: number,
+  AkcijskaCena: number,
+  AkcijskaKolicina: number,
+  DatumPristizanja: Date,
+};
+
 export type artikalPristizanje = {
   kolicina: number;
   datum: Date;

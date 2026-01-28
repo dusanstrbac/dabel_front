@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { dajKorisnikaIzTokena } from '@/lib/auth';
 
 interface ArticleCardProps extends ArtikalType {
+  partner: KorisnikPodaciType | null;
   idPartnera: string;
   lastPurchaseDate?: string;
   datumPoslednjeKupovine?: string;
@@ -15,7 +16,7 @@ interface ArticleCardProps extends ArtikalType {
   kolicinaPristizanja?: number;
 }
 
-const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, datumPoslednjeKupovine, datumPristizanja }: ArticleCardProps) => {
+const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, datumPoslednjeKupovine, datumPristizanja, partner }: ArticleCardProps) => {
   const router = useRouter();
   const t = useTranslations();
   const locale = useLocale();
@@ -24,25 +25,7 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
   
   const korisnik = dajKorisnikaIzTokena();
   const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-  const [partner, setPartner] = useState<KorisnikPodaciType | null>(null);
-
-  useEffect(() => {
-      const fetchPartner = async () => {
-        const idPartnera = korisnik?.partner;
-        const idKorisnika = korisnik?.idKorisnika;
-        try{
-          const res = await fetch(`${apiAddress}/api/Partner/DajPartnere?idPartnera=${idPartnera}&idKorisnika=${idKorisnika}`);
-          const data = await res.json();
-          const fPartner = data[0] as KorisnikPodaciType;
-          setPartner(fPartner);
-        }
-        catch (err) {
-          console.error(t('greskaFetchPartnera'), err);
-        }
-        
-      };
-      fetchPartner();
-  }, []);
+  // const [partner, setPartner] = useState<KorisnikPodaciType | null>(null);
 
   const rabat = partner?.partnerRabat.rabat ?? 0;
 

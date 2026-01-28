@@ -350,6 +350,7 @@
     "Korisničko ime": "Username",
     "E-mail": "E-mail",
     "Telefon": "Phone",
+    "Lokacija": "Location",
     "Nema registrovanih korisnika": "No registered users"
   },
   "promenaPodatakaKorisnika": {
@@ -426,6 +427,7 @@
     "greskaUcitavanje": "Error loading items:",
     "nemaKorisnika": "No user from token.",
     "neplaceneFakture": "You have unpaid invoices, so ordering is forbidden",
+    "raspolozivoStanje": "Ordering is not allowed due to insufficient available balance.",
     "greskaFetchPartnera": "Error fetching partner:",
     "greskaDobavljanjeDozvola": "Error getting permissions:",
     "pregledKorpe": "Cart overview",

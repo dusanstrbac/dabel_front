@@ -15,6 +15,7 @@ import { Label } from "./ui/label";
 import { toast } from "sonner";
 import { delay } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { ComboboxAdrese } from "./ui/ComboboxAdrese";
 
 interface Korisnik {
   korisnickoIme: string;
@@ -24,19 +25,45 @@ interface Korisnik {
   telefon: string;
 }
 
-const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
+interface PromenaPodatakaKorisnikaProps {
+  korisnik: Korisnik;
+  partner: KorisnikPodaciType;
+}
+
+
+
+
+const PromenaPodatakaKorisnika = ({ korisnik, partner }: PromenaPodatakaKorisnikaProps) => {
   const t = useTranslations();
   const [korisnickoIme, setKorisnickoIme] = useState(korisnik.korisnickoIme);
   const [lozinka, setLozinka] = useState(korisnik.lozinka || '');
+  const [lokacija, setLokacija] = useState('');
   const [email, setEmail] = useState(korisnik.email);
   const [telefon, setTelefon] = useState(korisnik.telefon);
   const [open, setOpen] = useState(false);
+
+  // if (!partner) return null; // ili disabled UI
+
+ const sveLokacijeOption: KorisnikDostavaType = {
+    idPartnera: partner.idPartnera ?? "",
+    adresa: "Sve lokacije",
+    grad: "",
+    drzava: "",
+    postBroj: "",
+    opstina: "",
+    kontaktOsoba: "",
+    telefon: "",
+    email: "",
+    sifra: ""
+  };
+  const [listaZaPrikaz, setListaZaPrikaz] = useState(partner?.partnerDostava.concat(sveLokacijeOption) || []);
 
   const handleSubmit = async () => {
     const payload: any = {
       korisnickoIme,
       email,
       telefon,
+      lokacija
     };
 
     // Ako je lozinka promenjena, dodajemo je u payload
@@ -110,6 +137,27 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
     setOpen(openStatus);
   };
 
+
+ 
+
+  const adreseSaDefault: KorisnikDostavaType[] = [
+    sveLokacijeOption,
+    ...(partner?.partnerDostava ?? [])
+  ] as KorisnikDostavaType[];
+
+  // const adreseSaDefault: KorisnikDostavaType[] = [
+  //   {
+  //     ...sveLokacijeOption,
+  //     adresa: "Sve lokacije" // ako se u comboboxu prikazuje `adresa`
+  //   },
+  //   ...(partner?.partnerDostava ?? [])
+  // ];
+
+
+  console.log("dobijeni partner u promeni podataka korisnika:", partner);
+  console.log("dobijene adrese u promeni podataka korisnika:", partner.partnerDostava);
+  //ovo za adrese mi je undefined, kako onda to radi?
+
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
@@ -145,6 +193,17 @@ const PromenaPodatakaKorisnika = ({ korisnik }: { korisnik: Korisnik }) => {
             <Input 
               value={telefon} 
               onChange={(e) => setTelefon(e.target.value)} 
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="email" className="font-bold mb-2">{t('korisnici.Lokacija')}</Label>
+            <ComboboxAdrese
+                dostavaList={listaZaPrikaz}
+                onSelectOption={(adresa) => {
+                    setLokacija(adresa.sifra);
+                }}
+                defaultValue={lokacija}
             />
           </div>
         </div>

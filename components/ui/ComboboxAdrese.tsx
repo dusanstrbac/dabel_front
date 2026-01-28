@@ -35,6 +35,7 @@ export const ComboboxAdrese: React.FC<Props> = ({
   const [selected, setSelected] = React.useState<KorisnikDostavaType | null>(null);
   const [inputValue, setInputValue] = React.useState("");
 
+
   React.useEffect(() => {
     if (dostavaList.length === 1) {
       // Samo ako postoji JEDNA adresa — automatski je selektuj
@@ -42,6 +43,7 @@ export const ComboboxAdrese: React.FC<Props> = ({
       setSelected(jedinaAdresa);
       onSelectOption(jedinaAdresa);
     } else if (dostavaList.length > 1) {
+      
       // Ako ih ima više — ne selektuj ništa, samo placeholder
       dostavaList.sort();
       setSelected(null);
@@ -77,7 +79,7 @@ export const ComboboxAdrese: React.FC<Props> = ({
           <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full sm:max-w-[280px] sm:min-w-[570px] p-2">
+      <PopoverContent className="w-full sm:max-w-[280px] sm:min-w-[450px] p-2 z-[201]">
         <Command>
           <CommandList>
             <CommandEmpty>Nema rezultata za pretragu.</CommandEmpty>
@@ -96,7 +98,7 @@ export const ComboboxAdrese: React.FC<Props> = ({
                   <div className="flex flex-col">
                     <span className="font-medium">{dostava.adresa}</span>
                     <span className="text-xs text-muted-foreground">
-                      {dostava.postBroj}, {dostava.grad}, {dostava.drzava}
+                      {dostava.sifra == "" ? "" : `${dostava.postBroj}, ${dostava.grad}, ${dostava.drzava}`}
                     </span>
                   </div>
                   {selected?.adresa === dostava.adresa && (

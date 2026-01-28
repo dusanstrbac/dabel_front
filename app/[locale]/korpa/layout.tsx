@@ -3,6 +3,7 @@
 import Header from "@/components/Header";
 import { Locale } from '@/config/locales';
 import { useParams } from "next/navigation";
+import { Toaster } from "sonner";
 
 export default function RootLayout({children}: Readonly<{children: React.ReactNode;}>) 
 {

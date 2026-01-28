@@ -15,12 +15,19 @@ import { Label } from "./ui/label";
 import { dajKorisnikaIzTokena } from "@/lib/auth";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { ComboboxAdrese } from "./ui/ComboboxAdrese";
 
-const KreirajKorisnika = () => {
+interface KreirajKorisnikaProps {
+  partner?: KorisnikPodaciType;
+}
+
+const KreirajKorisnika = ({ partner }: KreirajKorisnikaProps) => {
   const t = useTranslations();
+  // const [partner, setPartner] = useState<KorisnikPodaciType>();
   const [korisnickoIme, setKorisnickoIme] = useState('');
   //const [lozinka, setLozinka] = useState('');
   const [email, setEmail] = useState('');
+  const [lokacija, setLokacija] = useState('');
   const [telefon, setTelefon] = useState('');
   const [open, setOpen] = useState(false); // State za otvaranje/zatvaranje dijaloga
   const idCounter = useRef(100);
@@ -58,6 +65,7 @@ const KreirajKorisnika = () => {
     const payload = {
       korisnickoIme,
       //lozinka,
+      lokacija,
       email,
       telefon,
       partner: partner?.idKorisnika,
@@ -148,6 +156,17 @@ const KreirajKorisnika = () => {
                 value={telefon}
                 onChange={(e) => setTelefon(e.target.value)}
                 className="border-2 border-gray-300"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="email" className="font-bold mb-2">{t('korisnici.Lokacija')}</Label>
+              <ComboboxAdrese
+                  dostavaList={partner?.partnerDostava ?? []}
+                  onSelectOption={(adresa) => {
+                      setLokacija(adresa.sifra);
+                  }}
+                  defaultValue={lokacija}
               />
             </div>
           </div>

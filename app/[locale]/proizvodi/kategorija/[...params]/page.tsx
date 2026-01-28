@@ -21,6 +21,8 @@ export default function ProizvodiPage() {
   const idPartnera = dajKorisnikaIzTokena()?.partner;
   const t = useTranslations();
 
+  console.log("<ID korisnika>", dajKorisnikaIzTokena()?.idKorisnika);
+
   const [sviArtikli, setSviArtikli] = useState<ArtikalType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +52,7 @@ export default function ProizvodiPage() {
       try {
         const query = new URLSearchParams();
         query.append('idPartnera', idPartnera!);
+        query.append('idKorisnika', dajKorisnikaIzTokena()?.idKorisnika!);
         query.append('pageSize', '1000');
         query.append('Kategorija', kategorija);
 

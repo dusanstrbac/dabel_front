@@ -87,7 +87,7 @@ export default function Proizvod() {
       setError(null);
       try {
         const apiAddress = process.env.NEXT_PUBLIC_API_ADDRESS;
-        const res = await fetch(`${apiAddress}/api/Artikal/DajArtikalPoId?idPartnera=${korisnik?.idKorisnika}&ids=${productId}`);
+        const res = await fetch(`${apiAddress}/api/Artikal/DajArtikalPoId?idKorisnika=${korisnik?.idKorisnika}&ids=${productId}`);
         if (!res.ok) throw new Error(t('greskaUcitavanjeProizvoda'));
 
         const data = await res.json();
@@ -315,7 +315,6 @@ export default function Proizvod() {
             {Number(akcijskaKolicina) > 0 && (
               <span className="text-red-500 text-base">
                 {t('preostalaKolicina')}: {akcijskaKolicina}
-                {/* akcijska kolicina izmeniiiiiiiiiiiiiiiiiiiiiiiiiiiiiii */}
               </span>
             )}
             {Number(proizvod.kolicina) === 0 && datumPonovnogStanja && (
