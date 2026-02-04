@@ -21,8 +21,6 @@ export default function ProizvodiPage() {
   const idPartnera = dajKorisnikaIzTokena()?.partner;
   const t = useTranslations();
 
-  console.log("<ID korisnika>", dajKorisnikaIzTokena()?.idKorisnika);
-
   const [sviArtikli, setSviArtikli] = useState<ArtikalType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,8 +58,8 @@ export default function ProizvodiPage() {
           query.append('PodKategorija', podkategorija);
         }
 
-        const { data } = await axios.get(`${apiAddress}/api/Artikal/DajArtikleSaPaginacijom?${query.toString()}`);
-        setSviArtikli(data.artikli || []);
+        const { data } = await axios.get(`${apiAddress}/api/Artikal/DajArtikleSaPaginacijomNovo?${query.toString()}`);
+        setSviArtikli(data || []);
       } catch (err) {
         console.error("Greška pri fetch podataka:", err);
         setError('Došlo je do greške pri učitavanju artikala');
