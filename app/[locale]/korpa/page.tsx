@@ -364,8 +364,14 @@ const Korpa = () => {
     sessionStorage.setItem("korpaPodaci", JSON.stringify(payload));
   }, [articleList, quantities, partner, totalAmount, totalAmountWithPDV, isClient, rabatPartnera]);
 
-  const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina || raspolozivoStanje >= totalAmountWithPDV;
+  const manjeOdRaspolozivogStanja = (raspolozivoStanje: number, totalAmountWithPDV: number) => {
+    if (raspolozivoStanje >= totalAmountWithPDV) return false;
+    if (raspolozivoStanje < totalAmountWithPDV) return true;
+  }
 
+  const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina; //|| manjeOdRaspolozivogStanja(raspolozivoStanje, totalAmountWithPDV); ;
+  
+  
   const razlogZabraneNarucivanja = narucivanjeDisabled
     ? "Imate neizmirene dugove."
     : undefined;
@@ -557,7 +563,7 @@ const Korpa = () => {
         </Table>
 
         <div className="flex justify-end gap-4 pt-4">
-          <NaruciButton disabled={narucivanjeDisabled || !validnaKolicina} />
+          <NaruciButton disabled={narucivanjeDisabled} />
         </div>
       </div>
 
