@@ -364,7 +364,7 @@ const Korpa = () => {
     sessionStorage.setItem("korpaPodaci", JSON.stringify(payload));
   }, [articleList, quantities, partner, totalAmount, totalAmountWithPDV, isClient, rabatPartnera]);
 
-  const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina || !raspolozivoStanje;
+  const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina || raspolozivoStanje >= totalAmountWithPDV;
 
   const razlogZabraneNarucivanja = narucivanjeDisabled
     ? "Imate neizmirene dugove."
