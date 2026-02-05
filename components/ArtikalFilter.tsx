@@ -74,8 +74,13 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
           if (key === 'jm') return values.includes(artikal.jm);
           
           if (artikal.artikalAtributi) {
-            const atributKey = key === 'RobnaMarka' ? 'Robna marka' : 
-                             key === 'Boja' ? 'Zavr.obr-boja' : key;
+             const atributKey = key === "Upotreba" ? "Upotreba(9)" :
+                      key === "Pakovanje" ? "Pakovanje(10)" :
+                      key === "Boja" ? "Zavr.obr-boja(6)" :
+                      key === "Model" ? "Model(4)" :
+                      key === "RobnaMarka" ? "Robna marka(7)" :
+                      key === "Materijal" ? "Materijal(5)" :
+                      key;                
             return artikal.artikalAtributi.some(atribut => 
               atribut.imeAtributa === atributKey && values.includes(atribut.vrednost)
             );
@@ -108,10 +113,16 @@ const ArtikalFilter: React.FC<ProductFilterProps> = ({
       if (artikal.jm) options.jm.add(artikal.jm);
       if (artikal.artikalAtributi) {
         artikal.artikalAtributi.forEach(atribut => {
-          const key = atribut.imeAtributa === "Robna marka" ? "RobnaMarka" : 
-                      atribut.imeAtributa === "Zavr.obr-boja" ? "Boja" :
+          const key = atribut.imeAtributa === "Upotreba(9)" ? "Upotreba" :
+                      atribut.imeAtributa === "Pakovanje(10)" ? "Pakovanje" :
+                      atribut.imeAtributa === "Zavr.obr-boja(6)" ? "Boja" :
+                      atribut.imeAtributa === "Model(4)" ? "Model" :
+                      atribut.imeAtributa === "Robna marka(7)" ? "RobnaMarka" :
+                      atribut.imeAtributa === "Materijal(5)" ? "Materijal" :
                       atribut.imeAtributa as keyof typeof options;
-          if (options[key]) options[key].add(atribut.vrednost);
+          if (options[key]){
+            options[key].add(atribut.vrednost);
+          } 
         });
       }
     });
