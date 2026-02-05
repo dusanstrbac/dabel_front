@@ -110,19 +110,19 @@ const BrzoNarucivanje = () => {
         return;
       }
 
-      const headers = lines[0].split(",").map((h) => h.trim());
-      const sifraIndex = headers.findIndex((h) => h === "Šifra");
-      const kolicinaIndex = headers.findIndex((h) => h === "Količina");
+      const headers = lines[0].split(";").map((h) => h.trim());
+      const sifraIndex = headers.findIndex((h) => h === "Sifra");
+      const kolicinaIndex = headers.findIndex((h) => h === "Kolicina");
 
       if (sifraIndex === -1 || kolicinaIndex === -1) {
-        alert("CSV mora imati kolone Šifra i Količina");
+        alert("CSV mora imati kolone Sifra i Kolicina");
         return;
       }
 
       const parsedRows = lines
         .slice(1)
         .map((line) => {
-          const cols = line.split(",");
+          const cols = line.split(";");
           return {
             sifra: cols[sifraIndex]?.replace(/\D/g, "") || "",
             kolicina: cols[kolicinaIndex]?.replace(/\D/g, "") || "",
@@ -142,7 +142,7 @@ const BrzoNarucivanje = () => {
   };
 
   const handleDownloadTemplate = () => {
-    const csvContent = "Šifra,Količina\n3398017,4\n8605004203857,1\n";
+    const csvContent = "Sifra;Kolicina\n3398017;4\n8605004203857;1\n";
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
