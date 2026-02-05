@@ -434,11 +434,11 @@ const Korpa = () => {
               <TableHead />
               <TableHead className="text-xl font-light">{t('nazivArtikla')}</TableHead>
               <TableHead className="text-xl text-center font-light">{t('jm')}</TableHead>
-              <TableHead className="text-xl text-center font-light">{t('cena')}</TableHead>
+              <TableHead className="text-xl text-center font-light">{t('prodajna cena')}</TableHead>
               <TableHead className="text-xl text-center font-light">{t('pakovanje')}</TableHead>
               <TableHead className="text-xl text-center font-light">{t('trebovanaKolicina')}</TableHead>
               <TableHead className="text-xl text-center font-light">{t('kolicina')}</TableHead>
-              <TableHead className="text-xl text-center font-light">{t('rabat')}</TableHead>
+              <TableHead className="text-xl text-center font-light">{t('cena')}</TableHead>
               <TableHead className="text-xl text-center font-light">{t('iznos')}</TableHead>
               <TableHead className="text-xl text-center font-light">{t('iznosPDV')}</TableHead>
               <TableHead />
@@ -461,6 +461,7 @@ const Korpa = () => {
               const cenaPosleRabat = imaAkciju ? cena : cena * (1 - rabatPartnera / 100);
               const iznos = kolicina * cenaPosleRabat;
               const iznosSaPDV = iznos * (1 + Number(partner?.stopaPoreza)/100);
+              
 
               return (
                 <TableRow key={index}>
@@ -541,7 +542,7 @@ const Korpa = () => {
                       />
                   </TableCell>
                   <TableCell className="text-center">{kolicina}</TableCell>
-                  <TableCell className="text-center">{rabatPartnera}</TableCell>
+                  <TableCell className="text-center">{formatCena(imaAkciju ? cena : (cena * (1 - rabatPartnera / 100)))}</TableCell>
                   <TableCell className="text-center">{formatCena(iznos)} {partner?.valutaNovca}</TableCell>
                   <TableCell className="text-center">{formatCena(iznosSaPDV)} {partner?.valutaNovca}</TableCell>
                   <TableCell>
@@ -603,7 +604,7 @@ const Korpa = () => {
                         <span className="text-red-600">{formatCena(cena)} {partner?.valutaNovca}</span>
                       </>
                     ) : (
-                      <span className="text-red-600">{formatCena(originalnaCena)} {partner?.valutaNovca}</span>
+                      <span className="text-red-600">{formatCena(originalnaCena * (1 - rabatPartnera / 100))} {partner?.valutaNovca}</span>
                     )}
                   </p>
                 </div>
