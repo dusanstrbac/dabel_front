@@ -392,7 +392,7 @@ const Korpa = () => {
     }
 
     if (stanje < totalAmountWithPDV && !shown.nemaStanja) {
-      toast.error(t('raspolozivoStanje'));
+      toast.error(t('raspolozivoStanje') + raspolozivoStanje.toFixed(2) + " " + partner.valutaNovca);
       setShown(s => ({ ...s, nemaStanja: true }));
     }
 

@@ -427,7 +427,7 @@
     "greskaUcitavanje": "Greška pri učitavanju artikala:",
     "nemaKorisnika": "Nema korisnika iz tokena.",
     "neplaceneFakture": "Imate neplaćene fakture, pa Vam je naručivanje zabranjeno",
-    "raspolozivoStanje": "Naručivanje Vam nije dozvoljeno zbog nedovoljnog raspoloživog stanja.",
+    "raspolozivoStanje": "Naručivanje Vam nije dozvoljeno zbog nedovoljnog raspoloživog stanja. Raspoloživo: ",
     "greskaFetchPartnera": "Greška pri fečovanju partnera:",
     "greskaDobavljanjeDozvola": "Greška pri dobavljanju dozvola:",
     "pregledKorpe": "Pregled korpe",
