@@ -84,8 +84,8 @@ const BrzoNarucivanje = () => {
       }
 
       const headers = lines[0].split(";").map((h) => h.trim());
-      const sifraIndex = headers.findIndex((h) => h === "Sifra");
-      const kolicinaIndex = headers.findIndex((h) => h === "Kolicina");
+      const sifraIndex = headers.findIndex((h) => h.toUpperCase() ===  "SIFRA");
+      const kolicinaIndex = headers.findIndex((h) => h.toUpperCase() ===  "KOLICINA");
 
       if (sifraIndex === -1 || kolicinaIndex === -1) {
         alert("CSV mora imati kolone Sifra i Kolicina");
@@ -95,7 +95,7 @@ const BrzoNarucivanje = () => {
       const parsedRows = lines
         .slice(1)
         .map((line) => {
-          const cols = line.split(";");
+          const cols = line.split(/[,;]/);
           return {
             sifra: cols[sifraIndex]?.replace(/\D/g, "") || "",
             kolicina: cols[kolicinaIndex]?.replace(/\D/g, "") || "",
