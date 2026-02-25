@@ -178,16 +178,10 @@ const Korpa = () => {
             setRabatPartnera(fPartner.partnerRabat.rabat);
           }
           if (fPartner.finKarta?.pristigloNaNaplatu) {
-            setRaspolozivoStanje(parseFloat(fPartner.finKarta.raspolozivoStanje));
             setNerealizovanIznos(parseFloat(fPartner.finKarta.pristigloNaNaplatu)); 
-            // if (parseFloat(fPartner.finKarta.pristigloNaNaplatu) > 0) {
-            //   toast.error(t('neplaceneFakture'));
-            //   return;
-            // }
-            // if (parseFloat(fPartner.finKarta.raspolozivoStanje) < totalAmountWithPDV) {
-            //   toast.error(t('raspolozivoStanje'));
-            //   return;
-            // }
+          }
+          if(fPartner.finKarta?.raspolozivoStanje) {
+            setRaspolozivoStanje(parseFloat(fPartner.finKarta.raspolozivoStanje));
           }
       } catch (err) {
           console.error(t('greskaFetchPartnera'), err);
@@ -364,13 +358,22 @@ const Korpa = () => {
     sessionStorage.setItem("korpaPodaci", JSON.stringify(payload));
   }, [articleList, quantities, partner, totalAmount, totalAmountWithPDV, isClient, rabatPartnera]);
 
+  // const manjeOdRaspolozivogStanja = (raspolozivoStanje: number, totalAmountWithPDV: number) => {
+  //   if (raspolozivoStanje > totalAmountWithPDV) return false;
+  //   if (raspolozivoStanje < totalAmountWithPDV) return true;
+  // }
   const manjeOdRaspolozivogStanja = (raspolozivoStanje: number, totalAmountWithPDV: number) => {
-    if (raspolozivoStanje >= totalAmountWithPDV) return false;
-    if (raspolozivoStanje < totalAmountWithPDV) return true;
-  }
+    return raspolozivoStanje < totalAmountWithPDV;
+  };
 
-  const narucivanjeDisabled = nerealizovanIznos > 0 || articleList.length === 0 || !validnaKolicina; //|| manjeOdRaspolozivogStanja(raspolozivoStanje, totalAmountWithPDV); ;
-  
+  const dug = nerealizovanIznos > 0;
+  const praznaKorpa = articleList.length === 0;
+  const kolicinaNevalja = !validnaKolicina;
+  const nemaDovoljnoStanja = raspolozivoStanje < totalAmountWithPDV;
+
+  const narucivanjeDisabled = dug || praznaKorpa || kolicinaNevalja || nemaDovoljnoStanja;
+  //true = disabled
+  //false = enabled
   
   const razlogZabraneNarucivanja = narucivanjeDisabled
     ? "Imate neizmirene dugove."
@@ -415,7 +418,6 @@ const Korpa = () => {
   }, [validnaKolicina, t, shown.vecaKol]);
 
   if (!isClient) return null;
-
 
   return (
     <div className="flex flex-col p-2 md:p-5">

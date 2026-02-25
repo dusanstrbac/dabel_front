@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "./button";
 
-const NaruciButton = ({ disabled, reason }: { disabled?: boolean; reason?: string }) => {
+const NaruciButton = ({ disabled, reason }: { disabled: boolean; reason?: string }) => {
   const router = useRouter();
   const t = useTranslations();
 
