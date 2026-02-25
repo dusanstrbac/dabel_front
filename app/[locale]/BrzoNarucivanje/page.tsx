@@ -18,34 +18,7 @@ const BrzoNarucivanje = () => {
   const sifraRefs = useRef<Array<HTMLInputElement | null>>([]);
   const t = useTranslations("brzoPorucivanje");
 
-  // const handleBarcodeDetected = (text: string) => {
-  //   const sifra = text.replace(/\D/g, "");
-  //   if (!sifra) return;
-
-  //   setRows((prevRows) => {
-  //     const alreadyExists = prevRows.find((row) => row.sifra === sifra);
-  //     if (alreadyExists) {
-  //       return prevRows.map((row) =>
-  //         row.sifra === sifra
-  //           ? { ...row, kolicina: String(Number(row.kolicina) + 1) }
-  //           : row
-  //       );
-  //     } else {
-  //       const newRows = [...prevRows];
-  //       if (
-  //         newRows.length > 0 &&
-  //         newRows[newRows.length - 1].sifra === "" &&
-  //         newRows[newRows.length - 1].kolicina === ""
-  //       ) {
-  //         newRows[newRows.length - 1] = { sifra, kolicina: "1" };
-  //       } else {
-  //         newRows.push({ sifra, kolicina: "1" });
-  //       }
-  //       return [...newRows, { sifra: "", kolicina: "" }];
-  //     }
-  //   });
-  //   setScannerActive(false);
-  // };
+  
 
   const handleChange = (
     index: number,

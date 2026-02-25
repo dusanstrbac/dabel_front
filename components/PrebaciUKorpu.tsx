@@ -15,6 +15,7 @@ interface Artikal {
   idArtikla: string;
   barKod: string;
   kolicina: number;
+  pakovanje: number;
 }
 
 interface PrebaciUKorpuProps {
@@ -103,11 +104,12 @@ const PrebaciUKorpu = ({
         if (trazena <= 0) continue;
 
         const uKorpi = cart[a.idArtikla]?.kolicina || 0;
+        const pakovanje = a.pakovanje;
         const dostupno = a.kolicina;
         const ukupnoMoguce = Math.max(dostupno - uKorpi, 0);
 
-        // Ako je kolicina 0
-        if(dostupno === 0) {
+        // Ako je kolicina 0 (ONDA GA NEMA NA STANJU)
+        if(dostupno < pakovanje) {
           poruke.push(
             `Artikal id: ${a.idArtikla}, barkod: ${a.barKod} nije dostupan na stanju.`
           )
