@@ -131,11 +131,3 @@ Aplikacija će biti dostupna na: `http://localhost:3000`
 Ovaj projekat je zatvorenog koda (privatni repo), nije predviđen za javnu distribuciju bez dozvole autora.
 
 ---
-
-## 👤 Autor
-
-Dabel aplikaciju razvijaju članovi tima [@dusanstrbac](https://github.com/dusanstrbac) i saradnici.
-
----
-
-Za dodatne opise, uputstva za backend (ako postoji), deploy ili integracije, slobodno dopuni ili mi reci šta još da uvrstim.
