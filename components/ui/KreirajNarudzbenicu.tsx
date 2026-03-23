@@ -45,6 +45,7 @@ interface KreirajNarudzbenicuProps {
                 napomena: napomena,
                 dostava: dostava,
                 valuta: partner.valutaNovca,
+                // rabat: partner.rabat ?? 0,
                 stavkeDokumenata: artikli.map((value) => ({
                     idArtikla: value.idArtikla.toString() || "",
                     nazivArtikla: value.naziv || "",

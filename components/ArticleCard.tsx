@@ -46,7 +46,7 @@ const ArticleCard = ({naziv, idArtikla, artikalCene, kolicina, kolZaIzdavanje, d
   };
 
   const cenaBezRabata = artikalCene?.[0]?.cena ?? 0;
-  const cenaArtikla = cenaBezRabata.toFixed(2);
+  const cenaArtikla = Number(cenaBezRabata*(1 - rabat/100)).toFixed(2);
   const novaCenaBezRabata = artikalCene?.[0]?.akcija?.cena ?? null;
   // const AkCena = Number.isInteger(novaCenaBezRabata).toFixed(2);
   // const AkCena = novaCenaBezRabata.toFixed(2);

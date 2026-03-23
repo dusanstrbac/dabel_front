@@ -14,6 +14,7 @@ import { Input } from "./ui/input";
 import { DokumentInfo } from "@/types/dokument";
 import PoruciPonovo from "./PoruciPonovo";
 import {useTranslations} from 'next-intl';
+import { number } from "framer-motion";
 
 
 // Dinamički uvoz Lightbox-a
@@ -221,8 +222,8 @@ export default function Proizvod() {
 
   const cena =
     proizvod?.artikalCene && proizvod.artikalCene.length > 0
-      ? Number.isInteger(proizvod.artikalCene[0].cena) ? proizvod.artikalCene[0].cena
-                                                      :(proizvod.artikalCene[0].cena).toFixed(2)
+      ? Number.isInteger(proizvod.artikalCene[0].cena) ? Number(proizvod.artikalCene[0].cena)*(1 - rabat/100)
+                                                      :(Number(proizvod.artikalCene[0].cena)*(1 - rabat/100)).toFixed(2)
                                                       : 0;
 
   const akcijskaCena =

@@ -155,7 +155,11 @@ const DokumentPage = () => {
     
   }, [ukupno, dostava]);
 
+// const OGcena= docc?.stavkeDokumenata[0].originalnaCena;
+// const RAcena= docc?.stavkeDokumenata[0].cena;
+// const rabat = 100 - (RAcena/OGcena)*100 ?? 0;
 
+// const imaAkciju = docc?.stavkeDokumenata[0]?.
 
   return (
     <div className="mx-auto bg-white text-black p-10 print:p-0">
@@ -242,10 +246,10 @@ const DokumentPage = () => {
                   <td className="border-r border-black px-2 py-1">{stavka.kolicina}</td>
                   <td className="border-r border-black px-2 py-1">{stavka.koriscenaCena}</td> 
                   <td className="border-r border-black px-2 py-1">{stavka.rabat ?? 0}%</td>
-                  <td className="border-r border-black px-2 py-1">{(stavka.koriscenaCena * (1 - stavka.rabat/100) * stavka.kolicina).toFixed(2)}</td>
+                  <td className="border-r border-black px-2 py-1">{(stavka.koriscenaCena * (1 - stavka.rabat/100)).toFixed(2)}</td>
                   <td className="border-r border-black px-2 py-1">{partnerInfo?.stopaPoreza} %</td>
-                  <td className="border-r border-black px-2 py-1">{(stavka.koriscenaCena * (1 - stavka.rabat/100) * (1 + stavka.pdv/100) * stavka.kolicina).toFixed(2)}</td>
-                  <td className="px-2 py-1">{stavka.IznosSaPDV.toFixed(2)}</td>
+                  <td className="border-r border-black px-2 py-1">{(stavka.koriscenaCena * (1 - stavka.rabat/100) * (1 + stavka.pdv/100)).toFixed(2)}</td>
+                  <td className="px-2 py-1">{(stavka.IznosSaPDV * (1 - stavka.rabat/100)).toFixed(2)}</td>
                 </tr>
               );
             })}

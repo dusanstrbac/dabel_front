@@ -121,13 +121,13 @@ const ProfilPodaci = () => {
 
         <div className="flex flex-col lg:gap-3 text-left lg:text-right">
           <p className="text-gray-600">{getTodayDate()}</p>
-          <p className="font-semibold">{t('allowedDebt')}: <span className="font-extrabold">{userData.finKarta?.dozvoljenoZaduzenje ?? 'N/A'} {userData.valutaNovca}</span></p>
-          <p className="font-semibold">{t('currentDebt')}: <span className="font-extrabold">{userData.finKarta?.trenutnoZaduzenje ?? 'N/A'} {userData.valutaNovca}</span></p>
-          <p className="font-semibold">{t('unrealizedAmount')}: <span className="font-extrabold">{userData.finKarta?.pristigloNaNaplatu ?? 'N/A'} {userData.valutaNovca}</span></p>
+          <p className="font-semibold">{t('allowedDebt')}: <span className="font-extrabold">{Number((userData.finKarta?.dozvoljenoZaduzenje ?? 0)).toFixed(2)} {userData.valutaNovca}</span></p>
+          <p className="font-semibold">{t('currentDebt')}: <span className="font-extrabold">{Number((userData.finKarta?.trenutnoZaduzenje ?? 0)).toFixed(2)} {userData.valutaNovca}</span></p>
+          <p className="font-semibold">{t('unrealizedAmount')}: <span className="font-extrabold">{Number((userData.finKarta?.pristigloNaNaplatu ?? 0)).toFixed(2)} {userData.valutaNovca}</span></p>
           <p className="font-semibold">
             {t('availableBalance')}:{" "}
             <span className="font-extrabold">
-              {Number(finKarta?.pristigloNaNaplatu) !== 0 ? 0 : finKarta?.raspolozivoStanje ?? 'N/A'} {userData.valutaNovca}
+              {Number(finKarta?.pristigloNaNaplatu) !== 0 ? 0 : Number(finKarta?.raspolozivoStanje ?? 0).toFixed(2)} {userData.valutaNovca}
             </span>
           </p>
 
